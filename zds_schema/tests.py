@@ -31,3 +31,17 @@ def get_operation_url(operation, **kwargs):
                 return f"{base_path}{path}"
 
     raise ValueError(f"Operation {operation} not found")
+
+
+class TypeCheckMixin:
+
+    def assertResponseTypes(self, response_data: dict, types: tuple):
+        """
+        Do type checks on the response data.
+
+        :param types: tuple of (field_name, class)
+        :raises AssertionError: if the type mismatches
+        """
+        for field, type_ in types:
+            with self.subTest(field=field, type=type_):
+                self.assertIsInstance(response_data[field], type_)
