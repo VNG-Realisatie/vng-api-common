@@ -2,7 +2,6 @@ from django.apps import AppConfig
 
 from drf_yasg import openapi
 from drf_yasg.inspectors.field import basic_type_info
-from rest_framework_gis.fields import GeometryField
 
 
 class ZDSSchemaConfig(AppConfig):
@@ -13,6 +12,11 @@ class ZDSSchemaConfig(AppConfig):
 
 
 def register_geo_type():
-    basic_type_info.append(
-        (GeometryField, (openapi.TYPE_OBJECT, None))
-    )
+    try:
+        from rest_framework_gis.fields import GeometryField
+    except ImportError:
+        pass
+    else:
+        basic_type_info.append(
+            (GeometryField, (openapi.TYPE_OBJECT, None))
+        )
