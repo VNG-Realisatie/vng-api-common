@@ -1,0 +1,1 @@
+RSIN_LENGTH = 9
