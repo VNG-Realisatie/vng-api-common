@@ -4,6 +4,8 @@ from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
 from rest_framework import status
 
+from .search import is_search_view
+
 
 class AutoSchema(SwaggerAutoSchema):
 
@@ -14,10 +16,7 @@ class AutoSchema(SwaggerAutoSchema):
 
     @property
     def _is_search_view(self):
-        if not hasattr(self.view, 'action'):
-            return
-        action = getattr(self.view, self.view.action)
-        return getattr(action, 'is_search_action', False)
+        return is_search_view(self.view)
 
     def get_operation_id(self, operation_keys):
         """
