@@ -2,9 +2,13 @@ from collections import OrderedDict
 
 from drf_yasg import openapi
 from drf_yasg.inspectors import FieldInspector, NotHandled
+from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
 
 REF_NAME_GEOJSON_GEOMETRY = 'GeoJSONGeometry'
+
+HEADER_ACCEPT = 'Accept-Crs'
+HEADER_CONTENT = 'Content-Crs'
 
 
 def register_geojson(definitions):
@@ -49,6 +53,7 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON point geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.2'),
+        required=['coordinates'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
@@ -65,6 +70,7 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON multi-point geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.3'),
+        required=['coordinates'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
@@ -84,6 +90,7 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON line-string geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.4'),
+        required=['coordinates'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
@@ -104,6 +111,7 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON multi-line-string geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.5'),
+        required=['coordinates'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
@@ -126,6 +134,7 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON polygon geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.6'),
+        required=['coordinates'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
@@ -148,6 +157,7 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON multi-polygon geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.7'),
+        required=['coordinates'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
@@ -173,6 +183,7 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON multi-polygon geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.8'),
+        required=['geometries'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
@@ -216,3 +227,59 @@ class GeometryFieldInspector(FieldInspector):
             register_geojson(definitions)
 
         return openapi.SchemaRef(definitions, REF_NAME_GEOJSON_GEOMETRY)
+
+    def has_geo_fields(self, serializer) -> bool:
+        """
+        Check if any of the serializer fields are a GeometryField.
+
+        If the serializer has nested serializers, a depth-first search is done
+        to check if the nested serializers has `GeometryField`\ s.
+        """
+        for field in serializer.fields.values():
+            if isinstance(field, serializers.Serializer):
+                has_nested_geo_fields = self.probe_inspectors(
+                    self.field_inspectors, 'has_geo_fields',
+                    field, {'field_inspectors': self.field_inspectors}
+                )
+                if has_nested_geo_fields:
+                    return True
+
+            elif isinstance(field, (serializers.ListSerializer, serializers.ListField)):
+                field = field.child
+
+            if isinstance(field, GeometryField):
+                return True
+
+        return False
+
+    def get_request_header_parameters(self, serializer):
+        if not self.has_geo_fields(serializer):
+            return []
+
+        # see also http://lyzidiamond.com/posts/4326-vs-3857 for difference
+        # between coordinate system and projected coordinate system
+        return [openapi.Parameter(
+            name=HEADER_ACCEPT,
+            type=openapi.TYPE_STRING,
+            in_=openapi.IN_HEADER,
+            required=True,
+            description="Het 'Coordinate Reference System' (CRS) van de "
+                        "verzoekdata. Volgens de GeoJSON spec is WGS84 de default.",
+            enum=['EPSG:4326']
+        )]
+
+    def get_response_headers(self, serializer, status=None):
+        if not self.has_geo_fields(serializer):
+            return None
+
+        if int(status) != 200:
+            return None
+
+        return OrderedDict((
+            (HEADER_CONTENT, openapi.Schema(
+                type=openapi.TYPE_STRING,
+                enum=['EPSG:4326'],
+                description="Het 'Coordinate Reference System' (CRS) van de "
+                            "antwoorddata. Volgens de GeoJSON spec is WGS84 de default.",
+            )),
+        ))

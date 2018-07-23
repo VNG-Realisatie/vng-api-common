@@ -62,12 +62,47 @@ class AutoSchema(SwaggerAutoSchema):
         SearchSerializer = type(Base.__name__, (Base,), filters)
         return SearchSerializer()
 
-    def get_default_responses(self):
+    def _get_search_responses(self):
+        response_status = status.HTTP_200_OK
+        response_schema = self.serializer_to_schema(self.get_view_serializer())
+        schema = openapi.Schema(type=openapi.TYPE_ARRAY, items=response_schema)
+        if self.should_page():
+            schema = self.get_paginated_response(schema) or schema
+        return OrderedDict({str(response_status): schema})
+
+    def get_default_responses(self) -> OrderedDict:
         if self._is_search_view:
-            response_status = status.HTTP_200_OK
-            response_schema = self.serializer_to_schema(self.get_view_serializer())
-            schema = openapi.Schema(type=openapi.TYPE_ARRAY, items=response_schema)
-            if self.should_page():
-                schema = self.get_paginated_response(schema) or schema
-            return OrderedDict({str(response_status): schema})
-        return super().get_default_responses()
+            responses = self._get_search_responses()
+            serializer = self.get_view_serializer()
+        else:
+            responses = super().get_default_responses()
+            serializer = self.get_request_serializer() or self.get_view_serializer()
+
+        # inject any headers
+        _responses = OrderedDict()
+        for status_, schema in responses.items():
+            custom_headers = self.probe_inspectors(
+                self.field_inspectors, 'get_response_headers',
+                serializer, {'field_inspectors': self.field_inspectors},
+                status=status_
+            ) or None
+
+            assert isinstance(schema, openapi.Schema.OR_REF)
+            response = openapi.Response(
+                description='',
+                schema=schema,
+                headers=custom_headers
+            )
+            _responses[status_] = response
+        return _responses
+
+    def add_manual_parameters(self, parameters):
+        base = super().add_manual_parameters(parameters)
+        if not self._is_search_view:
+            return base
+
+        serializer = self.get_request_serializer()
+        return self.probe_inspectors(
+            self.field_inspectors, 'get_request_header_parameters',
+            serializer, {'field_inspectors': self.field_inspectors}
+        )
