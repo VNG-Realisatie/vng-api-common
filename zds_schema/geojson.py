@@ -3,12 +3,17 @@ from collections import OrderedDict
 from drf_yasg import openapi
 from drf_yasg.inspectors import FieldInspector, NotHandled
 from rest_framework import serializers
+from rest_framework.exceptions import NotAcceptable
 from rest_framework_gis.fields import GeometryField
+
+from .exceptions import PreconditionFailed
 
 REF_NAME_GEOJSON_GEOMETRY = 'GeoJSONGeometry'
 
 HEADER_ACCEPT = 'Accept-Crs'
 HEADER_CONTENT = 'Content-Crs'
+
+DEFAULT_CRS = 'EPSG:4326'
 
 
 def register_geojson(definitions):
@@ -265,7 +270,7 @@ class GeometryFieldInspector(FieldInspector):
             required=True,
             description="Het 'Coordinate Reference System' (CRS) van de "
                         "verzoekdata. Volgens de GeoJSON spec is WGS84 de default.",
-            enum=['EPSG:4326']
+            enum=[DEFAULT_CRS]
         )]
 
     def get_response_headers(self, serializer, status=None):
@@ -278,8 +283,37 @@ class GeometryFieldInspector(FieldInspector):
         return OrderedDict((
             (HEADER_CONTENT, openapi.Schema(
                 type=openapi.TYPE_STRING,
-                enum=['EPSG:4326'],
+                enum=[DEFAULT_CRS],
                 description="Het 'Coordinate Reference System' (CRS) van de "
                             "antwoorddata. Volgens de GeoJSON spec is WGS84 de default.",
             )),
         ))
+
+
+class GeoMixin:
+    """
+    GeoJSON viewset mixin.
+    """
+    @property
+    def default_response_headers(self):
+        headers = super().default_response_headers
+        headers['Content-Crs'] = DEFAULT_CRS
+        return headers
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+        self.perform_crs_negotation(request)
+
+    def perform_crs_negotation(self, request):
+        _header = HEADER_ACCEPT.replace('-', '_').upper()
+        header = f'HTTP_{_header}'
+        requested_crs = request.META.get(header)
+        if requested_crs is None:
+            raise PreconditionFailed(
+                detail=F"'{HEADER_ACCEPT}' header ontbreekt",
+            )
+
+        if requested_crs != DEFAULT_CRS:
+            raise NotAcceptable(
+                detail=f"CRS '{requested_crs}' is niet ondersteund",
+            )
