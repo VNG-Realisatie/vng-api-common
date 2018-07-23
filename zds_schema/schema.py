@@ -2,9 +2,16 @@ from collections import OrderedDict
 
 from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
-from rest_framework import status
+from rest_framework import serializers, status
 
 from .search import is_search_view
+
+TYPE_TO_FIELDMAPPING = {
+    openapi.TYPE_INTEGER: serializers.IntegerField,
+    openapi.TYPE_NUMBER: serializers.FloatField,
+    openapi.TYPE_STRING: serializers.CharField,
+    openapi.TYPE_BOOLEAN: serializers.BooleanField,
+}
 
 
 class AutoSchema(SwaggerAutoSchema):
@@ -32,9 +39,28 @@ class AutoSchema(SwaggerAutoSchema):
         return super().should_page()
 
     def get_request_serializer(self):
-        if self._is_search_view:
-            return self.view.get_search_input_serializer_class()()
-        return super().get_request_serializer()
+        if not self._is_search_view:
+            return super().get_request_serializer()
+
+        Base = self.view.get_search_input_serializer_class()
+
+        filter_fields = []
+        for filter_backend in self.view.filter_backends:
+            filter_fields += self.probe_inspectors(
+                self.filter_inspectors,
+                'get_filter_parameters', filter_backend()
+            ) or []
+
+        filters = {}
+        for filter_field in filter_fields:
+            FieldClass = TYPE_TO_FIELDMAPPING[filter_field.type]
+            filters[filter_field.name] = FieldClass(
+                help_text=filter_field.description,
+                required=filter_field.required
+            )
+
+        SearchSerializer = type(Base.__name__, (Base,), filters)
+        return SearchSerializer()
 
     def get_default_responses(self):
         if self._is_search_view:
