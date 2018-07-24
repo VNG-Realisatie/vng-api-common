@@ -4,6 +4,7 @@ from drf_yasg import openapi
 from drf_yasg.inspectors import FieldInspector, NotHandled
 from rest_framework import serializers
 from rest_framework.exceptions import NotAcceptable
+from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework_gis.fields import GeometryField
 
 from .exceptions import PreconditionFailed
@@ -307,6 +308,10 @@ class GeoMixin:
         self.perform_crs_negotation(request)
 
     def perform_crs_negotation(self, request):
+        # don't cripple the browsable API...
+        if isinstance(request.accepted_renderer, BrowsableAPIRenderer):
+            return
+
         _header = HEADER_ACCEPT.replace('-', '_').upper()
         header = f'HTTP_{_header}'
         requested_crs = request.META.get(header)
