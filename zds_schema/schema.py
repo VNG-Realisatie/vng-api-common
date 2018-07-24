@@ -98,11 +98,12 @@ class AutoSchema(SwaggerAutoSchema):
 
     def add_manual_parameters(self, parameters):
         base = super().add_manual_parameters(parameters)
-        if not self._is_search_view:
-            return base
-
-        serializer = self.get_request_serializer()
-        return self.probe_inspectors(
+        if self._is_search_view:
+            serializer = self.get_request_serializer()
+        else:
+            serializer = self.get_request_serializer() or self.get_view_serializer()
+        extra = self.probe_inspectors(
             self.field_inspectors, 'get_request_header_parameters',
             serializer, {'field_inspectors': self.field_inspectors}
-        )
+        ) or []
+        return base + extra
