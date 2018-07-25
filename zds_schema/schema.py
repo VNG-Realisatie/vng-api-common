@@ -90,10 +90,10 @@ class AutoSchema(SwaggerAutoSchema):
                 status=status_
             ) or None
 
-            assert isinstance(schema, openapi.Schema.OR_REF)
+            assert isinstance(schema, openapi.Schema.OR_REF) or schema == ''
             response = openapi.Response(
                 description='',
-                schema=schema,
+                schema=schema or None,
                 headers=custom_headers
             )
             _responses[status_] = response
