@@ -2,7 +2,7 @@ from django.core import checks
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from .constants import RSIN_LENGTH
+from .constants import BSN_LENGTH, RSIN_LENGTH
 from .validators import validate_rsin
 
 
@@ -26,6 +26,31 @@ class RSINField(models.CharField):
                     "RSINField may not override 'max_length' attribute.",
                     obj=self,
                     id='zds_schema.fields.E001',
+                )
+            ]
+        return []
+
+
+class BSNField(models.CharField):
+    default_validators = [validate_rsin]
+    description = _("BSN")
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('max_length', BSN_LENGTH)
+        super().__init__(*args, **kwargs)
+
+    def check(self, **kwargs):
+        errors = super().check(**kwargs)
+        errors.extend(self._check_fixed_max_length_attribute(**kwargs))
+        return errors
+
+    def _check_fixed_max_length_attribute(self, **kwargs):
+        if self.max_length != BSN_LENGTH:
+            return [
+                checks.Error(
+                    "BSNField may not override 'max_length' attribute.",
+                    obj=self,
+                    id='zds_schema.fields.E002',
                 )
             ]
         return []
