@@ -3,10 +3,12 @@ from django.db import models
 
 from drf_yasg import openapi
 from drf_yasg.inspectors.field import (
-    model_field_to_basic_type, serializer_field_to_basic_type,
-    basic_type_info
+    basic_type_info, model_field_to_basic_type, serializer_field_to_basic_type
 )
 from rest_framework import serializers
+
+from . import fields
+from .serializers import DayDurationField
 
 
 class ZDSSchemaConfig(AppConfig):
@@ -14,6 +16,7 @@ class ZDSSchemaConfig(AppConfig):
 
     def ready(self):
         patch_duration_type()
+        register_serializer_field()
 
 
 def patch_duration_type():
@@ -28,3 +31,8 @@ def patch_duration_type():
     _patch(basic_type_info, models.DurationField)
     _patch(serializer_field_to_basic_type, serializers.DurationField)
     _patch(basic_type_info, serializers.DurationField)
+
+
+def register_serializer_field():
+    mapping = serializers.ModelSerializer.serializer_field_mapping
+    mapping[fields.DaysDurationField] = DayDurationField
