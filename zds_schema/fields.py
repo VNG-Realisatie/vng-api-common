@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from iso639 import languages
 
-from .constants import BSN_LENGTH, RSIN_LENGTH
+from .constants import BSN_LENGTH, RSIN_LENGTH, VertrouwelijkheidsAanduiding
 from .validators import validate_rsin
 
 ISO_639_2B = languages.part2b
@@ -94,6 +94,29 @@ class LanguageField(models.CharField):
                     "LanguageField may not override 'choices' attribute.",
                     obj=self,
                     id='zds_schema.fields.E004',
+                )
+            ]
+        return []
+
+
+class VertrouwelijkheidsAanduidingField(models.CharField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('max_length', 20)
+        kwargs.setdefault('choices', VertrouwelijkheidsAanduiding.choices)
+        super().__init__(*args, **kwargs)
+
+    def check(self, **kwargs):
+        errors = super().check(**kwargs)
+        errors.extend(self._check_choices(**kwargs))
+        return errors
+
+    def _check_choices(self, **kwargs):
+        if self.choices != VertrouwelijkheidsAanduiding.choices:
+            return [
+                checks.Error(
+                    "VertrouwelijkheidsAanduidingField may not override 'choices' attribute.",
+                    obj=self,
+                    id='zds_schema.fields.E005',
                 )
             ]
         return []
