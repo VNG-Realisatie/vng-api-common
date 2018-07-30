@@ -23,7 +23,7 @@ def register_geojson(definitions):
         title="Geometry",
         description="GeoJSON geometry",
         discriminator='type',
-        required='type',
+        required=['type'],
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1'),
         properties=OrderedDict((
             ('type', openapi.Schema(
