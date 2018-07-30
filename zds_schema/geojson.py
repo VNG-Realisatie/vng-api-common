@@ -59,11 +59,11 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON point geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.2'),
-        required=['coordinates'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
                 type=openapi.TYPE_OBJECT,
+                required=['coordinates'],
                 properties=OrderedDict((
                     ('coordinates', openapi.SchemaRef(definitions, 'Point2D')),
                 ))
@@ -76,11 +76,11 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON multi-point geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.3'),
-        required=['coordinates'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
                 type=openapi.TYPE_OBJECT,
+                required=['coordinates'],
                 properties=OrderedDict((
                     ('coordinates', openapi.Schema(
                         type=openapi.TYPE_ARRAY,
@@ -96,11 +96,11 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON line-string geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.4'),
-        required=['coordinates'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
                 type=openapi.TYPE_OBJECT,
+                required=['coordinates'],
                 properties=OrderedDict((
                     ('coordinates', openapi.Schema(
                         type=openapi.TYPE_ARRAY,
@@ -117,11 +117,11 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON multi-line-string geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.5'),
-        required=['coordinates'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
                 type=openapi.TYPE_OBJECT,
+                required=['coordinates'],
                 properties=OrderedDict((
                     ('coordinates', openapi.Schema(
                         type=openapi.TYPE_ARRAY,
@@ -140,11 +140,11 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON polygon geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.6'),
-        required=['coordinates'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
                 type=openapi.TYPE_OBJECT,
+                required=['coordinates'],
                 properties=OrderedDict((
                     ('coordinates', openapi.Schema(
                         type=openapi.TYPE_ARRAY,
@@ -163,11 +163,11 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON multi-polygon geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.7'),
-        required=['coordinates'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
                 type=openapi.TYPE_OBJECT,
+                required=['coordinates'],
                 properties=OrderedDict((
                     ('coordinates', openapi.Schema(
                         type=openapi.TYPE_ARRAY,
@@ -189,11 +189,11 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         description="GeoJSON multi-polygon geometry",
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1.8'),
-        required=['geometries'],
         allOf=[
             openapi.SchemaRef(definitions, 'Geometry'),
             openapi.Schema(
                 type=openapi.TYPE_OBJECT,
+                required=['geometries'],
                 properties=OrderedDict((
                     ('geometries', openapi.Schema(
                         type=openapi.TYPE_ARRAY,
