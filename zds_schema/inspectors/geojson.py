@@ -3,18 +3,11 @@ from collections import OrderedDict
 from drf_yasg import openapi
 from drf_yasg.inspectors import FieldInspector, NotHandled
 from rest_framework import serializers
-from rest_framework.exceptions import NotAcceptable
-from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework_gis.fields import GeometryField
 
-from .exceptions import PreconditionFailed
+from ..geo import DEFAULT_CRS, HEADER_ACCEPT, HEADER_CONTENT
 
 REF_NAME_GEOJSON_GEOMETRY = 'GeoJSONGeometry'
-
-HEADER_ACCEPT = 'Accept-Crs'
-HEADER_CONTENT = 'Content-Crs'
-
-DEFAULT_CRS = 'EPSG:4326'
 
 
 def register_geojson(definitions):
@@ -291,36 +284,3 @@ class GeometryFieldInspector(FieldInspector):
                             "default (EPSG:4326 is hetzelfde als WGS84).",
             )),
         ))
-
-
-class GeoMixin:
-    """
-    GeoJSON viewset mixin.
-    """
-    @property
-    def default_response_headers(self):
-        headers = super().default_response_headers
-        headers['Content-Crs'] = DEFAULT_CRS
-        return headers
-
-    def initial(self, request, *args, **kwargs):
-        super().initial(request, *args, **kwargs)
-        self.perform_crs_negotation(request)
-
-    def perform_crs_negotation(self, request):
-        # don't cripple the browsable API...
-        if isinstance(request.accepted_renderer, BrowsableAPIRenderer):
-            return
-
-        _header = HEADER_ACCEPT.replace('-', '_').upper()
-        header = f'HTTP_{_header}'
-        requested_crs = request.META.get(header)
-        if requested_crs is None:
-            raise PreconditionFailed(
-                detail=F"'{HEADER_ACCEPT}' header ontbreekt",
-            )
-
-        if requested_crs != DEFAULT_CRS:
-            raise NotAcceptable(
-                detail=f"CRS '{requested_crs}' is niet ondersteund",
-            )

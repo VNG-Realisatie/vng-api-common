@@ -1,7 +1,7 @@
 from urllib.parse import urlparse
 
 from django.core.exceptions import ValidationError
-from django.db.models import ObjectDoesNotExist
+from django.db import models
 from django.forms.widgets import URLInput
 from django.utils.translation import ugettext_lazy as _
 
@@ -45,7 +45,7 @@ class URLModelChoiceField(fields.ModelChoiceField):
         if value:
             try:
                 value = self.url_to_pk(value)
-            except ObjectDoesNotExist:
+            except models.ObjectDoesNotExist:
                 raise ValidationError(_("Invalid resource URL supplied"), code='invalid')
         return super().to_python(value)
 
