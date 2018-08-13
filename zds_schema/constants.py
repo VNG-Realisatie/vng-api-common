@@ -16,13 +16,36 @@ class VertrouwelijkheidsAanduiding(DjangoChoices):
 
 
 class RolOmschrijving(DjangoChoices):
-    adviseur = ChoiceItem('Adviseur', 'Adviseur')
-    behandelaar = ChoiceItem('Behandelaar', 'Behandelaar')
-    belanghebbende = ChoiceItem('Belanghebbende', 'Belanghebbende')
-    beslisser = ChoiceItem('Beslisser', 'Beslisser')
-    initiator = ChoiceItem('Initiator', 'Initiator')
-    klantcontacter = ChoiceItem('Klantcontacter', 'Klantcontacter')
-    zaakcoordinator = ChoiceItem('Zaakcoördinator', 'Zaakcoördinator')
+    adviseur = ChoiceItem(
+        'Adviseur', 'Adviseur',
+        description='Kennis in dienst stellen van de behandeling van (een deel van) een zaak.'
+    )
+    behandelaar = ChoiceItem(
+        'Behandelaar', 'Behandelaar',
+        description='De vakinhoudelijke behandeling doen van (een deel van) een zaak.'
+    )
+    belanghebbende = ChoiceItem(
+        'Belanghebbende', 'Belanghebbende',
+        description='Vanuit eigen en objectief belang rechtstreeks betrokken '
+                    'zijn bij de behandeling en/of de uitkomst van een zaak.'
+    )
+    beslisser = ChoiceItem(
+        'Beslisser', 'Beslisser',
+        description='Nemen van besluiten die voor de uitkomst van een zaak noodzakelijk zijn.'
+    )
+    initiator = ChoiceItem(
+        'Initiator', 'Initiator',
+        description='Aanleiding geven tot de start van een zaak ..'
+    )
+    klantcontacter = ChoiceItem(
+        'Klantcontacter', 'Klantcontacter',
+        description='Het eerste aanspreekpunt zijn voor vragen van burgers en bedrijven ..'
+    )
+    zaakcoordinator = ChoiceItem(
+        'Zaakcoördinator', 'Zaakcoördinator',
+        description='Er voor zorg dragen dat de behandeling van de zaak in samenhang '
+                    'uitgevoerd wordt conform de daarover gemaakte afspraken.'
+    )
 
 
 class RolOmschrijvingGeneriek(RolOmschrijving):
