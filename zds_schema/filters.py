@@ -1,12 +1,16 @@
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.forms.widgets import URLInput
+from django.http import QueryDict
 from django.utils.translation import ugettext_lazy as _
 
 from django_filters import fields, filters
 from django_filters.rest_framework import DjangoFilterBackend
+from djangorestframework_camel_case.parser import CamelCaseJSONParser
+from djangorestframework_camel_case.render import CamelCaseJSONRenderer
+from djangorestframework_camel_case.util import underscoreize
 
 from .search import is_search_view
 from .utils import get_resource_for_path
@@ -14,17 +18,35 @@ from .utils import get_resource_for_path
 
 class Backend(DjangoFilterBackend):
 
+    # Taken from drf_yasg.inspectors.field.CamelCaseJSONFilter
+    def _is_camel_case(self, view):
+        return (
+            any(issubclass(parser, CamelCaseJSONParser) for parser in view.parser_classes) or
+            any(issubclass(renderer, CamelCaseJSONRenderer) for renderer in view.renderer_classes)
+        )
+
+    def _transform_query_params(self, view, query_params: QueryDict) -> QueryDict:
+        if not self._is_camel_case(view):
+            return query_params
+
+        data = dict(query_params.lists())
+        transformed = underscoreize(data)
+
+        return QueryDict(urlencode(transformed, doseq=True))
+
     def filter_queryset(self, request, queryset, view):
         """
-        Also filter on request.data if request.query_params is empty
-        """
-        if not is_search_view(view):
-            return super().filter_queryset(request, queryset, view)
+        Filter the queryset.
 
+        * filter on request.data if request.query_params is empty
+        * do the camelCase transformation of filter parameters
+        """
         filter_class = self.get_filter_class(view, queryset)
 
         if filter_class:
-            return filter_class(request.data, queryset=queryset, request=request).qs
+            filter_parameters = request.query_params if not is_search_view(view) else request.data
+            query_params = self._transform_query_params(view, filter_parameters)
+            return filter_class(query_params, queryset=queryset, request=request).qs
 
         return queryset
 

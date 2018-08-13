@@ -1,12 +1,17 @@
+import re
+
 from django.db import models
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
 
 from django_filters.filters import ChoiceFilter
+from djangorestframework_camel_case.util import underscoreToCamel
 from drf_yasg import openapi
 from drf_yasg.inspectors.query import CoreAPICompatInspector
 
 from ..filters import URLModelChoiceFilter
+
+RE_UNDERSCORE = re.compile(r"[a-z]_[a-z]")
 
 
 class FilterInspector(CoreAPICompatInspector):
@@ -38,3 +43,13 @@ class FilterInspector(CoreAPICompatInspector):
                     parameter.description = force_text(model_field.help_text)
 
         return fields
+
+    def process_result(self, result, method_name, obj, **kwargs):
+        """
+        Convert snake-case to camelCase.
+        """
+        if result and type(result) is list:
+            for parameter in result:
+                new_name = re.sub(RE_UNDERSCORE, underscoreToCamel, parameter.name)
+                parameter.name = new_name
+        return result
