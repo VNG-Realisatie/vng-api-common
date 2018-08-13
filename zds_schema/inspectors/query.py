@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
 
 from django_filters.filters import ChoiceFilter
@@ -34,6 +35,6 @@ class FilterInspector(CoreAPICompatInspector):
 
                 help_text = filter_field.extra.get('help_text', model_field.help_text)
                 if not parameter.description and help_text:
-                    parameter.description = model_field.help_text
+                    parameter.description = force_text(model_field.help_text)
 
         return fields
