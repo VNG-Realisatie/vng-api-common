@@ -29,7 +29,12 @@ class Backend(DjangoFilterBackend):
         if not self._is_camel_case(view):
             return query_params
 
-        data = dict(query_params.lists())
+        # data can be a regular dict if it's coming from a serializer
+        if hasattr(query_params, 'lists'):
+            data = dict(query_params.lists())
+        else:
+            data = query_params
+
         transformed = underscoreize(data)
 
         return QueryDict(urlencode(transformed, doseq=True))
