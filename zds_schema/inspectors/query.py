@@ -22,15 +22,18 @@ class FilterInspector(CoreAPICompatInspector):
 
             for parameter in fields:
                 filter_field = filter_class.base_filters[parameter.name]
+                model_field = queryset.model._meta.get_field(parameter.name)
 
                 if isinstance(filter_field, URLModelChoiceFilter):
                     parameter.description = _("URL to the related resource")
                     parameter.format = openapi.FORMAT_URI
                 elif isinstance(filter_field, ChoiceFilter):
                     parameter.enum = [choice[0] for choice in filter_field.extra['choices']]
-                else:
-                    model_field = queryset.model._meta.get_field(parameter.name)
-                    if isinstance(model_field, models.URLField):
-                        parameter.format = openapi.FORMAT_URI
+                elif isinstance(model_field, models.URLField):
+                    parameter.format = openapi.FORMAT_URI
+
+                help_text = filter_field.extra.get('help_text', model_field.help_text)
+                if not parameter.description and help_text:
+                    parameter.description = model_field.help_text
 
         return fields
