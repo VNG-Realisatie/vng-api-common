@@ -46,10 +46,10 @@ class RolOmschrijving(DjangoChoices):
         description='Er voor zorg dragen dat de behandeling van de zaak in samenhang '
                     'uitgevoerd wordt conform de daarover gemaakte afspraken.'
     )
-
-
-class RolOmschrijvingGeneriek(RolOmschrijving):
-    medeinitiator = ChoiceItem('Mede-initiator', 'Mede-initiator')
+    medeinitiator = ChoiceItem(
+        'Mede-initiator', 'Mede-initiator',
+        description=''
+    )
 
 
 class RolTypes(DjangoChoices):
