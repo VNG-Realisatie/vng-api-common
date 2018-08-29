@@ -2,6 +2,7 @@ import logging
 import uuid
 from collections import OrderedDict
 
+from rest_framework import exceptions
 from rest_framework.views import exception_handler as drf_exception_handler
 
 logger = logging.getLogger(__name__)
@@ -39,5 +40,15 @@ def exception_handler(exc, context):
         ('detail', data.get('detail', '')),
         ('instance', f"urn:uuid:{exc_id}"),
     ])
+
+    if isinstance(exc, exceptions.ValidationError):
+        response.data['invalid-params'] = [
+            OrderedDict([
+                ('name', field_name),
+                ('reason', '; '.join(message))
+            ])
+            # we lose the ErrorDetail instance here :/
+            for field_name, message in exc.detail.items()
+        ]
 
     return response

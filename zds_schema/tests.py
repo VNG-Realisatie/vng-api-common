@@ -45,3 +45,10 @@ class TypeCheckMixin:
         for field, type_ in types:
             with self.subTest(field=field, type=type_):
                 self.assertIsInstance(response_data[field], type_)
+
+
+def get_validation_errors(response, field):
+    assert response.status_code == 400
+    for error in response.data['invalid-params']:
+        if error['name'] == field:
+            return error['reason']
