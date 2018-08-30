@@ -21,7 +21,7 @@ class DayDurationField(fields.DurationField):
         return isodate.duration_isoformat(value)
 
 
-class ValidationErrorSerializer(serializers.Serializer):
+class FieldValidationErrorSerializer(serializers.Serializer):
     """
     Formaat van validatiefouten.
     """
@@ -34,7 +34,10 @@ class FoutSerializer(serializers.Serializer):
     """
     Formaat van HTTP 4xx en 5xx fouten.
     """
-    type = serializers.CharField(help_text="URI referentie naar het type fout, bedoeld voor developers")
+    type = serializers.CharField(
+        help_text="URI referentie naar het type fout, bedoeld voor developers",
+        required=False, allow_blank=True
+    )
     # not according to DSO, but possible for programmatic checking
     code = serializers.CharField(help_text="Systeemcode die het type fout aangeeft")
     title = serializers.CharField(help_text="Generieke titel voor het type fout")
@@ -51,4 +54,5 @@ class ValidatieFoutSerializer(FoutSerializer):
 
 
 # can't declare stuff with dashes and DSO prescribes dashed key...
-ValidatieFoutSerializer._declared_fields['invalid-params'] = ValidationErrorSerializer(source='invalid_params', many=True)  # noqa
+ValidatieFoutSerializer._declared_fields['invalid-params'] = \
+    FieldValidationErrorSerializer(source='invalid_params', many=True)

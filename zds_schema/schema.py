@@ -1,3 +1,4 @@
+import logging
 from collections import OrderedDict
 
 from drf_yasg import openapi
@@ -5,15 +6,54 @@ from drf_yasg.generators import (
     OpenAPISchemaGenerator as _OpenAPISchemaGenerator
 )
 from drf_yasg.inspectors import SwaggerAutoSchema
-from rest_framework import serializers, status
+from rest_framework import exceptions, serializers, status
 
 from .search import is_search_view
+from .serializers import FoutSerializer, ValidatieFoutSerializer
+
+logger = logging.getLogger(__name__)
 
 TYPE_TO_FIELDMAPPING = {
     openapi.TYPE_INTEGER: serializers.IntegerField,
     openapi.TYPE_NUMBER: serializers.FloatField,
     openapi.TYPE_STRING: serializers.CharField,
     openapi.TYPE_BOOLEAN: serializers.BooleanField,
+}
+
+
+COMMON_ERRORS = [
+    exceptions.AuthenticationFailed,
+    exceptions.NotAuthenticated,
+    exceptions.PermissionDenied,
+    exceptions.NotAcceptable,
+    exceptions.UnsupportedMediaType,
+    exceptions.Throttled,
+    exceptions.APIException,
+]
+
+
+DEFAULT_ACTION_ERRORS = {
+    'create': COMMON_ERRORS + [
+        exceptions.ParseError,
+        exceptions.ValidationError,
+    ],
+    'list': COMMON_ERRORS,
+    'retrieve': COMMON_ERRORS + [
+        exceptions.NotFound,
+    ],
+    'update': COMMON_ERRORS + [
+        exceptions.ParseError,
+        exceptions.ValidationError,
+        exceptions.NotFound,
+    ],
+    'partial_update': COMMON_ERRORS + [
+        exceptions.ParseError,
+        exceptions.ValidationError,
+        exceptions.NotFound,
+    ],
+    'destroy': COMMON_ERRORS + [
+        exceptions.NotFound,
+    ],
 }
 
 
@@ -73,6 +113,41 @@ class AutoSchema(SwaggerAutoSchema):
             schema = self.get_paginated_response(schema) or schema
         return OrderedDict({str(response_status): schema})
 
+    def _get_error_responses(self) -> OrderedDict:
+        """
+        Add the appropriate possible error responses to the schema.
+
+        E.g. - we know that HTTP 400 on a POST/PATCH/PUT leads to validation
+        errors, 403 to Permission Denied etc.
+        """
+        responses = {}
+
+        action = self.view.action
+        exception_klasses = DEFAULT_ACTION_ERRORS.get(action)
+        if exception_klasses is None:
+            logger.debug("Unknown action %s, no default error responses added")
+            return responses
+
+        serializer = FoutSerializer()
+        for exception_klass in exception_klasses:
+            status_code = exception_klass.status_code
+            responses[status_code] = self.serializer_to_schema(serializer)
+
+        has_validation_errors = any(
+            issubclass(klass, exceptions.ValidationError)
+            for klass in exception_klasses
+        )
+        if has_validation_errors:
+            schema = self.serializer_to_schema(ValidatieFoutSerializer())
+            responses[exceptions.ValidationError.status_code] = schema
+
+        # sort by status code
+        return OrderedDict([
+            (status_code, schema)
+            for status_code, schema
+            in sorted(responses.items())
+        ])
+
     def get_default_responses(self) -> OrderedDict:
         if self._is_search_view:
             responses = self._get_search_responses()
@@ -97,6 +172,10 @@ class AutoSchema(SwaggerAutoSchema):
                 headers=custom_headers
             )
             _responses[status_] = response
+
+        for status_code, response in self._get_error_responses().items():
+            _responses[status_code] = response
+
         return _responses
 
     def add_manual_parameters(self, parameters):
