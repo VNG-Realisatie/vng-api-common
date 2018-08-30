@@ -56,7 +56,7 @@ BASE_SWAGGER_SETTINGS = {
     #         'in': 'header'
     #     },
     # },
-    'DEFAULT_AUTO_SCHEMA_CLASS': 'zds_schema.schema.AutoSchema',
+    'DEFAULT_AUTO_SCHEMA_CLASS': 'zds_schema.inspectors.view.AutoSchema',
     'DEFAULT_INFO': 'must.be.overridden',
     'DEFAULT_FIELD_INSPECTORS': (
         'zds_schema.inspectors.geojson.GeometryFieldInspector',
