@@ -3,9 +3,10 @@ from collections import OrderedDict
 from django.http import Http404
 from django.views.generic import TemplateView
 
-from rest_framework import exceptions
+from rest_framework import exceptions as drf_exceptions
 from rest_framework.views import exception_handler as drf_exception_handler
 
+from . import exceptions
 from .exception_handling import HandledException
 
 
@@ -29,9 +30,12 @@ class ErrorDetailView(TemplateView):
 
     def _get_exception_klass(self):
         klass = self.kwargs['exception_class']
-        try:
-            return getattr(exceptions, klass)
-        except AttributeError:
+
+        for module in [exceptions, drf_exceptions]:
+            exc_klass = getattr(module, klass, None)
+            if exc_klass is not None:
+                return exc_klass
+        else:
             raise Http404("Unknown exception class '{}'".format(klass))
 
     def get_context_data(self, **kwargs):
