@@ -5,6 +5,8 @@ from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
 from rest_framework import exceptions, serializers, status
 
+from ..exceptions import PreconditionFailed
+from ..geo import GeoMixin
 from ..search import is_search_view
 from ..serializers import FoutSerializer, ValidatieFoutSerializer
 
@@ -124,10 +126,10 @@ class AutoSchema(SwaggerAutoSchema):
             logger.debug("Unknown action %s, no default error responses added")
             return responses
 
-        serializer = FoutSerializer()
+        fout_schema = self.serializer_to_schema(FoutSerializer())
         for exception_klass in exception_klasses:
             status_code = exception_klass.status_code
-            responses[status_code] = self.serializer_to_schema(serializer)
+            responses[status_code] = fout_schema
 
         has_validation_errors = any(
             issubclass(klass, exceptions.ValidationError)
@@ -136,6 +138,10 @@ class AutoSchema(SwaggerAutoSchema):
         if has_validation_errors:
             schema = self.serializer_to_schema(ValidatieFoutSerializer())
             responses[exceptions.ValidationError.status_code] = schema
+
+        if isinstance(self.view, GeoMixin):
+            status_code = PreconditionFailed.status_code
+            responses[status_code] = fout_schema
 
         # sort by status code
         return OrderedDict([
