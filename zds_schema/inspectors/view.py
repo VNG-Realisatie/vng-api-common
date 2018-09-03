@@ -5,7 +5,7 @@ from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
 from rest_framework import exceptions, serializers, status
 
-from ..exceptions import PreconditionFailed
+from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
 from ..search import is_search_view
 from ..serializers import FoutSerializer, ValidatieFoutSerializer
@@ -24,6 +24,8 @@ COMMON_ERRORS = [
     exceptions.NotAuthenticated,
     exceptions.PermissionDenied,
     exceptions.NotAcceptable,
+    Conflict,
+    Gone,
     exceptions.UnsupportedMediaType,
     exceptions.Throttled,
     exceptions.APIException,
