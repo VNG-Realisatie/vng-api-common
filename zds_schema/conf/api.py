@@ -76,3 +76,5 @@ BASE_SWAGGER_SETTINGS = {
         'zds_schema.inspectors.query.FilterInspector',
     )
 }
+
+LINK_FETCHER = 'requests.get'
