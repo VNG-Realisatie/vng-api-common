@@ -123,6 +123,10 @@ class AutoSchema(SwaggerAutoSchema):
         responses = {}
 
         action = self.view.action
+
+        if action not in DEFAULT_ACTION_ERRORS and self._is_search_view:  # similar to a CREATE
+            action = 'create'
+
         exception_klasses = DEFAULT_ACTION_ERRORS.get(action)
         if exception_klasses is None:
             logger.debug("Unknown action %s, no default error responses added")
