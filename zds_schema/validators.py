@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
@@ -99,5 +100,90 @@ class URLValidator:
         if response.status_code != 200:
             raise serializers.ValidationError(
                 self.message.format(status_code=response.status_code, url=value),
+                code=self.code
+            )
+
+
+@deconstructible
+class UntilNowValidator:
+    """
+    Validate a datetime to not be in the future.
+
+    This means that `now` is included.
+    """
+    message = _("Ensure this value is not in the future.")
+    code = 'future_not_allowed'
+
+    @property
+    def limit_value(self):
+        return timezone.now()
+
+    def __call__(self, value):
+        if value > self.limit_value:
+            raise ValidationError(self.message, code=self.code)
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, self.__class__) and
+            self.message == other.message and
+            self.code == other.code
+        )
+
+
+class UniekeIdentificatieValidator:
+    """
+    Valideer dat de identificatie binnen de organisatie uniek is.
+
+    Indien de identificatie niet expliciet opgegeven is, wordt ervan uitgegaan
+    dat de identificatie-generator uniciteit garandeert.
+
+    :param organisatie_field: naam van het veld dat de organisatie RSIN bevat
+    :param identificatie_field: naam van het veld dat de identificatie bevat
+    """
+    message = _('Deze identificatie bestaat al binnen de organisatie')
+    code = 'identificatie-niet-uniek'
+
+    def __init__(self, organisatie_field: str, identificatie_field='identificatie'):
+        self.organisatie_field = organisatie_field
+        self.identificatie_field = identificatie_field
+
+    def set_context(self, serializer):
+        """
+        This hook is called by the serializer instance,
+        prior to the validation call being made.
+        """
+        # Determine the existing instance, if this is an update operation.
+        self.instance = getattr(serializer, 'instance', None)
+        self.model = serializer.Meta.model
+
+    def __call__(self, attrs: dict):
+        identificatie = attrs.get(self.identificatie_field)
+        if not identificatie:
+            # identification is being generated, and the generation checks for
+            # uniqueness
+            return
+
+        organisatie = attrs.get(self.organisatie_field)
+        pk = self.instance.pk if self.instance else None
+
+        # if we're updating an instance, setting the current values will not
+        # trigger an error because the instance-to-be-updated is excluded from
+        # the queryset. If either bronorganisatie or identificatie changes,
+        # and it already exists, it will raise a validation error
+        combination_exists = (
+            self.model.objects
+            # in case of an update, exclude the current object. for a create, this
+            # will be None
+            .exclude(pk=pk)
+            .filter(**{
+                self.organisatie_field: organisatie,
+                self.identificatie_field: identificatie
+            })
+            .exists()
+        )
+
+        if combination_exists:
+            raise serializers.ValidationError(
+                {self.identificatie_field: self.message},
                 code=self.code
             )
