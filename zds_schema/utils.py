@@ -1,6 +1,12 @@
+import re
+
 from django.db import models
 from django.http import HttpRequest
 from django.urls import Resolver404, get_resolver
+
+from djangorestframework_camel_case.util import underscoreToCamel
+
+RE_UNDERSCORE = re.compile(r"[a-z]_[a-z]")
 
 
 def get_viewset_for_path(path: str) -> 'rest_framework.viewsets.ViewSet':
@@ -37,3 +43,10 @@ def get_resource_for_path(path: str) -> models.Model:
     filter_kwargs = {viewset.lookup_field: viewset.kwargs[lookup_url_kwarg]}
 
     return viewset.get_queryset().get(**filter_kwargs)
+
+
+def underscore_to_camel(input_: str) -> str:
+    """
+    Convert a string from under_score to camelCase.
+    """
+    return re.sub(RE_UNDERSCORE, underscoreToCamel, input_)

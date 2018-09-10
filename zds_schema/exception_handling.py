@@ -10,6 +10,7 @@ from django.urls import reverse
 from rest_framework import exceptions
 
 from .serializers import FoutSerializer, ValidatieFoutSerializer
+from .utils import underscore_to_camel
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ def get_validation_errors(validation_errors: dict):
             yield OrderedDict([
                 # see https://tools.ietf.org/html/rfc7807#section-3.1
                 # ('type', 'about:blank'),
-                ('name', field_name),
+                ('name', underscore_to_camel(field_name)),
                 ('code', error.code),
                 ('reason', str(error)),
             ])
