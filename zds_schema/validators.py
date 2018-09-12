@@ -89,14 +89,19 @@ def validate_rsin(value):
 class URLValidator:
     """
     Validate that the URL actually resolves to a HTTP 200
+
+    Any init parameters are passed down to the underlying link_fetcher
     """
     message = _('The URL {url} responded with HTTP {status_code}. Please provide a valid URL.')
     code = 'bad-url'
 
+    def __init__(self, **extra):
+        self.extra = extra
+
     def __call__(self, value: str):
         link_fetcher = import_string(settings.LINK_FETCHER)
 
-        response = link_fetcher(value)
+        response = link_fetcher(value, **self.extra)
         if response.status_code != 200:
             raise serializers.ValidationError(
                 self.message.format(status_code=response.status_code, url=value),
