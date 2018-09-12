@@ -3,9 +3,9 @@ class Response:
         self.status_code = status_code
 
 
-def link_fetcher_404(url: str):
+def link_fetcher_404(url: str, *args, **kwargs):
     return Response(status_code=404)
 
 
-def link_fetcher_200(url: str):
+def link_fetcher_200(url: str, *args, **kwargs):
     return Response(status_code=200)
