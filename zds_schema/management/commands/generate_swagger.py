@@ -102,7 +102,7 @@ class Command(generate_swagger.Command):
                     self.write_schema(schema, stream, format)
 
     def to_markdown_table(self, schema, stream):
-        template = 'zds_schema/api_schema_to_markdown_table.html'
+        template = 'zds_schema/api_schema_to_markdown_table.md'
         tables = []
 
         whitelist = [model._meta.object_name for model in apps.get_models()]
