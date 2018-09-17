@@ -1,3 +1,14 @@
+__all__ = [
+    'BASE_REST_FRAMEWORK',
+    'BASE_SWAGGER_SETTINGS',
+    'LINK_FETCHER',
+    'GEMMA_URL_TEMPLATE',
+    'GEMMA_URL_COMPONENTTYPE',
+    'GEMMA_URL_INFORMATIEMODEL',
+    'GEMMA_URL_INFORMATIEMODEL_VERSIE',
+]
+
+
 BASE_REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
@@ -78,3 +89,8 @@ BASE_SWAGGER_SETTINGS = {
 }
 
 LINK_FETCHER = 'requests.get'
+
+GEMMA_URL_TEMPLATE = "https://www.gemmaonline.nl/index.php/{informatiemodel}_{versie}/doc/{componenttype}/{component}"
+GEMMA_URL_COMPONENTTYPE = 'objecttype'
+GEMMA_URL_INFORMATIEMODEL = 'Rgbz'
+GEMMA_URL_INFORMATIEMODEL_VERSIE = '2.0'

@@ -19,3 +19,11 @@ src/manage.py generate_swagger \
 
 echo "Converting Swagger to OpenAPI 3.0..."
 npm run convert
+
+echo "Generating resources document"
+src/manage.py generate_swagger \
+    ./src/resources.md \
+    --overwrite \
+    --mock-request \
+    --url https://example.com/api/v1 \
+    --to-markdown-table
