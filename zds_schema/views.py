@@ -9,6 +9,8 @@ from rest_framework.views import exception_handler as drf_exception_handler
 from . import exceptions
 from .exception_handling import HandledException
 
+ERROR_CONTENT_TYPE = 'application/error+json'
+
 
 def exception_handler(exc, context):
     """
@@ -22,6 +24,8 @@ def exception_handler(exc, context):
 
     serializer = HandledException.as_serializer(exc, response, request)
     response.data = OrderedDict(serializer.data.items())
+    # custom content type
+    response['Content-Type'] = ERROR_CONTENT_TYPE
     return response
 
 
