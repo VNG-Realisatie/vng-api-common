@@ -1,3 +1,5 @@
+from django.utils.translation import ugettext_lazy as _
+
 from djchoices import ChoiceItem, DjangoChoices
 
 BSN_LENGTH = 9
@@ -58,3 +60,8 @@ class RolTypes(DjangoChoices):
     vestiging = ChoiceItem('Vestiging', "Vestiging")
     organisatorische_eenheid = ChoiceItem('Organisatorische eenheid', "Organisatorische eenheid")
     medewerker = ChoiceItem('Medewerker', "Medewerker")
+
+
+class ObjectTypes(DjangoChoices):
+    besluit = ChoiceItem('besluit', _("Besluit"))
+    zaak = ChoiceItem('zaak', _("Zaak"))
