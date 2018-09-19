@@ -22,11 +22,17 @@ Features
     * Numerieke waarde validator
     * Niet-negatieve waarde validator
     * Alfanumerieke waarde (zonder diacritics)
+    * URL-validator (test dat URL bestaat) met pluggable link-checker
+    * ``UntilNowValidator`` - valideer datetimes tot en met *nu*.
+    * Unieke-identificatievalidator (in combinatie met organisatie)
 * Custom inspectors voor drf-yasg:
     * Support voor ``rest_framework_gis`` ``GeometryField``
     * URL-based related resource filtering (``django-filter`` support)
-* Management command ``generate_swagger`` overloaded om default versie mee te
-  nemen en server-informatie domein-agnostisch te maken
+    * verzameling van mogelijke error-responses per operation
+* Management command ``generate_swagger`` overloaded
+    * neemt default versie mee en maakt server-informatie domein-agnostisch
+    * optie om informatiemodel-resources naar markdown te renderen met backlinks
+      naar gemmaonline.nl
 * Support voor ISO 8601 durations
 * Custom model fields:
     * ``RSINField``
@@ -50,13 +56,14 @@ Installeren
 
 .. code-block:: bash
 
-    pip install -e git+https://github.com/maykinmedia/gemma-zaken-common.git@master#egg=zds_schema
+    pip install zds_schema
 
 Gebruik
 =======
 
-Zie de referentie-implementaties voor `ZRC`_, `DRC`_ en `ZTC`_.
+Zie de referentie-implementaties voor `ZRC`_, `DRC`_, `BRC`_ en `ZTC`_.
 
 .. _ZRC: https://github.com/VNG-Realisatie/gemma-zaakregistratiecomponent
 .. _DRC: https://github.com/VNG-Realisatie/gemma-documentregistratiecomponent
 .. _ZTC: https://github.com/VNG-Realisatie/gemma-zaaktypecatalogus
+.. _BRC: https://github.com/VNG-Realisatie/gemma-besluitregistratiecomponent

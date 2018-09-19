@@ -9,7 +9,6 @@ from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
 from ..search import is_search_view
 from ..serializers import FoutSerializer, ValidatieFoutSerializer
-from ..views import ERROR_CONTENT_TYPE
 
 logger = logging.getLogger(__name__)
 

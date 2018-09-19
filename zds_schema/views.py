@@ -9,7 +9,7 @@ from rest_framework.views import exception_handler as drf_exception_handler
 from . import exceptions
 from .exception_handling import HandledException
 
-ERROR_CONTENT_TYPE = 'application/error+json'
+ERROR_CONTENT_TYPE = 'application/problem+json'
 
 
 def exception_handler(exc, context):
