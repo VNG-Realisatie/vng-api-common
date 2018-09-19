@@ -9,6 +9,19 @@ from djangorestframework_camel_case.util import underscoreToCamel
 RE_UNDERSCORE = re.compile(r"[a-z]_[a-z]")
 
 
+def lookup_kwargs_to_filters(lookup_kwargs: dict, kwargs: dict) -> dict:
+    """
+    Using the lookup_kwargs map and the view kwargs, construct the queryset
+    filter dict.
+    """
+    filters = {}
+    for kwarg, field_name in lookup_kwargs.items():
+        if kwarg not in kwargs:
+            continue
+        filters[field_name] = kwargs[kwarg]
+    return filters
+
+
 def get_viewset_for_path(path: str) -> 'rest_framework.viewsets.ViewSet':
     """
     Look up which viewset matches a path.

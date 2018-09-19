@@ -1,3 +1,6 @@
+from .utils import lookup_kwargs_to_filters
+
+
 class NestedViewSetMixin:
     def get_queryset(self):
         """
@@ -7,10 +10,6 @@ class NestedViewSetMixin:
         serializer_class = self.get_serializer_class()
 
         lookup_kwargs = getattr(serializer_class, 'parent_lookup_kwargs', {})
-        filters = {}
-        for kwarg, field_name in lookup_kwargs.items():
-            if kwarg not in self.kwargs:
-                continue
-            filters[field_name] = self.kwargs[kwarg]
+        filters = lookup_kwargs_to_filters(lookup_kwargs, self.kwargs)
 
         return queryset.filter(**filters)
