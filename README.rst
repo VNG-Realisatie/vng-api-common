@@ -25,6 +25,11 @@ Features
     * URL-validator (test dat URL bestaat) met pluggable link-checker
     * ``UntilNowValidator`` - valideer datetimes tot en met *nu*.
     * Unieke-identificatievalidator (in combinatie met organisatie)
+    * ``InformatieObjectUniqueValidator`` om te valideren dat M2M entries
+      slechts eenmalig voorkomen
+    * ``ObjectInformatieObjectValidator`` om te valideren dat de synchronisatie
+      van een object-informatieobject relatie pas kan nadat deze relatie in het
+      DRC gemaakt is
 * Custom inspectors voor drf-yasg:
     * Support voor ``rest_framework_gis`` ``GeometryField``
     * URL-based related resource filtering (``django-filter`` support)
@@ -40,6 +45,8 @@ Features
     * ``LanguageField``
     * ``VertrouwelijkheidsAanduidingField``
     * ``DaysDurationField``
+* Mocks voor de validators die netwerk IO hebben, eenvoudig via
+  ``@override_settings`` toe te passen
 
 
 Installatie

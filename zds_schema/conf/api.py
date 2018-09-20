@@ -2,6 +2,7 @@ __all__ = [
     'BASE_REST_FRAMEWORK',
     'BASE_SWAGGER_SETTINGS',
     'LINK_FETCHER',
+    'ZDS_CLIENT_CLASS',
     'GEMMA_URL_TEMPLATE',
     'GEMMA_URL_COMPONENTTYPE',
     'GEMMA_URL_INFORMATIEMODEL',
@@ -89,6 +90,8 @@ BASE_SWAGGER_SETTINGS = {
 }
 
 LINK_FETCHER = 'requests.get'
+
+ZDS_CLIENT_CLASS = 'zds_client.Client'
 
 GEMMA_URL_TEMPLATE = "https://www.gemmaonline.nl/index.php/{informatiemodel}_{versie}/doc/{componenttype}/{component}"
 GEMMA_URL_COMPONENTTYPE = 'objecttype'

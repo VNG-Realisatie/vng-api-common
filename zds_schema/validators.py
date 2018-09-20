@@ -6,7 +6,8 @@ from django.utils.deconstruct import deconstructible
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
-from rest_framework import serializers
+import requests
+from rest_framework import serializers, validators
 from unidecode import unidecode
 
 from .constants import RSIN_LENGTH
@@ -107,6 +108,63 @@ class URLValidator:
                 self.message.format(status_code=response.status_code, url=value),
                 code=self.code
             )
+
+
+class InformatieObjectUniqueValidator(validators.UniqueTogetherValidator):
+    def __init__(self, parent_field, field: str):
+        self.parent_field = parent_field
+        self.field = field
+        super().__init__(None, (parent_field, field))
+
+    def set_context(self, serializer_field):
+        serializer = serializer_field.parent
+        super().set_context(serializer)
+
+        self.queryset = serializer.Meta.model._default_manager.all()
+        self.parent_object = serializer.context['parent_object']
+
+    def __call__(self, informatieobject: str):
+        attrs = {
+            self.parent_field: self.parent_object,
+            self.field: informatieobject,
+        }
+        super().__call__(attrs)
+
+
+class ObjectInformatieObjectValidator:
+    """
+    Validate that the INFORMATIEOBJECT is linked already in the DRC.
+    """
+    message = _('Het informatieobject is in het DRC nog niet gerelateerd aan dit object.')
+    code = 'inconsistent-relation'
+
+    def set_context(self, serializer):
+        """
+        This hook is called by the serializer instance,
+        prior to the validation call being made.
+        """
+        self.parent_object = serializer.context['parent_object']
+        self.request = serializer.context['request']
+
+    def __call__(self, informatieobject: str):
+        object_url = self.parent_object.get_absolute_api_url(self.request)
+
+        # dynamic so that it can be mocked in tests easily
+        Client = import_string(settings.ZDS_CLIENT_CLASS)
+        client = Client.from_url(informatieobject, settings.BASE_DIR)
+        try:
+            oios = client.list('objectinformatieobject', query_params={
+                'informatieobject': informatieobject,
+                'object': object_url,
+            })
+        except requests.HTTPError as exc:
+            raise serializers.ValidationError(
+                exc.args[0],
+                code='relation-validation-error'
+            ) from exc
+
+        if len(oios) == 0:
+            raise serializers.ValidationError(self.message, code=self.code)
 
 
 @deconstructible
