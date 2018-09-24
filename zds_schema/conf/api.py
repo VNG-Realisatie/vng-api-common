@@ -89,6 +89,11 @@ BASE_SWAGGER_SETTINGS = {
     )
 }
 
+REDOC_SETTINGS = {
+    'EXPAND_RESPONSES': '200,201'
+}
+
+# See: https://github.com/Rebilly/ReDoc#redoc-options-object
 LINK_FETCHER = 'requests.get'
 
 ZDS_CLIENT_CLASS = 'zds_client.Client'
