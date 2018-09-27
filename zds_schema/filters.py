@@ -7,6 +7,7 @@ from django.http import QueryDict
 from django.utils.translation import ugettext_lazy as _
 
 from django_filters import fields, filters
+from django_filters.constants import EMPTY_VALUES
 from django_filters.rest_framework import DjangoFilterBackend
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
@@ -79,3 +80,23 @@ class URLModelChoiceField(fields.ModelChoiceField):
 
 class URLModelChoiceFilter(filters.ModelChoiceFilter):
     field_class = URLModelChoiceField
+
+
+class WildcardFilter(filters.CharFilter):
+    """
+    Filters the queryset based on a string and optionally allows wildcards in
+    the query parameter.
+    """
+    wildcard = '*'
+
+    def __init__(self, *args, **kwargs):
+        kwargs['lookup_expr'] = 'iregex'
+        super().__init__(*args, **kwargs)
+
+    def filter(self, qs, value):
+        if value in EMPTY_VALUES:
+            return qs
+
+        value = r'^{}$'.format(value.replace(self.wildcard, '.*'))
+
+        return super().filter(qs, value)
