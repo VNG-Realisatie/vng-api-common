@@ -24,7 +24,7 @@ class FilterInspector(CoreAPICompatInspector):
 
             for parameter in fields:
                 filter_field = filter_class.base_filters[parameter.name]
-                model_field = queryset.model._meta.get_field(parameter.name)
+                model_field = queryset.model._meta.get_field(parameter.name.split('__')[0])
 
                 if isinstance(filter_field, URLModelChoiceFilter):
                     parameter.description = _("URL to the related resource")
