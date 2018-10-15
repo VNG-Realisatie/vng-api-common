@@ -102,7 +102,16 @@ class URLValidator:
     def __call__(self, value: str):
         link_fetcher = import_string(settings.LINK_FETCHER)
 
-        response = link_fetcher(value, **self.extra)
+        try:
+            response = link_fetcher(value, **self.extra)
+        except Exception as exc:
+            raise serializers.ValidationError(
+                _('The URL {url} could not be fetched. Exception: {exc}').format(
+                    url=value, exc=exc
+                ),
+                code=self.code,
+            )
+
         if response.status_code != 200:
             raise serializers.ValidationError(
                 self.message.format(status_code=response.status_code, url=value),
