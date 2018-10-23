@@ -32,6 +32,7 @@ Features
       DRC gemaakt is
 * Custom inspectors voor drf-yasg:
     * Support voor ``rest_framework_gis`` ``GeometryField``
+    * SUpport voor ``django-extra-fields`` ``Base64FieldMixin``
     * URL-based related resource filtering (``django-filter`` support)
     * verzameling van mogelijke error-responses per operation
 * Management command ``generate_swagger`` overloaded
