@@ -16,4 +16,13 @@ python src\manage.py generate_swagger^
     --url https://example.com/api/v1
 
 echo Converting Swagger to OpenAPI 3.0...
-npm run convert
+call npm run convert
+call patch_content_types
+
+echo Generating resources document
+python src\manage.py generate_swagger^
+    ./src/resources.md^
+    --overwrite^
+    --mock-request^
+    --url https://example.com/api/v1^
+    --to-markdown-table

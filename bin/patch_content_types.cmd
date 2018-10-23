@@ -7,4 +7,4 @@ if "%VIRTUAL_ENV%"=="" (
     goto :eof
 )
 
-src/manage.py patch_error_contenttypes ./src/openapi.yaml
+python src\manage.py patch_error_contenttypes ./src/openapi.yaml
