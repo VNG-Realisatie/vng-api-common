@@ -259,3 +259,30 @@ class UniekeIdentificatieValidator:
                 {self.identificatie_field: self.message},
                 code=self.code
             )
+
+
+class IsImmutableValidator:
+    """
+    Valideer dat de waarde van het veld niet wijzigt bij een update actie.
+    """
+    message = _('Dit veld mag niet gewijzigd worden.')
+    code = 'wijzigen-niet-toegelaten'
+
+    def set_context(self, serializer_field):
+        """
+        This hook is called by the serializer instance,
+        prior to the validation call being made.
+        """
+        # Determine the existing instance, if this is an update operation.
+        self.serializer_field = serializer_field
+        self.instance = getattr(serializer_field.parent, 'instance', None)
+
+    def __call__(self, new_value):
+        # no instance -> it's not an update
+        if not self.instance:
+            return
+
+        current_value = getattr(self.instance, self.serializer_field.field_name)
+
+        if new_value != current_value:
+            raise serializers.ValidationError(self.message, code=self.code)
