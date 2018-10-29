@@ -202,6 +202,14 @@ class UntilNowValidator:
         )
 
 
+class UntilTodayValidator(UntilNowValidator):
+
+    @property
+    def limit_value(self):
+        limit_value = super().limit_value
+        return limit_value.date()
+
+
 class UniekeIdentificatieValidator:
     """
     Valideer dat de identificatie binnen de organisatie uniek is.
