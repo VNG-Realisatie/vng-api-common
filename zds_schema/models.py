@@ -1,3 +1,6 @@
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+
 from rest_framework.reverse import reverse
 
 
@@ -18,3 +21,11 @@ class APIMixin:
             kwargs=reverse_kwargs, request=request
         )
         return url
+
+
+class JWTSecret(models.Model):
+    identifier = models.CharField(_("identifier"), max_length=50, unique=True)
+    secret = models.CharField(_("secret"), max_length=255)
+
+    def __str__(self):
+        return self.identifier
