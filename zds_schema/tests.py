@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 
+import jwt
 import yaml
 
 DEFAULT_PATH_PARAMETERS = {
@@ -61,3 +62,26 @@ def get_validation_errors(response, field, index=0):
             return error
 
         i += 1
+
+
+def generate_jwt(scopes: list, secret: str=None) -> str:
+    if secret is None:
+        secret = settings.JWT_SECRET
+
+    payload = {
+        'scopes': scopes,
+    }
+    encoded = jwt.encode(payload, secret, algorithm='HS256')
+    return encoded
+
+
+class JWTScopesMixin:
+
+    scopes = None
+
+    def setUp(self):
+        super().setUp()
+
+        if self.scopes is not None:
+            token = generate_jwt(self.scopes)
+            self.client.credentials(HTTP_AUTHORIZATION=token)
