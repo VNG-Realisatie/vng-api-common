@@ -2,11 +2,12 @@
 # -> we can put the organization/service in the headers itself
 from typing import Union
 
-from django.conf import settings
 from django.utils.functional import cached_property
 
 import jwt
+from rest_framework.exceptions import PermissionDenied
 
+from .models import JWTSecret
 from .scopes import Scope
 
 EMPTY_PAYLOAD = {
@@ -16,19 +17,28 @@ EMPTY_PAYLOAD = {
 
 class JWTPayload:
 
-    def __init__(self, encoded_payload: str=None):
-        self.encoded_payload = encoded_payload
+    def __init__(self, encoded: str=None):
+        self.encoded = encoded
 
     @cached_property
     def payload(self) -> dict:
-        if self.encoded_payload is None:
+        if self.encoded is None:
             return EMPTY_PAYLOAD
 
-        # TODO - make dynamic
-        key = settings.JWT_SECRET
+        header = jwt.get_unverified_header(self.encoded)
+
+        try:
+            jwt_secret = JWTSecret.objects.get(identifier=header['client_identifier'])
+        except (JWTSecret.DoesNotExist, KeyError):
+            raise PermissionDenied(
+                'Client credentials zijn niet aanwezig',
+                code='missing-client-identifier'
+            )
+        else:
+            key = jwt_secret.secret
 
         # the jwt package does verification against tampering (TODO: unit test)
-        payload = jwt.decode(self.encoded_payload, key, algorithms='HS256')
+        payload = jwt.decode(self.encoded, key, algorithms='HS256')
 
         return payload
 

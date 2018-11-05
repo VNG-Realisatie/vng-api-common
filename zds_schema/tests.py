@@ -1,10 +1,13 @@
 import os
+import time
 from urllib.parse import urlparse
 
 from django.conf import settings
 
 import jwt
 import yaml
+
+from .models import JWTSecret
 
 DEFAULT_PATH_PARAMETERS = {
     'version': '1',
@@ -64,15 +67,17 @@ def get_validation_errors(response, field, index=0):
         i += 1
 
 
-def generate_jwt(scopes: list, secret: str=None) -> str:
-    if secret is None:
-        secret = settings.JWT_SECRET
-
+def generate_jwt(scopes: list, secret: str='letmein') -> str:
     scope_labels = sum((_get_scope_labels(scope) for scope in scopes), [])
     payload = {
         'scopes': scope_labels,
+        'iss': 'testsuite',
+        'iat': int(time.time()),
     }
-    encoded = jwt.encode(payload, secret, algorithm='HS256')
+    headers = {
+        'client_identifier': 'testsuite',
+    }
+    encoded = jwt.encode(payload, secret, headers=headers, algorithm='HS256')
     return encoded
 
 
@@ -90,9 +95,18 @@ class JWTScopesMixin:
 
     scopes = None
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        JWTSecret.objects.get_or_create(
+            identifier='testsuite',
+            defaults={'secret': 'letmein'}
+        )
+
     def setUp(self):
         super().setUp()
 
         if self.scopes is not None:
-            token = generate_jwt(self.scopes)
+            token = generate_jwt(self.scopes, secret='letmein')
             self.client.credentials(HTTP_AUTHORIZATION=token)
