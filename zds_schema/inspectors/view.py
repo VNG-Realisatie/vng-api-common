@@ -221,14 +221,19 @@ class AutoSchema(SwaggerAutoSchema):
                 self.path, self.method
             )
 
-        required_scopes = sum(
-            (perm.get_required_scopes(self.view) for perm in scope_permissions),
-            []
-        )
+        required_scopes = []
+        for perm in scope_permissions:
+            scopes = perm.get_required_scopes(self.view)
+            if scopes is None:
+                continue
+            required_scopes.append(scopes)
+
         if not required_scopes:
             return None  # use global security
 
+        scopes = [str(scope) for scope in sorted(required_scopes)]
+
         # operation level security
         return [{
-            settings.SECURITY_DEFINITION_NAME: sorted(required_scopes),
+            settings.SECURITY_DEFINITION_NAME: scopes,
         }]

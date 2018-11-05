@@ -68,11 +68,22 @@ def generate_jwt(scopes: list, secret: str=None) -> str:
     if secret is None:
         secret = settings.JWT_SECRET
 
+    scope_labels = sum((_get_scope_labels(scope) for scope in scopes), [])
     payload = {
-        'scopes': scopes,
+        'scopes': scope_labels,
     }
     encoded = jwt.encode(payload, secret, algorithm='HS256')
     return encoded
+
+
+def _get_scope_labels(scope) -> list:
+    if not scope.children:
+        return [scope.label]
+
+    labels = []
+    for child in scope.children:
+        labels += _get_scope_labels(child)
+    return sorted(set(labels))
 
 
 class JWTScopesMixin:

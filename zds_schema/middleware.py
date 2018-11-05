@@ -1,9 +1,13 @@
 # https://pyjwt.readthedocs.io/en/latest/usage.html#reading-headers-without-validation
 # -> we can put the organization/service in the headers itself
+from typing import Union
+
 from django.conf import settings
 from django.utils.functional import cached_property
 
 import jwt
+
+from .scopes import Scope
 
 EMPTY_PAYLOAD = {
     'scopes': [],
@@ -28,14 +32,18 @@ class JWTPayload:
 
         return payload
 
-    def has_scopes(self, scopes: list) -> bool:
+    def has_scopes(self, scopes: Union[Scope, None]) -> bool:
         """
         Check whether all of the expected scopes are present or not.
         """
+        if scopes is None:
+            # TODO: should block instead of allow it - we'll gradually introduce this
+            return True
+
         scopes_provided = self.payload['scopes']
         # simple form - needs a more complex setup if a scope 'bundles'
         # other scopes
-        return set(scopes).issubset(set(scopes_provided))
+        return scopes.is_contained_in(scopes_provided)
 
 
 class AuthMiddleware:
