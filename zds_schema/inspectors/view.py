@@ -1,12 +1,15 @@
 import logging
 from collections import OrderedDict
 
+from django.conf import settings
+
 from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
 from rest_framework import exceptions, serializers, status
 
 from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
+from ..permissions import ActionScopesRequired
 from ..search import is_search_view
 from ..serializers import FoutSerializer, ValidatieFoutSerializer
 
@@ -197,3 +200,35 @@ class AutoSchema(SwaggerAutoSchema):
             serializer, {'field_inspectors': self.field_inspectors}
         ) or []
         return base + extra
+
+    def get_security(self):
+        """Return a list of security requirements for this operation.
+
+        Returning an empty list marks the endpoint as unauthenticated (i.e. removes all accepted
+        authentication schemes). Returning ``None`` will inherit the top-level secuirty requirements.
+
+        :return: security requirements
+        :rtype: list[dict[str,list[str]]]"""
+        permissions = self.view.get_permissions()
+        scope_permissions = [perm for perm in permissions if isinstance(perm, ActionScopesRequired)]
+
+        if not scope_permissions:
+            return super().get_security()
+
+        if len(permissions) != len(scope_permissions):
+            logger.warning(
+                "Can't represent all permissions in OAS for path %s and method %s",
+                self.path, self.method
+            )
+
+        required_scopes = sum(
+            (perm.get_required_scopes(self.view) for perm in scope_permissions),
+            []
+        )
+        if not required_scopes:
+            return None  # use global security
+
+        # operation level security
+        return [{
+            settings.SECURITY_DEFINITION_NAME: sorted(required_scopes),
+        }]
