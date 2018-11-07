@@ -95,6 +95,7 @@ def _get_scope_labels(scope) -> list:
 class JWTScopesMixin:
 
     scopes = None
+    zaaktypes = None
 
     @classmethod
     def setUpTestData(cls):
@@ -109,5 +110,9 @@ class JWTScopesMixin:
         super().setUp()
 
         if self.scopes is not None:
-            token = generate_jwt(self.scopes, secret='letmein')
+            token = generate_jwt(
+                scopes=self.scopes,
+                zaaktypes=self.zaaktypes or [],
+                secret='letmein'
+            )
             self.client.credentials(HTTP_AUTHORIZATION=token)
