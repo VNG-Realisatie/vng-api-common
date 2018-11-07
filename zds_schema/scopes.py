@@ -4,6 +4,9 @@ OPERATOR_OR = 'OR'
 OPERATOR_AND = 'AND'
 
 
+SCOPE_REGISTRY = set()
+
+
 class Scope:
 
     def __init__(self, label: str, description: str=None):
@@ -13,6 +16,9 @@ class Scope:
         # combined scopes
         self.children = []
         self.operator = None
+
+        # add to registry
+        SCOPE_REGISTRY.add(self)
 
     def __repr__(self) -> str:
         if self.children:

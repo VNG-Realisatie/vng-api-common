@@ -8,6 +8,7 @@ from rest_framework.views import exception_handler as drf_exception_handler
 
 from . import exceptions
 from .exception_handling import HandledException
+from .scopes import SCOPE_REGISTRY
 
 ERROR_CONTENT_TYPE = 'application/problem+json'
 
@@ -51,4 +52,16 @@ class ErrorDetailView(TemplateView):
             'default_detail': exc_klass.default_detail,
             'default_code': exc_klass.default_code,
         })
+        return context
+
+
+class ScopesView(TemplateView):
+    template_name = 'zds_schema/scopes.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scopes'] = sorted(
+            (scope for scope in SCOPE_REGISTRY if not scope.children),
+            key=lambda s: s.label
+        )
         return context

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Scopes</title>
+    </head>
+    <body>
+        <h1>Scopes</h1>
+
+        {% for scope in scopes %}
+            <article>
+                <h1><code>{{ scope.label }}</code></h1>
+                <p>{{ scope.description|default:"" }}</p>
+            </article>
+        {% endfor %}
+
+    </body>
+</html>
