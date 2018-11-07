@@ -20,6 +20,15 @@ class JWTPayload:
     def __init__(self, encoded: str=None):
         self.encoded = encoded
 
+    def __repr__(self):
+        return "<%s: payload=%r>" % (self.__class__.__name__, self.payload)
+
+    def __getitem__(self, key):
+        return self.payload[key]
+
+    def get(self, attr, *args, **kwargs):
+        return self.payload.get(attr, *args, **kwargs)
+
     @cached_property
     def payload(self) -> dict:
         if self.encoded is None:
