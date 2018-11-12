@@ -12,6 +12,7 @@ from .scopes import Scope
 
 EMPTY_PAYLOAD = {
     'scopes': [],
+    'zaaktypes': [],
 }
 
 
@@ -49,7 +50,7 @@ class JWTPayload:
         # the jwt package does verification against tampering (TODO: unit test)
         payload = jwt.decode(self.encoded, key, algorithms='HS256')
 
-        return payload
+        return payload.get('zds', EMPTY_PAYLOAD)
 
     def has_scopes(self, scopes: Union[Scope, None]) -> bool:
         """

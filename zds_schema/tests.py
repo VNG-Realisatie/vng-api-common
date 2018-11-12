@@ -70,10 +70,14 @@ def get_validation_errors(response, field, index=0):
 def generate_jwt(scopes: list, secret: str='letmein', zaaktypes: list=None) -> str:
     scope_labels = sum((_get_scope_labels(scope) for scope in scopes), [])
     payload = {
-        'scopes': scope_labels,
-        'zaaktypes': zaaktypes or [],
+        # standard claims
         'iss': 'testsuite',
         'iat': int(time.time()),
+        # custom claims
+        'zds': {
+            'scopes': scope_labels,
+            'zaaktypes': zaaktypes or [],
+        },
     }
     headers = {
         'client_identifier': 'testsuite',
