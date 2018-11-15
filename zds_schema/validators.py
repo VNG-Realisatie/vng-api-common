@@ -102,8 +102,14 @@ class URLValidator:
     def __call__(self, value: str):
         link_fetcher = import_string(settings.LINK_FETCHER)
 
+        # evaluate the extra if they have callables
+        extra = {
+            key: value() if callable(value) else value
+            for key, value in self.extra.items()
+        }
+
         try:
-            response = link_fetcher(value, **self.extra)
+            response = link_fetcher(value, **extra)
         except Exception as exc:
             raise serializers.ValidationError(
                 _('The URL {url} could not be fetched. Exception: {exc}').format(

@@ -1,5 +1,6 @@
 # https://pyjwt.readthedocs.io/en/latest/usage.html#reading-headers-without-validation
 # -> we can put the organization/service in the headers itself
+import logging
 from typing import Union
 
 from django.utils.functional import cached_property
@@ -9,6 +10,8 @@ from rest_framework.exceptions import PermissionDenied
 
 from .models import JWTSecret
 from .scopes import Scope
+
+logger = logging.getLogger(__name__)
 
 EMPTY_PAYLOAD = {
     'scopes': [],
@@ -48,7 +51,14 @@ class JWTPayload:
             key = jwt_secret.secret
 
         # the jwt package does verification against tampering (TODO: unit test)
-        payload = jwt.decode(self.encoded, key, algorithms='HS256')
+        try:
+            payload = jwt.decode(self.encoded, key, algorithms='HS256')
+        except jwt.InvalidSignatureError as exc:
+            logger.exception("Invalid signature - possible payload tampering?")
+            raise PermissionDenied(
+                'Client credentials zijn niet geldig',
+                code='invalid-jwt-signature'
+            )
 
         return payload.get('zds', EMPTY_PAYLOAD)
 
