@@ -1,3 +1,5 @@
+from typing import Callable
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -91,22 +93,29 @@ class URLValidator:
     """
     Validate that the URL actually resolves to a HTTP 200
 
-    Any init parameters are passed down to the underlying link_fetcher
+    Any extra init kwargs are passed down to the underlying ``link_fetcher``
+
+    :param get_auth: a callable returning appropriate headers to authenticate
+      against the remote.
     """
     message = _('The URL {url} responded with HTTP {status_code}. Please provide a valid URL.')
     code = 'bad-url'
 
-    def __init__(self, **extra):
+    def __init__(self, get_auth: Callable=None, **extra):
+        self.get_auth = get_auth
         self.extra = extra
 
     def __call__(self, value: str):
         link_fetcher = import_string(settings.LINK_FETCHER)
 
-        # evaluate the extra if they have callables
-        extra = {
-            key: value() if callable(value) else value
-            for key, value in self.extra.items()
-        }
+        extra = self.extra.copy()
+
+        # Handle auth for the remote URL
+        if self.get_auth:
+            auth_headers = self.get_auth(value)
+            if 'headers' not in self.extra:
+                extra['headers'] = {}
+            extra['headers'].update(auth_headers)
 
         try:
             response = link_fetcher(value, **extra)
