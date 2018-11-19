@@ -1,6 +1,7 @@
 import datetime
 
 import isodate
+from djchoices import DjangoChoices
 from rest_framework import fields, serializers
 
 
@@ -56,3 +57,11 @@ class ValidatieFoutSerializer(FoutSerializer):
 # can't declare stuff with dashes and DSO prescribes dashed key...
 ValidatieFoutSerializer._declared_fields['invalid-params'] = \
     FieldValidationErrorSerializer(source='invalid_params', many=True)
+
+
+def add_choice_values_help_text(choices: DjangoChoices) -> str:
+    displays = "\n".join([
+        f"* `{value}` - {display}"
+        for value, display in choices.choices
+    ])
+    return f"De mapping van waarden naar weergave is als volgt:\n\n{displays}"
