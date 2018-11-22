@@ -83,7 +83,7 @@ class HandledException:
         )
         if self.request is not None:
             exc_detail_url = self.request.build_absolute_uri(exc_detail_url)
-        return f"URI: {exc_detail_url}"
+        return exc_detail_url
 
     @property
     def code(self) -> str:
