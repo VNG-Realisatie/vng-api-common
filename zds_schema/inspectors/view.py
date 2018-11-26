@@ -140,7 +140,7 @@ class AutoSchema(SwaggerAutoSchema):
             status_code = exception_klass.status_code
             responses[status_code] = fout_schema
 
-        has_validation_errors = any(
+        has_validation_errors = self.get_filter_parameters() or any(
             issubclass(klass, exceptions.ValidationError)
             for klass in exception_klasses
         )
