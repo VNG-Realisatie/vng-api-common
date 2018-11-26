@@ -84,9 +84,7 @@ class URLModelChoiceFilter(filters.ModelChoiceFilter):
 
 class RSINFilter(filters.CharFilter):
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('validators', [])
-        if validate_rsin not in kwargs['validators']:
-            kwargs['validators'].append(validate_rsin)
+        kwargs.setdefault('validators', [validate_rsin])
         super().__init__(*args, **kwargs)
 
 

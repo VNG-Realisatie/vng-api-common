@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+from django.core.validators import URLValidator
 from django.db import models
 
 from django_filters.rest_framework import filterset
@@ -12,6 +13,7 @@ FILTER_FOR_DBFIELD_DEFAULTS[models.ForeignKey]['filter_class'] = URLModelChoiceF
 
 # register custom field(s)
 FILTER_FOR_DBFIELD_DEFAULTS[RSINField] = {'filter_class': RSINFilter}
+FILTER_FOR_DBFIELD_DEFAULTS[models.URLField]['extra'] = lambda f: {'validators': [URLValidator()]}
 
 
 class FilterSet(filterset.FilterSet):
