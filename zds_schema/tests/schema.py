@@ -1,13 +1,9 @@
 import os
-import time
 from urllib.parse import urlparse
 
 from django.conf import settings
 
-import jwt
 import yaml
-
-from .models import JWTSecret
 
 DEFAULT_PATH_PARAMETERS = {
     'version': '1',
@@ -65,58 +61,3 @@ def get_validation_errors(response, field, index=0):
             return error
 
         i += 1
-
-
-def generate_jwt(scopes: list, secret: str='letmein', zaaktypes: list=None) -> str:
-    scope_labels = sum((_get_scope_labels(scope) for scope in scopes), [])
-    payload = {
-        # standard claims
-        'iss': 'testsuite',
-        'iat': int(time.time()),
-        # custom claims
-        'zds': {
-            'scopes': scope_labels,
-            'zaaktypes': zaaktypes or [],
-        },
-    }
-    headers = {
-        'client_identifier': 'testsuite',
-    }
-    encoded = jwt.encode(payload, secret, headers=headers, algorithm='HS256')
-    return encoded
-
-
-def _get_scope_labels(scope) -> list:
-    if not scope.children:
-        return [scope.label]
-
-    labels = []
-    for child in scope.children:
-        labels += _get_scope_labels(child)
-    return sorted(set(labels))
-
-
-class JWTScopesMixin:
-
-    scopes = None
-    zaaktypes = None
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        JWTSecret.objects.get_or_create(
-            identifier='testsuite',
-            defaults={'secret': 'letmein'}
-        )
-
-    def setUp(self):
-        super().setUp()
-
-        if self.scopes is not None:
-            token = generate_jwt(
-                scopes=self.scopes,
-                zaaktypes=self.zaaktypes or [],
-                secret='letmein'
-            )
-            self.client.credentials(HTTP_AUTHORIZATION=token)
