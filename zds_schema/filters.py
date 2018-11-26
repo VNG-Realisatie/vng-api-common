@@ -12,6 +12,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 from djangorestframework_camel_case.util import underscoreize
+from rest_framework.request import Request
+from rest_framework.views import APIView
 
 from .search import is_search_view
 from .utils import get_resource_for_path
@@ -40,25 +42,18 @@ class Backend(DjangoFilterBackend):
 
         return QueryDict(urlencode(transformed, doseq=True))
 
-    def filter_queryset(self, request, queryset, view):
+    def get_filterset_kwargs(self, request: Request, queryset: models.QuerySet, view: APIView):
         """
-        Filter the queryset.
+        Get the initialization parameters for the filterset.
 
         * filter on request.data if request.query_params is empty
         * do the camelCase transformation of filter parameters
         """
-        # django filter 1.x -> 2.x
-        if hasattr(self, 'get_filterset_class'):
-            filter_class = self.get_filterset_class(view, queryset)
-        else:
-            filter_class = self.get_filter_class(view, queryset)
-
-        if filter_class:
-            filter_parameters = request.query_params if not is_search_view(view) else request.data
-            query_params = self._transform_query_params(view, filter_parameters)
-            return filter_class(query_params, queryset=queryset, request=request).qs
-
-        return queryset
+        kwargs = super().get_filterset_kwargs(request, queryset, view)
+        filter_parameters = request.query_params if not is_search_view(view) else request.data
+        query_params = self._transform_query_params(view, filter_parameters)
+        kwargs['data'] = query_params
+        return kwargs
 
 
 class URLModelChoiceField(fields.ModelChoiceField):
