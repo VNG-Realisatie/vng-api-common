@@ -17,6 +17,7 @@ from rest_framework.views import APIView
 
 from .search import is_search_view
 from .utils import get_resource_for_path
+from .validators import validate_rsin
 
 
 class Backend(DjangoFilterBackend):
@@ -79,6 +80,14 @@ class URLModelChoiceField(fields.ModelChoiceField):
 
 class URLModelChoiceFilter(filters.ModelChoiceFilter):
     field_class = URLModelChoiceField
+
+
+class RSINFilter(filters.CharFilter):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('validators', [])
+        if validate_rsin not in kwargs['validators']:
+            kwargs['validators'].append(validate_rsin)
+        super().__init__(*args, **kwargs)
 
 
 class WildcardFilter(filters.CharFilter):
