@@ -4,6 +4,7 @@ import logging
 from typing import Union
 
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext as _
 
 import jwt
 from rest_framework.exceptions import PermissionDenied
@@ -38,7 +39,14 @@ class JWTPayload:
         if self.encoded is None:
             return EMPTY_PAYLOAD
 
-        header = jwt.get_unverified_header(self.encoded)
+        try:
+            header = jwt.get_unverified_header(self.encoded)
+        except jwt.DecodeError:
+            logger.info("Invalid JWT encountered")
+            raise PermissionDenied(
+                _('JWT could not be decoded. Possibly you made a copy-paste mistake.'),
+                code='jwt-decode-error'
+            )
 
         try:
             jwt_secret = JWTSecret.objects.get(identifier=header['client_identifier'])
