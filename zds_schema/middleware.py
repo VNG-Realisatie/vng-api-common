@@ -87,6 +87,7 @@ class JWTPayload:
 class AuthMiddleware:
 
     header = 'HTTP_AUTHORIZATION'
+    auth_type = 'Bearer'
 
     def __init__(self, get_response=None):
         self.get_response = get_response
@@ -96,5 +97,12 @@ class AuthMiddleware:
         return self.get_response(request) if self.get_response else None
 
     def extract_jwt_payload(self, request):
-        encoded = request.META.get(self.header)
+        authorization = request.META.get(self.header, '')
+        prefix = f"{self.auth_type} "
+        if authorization.startswith(prefix):
+            # grab the actual token
+            encoded = authorization[len(prefix):]
+        else:
+            encoded = None
+
         request.jwt_payload = JWTPayload(encoded)

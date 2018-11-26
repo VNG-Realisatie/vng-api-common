@@ -23,7 +23,8 @@ def generate_jwt(scopes: list, secret: str='letmein', zaaktypes: list=None) -> s
         'client_identifier': 'testsuite',
     }
     encoded = jwt.encode(payload, secret, headers=headers, algorithm='HS256')
-    return encoded
+    encoded = encoded.decode('ascii')
+    return f"Bearer {encoded}"
 
 
 def _get_scope_labels(scope) -> list:
