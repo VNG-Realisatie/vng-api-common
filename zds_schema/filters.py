@@ -47,7 +47,11 @@ class Backend(DjangoFilterBackend):
         * filter on request.data if request.query_params is empty
         * do the camelCase transformation of filter parameters
         """
-        filter_class = self.get_filter_class(view, queryset)
+        # django filter 1.x -> 2.x
+        if hasattr(self, 'get_filterset_class'):
+            filter_class = self.get_filterset_class(view, queryset)
+        else:
+            filter_class = self.get_filter_class(view, queryset)
 
         if filter_class:
             filter_parameters = request.query_params if not is_search_view(view) else request.data
