@@ -30,6 +30,9 @@ def _translate_exceptions(exc):
 
 def get_validation_errors(validation_errors: dict):
     for field_name, error_list in validation_errors.items():
+        if isinstance(error_list, exceptions.ErrorDetail):
+            error_list = [error_list]
+
         for error in error_list:
             yield OrderedDict([
                 # see https://tools.ietf.org/html/rfc7807#section-3.1
