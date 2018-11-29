@@ -189,6 +189,23 @@ class AutoSchema(SwaggerAutoSchema):
 
         return _responses
 
+    def get_response_schemas(self, response_serializers):
+        responses = super().get_response_schemas(response_serializers)
+        # add the Location header to the API spec
+        if '201' in responses:
+            location_header = OrderedDict((
+                ('schema', OrderedDict((
+                    ('type', openapi.TYPE_STRING),
+                    ('format', openapi.FORMAT_URI),
+                ))),
+                ('description', 'URL waar de resource leeft.'),
+            ))
+
+            responses['201'].setdefault('headers', OrderedDict())
+            responses['201']['headers']['Location'] = location_header
+
+        return responses
+
     def add_manual_parameters(self, parameters):
         base = super().add_manual_parameters(parameters)
         if self._is_search_view:
