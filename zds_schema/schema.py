@@ -102,7 +102,12 @@ class SchemaView(DefaultSchemaView):
             split_url = urlsplit(server['url'])
             if split_url.netloc:
                 continue
-            server['url'] = request.build_absolute_uri(server['url'])
+
+            prefix = settings.FORCE_SCRIPT_NAME or ''
+            if prefix.endswith('/'):
+                prefix = prefix[:-1]
+            server_path = f"{prefix}{server['url']}"
+            server['url'] = request.build_absolute_uri(server_path)
 
         return Response(
             data=schema,
