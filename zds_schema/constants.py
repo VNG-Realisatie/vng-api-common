@@ -5,6 +5,8 @@ from djchoices import ChoiceItem, DjangoChoices
 BSN_LENGTH = 9
 RSIN_LENGTH = 9
 
+VERSION_HEADER = 'API-version'
+
 
 class VertrouwelijkheidsAanduiding(DjangoChoices):
     openbaar = ChoiceItem('openbaar', 'OPENBAAR')

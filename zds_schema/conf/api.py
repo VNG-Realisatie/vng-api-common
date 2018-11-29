@@ -1,4 +1,5 @@
 __all__ = [
+    'API_VERSION',
     'BASE_REST_FRAMEWORK',
     'BASE_SWAGGER_SETTINGS',
     'LINK_FETCHER',
@@ -9,6 +10,7 @@ __all__ = [
     'GEMMA_URL_INFORMATIEMODEL_VERSIE',
 ]
 
+API_VERSION = '1.0.0-alpha'  # semantic version
 
 BASE_REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
@@ -42,7 +44,7 @@ BASE_REST_FRAMEWORK = {
     # 'ORDERING_PARAM': 'sorteer',  # 'ordering',
     #
     # Versioning
-    'DEFAULT_VERSION': '1',
+    'DEFAULT_VERSION': '1',  # NOT to be confused with API_VERSION - it's the major version part
     'ALLOWED_VERSIONS': ('1', ),
     'VERSION_PARAM': 'version',
     #

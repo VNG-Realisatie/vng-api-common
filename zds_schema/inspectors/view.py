@@ -7,6 +7,7 @@ from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
 from rest_framework import exceptions, serializers, status
 
+from ..constants import VERSION_HEADER
 from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
 from ..permissions import ActionScopesRequired
@@ -58,6 +59,30 @@ DEFAULT_ACTION_ERRORS = {
         exceptions.NotFound,
     ],
 }
+
+
+def response_header(description: str, type: str, format: str=None) -> OrderedDict:
+    header = OrderedDict((
+        ('schema', OrderedDict((
+            ('type', type),
+        ))),
+        ('description', description),
+    ))
+    if format is not None:
+        header['schema']['format'] = format
+    return header
+
+
+version_header = response_header(
+    "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1.",
+    type=openapi.TYPE_STRING
+)
+
+location_header = response_header(
+    "URL waar de resource leeft.",
+    type=openapi.TYPE_STRING,
+    format=openapi.FORMAT_URI
+)
 
 
 class AutoSchema(SwaggerAutoSchema):
@@ -191,18 +216,14 @@ class AutoSchema(SwaggerAutoSchema):
 
     def get_response_schemas(self, response_serializers):
         responses = super().get_response_schemas(response_serializers)
-        # add the Location header to the API spec
-        if '201' in responses:
-            location_header = OrderedDict((
-                ('schema', OrderedDict((
-                    ('type', openapi.TYPE_STRING),
-                    ('format', openapi.FORMAT_URI),
-                ))),
-                ('description', 'URL waar de resource leeft.'),
-            ))
 
-            responses['201'].setdefault('headers', OrderedDict())
-            responses['201']['headers']['Location'] = location_header
+        # add the Api-Version headers
+        for status_code, response in responses.items():
+            response.setdefault('headers', OrderedDict())
+            response['headers'][VERSION_HEADER] = version_header
+
+            if status_code == '201':
+                response['headers']['Location'] = location_header
 
         return responses
 

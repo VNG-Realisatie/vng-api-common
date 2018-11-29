@@ -5,6 +5,7 @@ from django.apps import apps
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import render_to_string
+from django.urls import reverse
 
 from drf_yasg import openapi
 from drf_yasg.app_settings import swagger_settings
@@ -12,6 +13,7 @@ from drf_yasg.management.commands import generate_swagger
 from rest_framework.settings import api_settings
 
 from ...schema import OpenAPISchemaGenerator
+from ...version import get_major_version
 
 
 class Table:
@@ -70,7 +72,12 @@ class Command(generate_swagger.Command):
                 format = 'yaml'
         format = format or 'json'
 
-        api_url = api_url or swagger_settings.DEFAULT_API_URL
+        api_root = reverse('api-root', kwargs={'version': get_major_version()})
+        api_url = (
+            api_url
+            or swagger_settings.DEFAULT_API_URL  # noqa
+            or f"http://example.com{api_root}"  # noqa
+        )
 
         user = User.objects.get(username=user) if user else None
         mock = mock or private or (user is not None)
