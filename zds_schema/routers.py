@@ -1,4 +1,9 @@
+from rest_framework.routers import APIRootView as _APIRootView
 from rest_framework_nested import routers
+
+
+class APIRootView(_APIRootView):
+    permission_classes = ()
 
 
 class ZDSNestedRegisteringMixin:
@@ -39,7 +44,7 @@ class NestedSimpleRouter(ZDSNestedRegisteringMixin, routers.NestedSimpleRouter):
 
 
 class DefaultRouter(ZDSNestedRegisteringMixin, routers.DefaultRouter):
-    pass
+    APIRootView = APIRootView
 
 
 class nested:
