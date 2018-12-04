@@ -175,7 +175,7 @@ class ObjectInformatieObjectValidator:
 
         # dynamic so that it can be mocked in tests easily
         Client = import_string(settings.ZDS_CLIENT_CLASS)
-        client = Client.from_url(informatieobject, settings.BASE_DIR)
+        client = Client.from_url(informatieobject)
         try:
             oios = client.list('objectinformatieobject', query_params={
                 'informatieobject': informatieobject,
