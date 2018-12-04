@@ -21,7 +21,7 @@ class MockClient:
     data = {}
 
     @classmethod
-    def from_url(cls, detail_url: str, base_dir: str):
+    def from_url(cls, detail_url: str):
         clients = {
             'ztc': ZTCMockClient,
             'drc': DRCMockClient,
