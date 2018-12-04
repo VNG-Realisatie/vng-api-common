@@ -1,5 +1,6 @@
 from urllib.parse import urlencode, urlparse
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.forms.widgets import URLInput
@@ -62,7 +63,10 @@ class URLModelChoiceField(fields.ModelChoiceField):
 
     def url_to_pk(self, url: str):
         parsed = urlparse(url)
-        instance = get_resource_for_path(parsed.path)
+        path = parsed.path
+        if path.startswith(settings.FORCE_SCRIPT_NAME):
+            path = path[len(settings.FORCE_SCRIPT_NAME):]
+        instance = get_resource_for_path(path)
         model = self.queryset.model
         if not isinstance(instance, model):
             raise ValidationError(_("Invalid resource type supplied, expected %r") % model, code='invalid-type')
