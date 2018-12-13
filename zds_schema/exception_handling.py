@@ -30,6 +30,14 @@ def _translate_exceptions(exc):
 
 def get_validation_errors(validation_errors: dict):
     for field_name, error_list in validation_errors.items():
+
+        # nested validation - recursively call the function
+        if isinstance(error_list, dict):
+            for err in get_validation_errors(error_list):
+                err['name'] = f"{field_name}.{err['name']}"
+                yield err
+            continue
+
         if isinstance(error_list, exceptions.ErrorDetail):
             error_list = [error_list]
 
