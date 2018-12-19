@@ -8,6 +8,7 @@ __all__ = [
     'GEMMA_URL_COMPONENTTYPE',
     'GEMMA_URL_INFORMATIEMODEL',
     'GEMMA_URL_INFORMATIEMODEL_VERSIE',
+    'REDOC_SETTINGS',
 ]
 
 API_VERSION = '1.0.0-alpha'  # semantic version
