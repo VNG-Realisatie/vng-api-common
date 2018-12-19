@@ -147,6 +147,11 @@ class DaysDurationField(models.DurationField):
             MaxValueValidator(timedelta(days=self.max_duration))
         ]
 
+        # add sensible help-text
+        _help_text = _("Specifieer de duur als 'DD 00:00'")
+        help_text = kwargs.get('help_text', '')
+        kwargs['help_text'] = _help_text if not help_text else f"{help_text} {_help_text}"
+
         super().__init__(*args, **kwargs)
 
     def deconstruct(self) -> tuple:
