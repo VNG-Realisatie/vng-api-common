@@ -8,6 +8,9 @@ class Response:
     def __init__(self, status_code: int=200):
         self.status_code = status_code
 
+    def json(self) -> dict:
+        return {}
+
 
 def link_fetcher_404(url: str, *args, **kwargs):
     return Response(status_code=404)

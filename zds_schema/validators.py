@@ -1,3 +1,5 @@
+import json
+import logging
 from typing import Callable
 
 from django.conf import settings
@@ -13,6 +15,9 @@ from rest_framework import serializers, validators
 from unidecode import unidecode
 
 from .constants import RSIN_LENGTH
+from .oas import fetcher, obj_has_shape
+
+logger = logging.getLogger(__name__)
 
 
 @deconstructible
@@ -130,6 +135,48 @@ class URLValidator:
         if response.status_code != 200:
             raise serializers.ValidationError(
                 self.message.format(status_code=response.status_code, url=value),
+                code=self.code
+            )
+
+        # return the response for post-processing
+        return response
+
+
+class ResourceValidator(URLValidator):
+    """
+    Validate that the URL resolves to an instance of the external resource.
+
+    :param resource: name of the resource, e.g. 'zaak'
+    :param oas_schema: URL to the schema to validate the response object shape
+      against. Must be a YAML OAS 3.0.x spec.
+    """
+    message = _('The URL {url} resource did not look like a(n) `{resource}`. Please provide a valid URL.')
+    code = 'invalid-resource'
+
+    def __init__(self, resource: str, oas_schema: str, *args, **kwargs):
+        self.resource = resource
+        self.oas_schema = oas_schema
+        super().__init__(*args, **kwargs)
+
+    def __call__(self, url: str):
+        response = super().__call__(url)
+
+        # at this point, we know the URL actually exists
+        try:
+            obj = response.json()
+        except json.JSONDecodeError as exc:
+            logger.info("URL %s doesn't seem to point to a JSON endpoint", url, exc_info=1)
+            raise serializers.ValidationError(
+                self.message.format(url=url, resource=self.resource),
+                code=self.code
+            )
+
+        # check if the shape matches
+        schema = fetcher.fetch(self.oas_schema)
+        if not obj_has_shape(obj, schema, self.resource):
+            logger.info("URL %s doesn't seem to point to a valid shape", url, exc_info=1)
+            raise serializers.ValidationError(
+                self.message.format(url=url, resource=self.resource),
                 code=self.code
             )
 
