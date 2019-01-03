@@ -31,7 +31,8 @@ class GegevensGroepType:
         if not value:
             for field in self.mapping.values():
                 empty_value = None if field.null else ''
-                setattr(obj, field.name, empty_value)
+                default_value = field.default if field.default != models.NOT_PROVIDED else empty_value
+                setattr(obj, field.name, default_value)
             return
 
         # map the values
