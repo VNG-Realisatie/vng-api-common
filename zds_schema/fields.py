@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.core import checks
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext, ugettext_lazy as _
 
 from iso639 import languages
 

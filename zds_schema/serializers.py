@@ -1,8 +1,12 @@
 import datetime
 
+from django.db import transaction
+
 import isodate
 from djchoices import DjangoChoices
 from rest_framework import fields, serializers
+
+from .descriptors import GegevensGroepType
 
 
 class DayDurationField(fields.DurationField):
@@ -65,3 +69,117 @@ def add_choice_values_help_text(choices: DjangoChoices) -> str:
         for value, display in choices.choices
     ])
     return f"De mapping van waarden naar weergave is als volgt:\n\n{displays}"
+
+
+class GegevensGroepSerializerMetaclass(serializers.SerializerMetaclass):
+
+    def __new__(cls, name, bases, attrs):
+        Meta = attrs.get('Meta')
+        if Meta:
+            assert hasattr(Meta, 'model'), "The 'model' class must be defined on the Meta."
+            assert hasattr(Meta, 'gegevensgroep'), "The 'gegevensgroep' name must be defined on the Meta."
+
+            gegevensgroep = getattr(Meta.model, Meta.gegevensgroep)
+            Meta.fields = []
+
+            if not hasattr(Meta, 'extra_kwargs'):
+                Meta.extra_kwargs = {}
+
+            for field_name, model_field in gegevensgroep.mapping.items():
+                Meta.extra_kwargs.setdefault(field_name, {})
+
+                # the field is always required and may not be empty in any form
+                extra_kwargs = {
+                    'source': model_field.name,
+                    'required': True,
+                    'allow_null': False,
+                }
+
+                if model_field.get_internal_type() in ['CharField', 'TextField']:
+                    extra_kwargs['allow_blank'] = False
+
+                Meta.extra_kwargs[field_name].update(extra_kwargs)
+                Meta.fields.append(field_name)
+
+        return super().__new__(cls, name, bases, attrs)
+
+
+class GegevensGroepSerializer(serializers.ModelSerializer, metaclass=GegevensGroepSerializerMetaclass):
+    """
+    Generate a serializer out of a GegevensGroepType.
+
+    Usage::
+
+    >>> class VerlengingSerializer(GegevensGroepSerializer):
+    ...     class Meta:
+    ...         model = Zaak
+    ...         gegevensgroep = 'verlenging'
+    >>>
+
+    Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
+    """
+
+    def to_representation(self, instance) -> dict:
+        """
+        Output the result of accessing the descriptor.
+        """
+        return instance
+
+    def to_internal_value(self, data):
+        """
+        Pass through the original keys instead of reverse-mapping the source attrs.
+        """
+        value = super().to_internal_value(data)
+        ret = {}
+        for name, field in self.fields.items():
+            if field not in self._writable_fields:
+                continue
+            if field.source not in value:
+                continue
+            ret[name] = value[field.source]
+        return ret
+
+
+class NestedGegevensGroepMixin:
+    """
+    Set gegevensgroepdata from validated nested data.
+
+    Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+    """
+
+    def _is_gegevensgroep(self, name: str):
+        attr = getattr(self.Meta.model, name)
+        return isinstance(attr, GegevensGroepType)
+
+    @transaction.atomic
+    def create(self, validated_data):
+        """
+        Handle nested writes.
+        """
+        gegevensgroepen = {}
+
+        for name in list(validated_data.keys()):
+            if not self._is_gegevensgroep(name):
+                continue
+
+            gegevensgroepen[name] = validated_data.pop(name)
+
+        # perform the default create
+        obj = super().create(validated_data)
+
+        for name, gegevensgroepdata in gegevensgroepen.items():
+            setattr(obj, name, gegevensgroepdata)
+
+        obj.save()
+
+        return obj
+
+    def update(self, instance, validated_data):
+        """
+        Handle nested writes.
+        """
+        for name in list(validated_data.keys()):
+            if not self._is_gegevensgroep(name):
+                continue
+            setattr(instance, name, validated_data.pop(name))
+        return super().update(instance, validated_data)
