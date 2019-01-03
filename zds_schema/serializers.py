@@ -82,24 +82,32 @@ class GegevensGroepSerializerMetaclass(serializers.SerializerMetaclass):
             gegevensgroep = getattr(Meta.model, Meta.gegevensgroep)
             Meta.fields = []
 
-            if not hasattr(Meta, 'extra_kwargs'):
-                Meta.extra_kwargs = {}
+            extra_kwargs = {}
 
             for field_name, model_field in gegevensgroep.mapping.items():
-                Meta.extra_kwargs.setdefault(field_name, {})
+                Meta.fields.append(field_name)
 
                 # the field is always required and may not be empty in any form
-                extra_kwargs = {
+                default_extra_kwargs = {
                     'source': model_field.name,
                     'required': True,
                     'allow_null': False,
+                    'allow_blank': False,
                 }
 
-                if model_field.get_internal_type() in ['CharField', 'TextField']:
-                    extra_kwargs['allow_blank'] = False
+                internal_type = model_field.get_internal_type()
+                if internal_type not in ['CharField', 'TextField']:
+                    del default_extra_kwargs['allow_blank']
+                if internal_type == 'BooleanField':
+                    del default_extra_kwargs['allow_null']
 
-                Meta.extra_kwargs[field_name].update(extra_kwargs)
-                Meta.fields.append(field_name)
+                extra_kwargs[field_name] = default_extra_kwargs
+
+                declared_extra_kwargs = getattr(Meta, 'extra_kwargs', {}).get(field_name)
+                if declared_extra_kwargs:
+                    extra_kwargs[field_name].update(declared_extra_kwargs)
+
+            Meta.extra_kwargs = extra_kwargs
 
         return super().__new__(cls, name, bases, attrs)
 
