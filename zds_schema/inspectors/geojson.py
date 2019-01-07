@@ -262,9 +262,20 @@ class GeometryFieldInspector(FieldInspector):
             type=openapi.TYPE_STRING,
             in_=openapi.IN_HEADER,
             required=True,
+            description="Het gewenste 'Coordinate Reference System' (CRS) van de "
+                        "geometrie in het antwoord (response body). Volgens de "
+                        "GeoJSON spec is WGS84 de default (EPSG:4326 is "
+                        "hetzelfde als WGS84).",
+            enum=[DEFAULT_CRS]
+        ), openapi.Parameter(
+            name=HEADER_CONTENT,
+            type=openapi.TYPE_STRING,
+            in_=openapi.IN_HEADER,
+            required=True,
             description="Het 'Coordinate Reference System' (CRS) van de "
-                        "verzoekdata. Volgens de GeoJSON spec is WGS84 de "
-                        "default (EPSG:4326 is hetzelfde als WGS84).",
+                        "geometrie in de vraag (request body). Volgens de "
+                        "GeoJSON spec is WGS84 de default (EPSG:4326 is "
+                        "hetzelfde als WGS84).",
             enum=[DEFAULT_CRS]
         )]
 

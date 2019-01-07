@@ -9,6 +9,12 @@ HEADER_CONTENT = 'Content-Crs'
 DEFAULT_CRS = 'EPSG:4326'
 
 
+def extract_header(request, name: str) -> str:
+    _header = name.replace('-', '_').upper()
+    header = f'HTTP_{_header}'
+    return request.META.get(header)
+
+
 class GeoMixin:
     """
     GeoJSON viewset mixin.
@@ -28,9 +34,20 @@ class GeoMixin:
         if isinstance(request.accepted_renderer, BrowsableAPIRenderer):
             return
 
-        _header = HEADER_ACCEPT.replace('-', '_').upper()
-        header = f'HTTP_{_header}'
-        requested_crs = request.META.get(header)
+        # methods with request bodies need to have the CRS specified
+        if request.method.lower() in ('post', 'put', 'patch'):
+            content_crs = extract_header(request, HEADER_CONTENT)
+            if content_crs is None:
+                raise PreconditionFailed(
+                    detail=F"'{HEADER_CONTENT}' header ontbreekt",
+                )
+            if content_crs != DEFAULT_CRS:
+                raise NotAcceptable(
+                    detail=f"CRS '{content_crs}' is niet ondersteund",
+                )
+
+        # client must indicate which CRS they want in the response
+        requested_crs = extract_header(request, HEADER_CONTENT)
         if requested_crs is None:
             raise PreconditionFailed(
                 detail=F"'{HEADER_ACCEPT}' header ontbreekt",
