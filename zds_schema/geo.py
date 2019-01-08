@@ -47,7 +47,7 @@ class GeoMixin:
                 )
 
         # client must indicate which CRS they want in the response
-        requested_crs = extract_header(request, HEADER_CONTENT)
+        requested_crs = extract_header(request, HEADER_ACCEPT)
         if requested_crs is None:
             raise PreconditionFailed(
                 detail=F"'{HEADER_ACCEPT}' header ontbreekt",
