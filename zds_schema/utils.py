@@ -1,4 +1,5 @@
 import re
+from typing import Union
 
 from django.db import models
 from django.http import HttpRequest
@@ -58,8 +59,11 @@ def get_resource_for_path(path: str) -> models.Model:
     return viewset.get_queryset().get(**filter_kwargs)
 
 
-def underscore_to_camel(input_: str) -> str:
+def underscore_to_camel(input_: Union[str, int]) -> str:
     """
     Convert a string from under_score to camelCase.
     """
+    if not isinstance(input_, str):
+        return input_
+
     return re.sub(RE_UNDERSCORE, underscoreToCamel, input_)
