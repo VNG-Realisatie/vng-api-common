@@ -1,8 +1,10 @@
 from typing import Union
 
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 from rest_framework import permissions
+from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.request import Request
 
 from .scopes import Scope
@@ -22,6 +24,9 @@ class ActionScopesRequired(permissions.BasePermission):
         return scopes_required
 
     def has_permission(self, request: Request, view) -> bool:
+        if settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer):
+            return True
+
         scopes_needed = self.get_required_scopes(view)
         # TODO: if no scopes are needed, what do???
         return request.jwt_payload.has_scopes(scopes_needed)
