@@ -90,9 +90,9 @@ class GegevensGroepSerializerMetaclass(serializers.SerializerMetaclass):
                 # the field is always required and may not be empty in any form
                 default_extra_kwargs = {
                     'source': model_field.name,
-                    'required': True,
+                    'required': field_name not in gegevensgroep.optional,
                     'allow_null': False,
-                    'allow_blank': False,
+                    'allow_blank': field_name in gegevensgroep.optional,
                 }
 
                 internal_type = model_field.get_internal_type()
