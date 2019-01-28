@@ -147,12 +147,6 @@ class DaysDurationField(models.DurationField):
             MaxValueValidator(timedelta(days=self.max_duration))
         ]
 
-        # add sensible help-text
-        _help_text = ugettext("Specifieer de duur als 'DD 00:00'")
-        help_text = kwargs.get('help_text', '')
-        if not help_text.endswith(_help_text):
-            kwargs['help_text'] = _help_text if not help_text else f"{help_text} {_help_text}"
-
         super().__init__(*args, **kwargs)
 
     def deconstruct(self) -> tuple:
@@ -187,3 +181,13 @@ class DaysDurationField(models.DurationField):
                 )
             ])
         return errors
+
+    def formfield(self, **kwargs):
+        # add sensible help-text
+        _help_text = ugettext("Specifieer de duur als 'DD 00:00'")
+        help_text = f"{self.help_text} {_help_text}" if self.help_text else _help_text
+        defaults = {
+            'help_text': help_text,
+        }
+        defaults.update(**kwargs)
+        return super().formfield(**defaults)
