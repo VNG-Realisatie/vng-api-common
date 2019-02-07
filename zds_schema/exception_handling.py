@@ -63,9 +63,13 @@ class HandledException:
 
     @property
     def _error_detail(self) -> str:
-        data = getattr(self.response, 'data', {})
-        # ErrorDetail from DRF is a str subclass
-        return data.get('detail', '')
+        if isinstance(self.exc, exceptions.ValidationError):
+            # ErrorDetail from DRF is a str subclass
+            data = getattr(self.response, 'data', {})
+            return data.get('detail', '')
+        # any other exception -> return the raw ErrorDetails object so we get
+        # access to the code later
+        return self.exc.detail
 
     @classmethod
     def as_serializer(cls, exc: exceptions.APIException, response, request=None) -> ErrorSerializer:
