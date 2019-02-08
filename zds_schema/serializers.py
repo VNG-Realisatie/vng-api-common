@@ -9,7 +9,7 @@ from rest_framework import fields, serializers
 from .descriptors import GegevensGroepType
 
 
-class DayDurationField(fields.DurationField):
+class DurationField(fields.DurationField):
 
     def to_internal_value(self, value):
         if isinstance(value, datetime.timedelta):
@@ -17,7 +17,7 @@ class DayDurationField(fields.DurationField):
         try:
             parsed = isodate.parse_duration(str(value))
         except isodate.ISO8601Error:
-            self.fail('invalid', format='[DD] [HH:[MM:]]ss[.uuuuuu]')
+            self.fail('invalid', format='P(n)Y(n)M(n)D')
         else:
             assert isinstance(parsed, datetime.timedelta)
             return parsed

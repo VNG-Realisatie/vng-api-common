@@ -8,7 +8,7 @@ from drf_yasg.inspectors.field import (
 from rest_framework import serializers
 
 from . import fields
-from .serializers import DayDurationField
+from .serializers import DurationField
 
 
 class ZDSSchemaConfig(AppConfig):
@@ -35,4 +35,5 @@ def patch_duration_type():
 
 def register_serializer_field():
     mapping = serializers.ModelSerializer.serializer_field_mapping
-    mapping[fields.DaysDurationField] = DayDurationField
+    mapping[models.fields.DurationField] = DurationField
+    mapping[fields.DaysDurationField] = DurationField
