@@ -106,7 +106,7 @@ class Archiefstatus(DjangoChoices):
     )
 
 
-class BrondatumArchiefprocedure_Afleidingswijze(DjangoChoices):
+class BrondatumArchiefprocedureAfleidingswijze(DjangoChoices):
     afgehandeld = ChoiceItem(
         'afgehandeld',
         _("De termijn start op de datum waarop de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).")
