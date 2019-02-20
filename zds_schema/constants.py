@@ -67,3 +67,90 @@ class RolTypes(DjangoChoices):
 class ObjectTypes(DjangoChoices):
     besluit = ChoiceItem('besluit', _("Besluit"))
     zaak = ChoiceItem('zaak', _("Zaak"))
+
+
+class Archiefnominatie(DjangoChoices):
+    blijvend_bewaren = ChoiceItem(
+        'blijvend_bewaren',
+        _("Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een "
+          "archiefbewaarplaats.")
+    )
+    vernietigen = ChoiceItem(
+        'vernietigen',
+        _("Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.")
+    )
+
+class Archiefstatus(DjangoChoices):
+    nog_te_archiveren = ChoiceItem(
+        'nog_te_archiveren',
+        _("De zaak cq. het zaakdossier is nog niet als geheel gearchiveerd.")
+    )
+    gearchiveerd = ChoiceItem(
+        'gearchiveerd',
+        _("De zaak cq. het zaakdossier is als geheel niet-wijzigbaar bewaarbaar gemaakt.")
+    )
+    gearchiveerd_procestermijn_onbekend = ChoiceItem(
+        'gearchiveerd_procestermijn_onbekend',
+        _("De zaak cq. het zaakdossier is als geheel niet-wijzigbaar bewaarbaar gemaakt maar de vernietigingsdatum "
+          "kan nog niet bepaald worden.")
+    )
+    # After deliberation this element was removed because "vernietigd" means
+    # it's really gone and the status wouldn't make sense:
+    #
+    # vernietigd = ChoiceItem('vernietigd',
+    #     _("De zaak cq. het zaakdossier is vernietigd.")
+    # )
+    overgedragen = ChoiceItem(
+        'overgedragen',
+        _("De zaak cq. het zaakdossier is overgebracht naar een archiefbewaarplaats.")
+    )
+
+
+class BrondatumArchiefprocedureAfleidingswijze(DjangoChoices):
+    afgehandeld = ChoiceItem(
+        'afgehandeld',
+        _("De termijn start op de datum waarop de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).")
+    )
+    ander_datumkenmerk = ChoiceItem(
+        'ander_datumkenmerk',
+        _("De termijn start op de datum die is vastgelegd in een ander datumveld dan de datumvelden waarop de overige "
+          "waarden (van deze attribuutsoort) betrekking hebben. Objecttype, Registratie en Datumkenmerk zijn niet "
+          "leeg.")
+    )
+    eigenschap = ChoiceItem(
+        'eigenschap',
+        _("De termijn start op de datum die vermeld is in een zaaktype-specifieke eigenschap (zijnde een `datumveld`)."
+          "`ResultaatType.ZaakType` heeft een `Eigenschap`; `Objecttype`, en `Datumkenmerk` zijn niet leeg.")
+    )
+    gerelateerde_zaak = ChoiceItem(
+        'gerelateerde_zaak',
+        _("De termijn start op de datum waarop de gerelateerde zaak is afgehandeld (ZAAK.Einddatum of "
+          "ZAAK.Gerelateerde_zaak.Einddatum in het RGBZ). `ResultaatType.ZaakType` heeft gerelateerd `ZaakType`")
+    )
+    hoofdzaak = ChoiceItem(
+        'hoofdzaak',
+        _("De termijn start op de datum waarop de gerelateerde zaak is afgehandeld, waarvan de zaak een deelzaak is "
+          "(ZAAK.Einddatum van de hoofdzaak in het RGBZ).ResultaatType.ZaakType is deelzaaktype van ZaakType")
+    )
+    ingangsdatum_besluit = ChoiceItem(
+        'ingangsdatum_besluit',
+        _("De termijn start op de datum waarop het besluit van kracht wordt (BESLUIT.Ingangsdatum in het RGBZ).	"
+          "ResultaatType.ZaakType heeft relevant BesluitType")
+    )
+    termijn = ChoiceItem(
+        'termijn',
+        _("De termijn start een vast aantal jaren na de datum waarop de zaak is afgehandeld (ZAAK.Einddatum in het "
+          "RGBZ).")
+    )
+    vervaldatum_besluit = ChoiceItem(
+        'vervaldatum_besluit',
+        _("De termijn start op de dag na de datum waarop het besluit vervalt (BESLUIT.Vervaldatum in het RGBZ). "
+          "ResultaatType.ZaakType heeft relevant BesluitType")
+    )
+    zaakobject = ChoiceItem(
+        'zaakobject',
+        _("De termijn start op de einddatum geldigheid van het zaakobject waarop de zaak betrekking heeft "
+          "(bijvoorbeeld de overlijdendatum van een Persoon). ZaakObjectType is relevant voor ResultaatType.ZaakType; "
+          "Objecttype is niet leeg en komt overeen met de naam van het ZaakObjectType; Datumkenmerk is niet leeg en "
+          "komt overeen met een attribuutnaam dat bestaat op ZaakObjectType.")
+    )
