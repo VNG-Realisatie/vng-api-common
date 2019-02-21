@@ -80,6 +80,7 @@ class Archiefnominatie(DjangoChoices):
         _("Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.")
     )
 
+
 class Archiefstatus(DjangoChoices):
     nog_te_archiveren = ChoiceItem(
         'nog_te_archiveren',
