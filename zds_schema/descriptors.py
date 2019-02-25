@@ -11,13 +11,16 @@ class GegevensGroepType:
 
     :param mapping: dict, mapping simple keys to model fields
     :param optional: iterable of fields that are NOT required.
+    :param none_for_empty: convert 'empty' values to None, such as empty
+      strings. Booleans are left untouched
     """
     name = None
     model = None
 
-    def __init__(self, mapping: Dict[str, models.Field], optional: tuple=None):
+    def __init__(self, mapping: Dict[str, models.Field], optional: tuple=None, none_for_empty=False):
         self.mapping = mapping
         self.optional = optional or ()
+        self.none_for_empty = none_for_empty
 
         all_fields_known = set(self.optional).issubset(set(mapping.keys()))
         assert all_fields_known, "The fields in 'optional' must be a subset of the mapping keys"
@@ -36,8 +39,22 @@ class GegevensGroepType:
         if obj is None:  # accessed through the owner, i.e. the model -> introspection
             return self
 
+        def _value_getter(attr):
+            val = getattr(obj, attr)
+            if not self.none_for_empty:
+                return val
+
+            if isinstance(val, bool):
+                return val
+
+            # 'empty'-ish value check
+            if not val:
+                return None
+
+            return val
+
         return {
-            key: getattr(obj, field.name)
+            key: _value_getter(field.name)
             for key, field in self.mapping.items()
         }
 
