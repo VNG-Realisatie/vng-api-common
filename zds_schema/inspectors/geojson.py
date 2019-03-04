@@ -255,6 +255,9 @@ class GeometryFieldInspector(FieldInspector):
         if not self.has_geo_fields(serializer):
             return []
 
+        if self.method == 'DELETE':
+            return []
+
         # see also http://lyzidiamond.com/posts/4326-vs-3857 for difference
         # between coordinate system and projected coordinate system
         return [openapi.Parameter(
