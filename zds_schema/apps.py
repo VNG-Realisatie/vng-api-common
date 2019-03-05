@@ -10,6 +10,10 @@ from rest_framework import serializers
 from . import fields
 from .serializers import DurationField
 
+try:
+    from relativedeltafield import RelativeDeltaField
+except ImportError:
+    RelativeDeltaField = None
 
 # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#data-types
 # and https://github.com/OAI/OpenAPI-Specification/issues/845 - format: duration
@@ -38,8 +42,16 @@ def patch_duration_type():
     _patch(serializer_field_to_basic_type, serializers.DurationField, FORMAT_DURATION)
     _patch(basic_type_info, serializers.DurationField, FORMAT_DURATION)
 
+    # best-effort support for relativedeltafield
+    if RelativeDeltaField is not None:
+        _patch(model_field_to_basic_type, RelativeDeltaField, FORMAT_DURATION)
+        _patch(basic_type_info, RelativeDeltaField, FORMAT_DURATION)
+
 
 def register_serializer_field():
     mapping = serializers.ModelSerializer.serializer_field_mapping
     mapping[models.fields.DurationField] = DurationField
     mapping[fields.DaysDurationField] = DurationField
+
+    if RelativeDeltaField is not None:
+        mapping[RelativeDeltaField] = DurationField
