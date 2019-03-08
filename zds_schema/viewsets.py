@@ -1,6 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.exceptions import ValidationError
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.settings import api_settings
 
 from .filters import Backend
@@ -41,6 +42,15 @@ class CheckQueryParamsMixin:
         filters = filterset_class().get_filters().keys()
 
         known_params = {underscore_to_camel(param) for param in filters}
+
+        # add the pagination params to the known params
+        if self.paginator:
+            if isinstance(self.paginator, PageNumberPagination):
+                known_params.add(self.paginator.page_query_param)
+                if self.paginator.page_size_query_param:
+                    known_params.add(self.paginator.page_size_query_param)
+            else:
+                raise NotImplementedError("Unknown paginator class: %s" % type(self.paginator))
 
         unknown_params = set(request.query_params.keys()) - known_params
         if unknown_params:
