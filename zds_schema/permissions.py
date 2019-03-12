@@ -30,3 +30,19 @@ class ActionScopesRequired(permissions.BasePermission):
         scopes_needed = self.get_required_scopes(view)
         # TODO: if no scopes are needed, what do???
         return request.jwt_payload.has_scopes(scopes_needed)
+
+
+class ScopesRequired(permissions.BasePermission):
+    """
+    Very simple scope-based permission, does not map to HTTP method or action.
+    """
+
+    def has_permission(self, request: Request, view) -> bool:
+        # don't enforce them in the browsable API during debugging/development
+        if settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer):
+            return True
+
+        if not hasattr(view, 'required_scopes'):
+            raise ImproperlyConfigured("The View(Set) must have a `required_scopes` attribute")
+
+        return request.jwt_payload.has_scopes(view.required_scopes)
