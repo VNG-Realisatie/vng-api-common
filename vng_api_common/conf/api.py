@@ -35,7 +35,7 @@ BASE_REST_FRAMEWORK = {
     # # Generic view behavior
     # 'DEFAULT_PAGINATION_CLASS': 'ztc.api.utils.pagination.HALPagination',
     'DEFAULT_FILTER_BACKENDS': (
-        'zds_schema.filters.Backend',
+        'vng_api_common.filters.Backend',
         # 'rest_framework.filters.SearchFilter',
         # 'rest_framework.filters.OrderingFilter',
     ),
@@ -50,7 +50,7 @@ BASE_REST_FRAMEWORK = {
     'VERSION_PARAM': 'version',
     #
     # # Exception handling
-    'EXCEPTION_HANDLER': 'zds_schema.views.exception_handler',
+    'EXCEPTION_HANDLER': 'vng_api_common.views.exception_handler',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
 
@@ -71,10 +71,10 @@ BASE_SWAGGER_SETTINGS = {
     #         'in': 'header'
     #     },
     # },
-    'DEFAULT_AUTO_SCHEMA_CLASS': 'zds_schema.inspectors.view.AutoSchema',
+    'DEFAULT_AUTO_SCHEMA_CLASS': 'vng_api_common.inspectors.view.AutoSchema',
     'DEFAULT_INFO': 'must.be.overridden',
     'DEFAULT_FIELD_INSPECTORS': (
-        'zds_schema.inspectors.geojson.GeometryFieldInspector',
+        'vng_api_common.inspectors.geojson.GeometryFieldInspector',
 
         'drf_yasg.inspectors.CamelCaseJSONFilter',
         'drf_yasg.inspectors.RecursiveFieldInspector',
@@ -88,7 +88,7 @@ BASE_SWAGGER_SETTINGS = {
         'drf_yasg.inspectors.StringDefaultFieldInspector',
     ),
     'DEFAULT_FILTER_INSPECTORS': (
-        'zds_schema.inspectors.query.FilterInspector',
+        'vng_api_common.inspectors.query.FilterInspector',
     )
 }
 

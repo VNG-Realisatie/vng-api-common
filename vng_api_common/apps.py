@@ -22,7 +22,7 @@ FORMAT_DURATION = 'duration'
 
 
 class ZDSSchemaConfig(AppConfig):
-    name = 'zds_schema'
+    name = 'vng_api_common'
 
     def ready(self):
         patch_duration_type()

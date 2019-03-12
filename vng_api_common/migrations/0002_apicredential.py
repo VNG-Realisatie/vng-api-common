@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('zds_schema', '0001_initial'),
+        ('vng_api_common', '0001_initial'),
     ]
 
     operations = [

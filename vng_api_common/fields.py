@@ -36,7 +36,7 @@ class RSINField(models.CharField):
                 checks.Error(
                     "RSINField may not override 'max_length' attribute.",
                     obj=self,
-                    id='zds_schema.fields.E001',
+                    id='vng_api_common.fields.E001',
                 )
             ]
         return []
@@ -61,7 +61,7 @@ class BSNField(models.CharField):
                 checks.Error(
                     "BSNField may not override 'max_length' attribute.",
                     obj=self,
-                    id='zds_schema.fields.E002',
+                    id='vng_api_common.fields.E002',
                 )
             ]
         return []
@@ -85,7 +85,7 @@ class LanguageField(models.CharField):
                 checks.Error(
                     "LanguageField may not override 'max_length' attribute.",
                     obj=self,
-                    id='zds_schema.fields.E003',
+                    id='vng_api_common.fields.E003',
                 )
             ]
         return []
@@ -96,7 +96,7 @@ class LanguageField(models.CharField):
                 checks.Error(
                     "LanguageField may not override 'choices' attribute.",
                     obj=self,
-                    id='zds_schema.fields.E004',
+                    id='vng_api_common.fields.E004',
                 )
             ]
         return []
@@ -119,7 +119,7 @@ class VertrouwelijkheidsAanduidingField(models.CharField):
                 checks.Error(
                     "VertrouwelijkheidsAanduidingField may not override 'choices' attribute.",
                     obj=self,
-                    id='zds_schema.fields.E005',
+                    id='vng_api_common.fields.E005',
                 )
             ]
         return []
@@ -169,7 +169,7 @@ class DaysDurationField(models.DurationField):
                 checks.Error(
                     "De minimale duur in kalenderdagen moet groter dan of gelijk aan 1 zijn",
                     obj=self,
-                    id='zds_schema.fields.E006',
+                    id='vng_api_common.fields.E006',
                 )
             ])
         if self.min_duration > self.max_duration:
@@ -177,7 +177,7 @@ class DaysDurationField(models.DurationField):
                 checks.Error(
                     "De minimale duur mag niet langer zijn dan de maximale duur",
                     obj=self,
-                    id='zds_schema.fields.E007',
+                    id='vng_api_common.fields.E007',
                 )
             ])
         return errors

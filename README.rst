@@ -1,9 +1,16 @@
-====================================
-ZDS-Schema - Schema-generatietooling
-====================================
+==========================================
+VNG-API-common - Tooling voor RESTful APIs
+==========================================
 
-ZDS-Schema voorziet een generieke API schema-generatiestrategie die gedeeld
-wordt tussen verschillende componenten betrokken in zaakgericht werken.
+VNG-API-common biedt generieke implementaties en tooling voor RESTful APIs
+in een Common Ground gegevenslandschap.
+
+De tooling wordt o.a. gebruikt in de referentie-implementaties van componenten
+voor zaakgericht werken, maar ook in VNG-APIs voor referentielijsten en de
+Gemeentelijke Selectielijst.
+
+Het is een third-party library voor Django projecten, gebaseerd op Django Rest
+Framework en drf-yasg voor schema-generatie.
 
 .. contents::
 
@@ -12,7 +19,7 @@ wordt tussen verschillende componenten betrokken in zaakgericht werken.
 Features
 ========
 
-* Centraal beheer van cosntanten die de verschillende componenten overstijgen
+* Centraal beheer van constanten die de verschillende componenten overstijgen
 * GeoJSON OpenAPI definities
 * Support voor Geo CRS negotation
 * Ingebouwde support voor nested viewsets met declaratievere syntax voor
@@ -51,6 +58,7 @@ Features
     * ``DaysDurationField``
 * Mocks voor de validators die netwerk IO hebben, eenvoudig via
   ``@override_settings`` toe te passen
+* Test utilities
 
 
 Installatie
@@ -67,7 +75,7 @@ Installeren
 
 .. code-block:: bash
 
-    pip install zds_schema
+    pip install vng-api-common
 
 Gebruik
 =======

@@ -2,7 +2,7 @@ from django.urls import path
 
 from .views import ErrorDetailView, ScopesView
 
-app_name = 'zds_schema'
+app_name = 'vng_api_common'
 
 urlpatterns = [
     path('fouten/<exception_class>/', ErrorDetailView.as_view(), name='error-detail'),

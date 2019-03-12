@@ -31,7 +31,7 @@ def exception_handler(exc, context):
 
 
 class ErrorDetailView(TemplateView):
-    template_name = 'zds_schema/error_detail.html'
+    template_name = 'vng_api_common/error_detail.html'
 
     def _get_exception_klass(self):
         klass = self.kwargs['exception_class']
@@ -56,7 +56,7 @@ class ErrorDetailView(TemplateView):
 
 
 class ScopesView(TemplateView):
-    template_name = 'zds_schema/scopes.html'
+    template_name = 'vng_api_common/scopes.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

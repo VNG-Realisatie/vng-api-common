@@ -1,9 +1,9 @@
 include *.rst
 include LICENSE
-recursive-include zds_schema *.md
-recursive-include zds_schema *.html
-recursive-include zds_schema *.txt
-recursive-include zds_schema *.po
+recursive-include vng_api_common *.md
+recursive-include vng_api_common *.html
+recursive-include vng_api_common *.txt
+recursive-include vng_api_common *.po
 global-exclude __pycache__
 global-exclude *.py[co]
 

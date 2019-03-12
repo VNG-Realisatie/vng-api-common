@@ -93,7 +93,7 @@ class HandledException:
     @property
     def type(self) -> str:
         exc_detail_url = reverse(
-            'zds_schema:error-detail',
+            'vng_api_common:error-detail',
             kwargs={'exception_class': self.exc.__class__.__name__}
         )
         if self.request is not None:
