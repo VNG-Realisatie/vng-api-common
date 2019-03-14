@@ -59,6 +59,9 @@ Features
 * Mocks voor de validators die netwerk IO hebben, eenvoudig via
   ``@override_settings`` toe te passen
 * Test utilities
+* Optionele notificaties applicatie:
+    * ontvangen van webhook events
+    * configureren en registreren van notificatiecomponent/webhooks
 
 
 Installatie
@@ -76,6 +79,13 @@ Installeren
 .. code-block:: bash
 
     pip install vng-api-common
+
+Indien je de ``notifications`` app wil gebruiken, dan kan je extra dependencies
+installeren via:
+
+.. code-block:: bash
+
+    pip install vng-api-common[notifications]
 
 Gebruik
 =======
