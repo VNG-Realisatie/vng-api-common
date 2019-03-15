@@ -53,9 +53,14 @@ class JWTPayload:
 
         try:
             jwt_secret = JWTSecret.objects.get(identifier=header['client_identifier'])
-        except (JWTSecret.DoesNotExist, KeyError):
+        except JWTSecret.DoesNotExist:
             raise PermissionDenied(
-                'Client credentials zijn niet aanwezig',
+                'Client identifier bestaat niet',
+                code='invalid-client-identifier'
+            )
+        except KeyError:
+            raise PermissionDenied(
+                'Client identifier is niet aanwezig in JWT',
                 code='missing-client-identifier'
             )
         else:
