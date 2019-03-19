@@ -69,7 +69,11 @@ class Subscription(models.Model):
             'callbackUrl': self.callback_url,
             'auth': self_auth.credentials()['Authorization'],
             'kanalen': [
-                {"kanaal": channel}
+                {
+                    "naam": channel,
+                    # FIXME: You need to be able to configure these.
+                    "filters": [],
+                }
                 for channel in self.channels
             ],
         }
