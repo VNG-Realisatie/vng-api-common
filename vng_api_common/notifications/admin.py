@@ -13,7 +13,7 @@ class SubscriptionInline(admin.TabularInline):
 
 @admin.register(NotificationsConfig)
 class NotificationsConfigAdmin(SingletonModelAdmin):
-    list_display = ('location', 'subscriptions')
+    list_display = ('api_root', 'subscriptions')
     inlines = [SubscriptionInline]
 
     def subscriptions(self, obj):

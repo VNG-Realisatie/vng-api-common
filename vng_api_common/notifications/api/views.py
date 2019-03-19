@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from ...permissions import ScopesRequired
-from .scopes import SCOPE_NOTIFICATIES_STUREN
+from ...scopes import Scope
+from ..constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
 from .serializers import NotificatieSerializer
 
 
@@ -17,7 +18,7 @@ class NotificationBaseView(APIView):
     swagger_schema = None
 
     permission_classes = (ScopesRequired,)
-    required_scopes = SCOPE_NOTIFICATIES_STUREN
+    required_scopes = Scope(SCOPE_NOTIFICATIES_PUBLICEREN_LABEL)
 
     def post(self, request, *args, **kwargs):
         serializer = NotificatieSerializer(data=request.data)

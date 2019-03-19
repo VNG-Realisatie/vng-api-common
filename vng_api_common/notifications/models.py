@@ -8,15 +8,29 @@ from django.utils.translation import ugettext_lazy as _
 from solo.models import SingletonModel
 from zds_client import Client, ClientAuth
 
+from .constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL, SCOPE_NOTIFICATIES_CONSUMEREN_LABEL
+
 
 class NotificationsConfig(SingletonModel):
-    location = models.URLField(_("location"), help_text=_("API Root of the NC to use"))
+    api_root = models.URLField(_("api root"), unique=True)
+    client_id = models.CharField(_("client id"), blank=True, max_length=255)
+    secret = models.CharField(_("secret"), blank=True, max_length=255)
 
     class Meta:
         verbose_name = _("Notificatiescomponentconfiguratie")
 
     def __str__(self):
-        return self.location
+        return self.api_root
+
+    def get_auth(self) -> ClientAuth:
+        auth = ClientAuth(
+            client_id=self.client_id,
+            secret=self.secret,
+            scopes=[
+                SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
+            ]
+        )
+        return auth
 
 
 class Subscription(models.Model):
@@ -61,11 +75,28 @@ class Subscription(models.Model):
         """
         Registers the webhook with the notification component.
         """
-        dummy_detail_url = urljoin(self.config.location, f'foo/{uuid.uuid4()}')
+        dummy_detail_url = urljoin(self.config.api_root, f'foo/{uuid.uuid4()}')
         client = Client.from_url(dummy_detail_url)
 
-        self_auth = ClientAuth(client_id=self.client_id, secret=self.secret)
-        payload = {
+        # This authentication is to create a subscription at the NC.
+        client.auth = ClientAuth(
+            client_id=self.config.client_id,
+            secret=self.config.secret,
+            scopes=[
+                SCOPE_NOTIFICATIES_CONSUMEREN_LABEL
+            ]
+        )
+
+        # This authentication is for the NC to call us. Thus, it's *not* for
+        # calling the NC to create a subscription.
+        self_auth = ClientAuth(
+            client_id=self.client_id,
+            secret=self.secret,
+            scopes=[
+                SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
+            ]
+        )
+        data = {
             'callbackUrl': self.callback_url,
             'auth': self_auth.credentials()['Authorization'],
             'kanalen': [
@@ -79,7 +110,7 @@ class Subscription(models.Model):
         }
 
         # register the subscriber
-        subscriber = client.create('abonnement', data=payload)
+        subscriber = client.create('abonnement', data=data)
 
         self._subscription = subscriber['url']
         self.save(update_fields=['_subscription'])

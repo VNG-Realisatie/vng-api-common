@@ -28,6 +28,11 @@ class APIMixin:
 
 
 class JWTSecret(models.Model):
+    """
+    Store credentials of clients that want to access our API.
+
+    Only clients that are known can access the API (if so configured).
+    """
     identifier = models.CharField(_("identifier"), max_length=50, unique=True)
     secret = models.CharField(_("secret"), max_length=255)
 
