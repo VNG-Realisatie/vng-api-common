@@ -61,7 +61,7 @@ DEFAULT_ACTION_ERRORS = {
 }
 
 
-def response_header(description: str, type: str, format: str=None) -> OrderedDict:
+def response_header(description: str, type: str, format: str = None) -> OrderedDict:
     header = OrderedDict((
         ('schema', OrderedDict((
             ('type', type),
@@ -89,7 +89,10 @@ class AutoSchema(SwaggerAutoSchema):
 
     @property
     def model(self):
-        qs = self.view.get_queryset()
+        if hasattr(self, 'get_queryset'):
+            qs = self.view.get_queryset()
+        else:
+            return None
         return qs.model
 
     @property
@@ -101,8 +104,12 @@ class AutoSchema(SwaggerAutoSchema):
         Simply return the model name as lowercase string, postfixed with the operation name.
         """
         action = operation_keys[-1]
-        model_name = self.model._meta.model_name
-        return f"{model_name}_{action}"
+        if self.model is not None:
+            model_name = self.model._meta.model_name
+            return f"{model_name}_{action}"
+        else:
+            operation_id = '_'.join(operation_keys)
+            return operation_id
 
     def should_page(self):
         if self._is_search_view:
