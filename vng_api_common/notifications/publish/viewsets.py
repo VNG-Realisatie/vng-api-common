@@ -1,10 +1,10 @@
 import json
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.module_loading import import_string
 from django.utils.timezone import now
-from django.core.exceptions import ImproperlyConfigured
 
 from vng_api_common.models import APICredential
 
