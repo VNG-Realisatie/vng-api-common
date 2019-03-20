@@ -4,56 +4,86 @@ from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.module_loading import import_string
 from django.utils.timezone import now
+from django.core.exceptions import ImproperlyConfigured
 
 from vng_api_common.models import APICredential
 
-# TODO default values should be moved to settings
-NC_URL = 'http://127.0.0.1:8001/api/v1/notificaties'
-KANAAL = 'zaken'
-HOOFD = 'zaak'
-KENMERKEN = [
-    {"bron": "082096752011"},
-    {"zaaktype": "example.com/api/v1/zaaktypen/5aa5c"},
-    {"vertrouwelijkeidaanduiding": "openbaar"}
-]
-
 
 class NotificationMixin:
+    kenmerken = None
+    hoofd = None
+
+    def get_nc_url(self):
+        if not hasattr(settings, 'NC_URL'):
+            raise ImproperlyConfigured(
+                "For sending notifications settings should include "
+                "NC_URL parameter"
+            )
+        return settings.NC_URL
+
+    def get_kanaal(self):
+        if not hasattr(settings, 'KANAAL'):
+            raise ImproperlyConfigured(
+                "For sending notifications settings should include "
+                "KANAAL parameter"
+            )
+        return settings.KANAAL
+
+    def get_hoofd(self):
+        if self.hoofd is not None:
+            return self.hoofd
+        if not hasattr(settings, 'HOOFD'):
+            raise ImproperlyConfigured(
+                "For sending notifications settings or viewset attributes "
+                "should include HOOFD parameter"
+            )
+        return settings.HOOFD
+
+    def get_kenmerken(self):
+        """
+        Return a `list` of `dict` representing all the kenmerken.
+        Each `APIView` or `ViewSet` should implement this.
+        """
+        assert self.kenmerken is not None, (
+            "{} should either include a `kenmerken` attribute, "
+            "or override the `get_kenmerken()` method.".format(self.__class__.__name__)
+        )
+        return self.kenmerken
 
     def construct_message(self, data, *args, **kwargs):
-        action = kwargs.get('action', 'unknown action')
-        resource = kwargs.get('resource', 'unknown resource')
-
         msg = {
-            "kanaal": KANAAL,
-            "resourceUrl": data.get('url', None).replace('testserver', 'testserver.com'),
-            "resource": resource,
-            "actie": action,
+            "kanaal": self.get_kanaal(),
+            "resourceUrl": data.get('url', None),
+            "resource": kwargs['resource'],
+            "actie": kwargs['action'],
             "aanmaakdatum": now(),
-            "kenmerken": KENMERKEN}
+            "kenmerken": self.get_kenmerken()
+        }
 
-        if resource == HOOFD:
-            msg["hoofdObject"] = data.get('url', None).replace('testserver', 'testserver.com')
+        hoofd = self.get_hoofd()
+        if kwargs['resource'] == hoofd:
+            msg["hoofdObject"] = data.get('url', None)
         else:
-            msg["hoofdObject"] = data.get(HOOFD, None).replace('testserver', 'testserver.com')
+            msg["hoofdObject"] = data.get(hoofd, None)
 
         return json.dumps(msg, cls=DjangoJSONEncoder)
 
     def notify(self, status_code, data):
+        url = self.get_nc_url()
         response = None
+
         if status_code >= 200 and status_code < 300:
             Client = import_string(settings.ZDS_CLIENT_CLASS)
-            client = Client.from_url(NC_URL)
+            client = Client.from_url(url)
             client.auth = APICredential.get_auth(
-                NC_URL,
+                url,
                 scopes=['notificaties.scopes.publiceren']
             )
 
             msg = self.construct_message(data, action=self.action, resource=self.basename)
 
             response = client.request(
-                NC_URL,
-                'notificaties',
+                url, 'notificaties',
                 method='POST',
                 data=msg,
                 expected_status=201
@@ -77,7 +107,7 @@ class NotificationUpdateMixin(NotificationMixin):
 
 class NotificationDestroyMixin(NotificationMixin):
     def destroy(self, request, *args, **kwargs):
-        # get url via serializer
+        # get data via serializer
         data = self.get_serializer(self.get_object()).data
 
         response = super().destroy(request, *args, **kwargs)
