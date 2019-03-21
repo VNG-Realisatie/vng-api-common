@@ -1,13 +1,13 @@
 import json
 import logging
+
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.utils.module_loading import import_string
 from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.module_loading import import_string
 
 from vng_api_common.constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
 from vng_api_common.models import APICredential
-
 
 logger = logging.getLogger(__name__)
 
