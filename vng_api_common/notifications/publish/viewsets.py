@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -6,38 +7,43 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.module_loading import import_string
 from django.utils.timezone import now
 
+import requests
+
+from vng_api_common.constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
 from vng_api_common.models import APICredential
+
+logger = logging.getLogger(__name__)
 
 
 class NotificationMixin:
     kenmerken = None
-    hoofd = None
+    hoofd_resource = None
 
     def get_nc_url(self):
-        if not hasattr(settings, 'NC_URL'):
+        if not hasattr(settings, 'NOTIFICATIES_URL'):
             raise ImproperlyConfigured(
                 "For sending notifications settings should include "
                 "NC_URL parameter"
             )
-        return settings.NC_URL
+        return settings.NOTIFICATIES_URL
 
     def get_kanaal(self):
-        if not hasattr(settings, 'KANAAL'):
+        if not hasattr(settings, 'NOTIFICATIES_KANAAL'):
             raise ImproperlyConfigured(
                 "For sending notifications settings should include "
                 "KANAAL parameter"
             )
-        return settings.KANAAL
+        return settings.NOTIFICATIES_KANAAL
 
     def get_hoofd(self):
-        if self.hoofd is not None:
-            return self.hoofd
-        if not hasattr(settings, 'HOOFD'):
+        if self.hoofd_resource is not None:
+            return self.hoofd_resource
+        if not hasattr(settings, 'NOTIFICATIES_HOOFD_RESOURCE'):
             raise ImproperlyConfigured(
                 "For sending notifications settings or viewset attributes "
                 "should include HOOFD parameter"
             )
-        return settings.HOOFD
+        return settings.NOTIFICATIES_HOOFD_RESOURCE
 
     def get_kenmerken(self):
         """
@@ -73,21 +79,24 @@ class NotificationMixin:
         response = None
 
         if status_code >= 200 and status_code < 300:
+            msg = self.construct_message(data, action=self.action, resource=self.basename)
+
             Client = import_string(settings.ZDS_CLIENT_CLASS)
             client = Client.from_url(url)
             client.auth = APICredential.get_auth(
                 url,
-                scopes=['notificaties.scopes.publiceren']
+                scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL]
             )
+            try:
+                response = client.request(
+                    url, 'notificaties',
+                    method='POST',
+                    data=msg,
+                    expected_status=201
+                )
+            except:
+                logger.warning('Could not deliver message to {}'.format(url))
 
-            msg = self.construct_message(data, action=self.action, resource=self.basename)
-
-            response = client.request(
-                url, 'notificaties',
-                method='POST',
-                data=msg,
-                expected_status=201
-            )
         return response
 
 
