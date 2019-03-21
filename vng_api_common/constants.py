@@ -7,6 +7,8 @@ RSIN_LENGTH = 9
 
 VERSION_HEADER = 'API-version'
 
+SCOPE_NOTIFICATIES_PUBLICEREN_LABEL = 'notificaties.scopes.publiceren'
+
 
 class VertrouwelijkheidsAanduiding(DjangoChoices):
     openbaar = ChoiceItem('openbaar', 'OPENBAAR')
