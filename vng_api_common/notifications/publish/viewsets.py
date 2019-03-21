@@ -7,8 +7,6 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.module_loading import import_string
 from django.utils.timezone import now
 
-import requests
-
 from vng_api_common.constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
 from vng_api_common.models import APICredential
 
@@ -45,7 +43,7 @@ class NotificationMixin:
             )
         return settings.NOTIFICATIES_HOOFD_RESOURCE
 
-    def get_kenmerken(self):
+    def get_kenmerken(self, data):
         """
         Return a `list` of `dict` representing all the kenmerken.
         Each `APIView` or `ViewSet` should implement this.
@@ -63,7 +61,7 @@ class NotificationMixin:
             "resource": kwargs['resource'],
             "actie": kwargs['action'],
             "aanmaakdatum": now(),
-            "kenmerken": self.get_kenmerken()
+            "kenmerken": self.get_kenmerken(data)
         }
 
         hoofd = self.get_hoofd()
@@ -96,7 +94,6 @@ class NotificationMixin:
                 )
             except:
                 logger.warning('Could not deliver message to {}'.format(url))
-
         return response
 
 
