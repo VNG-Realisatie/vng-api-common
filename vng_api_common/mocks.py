@@ -28,6 +28,7 @@ class MockClient:
         clients = {
             'ztc': ZTCMockClient,
             'drc': DRCMockClient,
+            'notificaties': NotifMockClient
         }
 
         parsed_url = urlparse(detail_url)
@@ -45,6 +46,11 @@ class MockClient:
         first_path_element = parsed_url.path.strip('/').split('/', 1)[0]
         if first_path_element in clients:
             return clients[first_path_element]()
+
+        # Try mock client based on last element of the path - for notifications
+        last_path_element = parsed_url.path.split('/')[-1]
+        if last_path_element in clients:
+            return clients[last_path_element]()
 
         raise ValueError('Cannot determine service based on url: %s', detail_url)
 
@@ -68,6 +74,9 @@ class MockClient:
             elif resource[0:-3] in self.data:
                 resource = resource[0:-3]
 
+        if method == 'POST' and not uuid:
+            return self.create(resource)
+
         if method == 'GET' and not uuid:
             return self.list(resource)
 
@@ -85,6 +94,9 @@ class MockClient:
         # result = copy.deepcopy(self.data.get(resource)[index])
         # result['url'] = result['url'].format(**kwargs)
         return self.data.get(resource)[index]
+
+    def create(self, resource: str, *args, **kwargs):
+        return self.data.get(resource, {})
 
 
 class ZTCMockClient(MockClient):
@@ -128,3 +140,13 @@ class ObjectInformatieObjectClient(DRCMockClient):
     def list(self, resource, *args, **kwargs):
         assert resource == 'objectinformatieobject'
         return self.data[resource]
+
+
+class NotifMockClient(MockClient):
+    """
+    for sending notifications
+    """
+    data = {
+        'notificaties': {}
+    }
+
