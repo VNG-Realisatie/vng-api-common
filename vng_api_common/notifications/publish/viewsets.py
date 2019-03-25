@@ -8,6 +8,8 @@ from django.db import models
 from django.utils import timezone
 
 from djangorestframework_camel_case.util import camelize
+from rest_framework.permissions import SAFE_METHODS
+from rest_framework.routers import SimpleRouter
 from zds_client import ClientError
 
 from ...utils import get_resource_for_path
@@ -18,7 +20,35 @@ from ..models import NotificationsConfig
 logger = logging.getLogger(__name__)
 
 
-class NotificationMixin:
+class NotificationMixinBase(type):
+
+    def __new__(cls, name, bases, attrs):
+        new_cls = super().__new__(cls, name, bases, attrs)
+
+        kanaal = attrs.get('notifications_kanaal')
+        if kanaal is None:
+            return new_cls
+
+        relevant_bases = [base for base in bases if issubclass(base, NotificationMixin)]
+        resource = new_cls.queryset.model._meta.model_name
+        # use the router to figure out which actions are available
+        router = SimpleRouter()
+        for route in router.get_routes(new_cls):
+            for method, action in route.mapping.items():
+
+                if method.upper() in SAFE_METHODS:
+                    continue
+
+                # check if the action is actually provided by one of the mixins
+                if not any(hasattr(base, action) for base in relevant_bases):
+                    continue
+
+                kanaal.usage[resource].append(action)
+
+        return new_cls
+
+
+class NotificationMixin(metaclass=NotificationMixinBase):
     notifications_kanaal = None  # must be set be subclasses
 
     def get_kanaal(self):

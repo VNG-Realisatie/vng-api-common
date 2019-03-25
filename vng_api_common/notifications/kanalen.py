@@ -1,6 +1,7 @@
 """
 Provide notifications kanaal/exchange classes.
 """
+from collections import defaultdict
 from typing import Dict, List, Tuple
 
 from django.core.exceptions import ImproperlyConfigured
@@ -15,6 +16,8 @@ class Kanaal:
     def __init__(self, label: str, main_resource: ModelBase, kenmerken: Tuple = None):
         self.label = label
         self.main_resource = main_resource
+
+        self.usage = defaultdict(list)  # filled in by metaclass of notifications
 
         # check that we're refering to existing fields
         self.kenmerken = kenmerken or ()
@@ -37,3 +40,28 @@ class Kanaal:
         for kenmerk in self.kenmerken:
             kenmerken.append({kenmerk: getattr(obj, kenmerk)})
         return kenmerken
+
+    def get_usage(self):
+        return self.usage.items()
+
+    @property
+    def description(self):
+        kenmerk_template = "* `{kenmerk}`: {help_text}"
+        kenmerken = [
+            kenmerk_template.format(
+                kenmerk=kenmerk,
+                help_text=self.main_resource._meta.get_field(kenmerk).help_text
+            ) for kenmerk in self.kenmerken
+        ]
+
+        description = (
+            "**Main resource**\n\n"
+            "`{options.model_name}`\n\n\n\n"
+            "**Kenmerken**\n\n"
+            "{kenmerken}"
+        ).format(
+            options=self.main_resource._meta,
+            kenmerken="\n".join(kenmerken)
+        )
+
+        return description
