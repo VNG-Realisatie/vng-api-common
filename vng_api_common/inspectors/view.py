@@ -89,11 +89,10 @@ class AutoSchema(SwaggerAutoSchema):
 
     @property
     def model(self):
-        if hasattr(self, 'get_queryset'):
+        if hasattr(self.view, 'get_queryset'):
             qs = self.view.get_queryset()
-        else:
-            return None
-        return qs.model
+            return qs.model
+        return None
 
     @property
     def _is_search_view(self):
