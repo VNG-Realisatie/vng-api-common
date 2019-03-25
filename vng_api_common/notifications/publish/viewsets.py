@@ -1,99 +1,106 @@
-import json
 import logging
+from typing import Dict, List, Union
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.core.serializers.json import DjangoJSONEncoder
-from django.utils.module_loading import import_string
-from django.utils.timezone import now
+from django.db import models
+from django.utils import timezone
 
-from vng_api_common.constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
-from vng_api_common.models import APICredential
+from djangorestframework_camel_case.util import camelize
+from zds_client import ClientError
+
+from ...utils import get_resource_for_path
+from ..api.serializers import NotificatieSerializer
+from ..kanalen import Kanaal
+from ..models import NotificationsConfig
 
 logger = logging.getLogger(__name__)
 
 
 class NotificationMixin:
-    kenmerken = None
-    hoofd_resource = None
-
-    def get_nc_url(self):
-        if not hasattr(settings, 'NOTIFICATIES_URL'):
-            raise ImproperlyConfigured(
-                "For sending notifications settings should include "
-                "NC_URL parameter"
-            )
-        return settings.NOTIFICATIES_URL
+    notifications_kanaal = None  # must be set be subclasses
 
     def get_kanaal(self):
-        if not hasattr(settings, 'NOTIFICATIES_KANAAL'):
+        if not self.notifications_kanaal:
             raise ImproperlyConfigured(
-                "For sending notifications settings should include "
-                "KANAAL parameter"
+                "'%s' should either include a `notifications_kanaal` "
+                "attribute, or override the `get_kanaal()` method."
+                % self.__class__.__name__
             )
-        return settings.NOTIFICATIES_KANAAL
+        return self.notifications_kanaal
 
-    def get_hoofd(self):
-        if self.hoofd_resource is not None:
-            return self.hoofd_resource
-        if not hasattr(settings, 'NOTIFICATIES_HOOFD_RESOURCE'):
-            raise ImproperlyConfigured(
-                "For sending notifications settings or viewset attributes "
-                "should include HOOFD parameter"
-            )
-        return settings.NOTIFICATIES_HOOFD_RESOURCE
-
-    def get_kenmerken(self, data):
+    def construct_message(self, data: dict, instance: models.Model = None) -> dict:
         """
-        Return a `list` of `dict` representing all the kenmerken.
-        Each `APIView` or `ViewSet` should implement this.
-        """
-        assert self.kenmerken is not None, (
-            "{} should either include a `kenmerken` attribute, "
-            "or override the `get_kenmerken()` method.".format(self.__class__.__name__)
-        )
-        return self.kenmerken
+        Construct the message to send to the notification component.
 
-    def construct_message(self, data, *args, **kwargs):
-        msg = {
-            "kanaal": self.get_kanaal(),
-            "resourceUrl": data.get('url', None),
-            "resource": kwargs['resource'],
-            "actie": kwargs['action'],
-            "aanmaakdatum": now(),
-            "kenmerken": self.get_kenmerken(data)
+        Using the response data from the view/action, we introspect this data
+        to send the appropriate response. By convention, every resource
+        includes its own absolute url in the 'url' key - we can use this to
+        look up the object it points to. By convention, relations use the name
+        of the resource, so for sub-resources we can use this to get a
+        reference back to the main resource.
+        """
+        kanaal = self.get_kanaal()
+        assert isinstance(kanaal, Kanaal), "`kanaal` should be a `Kanaal` instance"
+
+        model = self.get_queryset().model
+
+        # NOTE: possibly this may need to become its own, overrideable method
+        if model is kanaal.main_resource:
+            # look up the object in the database from its absolute URL
+            resource_path = urlparse(data['url']).path
+            resource = instance or get_resource_for_path(resource_path)
+
+            main_object = resource
+            main_object_url = data['url']
+        else:
+            # using the main resource name, look up what the URL to this
+            # object is/should be, and fetch the object from the db
+            main_object_url = data[kanaal.main_resource._meta.model_name]
+            main_object_path = urlparse(main_object_url).path
+            main_object = get_resource_for_path(main_object_path)
+
+        message_data = {
+            'kanaal': kanaal.label,
+            'hoofd_object': main_object_url,
+            'resource': model._meta.model_name,
+            'resource_url': data['url'],
+            'actie': self.action,
+            'aanmaakdatum': timezone.now(),
+            # each channel knows which kenmerken it has, so delegate this
+            'kenmerken': kanaal.get_kenmerken(main_object),
         }
 
-        hoofd = self.get_hoofd()
-        if kwargs['resource'] == hoofd:
-            msg["hoofdObject"] = data.get('url', None)
-        else:
-            msg["hoofdObject"] = data.get(hoofd, None)
+        # let the serializer & render machinery shape the data the way it
+        # should be, suitable for JSON in/output
+        serializer = NotificatieSerializer(instance=message_data)
+        return camelize(serializer.data)
 
-        return json.dumps(msg, cls=DjangoJSONEncoder)
+    def notify(self,
+               status_code: int,
+               data: Union[List, Dict], instance: models.Model = None) -> Union[None, List, Dict]:
+        if settings.NOTIFICATIONS_DISABLED:
+            return
 
-    def notify(self, status_code, data):
-        url = self.get_nc_url()
-        response = None
+        # do nothing unless we have a 'success' status code - early exit here
+        if not 200 <= status_code < 300:
+            logger.info("Not notifying, status code '%s' does not represent success.", status_code)
+            return
 
-        if status_code >= 200 and status_code < 300:
-            msg = self.construct_message(data, action=self.action, resource=self.basename)
+        # build the content of the notification
+        message = self.construct_message(data, instance=instance)
 
-            Client = import_string(settings.ZDS_CLIENT_CLASS)
-            client = Client.from_url(url)
-            client.auth = APICredential.get_auth(
-                url,
-                scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL]
-            )
-            try:
-                response = client.request(
-                    url, 'notificaties',
-                    method='POST',
-                    data=msg,
-                    expected_status=201
-                )
-            except:
-                logger.warning('Could not deliver message to {}'.format(url))
+        # build the client from the singleton config. This will raise an
+        # exception if the config is not complete. We want this to hard-fail!
+        client = NotificationsConfig.get_client()
+        try:
+            response = client.create('notificaties', message)
+        # any unexpected errors should show up in error-monitoring, so we only
+        # catch ClientError exceptions
+        except ClientError as exc:
+            logger.warning("Could not deliver message to %s", client.base_url, exc_info=True)
+
         return response
 
 
@@ -110,14 +117,20 @@ class NotificationUpdateMixin(NotificationMixin):
         self.notify(response.status_code, response.data)
         return response
 
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        self.notify(response.status_code, response.data)
+        return response
+
 
 class NotificationDestroyMixin(NotificationMixin):
     def destroy(self, request, *args, **kwargs):
         # get data via serializer
-        data = self.get_serializer(self.get_object()).data
+        instance = self.get_object()
+        data = self.get_serializer(instance).data
 
         response = super().destroy(request, *args, **kwargs)
-        self.notify(response.status_code, data)
+        self.notify(response.status_code, data, instance=instance)
         return response
 
 

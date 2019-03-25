@@ -96,3 +96,84 @@ Zie de referentie-implementaties voor `ZRC`_, `DRC`_, `BRC`_ en `ZTC`_.
 .. _DRC: https://github.com/VNG-Realisatie/gemma-documentregistratiecomponent
 .. _ZTC: https://github.com/VNG-Realisatie/gemma-zaaktypecatalogus
 .. _BRC: https://github.com/VNG-Realisatie/gemma-besluitregistratiecomponent
+
+
+Notifications
+-------------
+
+This library ships with support for notifications, in the form of view(set)
+mixins.
+
+To enable them, add:
+
+.. code-block:: python
+
+    ...,
+    'vng_api_common.notifications',
+    'vng_api_common.notifications.publish',
+    ...
+
+to your ``INSTALLED_APPS`` setting.
+
+Two additional settings are available:
+
+* ``NOTIFICATIONS_KANAAL``: a string, the label of the 'kanaal' to register
+  with the NC
+* ``NOTIFICATIONS_DISABLED``: a boolean, default ``False``. Set to ``True`` to
+  completely disable the sending of notifications.
+
+Next, in the admin interface, open the notifications configuration and enter
+the URL + credentials of the NC to use.
+
+After entering the configuration, you can register your 'kanaal' - this action
+is idempotent:
+
+.. code-block:: bash
+
+    python manage.py register_kanaal
+
+**Usage in code**
+
+Define at least one ``Kanaal`` instance, typically this would go in
+``api/kanalen.py``:
+
+.. code-block:: python
+
+    from vng_api_common.notifications.kanalen import Kanaal
+
+    from zrc.datamodel.models import Zaak
+
+    ZAKEN = Kanaal(
+        'zaken',  # label of the channel/exchange
+        main_resource=Zaak,  # main object for this channel/exchange
+        kenmerken=(  # fields to include as 'kenmerken'
+            'bronorganisatie',
+            'zaaktype',
+            'vertrouwelijkheidaanduiding'
+        )
+    )
+
+To send notifications, add the mixins to the viewsets:
+
+* ``vng_api_common.notifications.publish.viewsets.NotificationCreateMixin``:
+  send notifications for newly created objects
+
+* ``vng_api_common.notifications.publish.viewsets.NotificationUpdateMixin``:
+  send notifications for (partial) upates to objects
+
+* ``vng_api_common.notifications.publish.viewsets.NotificationDestroyMixin``:
+  send notifications for destroyed objects
+
+* ``vng_api_common.notifications.publish.viewsets.NotificationViewSetMixin``:
+  a combination of all three mixins above
+
+and define the attribute ``notifications_kanaal`` on the viewset:
+
+.. code-block:: python
+
+    from .kanalen import ZAKEN
+
+
+    class ZaakViewSet(NotificationViewSetMixin, viewsets.ModelViewSet):
+        ...
+        notifications_kanaal = ZAKEN
