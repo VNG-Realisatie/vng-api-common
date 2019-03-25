@@ -9,6 +9,7 @@ __all__ = [
     'GEMMA_URL_INFORMATIEMODEL',
     'GEMMA_URL_INFORMATIEMODEL_VERSIE',
     'REDOC_SETTINGS',
+    'NOTIFICATIES_KANAAL',
 ]
 
 API_VERSION = '1.0.0-alpha'  # semantic version
@@ -105,3 +106,7 @@ GEMMA_URL_TEMPLATE = "https://www.gemmaonline.nl/index.php/{informatiemodel}_{ve
 GEMMA_URL_COMPONENTTYPE = 'objecttype'
 GEMMA_URL_INFORMATIEMODEL = 'Rgbz'
 GEMMA_URL_INFORMATIEMODEL_VERSIE = '2.0'
+
+# notifications configuration
+
+NOTIFICATIES_KANAAL = None

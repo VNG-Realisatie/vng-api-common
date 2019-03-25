@@ -149,4 +149,3 @@ class NotifMockClient(MockClient):
     data = {
         'notificaties': {}
     }
-

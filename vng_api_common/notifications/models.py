@@ -8,7 +8,9 @@ from django.utils.translation import ugettext_lazy as _
 from solo.models import SingletonModel
 from zds_client import Client, ClientAuth
 
-from .constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL, SCOPE_NOTIFICATIES_CONSUMEREN_LABEL
+from .constants import (
+    SCOPE_NOTIFICATIES_CONSUMEREN_LABEL, SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
+)
 
 
 class NotificationsConfig(SingletonModel):
@@ -26,9 +28,7 @@ class NotificationsConfig(SingletonModel):
         auth = ClientAuth(
             client_id=self.client_id,
             secret=self.secret,
-            scopes=[
-                SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
-            ]
+            scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL]
         )
         return auth
 
