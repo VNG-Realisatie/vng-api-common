@@ -31,8 +31,7 @@ def create_kanaal(api_root: str, kanaal: str) -> None:
         scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL]
     )
 
-    # kanalen = client.list('kanaal', query_params={'naam': kanaal})
-    kanalen = [x for x in client.list('kanaal') if x['naam'] == kanaal]
+    kanalen = client.list('kanaal', query_params={'naam': kanaal})
     if kanalen:
         raise KanaalExists()
 
@@ -56,7 +55,7 @@ class Command(BaseCommand):
         api_root = options['nc_api_root'] or config.api_root
 
         # use CLI arg or fall back to setting
-        kanaal = options['kanaal'] or settings.NOTIFICATIES_KANAAL
+        kanaal = options['kanaal'] or settings.NOTIFICATIONS_KANAAL
 
         try:
             create_kanaal(api_root, kanaal)
