@@ -109,6 +109,7 @@ To enable them, add:
 .. code-block:: python
 
     ...,
+    'django.contrib.sites',
     'vng_api_common.notifications',
     ...
 
@@ -123,6 +124,9 @@ Two additional settings are available:
 
 Next, in the admin interface, open the notifications configuration and enter
 the URL + credentials of the NC to use.
+
+Make sure you also have the ``Sites`` set up correctly, as the domain
+configured there is used to build the documentation URL.
 
 After entering the configuration, you can register your 'kanaal' - this action
 is idempotent:
