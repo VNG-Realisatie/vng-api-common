@@ -1,11 +1,14 @@
 import logging
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
+from django.urls import reverse
 from django.utils.module_loading import import_string
 
 from ....models import APICredential
 from ...constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
+from ...kanalen import KANAAL_REGISTRY
 from ...models import NotificationsConfig
 
 logger = logging.getLogger(__name__)
@@ -31,11 +34,23 @@ def create_kanaal(api_root: str, kanaal: str) -> None:
         scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL]
     )
 
+    # look up the exchange in the registry
+    _kanaal = next(k for k in KANAAL_REGISTRY if k.label == kanaal)
+
     kanalen = client.list('kanaal', query_params={'naam': kanaal})
     if kanalen:
         raise KanaalExists()
 
-    client.create('kanaal', {'naam': kanaal})
+    # build up own documentation URL
+    domain = Site.objects.get_current().domain
+    protocol = 'https' if settings.IS_HTTPS else 'http'
+    documentation_url = f"{protocol}://{domain}{reverse('notifications:kanalen')}#{kanaal}"
+
+    client.create('kanaal', {
+        'naam': kanaal,
+        'documentatieLink': documentation_url,
+        'filters': list(_kanaal.kenmerken)
+    })
 
 
 class Command(BaseCommand):
