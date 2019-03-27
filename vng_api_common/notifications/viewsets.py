@@ -50,6 +50,7 @@ class NotificationMixinBase(type):
 
 class NotificationMixin(metaclass=NotificationMixinBase):
     notifications_kanaal = None  # must be set be subclasses
+    notifications_main_resource_key = None
 
     def get_kanaal(self):
         if not self.notifications_kanaal:
@@ -59,6 +60,15 @@ class NotificationMixin(metaclass=NotificationMixinBase):
                 % self.__class__.__name__
             )
         return self.notifications_kanaal
+
+    def get_main_resource_key(self, kanaal: Kanaal) -> str:
+        """
+        Determine the key in the (response) data that represents the main resource.
+        """
+        if self.notifications_main_resource_key:
+            return self.notifications_main_resource_key
+
+        return kanaal.main_resource._meta.model_name
 
     def construct_message(self, data: dict, instance: models.Model = None) -> dict:
         """
@@ -87,7 +97,7 @@ class NotificationMixin(metaclass=NotificationMixinBase):
         else:
             # using the main resource name, look up what the URL to this
             # object is/should be, and fetch the object from the db
-            main_object_url = data[kanaal.main_resource._meta.model_name]
+            main_object_url = data[self.get_main_resource_key(kanaal)]
             main_object_path = urlparse(main_object_url).path
             main_object = get_resource_for_path(main_object_path)
 
