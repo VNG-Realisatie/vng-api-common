@@ -1,0 +1,53 @@
+{% extends "master.html" %}
+{% load staticfiles markup_tags %}
+
+
+{% block content %}
+<article class="kanalen-summary">
+
+    <h1 class="kanalen-summary__title">Gebruikte kanalen</h1>
+
+    <p>
+        Kanalen worden typisch per component gedefinieerd. Producers versturen
+        berichten op bepaalde kanalen, consumers ontvangen deze. Consumers
+        abonneren zich via een notificatiecomponent (zoals
+        {{ 'https://ref.tst.vng.cloud/nc/api/v1/schema/'|urlize }}) op berichten.
+    </p>
+
+    <p>
+        Hieronder staan de kanalen beschreven die door deze component gebruikt
+        worden, met de kenmerken bij elk bericht.
+    </p>
+
+    <p>
+        De architectuur van de notificaties staat beschreven op {{ 'https://ref.tst.vng.cloud/ontwikkelaars/algemeen/notificaties'|urlize }}.
+    </p>
+
+    {% for kanaal in kanalen %}
+        <article class="kanaal" id="{{ kanaal.label }}">
+            <h1 class="kanaal__label">
+                <code>{{ kanaal.label }}</code>
+                <a href="#{{ kanaal.label }}"><i class="fa fa-link"></i></a>
+            </h1>
+            <div class="kanaal__description">
+                {{ kanaal.description|default:""|urlize|apply_markup:"markdown" }}
+            </div>
+
+            <br>
+
+            <div class="kanaal__description">
+                <p><strong>Resources en acties</strong></p>
+                <ul>
+                    {% for resource, actions in kanaal.get_usage %}
+                        <li>
+                            <code>{{ resource }}</code>:
+                            {{ actions|join:", " }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </article>
+    {% endfor %}
+
+</article>
+{% endblock content %}
