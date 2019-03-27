@@ -8,6 +8,12 @@ from rest_framework import fields, serializers
 
 from .descriptors import GegevensGroepType
 
+try:
+    from relativedeltafield import format_relativedelta, relativedelta
+except ImportError:
+    format_relativedelta = None
+    relativedelta = None
+
 
 class DurationField(fields.DurationField):
 
@@ -23,6 +29,9 @@ class DurationField(fields.DurationField):
             return parsed
 
     def to_representation(self, value):
+        if isinstance(value, relativedelta):
+            return format_relativedelta(value)
+
         return isodate.duration_isoformat(value)
 
 
