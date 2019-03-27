@@ -110,7 +110,6 @@ To enable them, add:
 
     ...,
     'vng_api_common.notifications',
-    'vng_api_common.notifications.publish',
     ...
 
 to your ``INSTALLED_APPS`` setting.
@@ -155,16 +154,16 @@ Define at least one ``Kanaal`` instance, typically this would go in
 
 To send notifications, add the mixins to the viewsets:
 
-* ``vng_api_common.notifications.publish.viewsets.NotificationCreateMixin``:
+* ``vng_api_common.notifications.viewsets.NotificationCreateMixin``:
   send notifications for newly created objects
 
-* ``vng_api_common.notifications.publish.viewsets.NotificationUpdateMixin``:
+* ``vng_api_common.notifications.viewsets.NotificationUpdateMixin``:
   send notifications for (partial) upates to objects
 
-* ``vng_api_common.notifications.publish.viewsets.NotificationDestroyMixin``:
+* ``vng_api_common.notifications.viewsets.NotificationDestroyMixin``:
   send notifications for destroyed objects
 
-* ``vng_api_common.notifications.publish.viewsets.NotificationViewSetMixin``:
+* ``vng_api_common.notifications.viewsets.NotificationViewSetMixin``:
   a combination of all three mixins above
 
 and define the attribute ``notifications_kanaal`` on the viewset:

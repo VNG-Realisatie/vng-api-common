@@ -12,10 +12,10 @@ from rest_framework.permissions import SAFE_METHODS
 from rest_framework.routers import SimpleRouter
 from zds_client import ClientError
 
-from ...utils import get_resource_for_path
-from ..api.serializers import NotificatieSerializer
-from ..kanalen import Kanaal
-from ..models import NotificationsConfig
+from ..utils import get_resource_for_path
+from .api.serializers import NotificatieSerializer
+from .kanalen import Kanaal
+from .models import NotificationsConfig
 
 logger = logging.getLogger(__name__)
 
