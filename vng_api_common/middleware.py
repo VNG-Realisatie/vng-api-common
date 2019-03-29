@@ -77,7 +77,7 @@ class JWTPayload:
             )
 
         res = payload.get('zds', EMPTY_PAYLOAD)
-        res['client_id'] = payload.get('iss', '')
+        res['client_id'] = header['client_identifier']
 
         return res
 
