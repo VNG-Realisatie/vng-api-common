@@ -76,7 +76,10 @@ class JWTPayload:
                 code='invalid-jwt-signature'
             )
 
-        return payload.get('zds', EMPTY_PAYLOAD)
+        res = payload.get('zds', EMPTY_PAYLOAD)
+        res['client_id'] = header['client_identifier']
+
+        return res
 
     def has_scopes(self, scopes: Union[Scope, None]) -> bool:
         """

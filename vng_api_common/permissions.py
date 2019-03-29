@@ -46,3 +46,17 @@ class ScopesRequired(permissions.BasePermission):
             raise ImproperlyConfigured("The View(Set) must have a `required_scopes` attribute")
 
         return request.jwt_payload.has_scopes(view.required_scopes)
+
+
+class ClientIdRequired(permissions.BasePermission):
+    """
+    Look at the client_id of an object and check that it equals client_id in the JWT
+    """
+    def has_object_permission(self, request: Request, view, obj) -> bool:
+        if settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer):
+            return True
+
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        else:
+            return request.jwt_payload['client_id'] == obj.client_id
