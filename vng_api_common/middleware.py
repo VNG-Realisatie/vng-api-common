@@ -89,7 +89,8 @@ class JWTPayload:
             # TODO: should block instead of allow it - we'll gradually introduce this
             return True
 
-        scopes_provided = self.payload['scopes']
+        scopes_provided = self.payload.get('scopes', [])
+        logger.debug("Scopes provided are: %s", scopes)
         # simple form - needs a more complex setup if a scope 'bundles'
         # other scopes
         return scopes.is_contained_in(scopes_provided)
