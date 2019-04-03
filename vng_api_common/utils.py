@@ -1,6 +1,7 @@
 import re
 from typing import Union
 
+from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
 from django.urls import Resolver404, get_resolver
@@ -53,6 +54,9 @@ def get_resource_for_path(path: str) -> models.Model:
     """
     Retrieve the API instance belonging to a (detail) path.
     """
+    if path.startswith(settings.SUBPATH):
+        path = path.replace(settings.SUBPATH, '', 1)
+
     viewset = get_viewset_for_path(path)
 
     # See rest_framework.mixins.RetieveModelMixin.get_object()
