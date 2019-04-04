@@ -70,6 +70,14 @@ class NotificationMixin(metaclass=NotificationMixinBase):
 
         return kanaal.main_resource._meta.model_name
 
+    def get_notification_main_object_url(self, data: dict, kanaal: Kanaal) -> str:
+        """
+        Retrieve the URL for the main object.
+        """
+        # using the main resource name, look up what the URL to this
+        # object is/should be
+        return data[self.get_main_resource_key(kanaal)]
+
     def construct_message(self, data: dict, instance: models.Model = None) -> dict:
         """
         Construct the message to send to the notification component.
@@ -86,7 +94,6 @@ class NotificationMixin(metaclass=NotificationMixinBase):
 
         model = self.get_queryset().model
 
-        # NOTE: possibly this may need to become its own, overrideable method
         if model is kanaal.main_resource:
             # look up the object in the database from its absolute URL
             resource_path = urlparse(data['url']).path
@@ -95,9 +102,8 @@ class NotificationMixin(metaclass=NotificationMixinBase):
             main_object = resource
             main_object_url = data['url']
         else:
-            # using the main resource name, look up what the URL to this
-            # object is/should be, and fetch the object from the db
-            main_object_url = data[self.get_main_resource_key(kanaal)]
+            # lookup the main object from the URL
+            main_object_url = self.get_notification_main_object_url(data, kanaal)
             main_object_path = urlparse(main_object_url).path
             main_object = get_resource_for_path(main_object_path)
 
