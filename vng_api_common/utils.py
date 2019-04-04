@@ -54,8 +54,8 @@ def get_resource_for_path(path: str) -> models.Model:
     """
     Retrieve the API instance belonging to a (detail) path.
     """
-    if path.startswith(settings.SUBPATH):
-        path = path.replace(settings.SUBPATH, '', 1)
+    if settings.FORCE_SCRIPT_NAME and path.startswith(settings.FORCE_SCRIPT_NAME):
+        path = path[len(settings.FORCE_SCRIPT_NAME):]
 
     viewset = get_viewset_for_path(path)
 

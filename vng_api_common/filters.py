@@ -64,8 +64,6 @@ class URLModelChoiceField(fields.ModelChoiceField):
     def url_to_pk(self, url: str):
         parsed = urlparse(url)
         path = parsed.path
-        if settings.FORCE_SCRIPT_NAME and path.startswith(settings.FORCE_SCRIPT_NAME):
-            path = path[len(settings.FORCE_SCRIPT_NAME):]
         instance = get_resource_for_path(path)
         model = self.queryset.model
         if not isinstance(instance, model):
