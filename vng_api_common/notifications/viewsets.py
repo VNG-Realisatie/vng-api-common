@@ -117,9 +117,8 @@ class NotificationMixin(metaclass=NotificationMixinBase):
         serializer = NotificatieSerializer(instance=message_data)
         return camelize(serializer.data)
 
-    def notify(self,
-               status_code: int,
-               data: Union[List, Dict], instance: models.Model = None) -> Union[None, List, Dict]:
+    def notify(self, status_code: int,
+               data: Union[List, Dict], instance: models.Model = None) -> None:
         if settings.NOTIFICATIONS_DISABLED:
             return
 
@@ -135,13 +134,11 @@ class NotificationMixin(metaclass=NotificationMixinBase):
         # exception if the config is not complete. We want this to hard-fail!
         client = NotificationsConfig.get_client()
         try:
-            response = client.create('notificaties', message)
+            client.create('notificaties', message)
         # any unexpected errors should show up in error-monitoring, so we only
         # catch ClientError exceptions
         except ClientError as exc:
             logger.warning("Could not deliver message to %s", client.base_url, exc_info=True)
-
-        return response
 
 
 class NotificationCreateMixin(NotificationMixin):
