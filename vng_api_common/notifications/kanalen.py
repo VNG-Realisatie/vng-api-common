@@ -35,10 +35,10 @@ class Kanaal:
         cls_name = self.__class__.__name__
         return "%s(label=%r, main_resource=%r)" % (cls_name, self.label, self.main_resource)
 
-    def get_kenmerken(self, obj: Model) -> List[Dict]:
-        kenmerken = []
+    def get_kenmerken(self, obj: Model) -> Dict:
+        kenmerken = {}
         for kenmerk in self.kenmerken:
-            kenmerken.append({kenmerk: getattr(obj, kenmerk)})
+            kenmerken[kenmerk] = getattr(obj, kenmerk)
         return kenmerken
 
     def get_usage(self):
