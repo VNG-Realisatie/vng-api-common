@@ -77,6 +77,7 @@ BASE_SWAGGER_SETTINGS = {
     'DEFAULT_INFO': 'must.be.overridden',
     'DEFAULT_FIELD_INSPECTORS': (
         'vng_api_common.inspectors.geojson.GeometryFieldInspector',
+        'vng_api_common.inspectors.fields.ReadOnlyFieldInspector',
 
         'drf_yasg.inspectors.CamelCaseJSONFilter',
         'drf_yasg.inspectors.RecursiveFieldInspector',
