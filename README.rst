@@ -2,6 +2,10 @@
 VNG-API-common - Tooling voor RESTful APIs
 ==========================================
 
+|build-status| |coverage| |docs|
+
+|python-versions| |django-versions| |pypi-version|
+
 VNG-API-common biedt generieke implementaties en tooling voor RESTful APIs
 in een Common Ground gegevenslandschap.
 
@@ -9,8 +13,7 @@ De tooling wordt o.a. gebruikt in de referentie-implementaties van componenten
 voor zaakgericht werken, maar ook in VNG-APIs voor referentielijsten en de
 Gemeentelijke Selectielijst.
 
-Het is een third-party library voor Django projecten, gebaseerd op Django Rest
-Framework en drf-yasg voor schema-generatie.
+Zie de uitgebreide `documentatie`_ voor de features en het gebruik.
 
 .. contents::
 
@@ -63,120 +66,22 @@ Features
     * ontvangen van webhook events
     * configureren en registreren van notificatiecomponent/webhooks
 
+.. |build-status| image:: https://travis-ci.org/vng-Realisatie/vng-api-common.svg?branch=master
+    :target: https://travis-ci.org/vng-Realisatie/vng-api-common
 
-Installatie
-===========
+.. |coverage| image:: https://codecov.io/gh/vng-Realisatie/vng-api-common/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/vng-Realisatie/vng-api-common
+    :alt: Coverage status
 
-Benodigdheden
--------------
+.. |docs| image:: https://readthedocs.org/projects/vng-api-common/badge/?version=latest
+    :target: https://vng-api-common.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
-* Python 3.6 of hoger
-* setuptools 30.3.0 of higher
+.. |python-versions| image:: https://img.shields.io/pypi/pyversions/vng-api-common.svg
 
-Installeren
------------
+.. |django-versions| image:: https://img.shields.io/pypi/djversions/vng-api-common.svg
 
-.. code-block:: bash
+.. |pypi-version| image:: https://img.shields.io/pypi/v/vng-api-common.svg
+    :target: https://pypi.org/project/vng-api-common/
 
-    pip install vng-api-common
-
-Indien je de ``notifications`` app wil gebruiken, dan kan je extra dependencies
-installeren via:
-
-.. code-block:: bash
-
-    pip install vng-api-common[notifications]
-
-Gebruik
-=======
-
-Zie de referentie-implementaties voor `ZRC`_, `DRC`_, `BRC`_ en `ZTC`_.
-
-.. _ZRC: https://github.com/VNG-Realisatie/gemma-zaakregistratiecomponent
-.. _DRC: https://github.com/VNG-Realisatie/gemma-documentregistratiecomponent
-.. _ZTC: https://github.com/VNG-Realisatie/gemma-zaaktypecatalogus
-.. _BRC: https://github.com/VNG-Realisatie/gemma-besluitregistratiecomponent
-
-
-Notifications
--------------
-
-This library ships with support for notifications, in the form of view(set)
-mixins.
-
-To enable them, add:
-
-.. code-block:: python
-
-    ...,
-    'django.contrib.sites',
-    'vng_api_common.notifications',
-    ...
-
-to your ``INSTALLED_APPS`` setting.
-
-Two additional settings are available:
-
-* ``NOTIFICATIONS_KANAAL``: a string, the label of the 'kanaal' to register
-  with the NC
-* ``NOTIFICATIONS_DISABLED``: a boolean, default ``False``. Set to ``True`` to
-  completely disable the sending of notifications.
-
-Next, in the admin interface, open the notifications configuration and enter
-the URL + credentials of the NC to use.
-
-Make sure you also have the ``Sites`` set up correctly, as the domain
-configured there is used to build the documentation URL.
-
-After entering the configuration, you can register your 'kanaal' - this action
-is idempotent:
-
-.. code-block:: bash
-
-    python manage.py register_kanaal
-
-**Usage in code**
-
-Define at least one ``Kanaal`` instance, typically this would go in
-``api/kanalen.py``:
-
-.. code-block:: python
-
-    from vng_api_common.notifications.kanalen import Kanaal
-
-    from zrc.datamodel.models import Zaak
-
-    ZAKEN = Kanaal(
-        'zaken',  # label of the channel/exchange
-        main_resource=Zaak,  # main object for this channel/exchange
-        kenmerken=(  # fields to include as 'kenmerken'
-            'bronorganisatie',
-            'zaaktype',
-            'vertrouwelijkheidaanduiding'
-        )
-    )
-
-To send notifications, add the mixins to the viewsets:
-
-* ``vng_api_common.notifications.viewsets.NotificationCreateMixin``:
-  send notifications for newly created objects
-
-* ``vng_api_common.notifications.viewsets.NotificationUpdateMixin``:
-  send notifications for (partial) upates to objects
-
-* ``vng_api_common.notifications.viewsets.NotificationDestroyMixin``:
-  send notifications for destroyed objects
-
-* ``vng_api_common.notifications.viewsets.NotificationViewSetMixin``:
-  a combination of all three mixins above
-
-and define the attribute ``notifications_kanaal`` on the viewset:
-
-.. code-block:: python
-
-    from .kanalen import ZAKEN
-
-
-    class ZaakViewSet(NotificationViewSetMixin, viewsets.ModelViewSet):
-        ...
-        notifications_kanaal = ZAKEN
+.. _documentatie: https://vng-api-common.readthedocs.io/en/latest/?badge=latest

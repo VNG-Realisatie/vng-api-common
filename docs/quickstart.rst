@@ -5,13 +5,22 @@ Quickstart
 Installation
 ============
 
+Pre-requisites
+--------------
+
+* Python 3.6 or higher
+* Setuptools 30.3.0 or higher
+
+Install from PyPI
+-----------------
+
 Install from PyPI with pip:
 
 .. code-block:: bash
 
     pip install vng-api-common
 
-or if you want notifications support:
+or if you want :ref:`notifications` support:
 
 .. code-block:: bash
 
