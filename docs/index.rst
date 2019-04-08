@@ -5,7 +5,7 @@
 Welcome to VNG-API-common's documentation!
 =================================================
 
-|build-status| |requirements| |coverage|
+|build-status| |coverage|
 
 |python-versions| |django-versions| |pypi-version|
 
@@ -46,10 +46,6 @@ Indices and tables
 
 .. |build-status| image:: https://travis-ci.org/vng-Realisatie/vng-api-common.svg?branch=master
     :target: https://travis-ci.org/vng-Realisatie/vng-api-common
-
-.. |requirements| image:: https://requires.io/github/vng-Realisatie/vng-api-common/requirements.svg?branch=master
-    :target: https://requires.io/github/vng-Realisatie/vng-api-common/requirements/?branch=master
-    :alt: Requirements status
 
 .. |coverage| image:: https://codecov.io/gh/vng-Realisatie/vng-api-common/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/vng-Realisatie/vng-api-common
