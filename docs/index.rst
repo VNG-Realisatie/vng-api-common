@@ -34,7 +34,7 @@ Features
 
    quickstart
    notifications
-
+   ref/index
 
 
 Indices and tables

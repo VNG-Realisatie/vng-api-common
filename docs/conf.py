@@ -13,10 +13,34 @@
 import os
 import sys
 
+import django
+from django.conf import settings
+
 sys.path.insert(0, os.path.abspath('..'))
 
 from vng_api_common import __version__  # noqa isort:skip
+from vng_api_common.conf import api as api_settings  # noqa isort:skip
 
+settings.configure(
+    INSTALLED_APPS=[
+        'rest_framework',
+        'django_filters',
+        'vng_api_common',
+        'vng_api_common.notifications',
+        'drf_yasg',
+        'solo',
+    ],
+    DATABASES={
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'docs',
+            'USER': 'docs',
+            'PASSWORD': 'docs',
+        }
+    },
+    **{name: getattr(api_settings, name) for name in api_settings.__all__}
+)
+django.setup()
 
 # -- Project information -----------------------------------------------------
 
