@@ -44,11 +44,11 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. |build-status| image:: https://travis-ci.org/vng-Realisatie/vng-api-common.svg?branch=master
-    :target: https://travis-ci.org/vng-Realisatie/vng-api-common
+.. |build-status| image:: https://travis-ci.org/VNG-Realisatie/vng-api-common.svg?branch=master
+    :target: https://travis-ci.org/VNG-Realisatie/vng-api-common
 
-.. |coverage| image:: https://codecov.io/gh/vng-Realisatie/vng-api-common/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/vng-Realisatie/vng-api-common
+.. |coverage| image:: https://codecov.io/gh/VNG-Realisatie/vng-api-common/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/VNG-Realisatie/vng-api-common
     :alt: Coverage status
 
 .. |python-versions| image:: https://img.shields.io/pypi/pyversions/vng-api-common.svg
