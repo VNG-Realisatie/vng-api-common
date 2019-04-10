@@ -4,6 +4,7 @@ recursive-include vng_api_common *.md
 recursive-include vng_api_common *.html
 recursive-include vng_api_common *.txt
 recursive-include vng_api_common *.po
+recursive-include vng_api_common/static/ *
 global-exclude __pycache__
 global-exclude *.py[co]
 
