@@ -66,11 +66,11 @@ Features
     * ontvangen van webhook events
     * configureren en registreren van notificatiecomponent/webhooks
 
-.. |build-status| image:: https://travis-ci.org/vng-Realisatie/vng-api-common.svg?branch=master
-    :target: https://travis-ci.org/vng-Realisatie/vng-api-common
+.. |build-status| image:: https://travis-ci.org/VNG-Realisatie/vng-api-common.svg?branch=master
+    :target: https://travis-ci.org/VNG-Realisatie/vng-api-common
 
-.. |coverage| image:: https://codecov.io/gh/vng-Realisatie/vng-api-common/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/vng-Realisatie/vng-api-common
+.. |coverage| image:: https://codecov.io/gh/VNG-Realisatie/vng-api-common/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/VNG-Realisatie/vng-api-common
     :alt: Coverage status
 
 .. |docs| image:: https://readthedocs.org/projects/vng-api-common/badge/?version=latest
