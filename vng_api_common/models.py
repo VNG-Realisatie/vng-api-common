@@ -9,6 +9,12 @@ from zds_client import ClientAuth
 
 
 class APIMixin:
+    """
+    Determine the absolute URL of a resource in the API.
+
+    Model mixin that reverses the URL-path in the API based on the
+    ``uuid``-field of a model instance.
+    """
 
     def get_absolute_api_url(self, request=None, **kwargs) -> str:
         """

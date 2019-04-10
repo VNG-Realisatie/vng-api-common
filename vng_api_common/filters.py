@@ -1,6 +1,5 @@
 from urllib.parse import urlencode, urlparse
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.forms.widgets import URLInput
