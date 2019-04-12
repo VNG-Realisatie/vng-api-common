@@ -24,7 +24,7 @@ class Applicatie(APIMixin, models.Model):
         max_length=100,
         help_text=_("A human readable representation of the application")
     )
-    heeft_all_autorisaties = models.BooleanField(
+    heeft_alle_autorisaties = models.BooleanField(
         default=False,
         help_text=_("Globally allows everything")
     )
