@@ -17,10 +17,13 @@
     </p>
 
     {% for scope in scopes %}
-      <h2>
+      <a name="{{ scope.label }}"></a>
+      <h2>{{ scope.label }}</h2>
+
+      <p><strong>Scope</strong></p>
+      <p>
         <code>{{ scope.label }}</code>
-        <small><a href="#{{ scope.label }}"><i class="fa fa-link"></i></a></small>
-      </h2>
+      </p>
 
       <p>
         {{ scope.description|default:""|apply_markup:"markdown" }}

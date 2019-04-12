@@ -14,7 +14,7 @@
       Kanalen worden typisch per component gedefinieerd. Producers versturen
       berichten op bepaalde kanalen, consumers ontvangen deze. Consumers
       abonneren zich via een notificatiecomponent (zoals
-      {{ 'https://ref.tst.vng.cloud/nc/api/v1/schema/'|urlize }}) op berichten.
+      {{ 'https://ref.tst.vng.cloud/nrc/api/v1/schema/'|urlize }}) op berichten.
     </p>
 
     <p>
@@ -28,16 +28,19 @@
     </p>
 
     {% for kanaal in kanalen %}
-      <h2>
+      <a name="#{{ kanaal.label }}"></a>
+      <h2>{{ kanaal.label|title }}</h2>
+
+      <p><strong>Kanaal</strong></p>
+      <p>
         <code>{{ kanaal.label }}</code>
-        <small><a href="#{{ kanaal.label }}"><i class="fa fa-link"></i></a></small>
-      </h2>
+      </p>
 
       <p>
         {{ kanaal.description|default:""|urlize|apply_markup:"markdown" }}
       </p>
 
-      <h3>Resources en acties</h3>
+      <p><strong>Resources en acties</strong></p>
 
       <ul>
         {% for resource, actions in kanaal.get_usage %}
