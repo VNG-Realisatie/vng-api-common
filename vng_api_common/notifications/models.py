@@ -11,6 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from solo.models import SingletonModel
 from zds_client import Client, ClientAuth
 
+from ..models import APICredential
 from .constants import (
     SCOPE_NOTIFICATIES_CONSUMEREN_LABEL, SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
 )
@@ -18,8 +19,6 @@ from .constants import (
 
 class NotificationsConfig(SingletonModel):
     api_root = models.URLField(_("api root"), unique=True, default='https://ref.tst.vng.cloud/nrc/api/v1')
-    client_id = models.CharField(_("client id"), blank=True, max_length=255)
-    secret = models.CharField(_("secret"), blank=True, max_length=255)
 
     class Meta:
         verbose_name = _("Notificatiescomponentconfiguratie")
@@ -28,11 +27,7 @@ class NotificationsConfig(SingletonModel):
         return self.api_root
 
     def get_auth(self) -> ClientAuth:
-        auth = ClientAuth(
-            client_id=self.client_id,
-            secret=self.secret,
-            scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL]
-        )
+        auth = APICredential.get_auth(self.api_root, scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL])
         return auth
 
     @classmethod
@@ -103,12 +98,9 @@ class Subscription(models.Model):
         client = Client.from_url(dummy_detail_url)
 
         # This authentication is to create a subscription at the NC.
-        client.auth = ClientAuth(
-            client_id=self.config.client_id,
-            secret=self.config.secret,
-            scopes=[
-                SCOPE_NOTIFICATIES_CONSUMEREN_LABEL
-            ]
+        client.auth = APICredential.get_auth(
+            self.config.api_root,
+            scopes=[SCOPE_NOTIFICATIES_CONSUMEREN_LABEL]
         )
 
         # This authentication is for the NC to call us. Thus, it's *not* for
