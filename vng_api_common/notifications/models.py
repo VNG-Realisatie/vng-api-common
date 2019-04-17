@@ -17,7 +17,7 @@ from .constants import (
 
 
 class NotificationsConfig(SingletonModel):
-    api_root = models.URLField(_("api root"), unique=True, default='https://ref.tst.vng.cloud/nc/api/v1')
+    api_root = models.URLField(_("api root"), unique=True, default='https://ref.tst.vng.cloud/nrc/api/v1')
     client_id = models.CharField(_("client id"), blank=True, max_length=255)
     secret = models.CharField(_("secret"), blank=True, max_length=255)
 
