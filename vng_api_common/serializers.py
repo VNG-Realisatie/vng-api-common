@@ -25,6 +25,10 @@ class DurationField(fields.DurationField):
         except isodate.ISO8601Error:
             self.fail('invalid', format='P(n)Y(n)M(n)D')
         else:
+            if isinstance(parsed, isodate.Duration):
+                # TODO: start should probably be a proper object, but we should
+                # really switch to relativedeltafield
+                parsed = parsed.totimedelta(start=datetime.datetime.now())
             assert isinstance(parsed, datetime.timedelta)
             return parsed
 
