@@ -42,6 +42,10 @@ class JWTSecret(models.Model):
     identifier = models.CharField(_("identifier"), max_length=50, unique=True)
     secret = models.CharField(_("secret"), max_length=255)
 
+    class Meta:
+        verbose_name = _("client credential")
+        verbose_name_plural = _("client credentials")
+
     def __str__(self):
         return self.identifier
 
@@ -54,12 +58,13 @@ class APICredential(models.Model):
     client ID and secret to use to sign the JWT.
     """
     api_root = models.URLField(_("api root"), unique=True)
+    label = models.CharField(_("label"), max_length=100, help_text=_("human readable label"), default='')
     client_id = models.CharField(_("client id"), max_length=255)
     secret = models.CharField(_("secret"), max_length=255)
 
     class Meta:
-        verbose_name = _("API credential")
-        verbose_name_plural = _("API credentials")
+        verbose_name = _("external API credential")
+        verbose_name_plural = _("external API credentials")
 
     def __str__(self):
         return self.api_root

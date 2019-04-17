@@ -11,5 +11,5 @@ class JWTSecretAdmin(admin.ModelAdmin):
 
 @admin.register(APICredential)
 class APICredentialAdmin(admin.ModelAdmin):
-    list_display = ('api_root', 'client_id')
-    search_fields = ('api_root',)
+    list_display = ('label', 'api_root', 'client_id')
+    search_fields = ('label', 'api_root',)
