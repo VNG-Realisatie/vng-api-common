@@ -9,4 +9,7 @@ if [[ -z "$VIRTUAL_ENV" ]]; then
     exit 1
 fi
 
-src/manage.py patch_error_contenttypes ./src/openapi.yaml
+source_file=${1:-./src/openapi.yaml}
+manage=${MANAGE:-src/manage.py}
+
+python $manage patch_error_contenttypes $source_file

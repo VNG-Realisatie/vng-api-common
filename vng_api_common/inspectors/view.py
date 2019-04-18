@@ -98,10 +98,14 @@ class AutoSchema(SwaggerAutoSchema):
     def _is_search_view(self):
         return is_search_view(self.view)
 
-    def get_operation_id(self, operation_keys):
+    def get_operation_id(self, operation_keys) -> str:
         """
         Simply return the model name as lowercase string, postfixed with the operation name.
         """
+        operation_id = self.overrides.get('operation_id', '')
+        if operation_id:
+            return operation_id
+
         action = operation_keys[-1]
         if self.model is not None:
             model_name = self.model._meta.model_name
