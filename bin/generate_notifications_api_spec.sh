@@ -14,3 +14,8 @@ cd $toplevel
     --overwrite \
     -f yaml \
     swagger2.0.yaml
+
+echo "Converting Swagger to OpenAPI 3.0..."
+npm run convert
+
+MANAGE=manage.py ./bin/patch_content_types openapi.yaml

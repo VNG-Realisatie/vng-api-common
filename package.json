@@ -1,0 +1,27 @@
+{
+  "name": "vng-api-common",
+  "version": "0.38.1",
+  "description": "NodeJS build tooling for vng-api-common",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "convert": "swagger2openapi swagger2.0.yaml -o openapi.yaml",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vng-Realisatie/gemma-zaken-common.git"
+  },
+  "author": "VNG-Realisatie, Maykin Media",
+  "license": "EUPL-1.2",
+  "bugs": {
+    "url": "https://github.com/vng-Realisatie/gemma-zaken-common/issues"
+  },
+  "homepage": "https://github.com/vng-Realisatie/gemma-zaken-common#readme",
+  "dependencies": {
+    "swagger2openapi": "^5.2.5"
+  }
+}
