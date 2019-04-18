@@ -13,9 +13,9 @@ cd $toplevel
 ./manage.py generate_swagger \
     --overwrite \
     -f yaml \
-    swagger2.0.yaml
+    notifications-webhook-2.0.yaml
 
 echo "Converting Swagger to OpenAPI 3.0..."
 npm run convert
 
-MANAGE=manage.py ./bin/patch_content_types openapi.yaml
+MANAGE=manage.py ./bin/patch_content_types notifications-webhook.yaml

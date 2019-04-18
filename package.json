@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "scripts": {
-    "convert": "swagger2openapi swagger2.0.yaml -o openapi.yaml",
+    "convert": "swagger2openapi notifications-webhook-2.0.yaml -o notifications-webhook.yaml",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
