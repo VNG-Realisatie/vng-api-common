@@ -6,10 +6,10 @@ info:
     url: https://github.com/VNG-Realisatie/gemma-zaken
   version: '1'
 paths:
-  /webhooks:
+  /{webhooks_path}:
     post:
-      operationId: webhooks_create
-      description: ''
+      operationId: notification_receive
+      description: Ontvang notificaties via webhook
       requestBody:
         content:
           application/json:
@@ -110,10 +110,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
       tags:
-      - webhooks
-    parameters: []
+      - Notificaties
+    parameters:
+    - name: webhooks_path
+      in: path
+      required: true
+      schema:
+        type: string
 servers:
-- url: /api
+- url: /
 components:
   schemas:
     Notificatie:

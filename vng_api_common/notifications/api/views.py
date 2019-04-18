@@ -34,7 +34,7 @@ class NotificationBaseView(APIView):
         500: FoutSerializer,
         502: FoutSerializer,
         503: FoutSerializer,
-    }, operation_id='notification_create')
+    }, operation_id='notification_receive', tags=['Notificaties'])
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

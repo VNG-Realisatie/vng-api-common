@@ -5,17 +5,17 @@ info:
   contact:
     url: https://github.com/VNG-Realisatie/gemma-zaken
   version: '1'
-basePath: /api
+basePath: /
 consumes:
   - application/json
 produces:
   - application/json
 securityDefinitions: {}
 paths:
-  /webhooks:
+  /{webhooks_path}:
     post:
-      operationId: webhooks_create
-      description: ''
+      operationId: notification_receive
+      description: Ontvang notificaties via webhook
       parameters:
         - name: data
           in: body
@@ -102,8 +102,12 @@ paths:
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
       tags:
-        - webhooks
-    parameters: []
+        - Notificaties
+    parameters:
+      - name: webhooks_path
+        in: path
+        required: true
+        type: string
 definitions:
   Notificatie:
     required:

@@ -16,6 +16,9 @@ urlpatterns = [
                 SchemaView.with_ui('redoc', cache_timeout=None),
                 name='schema-redoc'),
 
-        path('webhooks', NotificationView.as_view()),
     ])),
+
+    # this is a hack to get the parameter to show up in the API spec
+    # this effectively makes this a wildcard URL, so it should be LAST
+    path('<webhooks_path>', NotificationView.as_view()),
 ]
