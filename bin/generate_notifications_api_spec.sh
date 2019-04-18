@@ -10,4 +10,7 @@ fi
 toplevel=$(git rev-parse --show-toplevel)
 cd $toplevel
 
-./manage.py generate_swagger -f yaml swagger2.0.yaml
+./manage.py generate_swagger \
+    --overwrite \
+    -f yaml \
+    swagger2.0.yaml

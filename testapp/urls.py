@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 
 from .schema import SchemaView
+from .views import NotificationView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -15,6 +16,6 @@ urlpatterns = [
                 SchemaView.with_ui('redoc', cache_timeout=None),
                 name='schema-redoc'),
 
-        path('', include('vng_api_common.notifications.api.urls'))
+        path('webhooks', NotificationView.as_view()),
     ])),
 ]

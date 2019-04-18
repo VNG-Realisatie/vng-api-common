@@ -4,13 +4,253 @@ info:
   description: API Specification to be able to receive notifications from the NRC
   contact:
     url: https://github.com/VNG-Realisatie/gemma-zaken
-  version: v1
-basePath: /
+  version: '1'
+basePath: /api
 consumes:
   - application/json
 produces:
   - application/json
 securityDefinitions: {}
-security: []
-paths: {}
-definitions: {}
+paths:
+  /webhooks:
+    post:
+      operationId: webhooks_create
+      description: ''
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Notificatie'
+      responses:
+        '204':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '400':
+          description: ''
+          schema:
+            $ref: '#/definitions/ValidatieFout'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '401':
+          description: ''
+          schema:
+            $ref: '#/definitions/Fout'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '403':
+          description: ''
+          schema:
+            $ref: '#/definitions/Fout'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '429':
+          description: ''
+          schema:
+            $ref: '#/definitions/Fout'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '500':
+          description: ''
+          schema:
+            $ref: '#/definitions/Fout'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '502':
+          description: ''
+          schema:
+            $ref: '#/definitions/Fout'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '503':
+          description: ''
+          schema:
+            $ref: '#/definitions/Fout'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+      tags:
+        - webhooks
+    parameters: []
+definitions:
+  Notificatie:
+    required:
+      - kanaal
+      - hoofdObject
+      - resource
+      - resourceUrl
+      - actie
+      - aanmaakdatum
+    type: object
+    properties:
+      kanaal:
+        title: kanaal
+        type: string
+        maxLength: 50
+        minLength: 1
+      hoofdObject:
+        title: URL naar het hoofdobject
+        type: string
+        format: uri
+        minLength: 1
+      resource:
+        title: resource
+        type: string
+        maxLength: 100
+        minLength: 1
+      resourceUrl:
+        title: URL naar de resource waarover de notificatie gaat
+        type: string
+        format: uri
+        minLength: 1
+      actie:
+        title: actie
+        type: string
+        maxLength: 100
+        minLength: 1
+      aanmaakdatum:
+        title: aanmaakdatum
+        type: string
+        format: date-time
+      kenmerken:
+        title: Kenmerken
+        type: object
+        additionalProperties:
+          type: string
+          maxLength: 1000
+          minLength: 1
+  FieldValidationError:
+    required:
+      - name
+      - code
+      - reason
+    type: object
+    properties:
+      name:
+        title: Name
+        description: Naam van het veld met ongeldige gegevens
+        type: string
+        minLength: 1
+      code:
+        title: Code
+        description: Systeemcode die het type fout aangeeft
+        type: string
+        minLength: 1
+      reason:
+        title: Reason
+        description: Uitleg wat er precies fout is met de gegevens
+        type: string
+        minLength: 1
+  ValidatieFout:
+    required:
+      - code
+      - title
+      - status
+      - detail
+      - instance
+      - invalid-params
+    type: object
+    properties:
+      type:
+        title: Type
+        description: URI referentie naar het type fout, bedoeld voor developers
+        type: string
+      code:
+        title: Code
+        description: Systeemcode die het type fout aangeeft
+        type: string
+        minLength: 1
+      title:
+        title: Title
+        description: Generieke titel voor het type fout
+        type: string
+        minLength: 1
+      status:
+        title: Status
+        description: De HTTP status code
+        type: integer
+      detail:
+        title: Detail
+        description: Extra informatie bij de fout, indien beschikbaar
+        type: string
+        minLength: 1
+      instance:
+        title: Instance
+        description: URI met referentie naar dit specifiek voorkomen van de fout.
+          Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
+        type: string
+        minLength: 1
+      invalid-params:
+        type: array
+        items:
+          $ref: '#/definitions/FieldValidationError'
+  Fout:
+    required:
+      - code
+      - title
+      - status
+      - detail
+      - instance
+    type: object
+    properties:
+      type:
+        title: Type
+        description: URI referentie naar het type fout, bedoeld voor developers
+        type: string
+      code:
+        title: Code
+        description: Systeemcode die het type fout aangeeft
+        type: string
+        minLength: 1
+      title:
+        title: Title
+        description: Generieke titel voor het type fout
+        type: string
+        minLength: 1
+      status:
+        title: Status
+        description: De HTTP status code
+        type: integer
+      detail:
+        title: Detail
+        description: Extra informatie bij de fout, indien beschikbaar
+        type: string
+        minLength: 1
+      instance:
+        title: Instance
+        description: URI met referentie naar dit specifiek voorkomen van de fout.
+          Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
+        type: string
+        minLength: 1

@@ -1,12 +1,14 @@
 from django.conf import settings
 from django.utils.module_loading import import_string
 
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from ...permissions import ScopesRequired
 from ...scopes import Scope
+from ...serializers import FoutSerializer, ValidatieFoutSerializer
 from ..constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
 from .serializers import NotificatieSerializer
 
@@ -18,13 +20,26 @@ class NotificationBaseView(APIView):
     swagger_schema = None
 
     permission_classes = (ScopesRequired,)
-    required_scopes = Scope(SCOPE_NOTIFICATIES_PUBLICEREN_LABEL)
+    required_scopes = Scope(SCOPE_NOTIFICATIES_PUBLICEREN_LABEL)  # FIXME: this should be standalone!
 
+    def get_serializer(self, *args, **kwargs):
+        return NotificatieSerializer(*args, **kwargs)
+
+    @swagger_auto_schema(responses={
+        204: '',
+        400: ValidatieFoutSerializer,
+        401: FoutSerializer,
+        403: FoutSerializer,
+        429: FoutSerializer,
+        500: FoutSerializer,
+        502: FoutSerializer,
+        503: FoutSerializer,
+    }, operation_id='notification_create')
     def post(self, request, *args, **kwargs):
-        serializer = NotificatieSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.handle_notification(serializer.validated_data)
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def handle_notification(self, message):
         raise NotImplementedError("You must implemented `handle_notification`")

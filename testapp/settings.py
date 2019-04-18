@@ -1,5 +1,7 @@
 import os
 
+from vng_api_common.conf.api import *  # noqa
+
 DEBUG = os.getenv('DEBUG', 'no').lower() in ['yes', 'true', '1']
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -23,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.admin',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
 
     'rest_framework',
     'drf_yasg',
@@ -63,11 +66,13 @@ ROOT_URLCONF = 'testapp.urls'
 
 STATIC_URL = '/static/'
 
-SWAGGER_SETTINGS = {
+REST_FRAMEWORK = BASE_REST_FRAMEWORK.copy()
+
+SWAGGER_SETTINGS = BASE_SWAGGER_SETTINGS.copy()
+
+SWAGGER_SETTINGS['DEFAULT_FIELD_INSPECTORS'] = SWAGGER_SETTINGS['DEFAULT_FIELD_INSPECTORS'][1:]
+
+SWAGGER_SETTINGS.update({
     'DEFAULT_INFO': 'testapp.schema.info',
     'SECURITY_DEFINITIONS': {},
-}
-
-REDOC_SETTINGS = {
-    'EXPAND_RESPONSES': '200,201'
-}
+})
