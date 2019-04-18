@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'drf_yasg',
 
     'vng_api_common',
     'vng_api_common.notifications',
@@ -61,3 +62,12 @@ TEMPLATES = [
 ROOT_URLCONF = 'testapp.urls'
 
 STATIC_URL = '/static/'
+
+SWAGGER_SETTINGS = {
+    'DEFAULT_INFO': 'testapp.schema.info',
+    'SECURITY_DEFINITIONS': {},
+}
+
+REDOC_SETTINGS = {
+    'EXPAND_RESPONSES': '200,201'
+}
