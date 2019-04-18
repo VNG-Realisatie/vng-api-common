@@ -75,4 +75,5 @@ class GegevensGroepType:
             setattr(obj, field.name, value[key])
 
             if key not in self.optional:
-                assert getattr(obj, field.name, None), f"Empty '{key}' not allowed"
+                attr_value = getattr(obj, field.name, None)
+                assert attr_value is not None, f"Empty '{key}' not allowed"
