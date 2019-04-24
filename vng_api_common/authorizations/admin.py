@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Autorisatie, Applicatie
+from .models import Applicatie, Autorisatie
 
 
 @admin.register(Autorisatie)
