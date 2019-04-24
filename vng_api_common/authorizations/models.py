@@ -29,13 +29,20 @@ class Applicatie(APIMixin, models.Model):
         help_text=_("Globally allows everything")
     )
 
+    def __str__(self):
+        return f'Applicatie ({self.label})'
+
 
 class Autorisatie(APIMixin, models.Model):
-    uuid = models.UUIDField(
-        unique=True, default=uuid.uuid4,
-        help_text="Unique resource identifier (UUID4)"
+    applicatie = models.ForeignKey(
+        'Applicatie',
+        on_delete=models.CASCADE,
+        related_name='autorisaties'
     )
-    applicatie = models.ForeignKey('Applicatie', on_delete=models.CASCADE)
+    component = models.CharField(
+        max_length=50,
+        help_text=_("Name of the component to authorize")
+    )
     zaaktype = models.URLField(
         help_text="Url of the zaaktype that is allowed",
         max_length=1000
@@ -44,6 +51,6 @@ class Autorisatie(APIMixin, models.Model):
         models.CharField(max_length=100),
         help_text=_("Comma-separated list of identifiers used for authentication")
     )
-    maximale_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingField(
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingField(
         help_text=_("Maximum level of confidentiality that is allowed")
     )
