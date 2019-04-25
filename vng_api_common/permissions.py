@@ -60,3 +60,33 @@ class ClientIdRequired(permissions.BasePermission):
             return True
         else:
             return request.jwt_payload['client_id'] == obj.client_id
+
+
+class AuthActionScopesZaaktypeRequired(permissions.BasePermission):
+    """
+    Look at the scopes required for the current action and zaaktype in the view
+    and check that they are present in the AC for this client
+    """
+    def get_required_scopes(self, view) -> Union[Scope, None]:
+        if not hasattr(view, 'required_scopes'):
+            raise ImproperlyConfigured("The View(Set) must have a `required_scopes` attribute")
+
+        scopes_required = view.required_scopes.get(view.action)
+        return scopes_required
+
+    def get_zaaktype(self, obj):
+        return obj.zaaktype
+
+    def has_object_permission(self, request: Request, view, obj) -> bool:
+        if settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer):
+            return True
+
+        scopes_required = self.get_required_scopes(view)
+        zaaktype = self.get_zaaktype(obj)
+        return request.jwt_auth.has_auth(scopes_required, zaaktype)
+
+
+class AuthActionScopesRequired(AuthActionScopesZaaktypeRequired):
+
+    def get_zaaktype(self, obj):
+        return None

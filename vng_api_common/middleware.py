@@ -7,6 +7,7 @@ from django.conf import settings
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
+from vng_api_common.authorizations.config.models import AuthorizationsConfig
 import jwt
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -96,6 +97,88 @@ class JWTPayload:
         return scopes.is_contained_in(scopes_provided)
 
 
+class JWTAuth:
+    def __init__(self, encoded: str = None):
+        self.encoded = encoded
+
+    @property
+    def auth_list(self):
+        if self.client_id is None:
+            return []
+
+        client = AuthorizationsConfig.get_client()
+
+        response = client.list(
+            'applicatie',
+            query_params={'client_ids': self.client_id}
+        )
+        return response['results']
+
+    @property
+    def client_id(self) -> Union[str, None]:
+        if self.encoded is None:
+            return None
+
+        # TODO extract client_id from payload
+        #  when token generation is changed
+        try:
+            header = jwt.get_unverified_header(self.encoded)
+        except jwt.DecodeError:
+            logger.info("Invalid JWT encountered")
+            raise PermissionDenied(
+                _('JWT could not be decoded. Possibly you made a copy-paste mistake.'),
+                code='jwt-decode-error'
+            )
+
+        try:
+            jwt_secret = JWTSecret.objects.get(identifier=header['client_identifier'])
+        except JWTSecret.DoesNotExist:
+            raise PermissionDenied(
+                'Client identifier bestaat niet',
+                code='invalid-client-identifier'
+            )
+        except KeyError:
+            raise PermissionDenied(
+                'Client identifier is niet aanwezig in JWT',
+                code='missing-client-identifier'
+            )
+        else:
+            key = jwt_secret.secret
+
+        try:
+            jwt.decode(self.encoded, key, algorithms='HS256')
+        except jwt.InvalidSignatureError as exc:
+            logger.exception("Invalid signature - possible payload tampering?")
+            raise PermissionDenied(
+                'Client credentials zijn niet geldig',
+                code='invalid-jwt-signature'
+            )
+
+        return header['client_identifier']
+
+    def has_auth(self, scopes: Union[Scope, None], zaaktype: Union[str, None]) -> bool:
+
+        if scopes is None:
+            return False
+
+        auth_list = self.auth_list
+
+        scopes_provided = set()
+        # compare scopes and zaaktype from AC to required scopes
+        for applicatie in auth_list:
+            # allow everything
+            if applicatie['heeftAlleAutorisaties'] is True:
+                return True
+
+            # consider all scopes at all zaaktypes
+            for autorisatie in applicatie['autorisaties']:
+                if autorisatie['component'] == AuthorizationsConfig.get_solo().component \
+                        and (zaaktype is None or autorisatie['zaaktype'] == zaaktype):
+                    scopes_provided.update(autorisatie['scopes'])
+
+        return scopes.is_contained_in(list(scopes_provided))
+
+
 class AuthMiddleware:
 
     header = 'HTTP_AUTHORIZATION'
@@ -118,6 +201,7 @@ class AuthMiddleware:
             encoded = None
 
         request.jwt_payload = JWTPayload(encoded)
+        request.jwt_auth = JWTAuth(encoded)
 
 
 class APIVersionHeaderMiddleware:
