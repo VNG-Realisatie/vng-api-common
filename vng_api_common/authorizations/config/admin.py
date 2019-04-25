@@ -1,7 +1,8 @@
 from django.contrib import admin
 
-from .models import AuthorizationsConfig
 from solo.admin import SingletonModelAdmin
+
+from .models import AuthorizationsConfig
 
 
 @admin.register(AuthorizationsConfig)

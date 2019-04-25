@@ -7,10 +7,11 @@ from django.conf import settings
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
-from vng_api_common.authorizations.config.models import AuthorizationsConfig
 import jwt
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
+
+from vng_api_common.authorizations.config.models import AuthorizationsConfig
 
 from .constants import VERSION_HEADER
 from .models import JWTSecret
