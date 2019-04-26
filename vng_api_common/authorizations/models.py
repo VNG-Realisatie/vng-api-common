@@ -4,6 +4,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.fields import VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 
@@ -54,3 +55,7 @@ class Autorisatie(APIMixin, models.Model):
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingField(
         help_text=_("Maximum level of confidentiality that is allowed")
     )
+
+    def satisfy_vertrouwelijkheid (self, vertrouwelijkheidaanduiding) -> bool:
+        return VertrouwelijkheidsAanduiding.get_choice(self.max_vertrouwelijkheidaanduiding).order >= \
+               VertrouwelijkheidsAanduiding.get_choice(vertrouwelijkheidaanduiding).order

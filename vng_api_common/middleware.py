@@ -8,12 +8,15 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
 import jwt
+from djangorestframework_camel_case.util import underscoreize
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from vng_api_common.authorizations.config.models import AuthorizationsConfig
+from vng_api_common.authorizations.models import Applicatie
+from vng_api_common.authorizations.serializers import ApplicatieSerializer
 
-from .constants import VERSION_HEADER, VertrouwelijkheidsAanduiding
+from .constants import VERSION_HEADER
 from .models import JWTSecret
 from .scopes import Scope
 
@@ -103,17 +106,39 @@ class JWTAuth:
         self.encoded = encoded
 
     @property
-    def auth_list(self):
+    def applicaties(self) -> Union[list, None]:
         if self.client_id is None:
             return []
 
+        applicaties = self._get_auth()
+
+        if not applicaties:
+            auth_data = self._request_auth()
+            applicaties = self._save_auth(auth_data)
+
+        return applicaties
+
+    def _request_auth(self) -> list:
         client = AuthorizationsConfig.get_client()
 
         response = client.list(
             'applicatie',
             query_params={'client_ids': self.client_id}
         )
-        return response['results']
+        return underscoreize(response['results'])
+
+    def _get_auth(self):
+        return Applicatie.objects.filter(client_ids__contains=[self.client_id])
+
+    def _save_auth(self, auth_data):
+        applicaties = []
+
+        for applicatie_data in auth_data:
+            applicatie_serializer = ApplicatieSerializer(data=applicatie_data)
+            applicatie_serializer.is_valid()
+            applicaties.append(applicatie_serializer.save())
+
+        return applicaties
 
     @property
     def client_id(self) -> Union[str, None]:
@@ -162,22 +187,21 @@ class JWTAuth:
         if scopes is None:
             return False
 
-        auth_list = self.auth_list
-
+        applicaties = self.applicaties
         scopes_provided = set()
-        for applicatie in auth_list:
+
+        for applicatie in applicaties:
             # allow everything
-            if applicatie['heeftAlleAutorisaties'] is True:
+            if applicatie.heeft_alle_autorisaties is True:
                 return True
 
             # consider all scopes at all zaaktypes and vertrouwelijkheidaanduiding
-            for autorisatie in applicatie['autorisaties']:
-                if autorisatie['component'] == AuthorizationsConfig.get_solo().component \
-                        and (zaaktype is None or autorisatie['zaaktype'] == zaaktype)\
+            for autorisatie in applicatie.autorisaties.all():
+                if autorisatie.component == AuthorizationsConfig.get_solo().component \
+                        and (zaaktype is None or autorisatie.zaaktype == zaaktype)\
                         and (vertrouwelijkheidaanduiding is None
-                             or VertrouwelijkheidsAanduiding.get_choice(autorisatie['maxVertrouwelijkheidaanduiding']).order
-                             >= VertrouwelijkheidsAanduiding.get_choice(vertrouwelijkheidaanduiding).order):
-                    scopes_provided.update(autorisatie['scopes'])
+                             or autorisatie.satisfy_vertrouwelijkheid(vertrouwelijkheidaanduiding)):
+                    scopes_provided.update(autorisatie.scopes)
 
         return scopes.is_contained_in(list(scopes_provided))
 
