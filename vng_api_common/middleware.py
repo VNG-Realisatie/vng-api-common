@@ -13,7 +13,7 @@ from rest_framework.response import Response
 
 from vng_api_common.authorizations.config.models import AuthorizationsConfig
 
-from .constants import VERSION_HEADER
+from .constants import VERSION_HEADER, VertrouwelijkheidsAanduiding
 from .models import JWTSecret
 from .scopes import Scope
 
@@ -157,7 +157,7 @@ class JWTAuth:
 
         return header['client_identifier']
 
-    def has_auth(self, scopes: Union[Scope, None], zaaktype: Union[str, None]) -> bool:
+    def has_auth(self, scopes, zaaktype, vertrouwelijkheidaanduiding) -> bool:
 
         if scopes is None:
             return False
@@ -165,16 +165,18 @@ class JWTAuth:
         auth_list = self.auth_list
 
         scopes_provided = set()
-        # compare scopes and zaaktype from AC to required scopes
         for applicatie in auth_list:
             # allow everything
             if applicatie['heeftAlleAutorisaties'] is True:
                 return True
 
-            # consider all scopes at all zaaktypes
+            # consider all scopes at all zaaktypes and vertrouwelijkheidaanduiding
             for autorisatie in applicatie['autorisaties']:
                 if autorisatie['component'] == AuthorizationsConfig.get_solo().component \
-                        and (zaaktype is None or autorisatie['zaaktype'] == zaaktype):
+                        and (zaaktype is None or autorisatie['zaaktype'] == zaaktype)\
+                        and (vertrouwelijkheidaanduiding is None
+                             or VertrouwelijkheidsAanduiding.get_choice(autorisatie['maxVertrouwelijkheidaanduiding']).order
+                             >= VertrouwelijkheidsAanduiding.get_choice(vertrouwelijkheidaanduiding).order):
                     scopes_provided.update(autorisatie['scopes'])
 
         return scopes.is_contained_in(list(scopes_provided))
