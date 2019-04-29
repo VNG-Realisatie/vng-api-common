@@ -15,8 +15,8 @@ class AutorisatieSerializer(serializers.HyperlinkedModelSerializer):
         model = Autorisatie
         fields = (
             'component',
-            'zaaktype',
             'scopes',
+            'zaaktype',
             'max_vertrouwelijkheidaanduiding',
         )
 
@@ -59,12 +59,12 @@ class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
 
         if autorisaties and heeft_alle_autorisaties is True:
             raise serializers.ValidationError(
-                    {'nonFieldErrors': _('Either autorisaties or heeft_alle_autorisaties can be specified')},
-                    code='ambiguous-authorizations-specified')
+                _('Either autorisaties or heeft_alle_autorisaties can be specified'),
+                code='ambiguous-authorizations-specified')
 
         if not autorisaties and heeft_alle_autorisaties is not True:
             raise serializers.ValidationError(
-                {'nonFieldErrors': _('Either autorisaties or heeft_alle_autorisaties should be specified')},
+                _('Either autorisaties or heeft_alle_autorisaties should be specified'),
                 code='missing-authorizations')
 
         return validated_attrs

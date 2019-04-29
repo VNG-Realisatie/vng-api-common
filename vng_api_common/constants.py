@@ -178,3 +178,12 @@ class ZaakobjectTypes(DjangoChoices):
     verblijfs_object = ChoiceItem('VerblijfsObject', 'Verblijfsobject')
     melding_openbare_ruimte = ChoiceItem('MeldingOpenbareRuimte', "Melding openbare ruimte")
     avg_inzage_verzoek = ChoiceItem('InzageVerzoek', "Inzage verzoek in het kader van de AVG")
+
+
+class ComponentTypes(DjangoChoices):
+    zrc = ChoiceItem('ZRC', 'ZRC')
+    ztc = ChoiceItem('ZTC', 'ZTC')
+    drc = ChoiceItem('DRC', 'DRC')
+    brc = ChoiceItem('BRC', 'BRC')
+    nc = ChoiceItem('NC', 'NC')
+    ac = ChoiceItem('AC', 'AC')

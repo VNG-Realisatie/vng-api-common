@@ -57,5 +57,6 @@ class Autorisatie(APIMixin, models.Model):
     )
 
     def satisfy_vertrouwelijkheid (self, vertrouwelijkheidaanduiding) -> bool:
-        return VertrouwelijkheidsAanduiding.get_choice(self.max_vertrouwelijkheidaanduiding).order >= \
-               VertrouwelijkheidsAanduiding.get_choice(vertrouwelijkheidaanduiding).order
+        max_confid_level = VertrouwelijkheidsAanduiding.get_choice(self.max_vertrouwelijkheidaanduiding).order
+        provided_confid_level = VertrouwelijkheidsAanduiding.get_choice(vertrouwelijkheidaanduiding).order
+        return max_confid_level >= provided_confid_level

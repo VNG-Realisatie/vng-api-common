@@ -1,9 +1,10 @@
 # https://pyjwt.readthedocs.io/en/latest/usage.html#reading-headers-without-validation
 # -> we can put the organization/service in the headers itself
 import logging
-from typing import Union
+from typing import List, Union
 
 from django.conf import settings
+from django.db import transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
@@ -130,6 +131,7 @@ class JWTAuth:
     def _get_auth(self):
         return Applicatie.objects.filter(client_ids__contains=[self.client_id])
 
+    @transaction.atomic
     def _save_auth(self, auth_data):
         applicaties = []
 
@@ -140,24 +142,27 @@ class JWTAuth:
 
         return applicaties
 
-    @property
+    @cached_property
     def client_id(self) -> Union[str, None]:
         if self.encoded is None:
             return None
 
-        # TODO extract client_id from payload
-        #  when token generation is changed
         try:
-            header = jwt.get_unverified_header(self.encoded)
-        except jwt.DecodeError:
-            logger.info("Invalid JWT encountered")
-            raise PermissionDenied(
-                _('JWT could not be decoded. Possibly you made a copy-paste mistake.'),
-                code='jwt-decode-error'
-            )
+            client_id = jwt.decode(self.encoded, verify=False)['client_id']
+        except (jwt.DecodeError, KeyError):
+            logger.warning(_('The support of authorization old format will be terminated soon. '
+                             'Please use a new format with the separate Authorization Component'))
+            try:
+                client_id = jwt.get_unverified_header(self.encoded)['client_identifier']
+            except jwt.DecodeError:
+                logger.info("Invalid JWT encountered")
+                raise PermissionDenied(
+                    _('JWT could not be decoded. Possibly you made a copy-paste mistake.'),
+                    code='jwt-decode-error'
+                )
 
         try:
-            jwt_secret = JWTSecret.objects.get(identifier=header['client_identifier'])
+            jwt_secret = JWTSecret.objects.get(identifier=client_id)
         except JWTSecret.DoesNotExist:
             raise PermissionDenied(
                 'Client identifier bestaat niet',
@@ -171,6 +176,7 @@ class JWTAuth:
         else:
             key = jwt_secret.secret
 
+        # check signature of the token
         try:
             jwt.decode(self.encoded, key, algorithms='HS256')
         except jwt.InvalidSignatureError as exc:
@@ -180,25 +186,25 @@ class JWTAuth:
                 code='invalid-jwt-signature'
             )
 
-        return header['client_identifier']
+        return client_id
 
-    def has_auth(self, scopes, zaaktype, vertrouwelijkheidaanduiding) -> bool:
+    def has_auth(self, scopes: List[str], zaaktype: Union[str, None],
+                 vertrouwelijkheidaanduiding: Union[str, None]) -> bool:
 
         if scopes is None:
             return False
 
-        applicaties = self.applicaties
         scopes_provided = set()
+        config = AuthorizationsConfig.get_solo()
 
-        for applicatie in applicaties:
+        for applicatie in self.applicaties:
             # allow everything
             if applicatie.heeft_alle_autorisaties is True:
                 return True
 
             # consider all scopes at all zaaktypes and vertrouwelijkheidaanduiding
-            for autorisatie in applicatie.autorisaties.all():
-                if autorisatie.component == AuthorizationsConfig.get_solo().component \
-                        and (zaaktype is None or autorisatie.zaaktype == zaaktype)\
+            for autorisatie in applicatie.autorisaties.filter(component=config.component):
+                if (zaaktype is None or autorisatie.zaaktype == zaaktype) \
                         and (vertrouwelijkheidaanduiding is None
                              or autorisatie.satisfy_vertrouwelijkheid(vertrouwelijkheidaanduiding)):
                     scopes_provided.update(autorisatie.scopes)
