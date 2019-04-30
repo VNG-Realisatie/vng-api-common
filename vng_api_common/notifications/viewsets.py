@@ -160,11 +160,6 @@ class NotificationUpdateMixin(NotificationMixin):
         self.notify(response.status_code, response.data)
         return response
 
-    def partial_update(self, request, *args, **kwargs):
-        response = super().partial_update(request, *args, **kwargs)
-        self.notify(response.status_code, response.data)
-        return response
-
 
 class NotificationDestroyMixin(NotificationMixin):
     def destroy(self, request, *args, **kwargs):
