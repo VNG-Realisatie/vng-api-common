@@ -20,4 +20,3 @@ class AuthorizationsConfig(ClientConfig):
         api_root_field.default = 'https://ref.tst.vng.cloud/ac/api/v1'
 
         super().__init__(*args, **kwargs)
-

@@ -21,7 +21,6 @@ from .constants import VERSION_HEADER
 from .models import JWTSecret
 from .scopes import Scope
 
-
 logger = logging.getLogger(__name__)
 
 EMPTY_PAYLOAD = {
