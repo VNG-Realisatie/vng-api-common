@@ -3,6 +3,8 @@ import time
 import jwt
 from rest_framework import status
 
+from ..authorizations.config.models import AuthorizationsConfig
+from ..authorizations.models import Applicatie, Autorisatie
 from ..models import JWTSecret
 from ..scopes import Scope
 
@@ -114,3 +116,56 @@ class JWTScopesMixin:
                 secret='letmein'
             )
             self.client.credentials(HTTP_AUTHORIZATION=token)
+
+
+# tools fot testing with new authorization format
+def generate_jwt_auth(client_id, secret):
+    payload = {'client_id': client_id}
+    encoded = jwt.encode(payload, secret, algorithm='HS256')
+    encoded = encoded.decode('ascii')
+    return f"Bearer {encoded}"
+
+
+class JWTAuthMixin:
+    component = None
+    heeft_alle_autorisaties = False
+
+    scopes = None
+    zaaktype = None
+    max_vertrouwelijkheidaanduiding = None
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        JWTSecret.objects.get_or_create(
+            identifier='testsuite',
+            defaults={'secret': 'letmein'}
+        )
+
+        if cls.component:
+            AuthorizationsConfig.objects.get_or_create(
+                api_root='https://ref.tst.vng.cloud/ac/api/v1',
+                component=cls.component
+            )
+
+        applicatie = Applicatie.objects.create(
+            client_ids=['testsuite'],
+            label='for test',
+            heeft_alle_autorisaties=cls.heeft_alle_autorisaties
+        )
+
+        if cls.heeft_alle_autorisaties is False:
+            Autorisatie.objects.create(
+                applicatie=applicatie,
+                component=cls.component or '',
+                scopes=cls.scopes or [],
+                zaaktype=cls.zaaktype or '',
+                max_vertrouwelijkheidaanduiding=cls.max_vertrouwelijkheidaanduiding or ''
+            )
+
+    def setUp(self):
+        super().setUp()
+
+        token = generate_jwt_auth(client_id='testsuite', secret='letmein')
+        self.client.credentials(HTTP_AUTHORIZATION=token)

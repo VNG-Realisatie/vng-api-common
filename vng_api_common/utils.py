@@ -74,3 +74,13 @@ def underscore_to_camel(input_: Union[str, int]) -> str:
         return input_
 
     return re.sub(RE_UNDERSCORE, _underscore_to_camel, input_)
+
+
+def get_identifier_from_path(path: str) -> str:
+    """
+    Get the last path of path
+    """
+    if path.endswith('/'):
+        path = path.rstrip('/')
+
+    return path.rsplit('/')[-1]

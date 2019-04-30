@@ -8,6 +8,7 @@ from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.request import Request
 
 from .scopes import Scope
+from .utils import get_resource_for_path
 
 
 class ActionScopesRequired(permissions.BasePermission):
@@ -82,6 +83,26 @@ class AuthScopesRequired(permissions.BasePermission):
     def get_vertrouwelijkheidaanduiding(self, obj):
         return None
 
+    def get_zaaktype_from_request(self, request):
+        return None
+
+    def get_vertrouwelijkheidaanduiding_from_request(self, request):
+        return None
+
+    def has_permission(self, request: Request, view) -> bool:
+        if settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer):
+            return True
+
+        scopes_required = self.get_required_scopes(view)
+        if view.action == 'create':
+            zaaktype = self.get_zaaktype_from_request(request)
+            vertrouwelijkheidaanduiding = self.get_vertrouwelijkheidaanduiding_from_request(request)
+            return request.jwt_auth.has_auth(scopes_required, zaaktype, vertrouwelijkheidaanduiding)
+        elif view.action == 'list':
+            return request.jwt_auth.has_auth(scopes_required, None, None)
+
+        return True
+
     def has_object_permission(self, request: Request, view, obj) -> bool:
         if settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer):
             return True
@@ -104,6 +125,12 @@ class ZaakAuthScopesRequired(AuthScopesRequired):
     def get_vertrouwelijkheidaanduiding(self, obj):
         return obj.vertrouwelijkheidaanduiding
 
+    def get_zaaktype_from_request(self, request):
+        return request.data['zaaktype']
+
+    def get_vertrouwelijkheidaanduiding_from_request(self, request):
+        return request.data['vertrouwelijkheidaanduiding']
+
 
 class ZaakRelatedAuthScopesRequired(AuthScopesRequired):
     """
@@ -116,3 +143,11 @@ class ZaakRelatedAuthScopesRequired(AuthScopesRequired):
 
     def get_vertrouwelijkheidaanduiding(self, obj):
         return obj.zaak.vertrouwelijkheidaanduiding
+
+    def get_zaaktype_from_request(self, request):
+        zaak = get_resource_for_path(request.data['zaak'])
+        return zaak.zaaktype
+
+    def get_vertrouwelijkheidaanduiding_from_request(self, request):
+        zaak = get_resource_for_path(request.data['zaak'])
+        return zaak.vertrouwelijkheidaanduiding

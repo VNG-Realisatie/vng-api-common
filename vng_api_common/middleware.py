@@ -19,6 +19,7 @@ from .authorizations.serializers import ApplicatieSerializer
 from .constants import VERSION_HEADER
 from .models import JWTSecret
 from .scopes import Scope
+from .utils import get_identifier_from_path
 
 logger = logging.getLogger(__name__)
 
@@ -135,6 +136,8 @@ class JWTAuth:
         applicaties = []
 
         for applicatie_data in auth_data:
+            uuid = get_identifier_from_path(applicatie_data['url'])
+            applicatie_data['uuid'] = uuid
             applicatie_serializer = ApplicatieSerializer(data=applicatie_data)
             applicatie_serializer.is_valid()
             applicaties.append(applicatie_serializer.save())

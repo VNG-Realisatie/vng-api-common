@@ -58,14 +58,15 @@ class Autorisatie(APIMixin, models.Model):
     )
     zaaktype = models.URLField(
         help_text="Url of the zaaktype that is allowed",
-        max_length=1000
+        max_length=1000, blank=True
     )
     scopes = ArrayField(
         models.CharField(max_length=100),
         help_text=_("Comma-separated list of identifiers used for authentication")
     )
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingField(
-        help_text=_("Maximum level of confidentiality that is allowed")
+        help_text=_("Maximum level of confidentiality that is allowed"),
+        blank=True
     )
 
     def satisfy_vertrouwelijkheid(self, vertrouwelijkheidaanduiding: str) -> bool:
