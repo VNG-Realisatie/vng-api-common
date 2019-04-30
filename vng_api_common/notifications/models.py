@@ -22,6 +22,13 @@ class NotificationsConfig(ClientConfig):
         auth = APICredential.get_auth(self.api_root, scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL])
         return auth
 
+    def __init__(self, *args, **kwargs):
+        # set api_root default value
+        api_root_field = self._meta.get_field('api_root')
+        api_root_field.default = 'https://ref.tst.vng.cloud/nrc/api/v1'
+
+        super().__init__(*args, **kwargs)
+
 
 class Subscription(models.Model):
     """

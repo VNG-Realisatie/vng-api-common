@@ -21,6 +21,7 @@ from .constants import VERSION_HEADER
 from .models import JWTSecret
 from .scopes import Scope
 
+
 logger = logging.getLogger(__name__)
 
 EMPTY_PAYLOAD = {
@@ -147,31 +148,47 @@ class JWTAuth:
         if self.encoded is None:
             return None
 
+        # jwt check
         try:
-            client_id = jwt.decode(self.encoded, verify=False)['client_id']
-        except (jwt.DecodeError, KeyError):
-            logger.warning(_('The support of authorization old format will be terminated soon. '
-                             'Please use a new format with the separate Authorization Component'))
+            payload = jwt.decode(self.encoded, verify=False)
+        except jwt.DecodeError:
+            logger.info("Invalid JWT encountered")
+            raise PermissionDenied(
+                _('JWT could not be decoded. Possibly you made a copy-paste mistake.'),
+                code='jwt-decode-error'
+            )
+
+        # get client_id
+        try:
+            client_id = payload['client_id']
+        except KeyError:
             try:
-                client_id = jwt.get_unverified_header(self.encoded)['client_identifier']
+                header = jwt.get_unverified_header(self.encoded)
             except jwt.DecodeError:
                 logger.info("Invalid JWT encountered")
                 raise PermissionDenied(
                     _('JWT could not be decoded. Possibly you made a copy-paste mistake.'),
                     code='jwt-decode-error'
                 )
+            else:
+                try:
+                    client_id = header['client_identifier']
+                except KeyError:
+                    raise PermissionDenied(
+                        'Client identifier is niet aanwezig in JWT',
+                        code='missing-client-identifier'
+                    )
+                else:
+                    logger.warning(_('The support of authorization old format will be terminated soon. '
+                                     'Please use a new format with the separate Authorization Component'))
 
+        # find client_id in DB and retrieve it's secret
         try:
             jwt_secret = JWTSecret.objects.get(identifier=client_id)
         except JWTSecret.DoesNotExist:
             raise PermissionDenied(
                 'Client identifier bestaat niet',
                 code='invalid-client-identifier'
-            )
-        except KeyError:
-            raise PermissionDenied(
-                'Client identifier is niet aanwezig in JWT',
-                code='missing-client-identifier'
             )
         else:
             key = jwt_secret.secret

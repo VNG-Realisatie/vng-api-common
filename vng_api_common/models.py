@@ -120,7 +120,7 @@ class ClientConfig(SingletonModel):
 
         api_root = config.api_root
         if not api_root:
-            raise ImproperlyConfigured(f"Configure the AC API root in '{cls._meta.verbose_name}'")
+            raise ImproperlyConfigured(f"Configure the API root in '{cls._meta.verbose_name}'")
 
         if not api_root.endswith('/'):
             api_root = f"{api_root}/"
