@@ -1,5 +1,4 @@
 import time
-import uuid
 
 import jwt
 from rest_framework import status
