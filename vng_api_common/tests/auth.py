@@ -127,7 +127,6 @@ def generate_jwt_auth(client_id, secret):
 
 
 class JWTAuthMixin:
-    component = None
     heeft_alle_autorisaties = False
 
     scopes = None
@@ -143,11 +142,7 @@ class JWTAuthMixin:
             defaults={'secret': 'letmein'}
         )
 
-        if cls.component:
-            AuthorizationsConfig.objects.get_or_create(
-                api_root='https://ref.tst.vng.cloud/ac/api/v1',
-                component=cls.component
-            )
+        config = AuthorizationsConfig.get_solo()
 
         applicatie = Applicatie.objects.create(
             client_ids=['testsuite'],
@@ -158,7 +153,7 @@ class JWTAuthMixin:
         if cls.heeft_alle_autorisaties is False:
             Autorisatie.objects.create(
                 applicatie=applicatie,
-                component=cls.component or '',
+                component=config.component,
                 scopes=cls.scopes or [],
                 zaaktype=cls.zaaktype or '',
                 max_vertrouwelijkheidaanduiding=cls.max_vertrouwelijkheidaanduiding or ''

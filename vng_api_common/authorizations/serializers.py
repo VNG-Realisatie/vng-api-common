@@ -54,8 +54,8 @@ class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
             autorisaties_obj = self.instance.autorisaties.all()
             heeft_alle_autorisaties_obj = self.instance.heeft_alle_autorisaties
 
-        autorisaties = validated_attrs.get('autorisaties', None) or autorisaties_obj
-        heeft_alle_autorisaties = validated_attrs.get('heeft_alle_autorisaties', None) or heeft_alle_autorisaties_obj
+        autorisaties = validated_attrs.get('autorisaties', autorisaties_obj)
+        heeft_alle_autorisaties = validated_attrs.get('heeft_alle_autorisaties', heeft_alle_autorisaties_obj)
 
         if autorisaties and heeft_alle_autorisaties is True:
             raise serializers.ValidationError(
@@ -92,3 +92,12 @@ class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
                 Autorisatie.objects.create(**auth, applicatie=applicatie)
 
         return applicatie
+
+
+class ApplicatieUuidSerializer(ApplicatieSerializer):
+    """
+    Serializer for saving data in local auth DB
+    uuid is used for synchronizing identifiers with AC DB
+    """
+    class Meta(ApplicatieSerializer.Meta):
+        fields = ApplicatieSerializer.Meta.fields + ('uuid', )
