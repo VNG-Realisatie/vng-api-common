@@ -127,9 +127,8 @@ def generate_jwt_auth(client_id, secret):
 
 
 class JWTAuthMixin:
-    heeft_alle_autorisaties = False
-
     scopes = None
+    heeft_alle_autorisaties = False
     zaaktype = None
     max_vertrouwelijkheidaanduiding = None
 
