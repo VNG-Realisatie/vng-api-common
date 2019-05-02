@@ -3,6 +3,10 @@ import time
 import jwt
 from rest_framework import status
 
+from ..authorizations.models import (
+    Applicatie, AuthorizationsConfig, Autorisatie
+)
+from ..constants import VertrouwelijkheidsAanduiding
 from ..models import JWTSecret
 from ..scopes import Scope
 
@@ -114,3 +118,56 @@ class JWTScopesMixin:
                 secret='letmein'
             )
             self.client.credentials(HTTP_AUTHORIZATION=token)
+
+
+# tools fot testing with new authorization format
+def generate_jwt_auth(client_id, secret):
+    payload = {
+        # standard claims
+        'iss': 'testsuite',
+        'iat': int(time.time()),
+        # custom
+        'client_id': client_id
+    }
+    encoded = jwt.encode(payload, secret, algorithm='HS256')
+    encoded = encoded.decode('ascii')
+    return f"Bearer {encoded}"
+
+
+class JWTAuthMixin:
+    scopes = None
+    heeft_alle_autorisaties = False
+    zaaktype = None
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        JWTSecret.objects.get_or_create(
+            identifier='testsuite',
+            defaults={'secret': 'letmein'}
+        )
+
+        config = AuthorizationsConfig.get_solo()
+
+        cls.applicatie = Applicatie.objects.create(
+            client_ids=['testsuite'],
+            label='for test',
+            heeft_alle_autorisaties=cls.heeft_alle_autorisaties
+        )
+
+        if cls.heeft_alle_autorisaties is False:
+            cls.autorisatie = Autorisatie.objects.create(
+                applicatie=cls.applicatie,
+                component=config.component,
+                scopes=cls.scopes or [],
+                zaaktype=cls.zaaktype or '',
+                max_vertrouwelijkheidaanduiding=cls.max_vertrouwelijkheidaanduiding
+            )
+
+    def setUp(self):
+        super().setUp()
+
+        token = generate_jwt_auth(client_id='testsuite', secret='letmein')
+        self.client.credentials(HTTP_AUTHORIZATION=token)

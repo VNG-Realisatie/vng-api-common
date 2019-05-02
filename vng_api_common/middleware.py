@@ -13,12 +13,17 @@ import jwt
 from djangorestframework_camel_case.util import underscoreize
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
+from zds_client.client import ClientError
 
-from .authorizations.models import Applicatie, AuthorizationsConfig
-from .authorizations.serializers import ApplicatieSerializer
+from vng_api_common.authorizations.models import (
+    Applicatie, AuthorizationsConfig
+)
+from vng_api_common.authorizations.serializers import ApplicatieUuidSerializer
+
 from .constants import VERSION_HEADER
 from .models import JWTSecret
 from .scopes import Scope
+from .utils import get_uuid_from_path
 
 logger = logging.getLogger(__name__)
 
@@ -120,11 +125,15 @@ class JWTAuth:
 
     def _request_auth(self) -> list:
         client = AuthorizationsConfig.get_client()
+        try:
+            response = client.list(
+                'applicatie',
+                query_params={'client_ids': self.client_id}
+            )
+        except ClientError:
+            logger.warn("Authorization component can't be accessed")
+            return []
 
-        response = client.list(
-            'applicatie',
-            query_params={'client_ids': self.client_id}
-        )
         return underscoreize(response['results'])
 
     def _get_auth(self):
@@ -135,7 +144,9 @@ class JWTAuth:
         applicaties = []
 
         for applicatie_data in auth_data:
-            applicatie_serializer = ApplicatieSerializer(data=applicatie_data)
+            applicatie_serializer = ApplicatieUuidSerializer(data=applicatie_data)
+            uuid = get_uuid_from_path(applicatie_data['url'])
+            applicatie_data['uuid'] = uuid
             applicatie_serializer.is_valid()
             applicaties.append(applicatie_serializer.save())
 
