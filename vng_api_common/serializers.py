@@ -6,7 +6,6 @@ from django.db import transaction
 import isodate
 from djchoices import DjangoChoices
 from rest_framework import fields, serializers
-from rest_framework.fields import SkipField
 
 from .descriptors import GegevensGroepType
 
@@ -35,7 +34,7 @@ class DurationField(fields.DurationField):
             return parsed
 
     def to_representation(self, value):
-        if isinstance(value, relativedelta):
+        if relativedelta and isinstance(value, relativedelta):
             return format_relativedelta(value)
 
         return isodate.duration_isoformat(value)
