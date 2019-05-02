@@ -5,6 +5,7 @@ from typing import List, Union
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
@@ -217,10 +218,15 @@ class JWTAuth:
                 return True
 
             # consider all scopes at all zaaktypes and vertrouwelijkheidaanduiding
-            for autorisatie in applicatie.autorisaties.filter(component=config.component):
-                if (zaaktype is None or autorisatie.zaaktype == zaaktype) \
-                        and (vertrouwelijkheidaanduiding is None
-                             or autorisatie.satisfy_vertrouwelijkheid(vertrouwelijkheidaanduiding)):
+            zaaktype_q = Q(zaaktype=zaaktype) if zaaktype is not None else Q()
+
+            for autorisatie in applicatie.autorisaties.filter(zaaktype_q, component=config.component):
+                vertrouwelijkheidaanduiding_ok = (
+                    vertrouwelijkheidaanduiding is None
+                    or autorisatie.satisfy_vertrouwelijkheid(vertrouwelijkheidaanduiding)  # noqa
+                )
+
+                if vertrouwelijkheidaanduiding_ok:
                     scopes_provided.update(autorisatie.scopes)
 
         return scopes.is_contained_in(list(scopes_provided))
