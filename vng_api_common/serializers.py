@@ -1,10 +1,12 @@
 import datetime
+from collections import OrderedDict
 
 from django.db import transaction
 
 import isodate
 from djchoices import DjangoChoices
 from rest_framework import fields, serializers
+from rest_framework.fields import SkipField
 
 from .descriptors import GegevensGroepType
 
@@ -114,6 +116,9 @@ class GegevensGroepSerializerMetaclass(serializers.SerializerMetaclass):
                 if internal_type == 'BooleanField':
                     del default_extra_kwargs['allow_null']
 
+                # if internal_type == 'RelativeDeltaField':
+                #     import bpdb; bpdb.set_trace()
+
                 extra_kwargs[field_name] = default_extra_kwargs
 
                 declared_extra_kwargs = getattr(Meta, 'extra_kwargs', {}).get(field_name)
@@ -144,7 +149,16 @@ class GegevensGroepSerializer(serializers.ModelSerializer, metaclass=GegevensGro
         """
         Output the result of accessing the descriptor.
         """
-        return instance
+        ret = OrderedDict()
+        fields = self._readable_fields
+
+        for field in fields:
+            attribute = instance[field.field_name]
+            if attribute is None:
+                ret[field.field_name] = None
+            else:
+                ret[field.field_name] = field.to_representation(attribute)
+        return ret
 
     def to_internal_value(self, data):
         """
