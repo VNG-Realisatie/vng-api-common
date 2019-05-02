@@ -7,7 +7,6 @@ from ..authorizations.models import (
     Applicatie, AuthorizationsConfig, Autorisatie
 )
 from ..constants import VertrouwelijkheidsAanduiding
-
 from ..models import JWTSecret
 from ..scopes import Scope
 
