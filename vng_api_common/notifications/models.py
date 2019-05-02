@@ -7,27 +7,21 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds_client import Client, ClientAuth
 
+from ..decorators import field_default
 from ..models import APICredential, ClientConfig
 from .constants import (
     SCOPE_NOTIFICATIES_CONSUMEREN_LABEL, SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
 )
 
 
+@field_default('api_root', 'https://ref.tst.vng.cloud/nrc/api/v1')
 class NotificationsConfig(ClientConfig):
-
     class Meta:
         verbose_name = _("Notificatiescomponentconfiguratie")
 
     def get_auth(self) -> ClientAuth:
         auth = APICredential.get_auth(self.api_root, scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL])
         return auth
-
-    def __init__(self, *args, **kwargs):
-        # set api_root default value
-        api_root_field = self._meta.get_field('api_root')
-        api_root_field.default = 'https://ref.tst.vng.cloud/nrc/api/v1'
-
-        super().__init__(*args, **kwargs)
 
 
 class Subscription(models.Model):

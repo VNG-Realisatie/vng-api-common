@@ -5,10 +5,12 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from ..constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from ..decorators import field_default
 from ..fields import VertrouwelijkheidsAanduidingField
 from ..models import APIMixin, ClientConfig
 
 
+@field_default('api_root', 'https://ref.tst.vng.cloud/ac/api/v1')
 class AuthorizationsConfig(ClientConfig):
     component = models.CharField(
         _("component"), max_length=50, default=ComponentTypes.zrc,
@@ -17,13 +19,6 @@ class AuthorizationsConfig(ClientConfig):
 
     class Meta:
         verbose_name = _("Autorisatiecomponentconfiguratie")
-
-    def __init__(self, *args, **kwargs):
-        # set api_root default value
-        api_root_field = self._meta.get_field('api_root')
-        api_root_field.default = 'https://ref.tst.vng.cloud/ac/api/v1'
-
-        super().__init__(*args, **kwargs)
 
 
 class Applicatie(APIMixin, models.Model):
