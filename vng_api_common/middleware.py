@@ -15,9 +15,7 @@ from djangorestframework_camel_case.util import underscoreize
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
-
-from vng_api_common.authorizations.models import AuthorizationsConfig
-from vng_api_common.authorizations.models import Applicatie
+from vng_api_common.authorizations.models import AuthorizationsConfig, Applicatie
 from vng_api_common.authorizations.serializers import ApplicatieUuidSerializer
 
 from .constants import VERSION_HEADER
@@ -144,6 +142,7 @@ class JWTAuth:
         applicaties = []
 
         for applicatie_data in auth_data:
+            applicatie_serializer = ApplicatieUuidSerializer(data=applicatie_data)
             uuid = get_identifier_from_path(applicatie_data['url'])
             applicatie_data['uuid'] = uuid
             applicatie_serializer.is_valid()

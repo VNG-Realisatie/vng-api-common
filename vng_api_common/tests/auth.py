@@ -3,8 +3,7 @@ import time
 import jwt
 from rest_framework import status
 
-from ..authorizations.config.models import AuthorizationsConfig
-from ..authorizations.models import Applicatie, Autorisatie
+from ..authorizations.models import Applicatie, Autorisatie, AuthorizationsConfig
 from ..constants import VertrouwelijkheidsAanduiding
 from ..models import JWTSecret
 from ..scopes import Scope
