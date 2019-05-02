@@ -1,4 +1,5 @@
 import re
+import uuid
 from typing import Union
 
 from django.conf import settings
@@ -76,11 +77,16 @@ def underscore_to_camel(input_: Union[str, int]) -> str:
     return re.sub(RE_UNDERSCORE, _underscore_to_camel, input_)
 
 
-def get_identifier_from_path(path: str) -> str:
+def get_uuid_from_path(path: str) -> str:
     """
     Get the last path of path
     """
     if path.endswith('/'):
         path = path.rstrip('/')
 
-    return path.rsplit('/')[-1]
+    uuid_str = path.rsplit('/')[-1]
+
+    # validate if it's a proper hex string
+    uuid.UUID(uuid_str)
+
+    return uuid_str

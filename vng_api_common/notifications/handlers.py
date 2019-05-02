@@ -5,9 +5,9 @@ from django.utils.module_loading import import_string
 
 from djangorestframework_camel_case.util import underscoreize
 
-from vng_api_common.authorizations.models import Applicatie
-from vng_api_common.authorizations.serializers import ApplicatieUuidSerializer
-from vng_api_common.utils import get_identifier_from_path
+from ..authorizations.models import Applicatie
+from ..authorizations.serializers import ApplicatieUuidSerializer
+from ..utils import get_uuid_from_path
 
 
 class LoggingHandler:
@@ -18,13 +18,18 @@ class LoggingHandler:
 
 
 class AuthHandler:
-    def handle_auth(self, message: dict) -> None:
+    
+    def _request_auth(self, path: str) -> dict:
+        Client = import_string(settings.ZDS_CLIENT_CLASS)
+        client = Client.from_url(path)
+        response = client.retrieve('applicatie', path)
+        return underscoreize(response)
 
-        # uuids in AC DB are synchronized with uuids in local DB
-        uuid = get_identifier_from_path(message['resource_url'])
-        
+    def handle(self, message: dict) -> None:
+        uuid = get_uuid_from_path(message['resource_url'])
+
         if message['actie'] == 'delete':
-            Applicatie.objects.get(uuid=uuid).delete()
+            Applicatie.objects.filter(uuid=uuid).delete()
             return
 
         # get info
@@ -40,21 +45,23 @@ class AuthHandler:
             applicatie_serializer = ApplicatieUuidSerializer(applicatie, data=applicatie_data)
         applicatie_serializer.is_valid()
         applicatie_serializer.save()
-        
-    def _request_auth(self, path: str) -> dict:
-        Client = import_string(settings.ZDS_CLIENT_CLASS)
-        client = Client.from_url(path)
-        response = client.retrieve('applicatie', path)
-        return underscoreize(response)
-
-    def handle(self, message: dict) -> None:
-        if message['kanaal'] == 'autorisaties':
-            self.handle_auth(message)
-
-        else:
-            logger = logging.getLogger('notifications')
-            logger.info("Received notification %r", message)
 
 
-default = LoggingHandler()
-auth_handler = AuthHandler()
+class RoutingHandler:
+
+    def __init__(self, config: dict, default=None):
+        self.config = config
+        self.default = default
+
+    def handle(self, message: dict):
+        handler = self.config.get(message['kanaal'])
+        if handler is not None:
+            handler.handle(message)
+        elif self.default:
+            self.default.handle(message)
+
+
+log = LoggingHandler()
+auth = AuthHandler()
+
+default = RoutingHandler({'autorisaties': auth}, default=log)

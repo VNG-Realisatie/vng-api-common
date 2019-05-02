@@ -1,9 +1,12 @@
 import time
+import uuid
 
 import jwt
 from rest_framework import status
 
-from ..authorizations.models import Applicatie, Autorisatie, AuthorizationsConfig
+from ..authorizations.models import (
+    Applicatie, AuthorizationsConfig, Autorisatie
+)
 from ..constants import VertrouwelijkheidsAanduiding
 from ..models import JWTSecret
 from ..scopes import Scope
@@ -120,7 +123,13 @@ class JWTScopesMixin:
 
 # tools fot testing with new authorization format
 def generate_jwt_auth(client_id, secret):
-    payload = {'client_id': client_id}
+    payload = {
+        # standard claims
+        'iss': 'testsuite',
+        'iat': int(time.time()),
+        # custom
+        'client_id': client_id
+    }
     encoded = jwt.encode(payload, secret, algorithm='HS256')
     encoded = encoded.decode('ascii')
     return f"Bearer {encoded}"

@@ -10,18 +10,20 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
 import jwt
-import requests
 from djangorestframework_camel_case.util import underscoreize
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
+from zds_client.client import ClientError
 
-from vng_api_common.authorizations.models import AuthorizationsConfig, Applicatie
+from vng_api_common.authorizations.models import (
+    Applicatie, AuthorizationsConfig
+)
 from vng_api_common.authorizations.serializers import ApplicatieUuidSerializer
 
 from .constants import VERSION_HEADER
 from .models import JWTSecret
 from .scopes import Scope
-from .utils import get_identifier_from_path
+from .utils import get_uuid_from_path
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +130,7 @@ class JWTAuth:
                 'applicatie',
                 query_params={'client_ids': self.client_id}
             )
-        except requests.exceptions.HTTPError:
+        except ClientError:
             logger.warn("Authorization component can't be accessed")
             return []
 
@@ -143,7 +145,7 @@ class JWTAuth:
 
         for applicatie_data in auth_data:
             applicatie_serializer = ApplicatieUuidSerializer(data=applicatie_data)
-            uuid = get_identifier_from_path(applicatie_data['url'])
+            uuid = get_uuid_from_path(applicatie_data['url'])
             applicatie_data['uuid'] = uuid
             applicatie_serializer.is_valid()
             applicaties.append(applicatie_serializer.save())
