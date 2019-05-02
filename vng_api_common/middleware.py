@@ -13,10 +13,8 @@ from djangorestframework_camel_case.util import underscoreize
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
-from vng_api_common.authorizations.config.models import AuthorizationsConfig
-from vng_api_common.authorizations.models import Applicatie
-from vng_api_common.authorizations.serializers import ApplicatieSerializer
-
+from .authorizations.models import Applicatie, AuthorizationsConfig
+from .authorizations.serializers import ApplicatieSerializer
 from .constants import VERSION_HEADER
 from .models import JWTSecret
 from .scopes import Scope
