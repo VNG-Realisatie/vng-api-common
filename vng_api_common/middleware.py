@@ -4,7 +4,7 @@ import logging
 from typing import List, Union
 
 from django.conf import settings
-from django.db import transaction
+from django.db import models, transaction
 from django.db.models import Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
@@ -15,11 +15,10 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from zds_client.client import ClientError
 
-from vng_api_common.authorizations.models import (
-    Applicatie, AuthorizationsConfig
+from .authorizations.models import (
+    Applicatie, AuthorizationsConfig, Autorisatie
 )
-from vng_api_common.authorizations.serializers import ApplicatieUuidSerializer
-
+from .authorizations.serializers import ApplicatieUuidSerializer
 from .constants import VERSION_HEADER
 from .models import JWTSecret
 from .scopes import Scope
@@ -122,6 +121,21 @@ class JWTAuth:
             applicaties = self._save_auth(auth_data)
 
         return applicaties
+
+    @property
+    def autorisaties(self) -> models.QuerySet:
+        """
+        Retrieve all authorizations relevant to this component.
+        """
+        app_ids = [app.id for app in self.applicaties]
+        config = AuthorizationsConfig.get_solo()
+        return (
+            Autorisatie.objects
+            .filter(
+                applicatie_id__in=app_ids,
+                component=config.component
+            )
+        )
 
     def _request_auth(self) -> list:
         client = AuthorizationsConfig.get_client()

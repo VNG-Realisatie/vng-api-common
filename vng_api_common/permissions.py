@@ -114,6 +114,9 @@ class AuthScopesRequired(permissions.BasePermission):
         return request.jwt_auth.has_auth(scopes_required, zaaktype, vertrouwelijkheidaanduiding)
 
 
+# TODO: subclasses should be in their respective components?
+
+
 class ZaakAuthScopesRequired(AuthScopesRequired):
     """
     Look at the scopes required for the current action and at zaaktype and vertrouwelijkheidaanduiding

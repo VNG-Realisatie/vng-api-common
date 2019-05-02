@@ -1,3 +1,4 @@
+from django.db.models import Case, IntegerField, Value, When
 from django.utils.translation import ugettext_lazy as _
 
 from djchoices import ChoiceItem, DjangoChoices
@@ -19,6 +20,19 @@ class VertrouwelijkheidsAanduiding(DjangoChoices):
     confidentieel = ChoiceItem('confidentieel', 'CONFIDENTIEEL')
     geheim = ChoiceItem('geheim', 'GEHEIM')
     zeer_geheim = ChoiceItem('zeer geheim', 'ZEER GEHEIM')
+
+    @classmethod
+    def get_order_annotation(cls, field_name: str) -> Case:
+        """
+        Build the Case/When to annotate objects with the choice item order
+        """
+        whens = []
+        for choice_item in cls._fields.values():
+            whens.append(When(**{
+                field_name: choice_item.value,
+                "then": Value(choice_item.order)
+            }))
+        return Case(*whens, output_field=IntegerField())
 
 
 class RolOmschrijving(DjangoChoices):
