@@ -4,9 +4,26 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.fields import VertrouwelijkheidsAanduidingField
-from vng_api_common.models import APIMixin
+from ..constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from ..fields import VertrouwelijkheidsAanduidingField
+from ..models import APIMixin, ClientConfig
+
+
+class AuthorizationsConfig(ClientConfig):
+    component = models.CharField(
+        _("component"), max_length=50, default=ComponentTypes.zrc,
+        choices=ComponentTypes.choices
+    )
+
+    class Meta:
+        verbose_name = _("Autorisatiecomponentconfiguratie")
+
+    def __init__(self, *args, **kwargs):
+        # set api_root default value
+        api_root_field = self._meta.get_field('api_root')
+        api_root_field.default = 'https://ref.tst.vng.cloud/ac/api/v1'
+
+        super().__init__(*args, **kwargs)
 
 
 class Applicatie(APIMixin, models.Model):
@@ -56,7 +73,7 @@ class Autorisatie(APIMixin, models.Model):
         help_text=_("Maximum level of confidentiality that is allowed")
     )
 
-    def satisfy_vertrouwelijkheid (self, vertrouwelijkheidaanduiding) -> bool:
+    def satisfy_vertrouwelijkheid(self, vertrouwelijkheidaanduiding: str) -> bool:
         max_confid_level = VertrouwelijkheidsAanduiding.get_choice(self.max_vertrouwelijkheidaanduiding).order
         provided_confid_level = VertrouwelijkheidsAanduiding.get_choice(vertrouwelijkheidaanduiding).order
         return max_confid_level >= provided_confid_level

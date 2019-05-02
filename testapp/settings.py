@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'drf_yasg',
 
     'vng_api_common',
+    'vng_api_common.authorizations',
     'vng_api_common.notifications',
 
     'testapp',

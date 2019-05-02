@@ -45,11 +45,11 @@ Configure the Django settings
 
             'django_filters',
             'vng_api_common',  # before drf_yasg to override the management command
-            'vng_api_common.notifications',  # optional
             'vng_api_common.authorizations',
+            'vng_api_common.notifications',  # optional
             'drf_yasg',
             'rest_framework',
-            'solo',
+            'solo',  # required for authorizations and notifications
             ...
         ]
 

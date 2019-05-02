@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Applicatie, Autorisatie
+from solo.admin import SingletonModelAdmin
+
+from .models import Applicatie, AuthorizationsConfig, Autorisatie
+
+
+@admin.register(AuthorizationsConfig)
+class AuthorizationsConfigAdmin(SingletonModelAdmin):
+    list_display = ('api_root', 'component',)
 
 
 @admin.register(Autorisatie)
