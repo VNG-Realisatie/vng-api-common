@@ -52,6 +52,7 @@ class ClientIdRequired(permissions.BasePermission):
     """
     Look at the client_id of an object and check that it equals client_id in the JWT
     """
+
     def has_object_permission(self, request: Request, view, obj) -> bool:
         if settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer):
             return True
@@ -67,6 +68,7 @@ class AuthScopesRequired(permissions.BasePermission):
     Look at the scopes required for the current action
     and check that they are present in the AC for this client
     """
+
     def get_required_scopes(self, view) -> Union[Scope, None]:
         if not hasattr(view, 'required_scopes'):
             raise ImproperlyConfigured("The View(Set) must have a `required_scopes` attribute")
@@ -95,6 +97,7 @@ class ZaakAuthScopesRequired(AuthScopesRequired):
     Look at the scopes required for the current action and at zaaktype and vertrouwelijkheidaanduiding
     of current zaak and check that they are present in the AC for this client
     """
+
     def get_zaaktype(self, obj):
         return obj.zaaktype
 
@@ -107,6 +110,7 @@ class ZaakRelatedAuthScopesRequired(AuthScopesRequired):
     Look at the scopes required for the current action and at zaaktype and vertrouwelijkheidaanduiding
     of related zaak and check that they are present in the AC for this client
     """
+
     def get_zaaktype(self, obj):
         return obj.zaak.zaaktype
 
