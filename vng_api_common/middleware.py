@@ -10,6 +10,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
 import jwt
+import requests
 from djangorestframework_camel_case.util import underscoreize
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -124,11 +125,15 @@ class JWTAuth:
 
     def _request_auth(self) -> list:
         client = AuthorizationsConfig.get_client()
+        try:
+            response = client.list(
+                'applicatie',
+                query_params={'client_ids': self.client_id}
+            )
+        except requests.exceptions.HTTPError:
+            logger.warn("Authorization component can't be accessed")
+            return []
 
-        response = client.list(
-            'applicatie',
-            query_params={'client_ids': self.client_id}
-        )
         return underscoreize(response['results'])
 
     def _get_auth(self):
@@ -141,7 +146,6 @@ class JWTAuth:
         for applicatie_data in auth_data:
             uuid = get_identifier_from_path(applicatie_data['url'])
             applicatie_data['uuid'] = uuid
-            applicatie_serializer = ApplicatieUuidSerializer(data=applicatie_data)
             applicatie_serializer.is_valid()
             applicaties.append(applicatie_serializer.save())
 

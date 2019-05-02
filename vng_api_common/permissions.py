@@ -1,4 +1,5 @@
 from typing import Union
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -126,10 +127,10 @@ class ZaakAuthScopesRequired(AuthScopesRequired):
         return obj.vertrouwelijkheidaanduiding
 
     def get_zaaktype_from_request(self, request):
-        return request.data['zaaktype']
+        return request.data.get('zaaktype', None)
 
     def get_vertrouwelijkheidaanduiding_from_request(self, request):
-        return request.data['vertrouwelijkheidaanduiding']
+        return request.data.get('vertrouwelijkheidaanduiding', None)
 
 
 class ZaakRelatedAuthScopesRequired(AuthScopesRequired):
@@ -145,9 +146,11 @@ class ZaakRelatedAuthScopesRequired(AuthScopesRequired):
         return obj.zaak.vertrouwelijkheidaanduiding
 
     def get_zaaktype_from_request(self, request):
-        zaak = get_resource_for_path(request.data['zaak'])
+        zaak_url = urlparse(request.data['zaak']).path
+        zaak = get_resource_for_path(zaak_url)
         return zaak.zaaktype
 
     def get_vertrouwelijkheidaanduiding_from_request(self, request):
-        zaak = get_resource_for_path(request.data['zaak'])
+        zaak_url = urlparse(request.data['zaak']).path
+        zaak = get_resource_for_path(zaak_url)
         return zaak.vertrouwelijkheidaanduiding

@@ -5,6 +5,7 @@ from rest_framework import status
 
 from ..authorizations.config.models import AuthorizationsConfig
 from ..authorizations.models import Applicatie, Autorisatie
+from ..constants import VertrouwelijkheidsAanduiding
 from ..models import JWTSecret
 from ..scopes import Scope
 
@@ -130,7 +131,7 @@ class JWTAuthMixin:
     scopes = None
     heeft_alle_autorisaties = False
     zaaktype = None
-    max_vertrouwelijkheidaanduiding = None
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
 
     @classmethod
     def setUpTestData(cls):
@@ -143,19 +144,19 @@ class JWTAuthMixin:
 
         config = AuthorizationsConfig.get_solo()
 
-        applicatie = Applicatie.objects.create(
+        cls.applicatie = Applicatie.objects.create(
             client_ids=['testsuite'],
             label='for test',
             heeft_alle_autorisaties=cls.heeft_alle_autorisaties
         )
 
         if cls.heeft_alle_autorisaties is False:
-            Autorisatie.objects.create(
-                applicatie=applicatie,
+            cls.autorisatie = Autorisatie.objects.create(
+                applicatie=cls.applicatie,
                 component=config.component,
                 scopes=cls.scopes or [],
                 zaaktype=cls.zaaktype or '',
-                max_vertrouwelijkheidaanduiding=cls.max_vertrouwelijkheidaanduiding or ''
+                max_vertrouwelijkheidaanduiding=cls.max_vertrouwelijkheidaanduiding
             )
 
     def setUp(self):
