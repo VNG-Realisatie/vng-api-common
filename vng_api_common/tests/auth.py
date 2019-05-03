@@ -8,7 +8,6 @@ from ..authorizations.models import (
 )
 from ..constants import VertrouwelijkheidsAanduiding
 from ..models import JWTSecret
-from ..scopes import Scope
 
 
 def generate_jwt(scopes: list, secret: str='letmein', zaaktypes: list=None) -> str:
@@ -52,30 +51,23 @@ class AuthCheckMixin:
             defaults={'secret': 'letmein'}
         )
 
-    def assertForbidden(self, url, method='get'):
+    def assertForbidden(self, url, method='get', request_kwargs=None):
         """
         Assert that an appropriate scope is required.
         """
         do_request = getattr(self.client, method)
+        request_kwargs = request_kwargs or {}
 
         with self.subTest(case='JWT missing'):
-            response = do_request(url)
+            response = do_request(url, **request_kwargs)
 
             self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         with self.subTest(case='Invalid JWT structure'):
-            invalid_jwt = generate_jwt(scopes=[Scope('invalid.scope')])[:-10]
+            invalid_jwt = generate_jwt_auth('testsuite', 'letmein')[:-10]
             self.client.credentials(HTTP_AUTHORIZATION=invalid_jwt)
 
-            response = do_request(url)
-
-            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        with self.subTest(case='Correct scope missing'):
-            jwt = generate_jwt(scopes=[Scope('invalid.scope')])
-            self.client.credentials(HTTP_AUTHORIZATION=jwt)
-
-            response = do_request(url)
+            response = do_request(url, **request_kwargs)
 
             self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
