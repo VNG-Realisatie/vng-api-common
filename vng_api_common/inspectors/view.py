@@ -10,7 +10,7 @@ from rest_framework import exceptions, serializers, status
 from ..constants import VERSION_HEADER
 from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
-from ..permissions import ActionScopesRequired
+from ..permissions import ActionScopesRequired, AuthScopesRequired, get_required_scopes
 from ..search import is_search_view
 from ..serializers import FoutSerializer, ValidatieFoutSerializer
 
@@ -258,7 +258,8 @@ class AutoSchema(SwaggerAutoSchema):
         :return: security requirements
         :rtype: list[dict[str,list[str]]]"""
         permissions = self.view.get_permissions()
-        scope_permissions = [perm for perm in permissions if isinstance(perm, ActionScopesRequired)]
+        perm_classes = (ActionScopesRequired, AuthScopesRequired)
+        scope_permissions = [perm for perm in permissions if isinstance(perm, perm_classes)]
 
         if not scope_permissions:
             return super().get_security()
@@ -271,7 +272,7 @@ class AutoSchema(SwaggerAutoSchema):
 
         required_scopes = []
         for perm in scope_permissions:
-            scopes = perm.get_required_scopes(self.view)
+            scopes = get_required_scopes(self.view)
             if scopes is None:
                 continue
             required_scopes.append(scopes)
