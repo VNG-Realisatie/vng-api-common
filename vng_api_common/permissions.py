@@ -1,3 +1,4 @@
+import warnings
 from typing import Union
 
 from django.conf import settings
@@ -18,6 +19,13 @@ def get_required_scopes(view) -> Union[Scope, None]:
     return scopes_required
 
 
+def bypass_permissions(request: Request) -> bool:
+    """
+    Bypass permission checks in DBEUG when using the browsable API renderer
+    """
+    return settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer)
+
+
 class ActionScopesRequired(permissions.BasePermission):
     """
     Look at the scopes required for the current action and check that they
@@ -25,11 +33,13 @@ class ActionScopesRequired(permissions.BasePermission):
     """
 
     def has_permission(self, request: Request, view) -> bool:
-        if settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer):
+        if bypass_permissions(request):
             return True
 
         scopes_needed = get_required_scopes(view)
         # TODO: if no scopes are needed, what do???
+        warnings.warn("The JWT-Payload based auth is deprecated, it will be "
+                      "removed before July 22nd 2019", DeprecationWarning)
         return request.jwt_payload.has_scopes(scopes_needed)
 
 
@@ -40,12 +50,14 @@ class ScopesRequired(permissions.BasePermission):
 
     def has_permission(self, request: Request, view) -> bool:
         # don't enforce them in the browsable API during debugging/development
-        if settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer):
+        if bypass_permissions(request):
             return True
 
         if not hasattr(view, 'required_scopes'):
             raise ImproperlyConfigured("The View(Set) must have a `required_scopes` attribute")
 
+        warnings.warn("The JWT-Payload based auth is deprecated, it will be "
+                      "removed before July 22nd 2019", DeprecationWarning)
         return request.jwt_payload.has_scopes(view.required_scopes)
 
 
@@ -55,12 +67,14 @@ class ClientIdRequired(permissions.BasePermission):
     """
 
     def has_object_permission(self, request: Request, view, obj) -> bool:
-        if settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer):
+        if bypass_permissions(request):
             return True
 
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
+            warnings.warn("The JWT-Payload based auth is deprecated, it will be "
+                          "removed before July 22nd 2019", DeprecationWarning)
             return request.jwt_payload['client_id'] == obj.client_id
 
 
@@ -83,7 +97,7 @@ class AuthScopesRequired(permissions.BasePermission):
         return None
 
     def has_permission(self, request: Request, view) -> bool:
-        if settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer):
+        if bypass_permissions(request):
             return True
 
         scopes_required = get_required_scopes(view)
@@ -97,7 +111,7 @@ class AuthScopesRequired(permissions.BasePermission):
         return True
 
     def has_object_permission(self, request: Request, view, obj) -> bool:
-        if settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer):
+        if bypass_permissions(request):
             return True
 
         scopes_required = get_required_scopes(view)

@@ -10,7 +10,9 @@ from rest_framework import exceptions, serializers, status
 from ..constants import VERSION_HEADER
 from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
-from ..permissions import ActionScopesRequired, AuthScopesRequired, get_required_scopes
+from ..permissions import (
+    ActionScopesRequired, AuthScopesRequired, get_required_scopes
+)
 from ..search import is_search_view
 from ..serializers import FoutSerializer, ValidatieFoutSerializer
 
