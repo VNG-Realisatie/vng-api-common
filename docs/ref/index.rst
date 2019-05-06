@@ -15,5 +15,6 @@ Modules reference
    viewset-mixins
    database
    geo
+   polymorphism
    oas
    utils

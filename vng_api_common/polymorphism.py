@@ -8,6 +8,7 @@ database queries to remain performant.
 
 Usage:
 
+>>> from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 >>> class AutorisatieBaseSerializer(PolymorphicSerializer):
 ...     discriminator = Discriminator(
 ...         discriminator_field='type',
