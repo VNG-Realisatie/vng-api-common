@@ -144,7 +144,13 @@ class JWTAuth:
                 'applicatie',
                 query_params={'client_ids': self.client_id}
             )
-        except ClientError:
+        except ClientError as exc:
+            response = exc.args[0]
+            # friendly debug - hint at where the problem is located
+            if response['status'] == 403 and response['code'] == 'not_authenticated':
+                detail = _("Component could not authenticate against the AC - "
+                           "authorizations could not be retrieved")
+                raise PermissionDenied(detail=detail, code='not_authenticated_for_ac')
             logger.warn("Authorization component can't be accessed")
             return []
 
