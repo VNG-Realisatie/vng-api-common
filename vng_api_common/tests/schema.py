@@ -12,7 +12,7 @@ DEFAULT_PATH_PARAMETERS = {
 SPEC_PATH = os.path.join(settings.BASE_DIR, 'src', 'openapi.yaml')
 
 with open(SPEC_PATH, 'r') as infile:
-    SPEC = yaml.load(infile)
+    SPEC = yaml.safe_load(infile)
 
 
 def get_operation_url(operation, **kwargs):

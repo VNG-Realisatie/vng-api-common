@@ -63,16 +63,34 @@ class Autorisatie(APIMixin, models.Model):
         _("component"), max_length=50, choices=ComponentTypes.choices,
         help_text=_("Component waarop autorisatie van toepassing is.")
     )
-    zaaktype = models.URLField(
-        _("zaaktype"),
-        help_text=_("URL naar het zaaktype waarop de autorisatie van toepassing is."),
-        max_length=1000, blank=True
-    )
     scopes = ArrayField(
         models.CharField(max_length=100),
         verbose_name=_("scopes"),
         help_text=_("Komma-gescheiden lijst van scope labels.")
     )
+
+    # ZRC exclusive
+    zaaktype = models.URLField(
+        _("zaaktype"),
+        help_text=_("URL naar het zaaktype waarop de autorisatie van toepassing is."),
+        max_length=1000, blank=True
+    )
+
+    # DRC exclusive
+    informatieobjecttype = models.URLField(
+        _("informatieobjecttype"),
+        help_text=_("URL naar het informatieobjecttype waarop de autorisatie van toepassing is."),
+        max_length=1000, blank=True
+    )
+
+    # BRC exclusive
+    besluittype = models.URLField(
+        _("besluittype"),
+        help_text=_("URL naar het besluittype waarop de autorisatie van toepassing is."),
+        max_length=1000, blank=True
+    )
+
+    # ZRC & DRC exclusive
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingField(
         help_text=_("Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief)."),
         blank=True

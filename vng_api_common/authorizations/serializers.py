@@ -6,13 +6,31 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from ..constants import ComponentTypes
+from ..polymorphism import Discriminator, PolymorphicSerializer
 from ..serializers import add_choice_values_help_text
 from .models import Applicatie, Autorisatie
 
 logger = logging.getLogger(__name__)
 
 
-class AutorisatieSerializer(serializers.HyperlinkedModelSerializer):
+class AutorisatieBaseSerializer(PolymorphicSerializer):
+    discriminator = Discriminator(
+        discriminator_field='component',
+        mapping={
+            ComponentTypes.zrc: (
+                'zaaktype',
+                'max_vertrouwelijkheidaanduiding',
+            ),
+            ComponentTypes.drc: (
+                'informatieobjecttype',
+                'max_vertrouwelijkheidaanduiding',
+            ),
+            ComponentTypes.brc: (
+                'besluittype',
+            ),
+        }
+    )
+
     component_weergave = serializers.CharField(source='get_component_display', read_only=True)
 
     class Meta:
@@ -21,8 +39,6 @@ class AutorisatieSerializer(serializers.HyperlinkedModelSerializer):
             'component',
             'component_weergave',
             'scopes',
-            'zaaktype',
-            'max_vertrouwelijkheidaanduiding',
         )
 
     def __init__(self, *args, **kwargs):
@@ -33,7 +49,7 @@ class AutorisatieSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
-    autorisaties = AutorisatieSerializer(many=True, required=False)
+    autorisaties = AutorisatieBaseSerializer(many=True, required=False)
 
     class Meta:
         model = Applicatie
