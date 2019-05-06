@@ -1,3 +1,4 @@
+from typing import Union
 from urllib.parse import urlsplit, urlunsplit
 
 from django.conf import settings
@@ -74,7 +75,7 @@ class APICredential(models.Model):
         return self.api_root
 
     @classmethod
-    def get_auth(cls, url: str, **kwargs) -> ClientAuth:
+    def get_auth(cls, url: str, **kwargs) -> Union[ClientAuth, None]:
         split_url = urlsplit(url)
         scheme_and_domain = urlunsplit(split_url[:2] + ('', '', ''))
 
@@ -127,5 +128,6 @@ class ClientConfig(SingletonModel):
 
         client = Client.from_url(api_root)
         client.base_url = api_root
+        client.auth = APICredential.get_auth(api_root)
 
         return client
