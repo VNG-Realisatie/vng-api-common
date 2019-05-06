@@ -182,9 +182,9 @@ class ZaakobjectTypes(DjangoChoices):
 
 
 class ComponentTypes(DjangoChoices):
-    zrc = ChoiceItem('ZRC', 'ZRC')
-    ztc = ChoiceItem('ZTC', 'ZTC')
-    drc = ChoiceItem('DRC', 'DRC')
-    brc = ChoiceItem('BRC', 'BRC')
-    nc = ChoiceItem('NC', 'NC')
-    ac = ChoiceItem('AC', 'AC')
+    ac = ChoiceItem('AC', 'Autorisatiecomponent')
+    nc = ChoiceItem('NRC', 'Notificatierouteringcomponent')
+    zrc = ChoiceItem('ZRC', 'Zaakregistratiecomponent')
+    ztc = ChoiceItem('ZTC', 'Zaaktypecatalogus')
+    drc = ChoiceItem('DRC', 'Documentregistratiecomponent')
+    brc = ChoiceItem('BRC', 'Besluitregistratiecomponent')

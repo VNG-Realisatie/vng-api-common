@@ -53,7 +53,7 @@ class Autorisatie(APIMixin, models.Model):
         related_name='autorisaties'
     )
     component = models.CharField(
-        max_length=50,
+        max_length=50, choices=ComponentTypes.choices,
         help_text=_("Name of the component to authorize")
     )
     zaaktype = models.URLField(
