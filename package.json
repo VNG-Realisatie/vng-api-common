@@ -1,6 +1,6 @@
 {
   "name": "vng-api-common",
-  "version": "0.43.2",
+  "version": "0.43.3",
   "description": "NodeJS build tooling for vng-api-common",
   "main": "index.js",
   "directories": {

@@ -13,8 +13,10 @@ from ..models import APIMixin, ClientConfig
 @field_default('api_root', 'https://ref.tst.vng.cloud/ac/api/v1')
 class AuthorizationsConfig(ClientConfig):
     component = models.CharField(
-        _("component"), max_length=50, default=ComponentTypes.zrc,
-        choices=ComponentTypes.choices
+        _("component"),
+        max_length=50,
+        choices=ComponentTypes.choices,
+        default=ComponentTypes.zrc
     )
 
     class Meta:
@@ -31,15 +33,19 @@ class Applicatie(APIMixin, models.Model):
     )
     client_ids = ArrayField(
         models.CharField(max_length=50),
-        help_text=_("Comma-separated list of identifiers used for authentication")
+        verbose_name=_("client IDs"),
+        help_text=_("Komma-gescheiden lijst van consumer identifiers (hun client_id).")
     )
     label = models.CharField(
         max_length=100,
-        help_text=_("A human readable representation of the application")
+        help_text=_("Een leesbare representatie van de applicatie, voor eindgebruikers.")
     )
     heeft_alle_autorisaties = models.BooleanField(
+        _("heeft alle autorisaties"),
         default=False,
-        help_text=_("Globally allows everything")
+        help_text=_("Indien alle autorisaties gegeven zijn, dan hoeven deze "
+                    "niet individueel opgegeven te worden. Gebruik dit alleen "
+                    "als je de consumer helemaal vertrouwt.")
     )
 
     def __str__(self):
@@ -50,22 +56,25 @@ class Autorisatie(APIMixin, models.Model):
     applicatie = models.ForeignKey(
         'Applicatie',
         on_delete=models.CASCADE,
-        related_name='autorisaties'
+        related_name='autorisaties',
+        verbose_name=_("applicatie")
     )
     component = models.CharField(
-        max_length=50, choices=ComponentTypes.choices,
-        help_text=_("Name of the component to authorize")
+        _("component"), max_length=50, choices=ComponentTypes.choices,
+        help_text=_("Component waarop autorisatie van toepassing is.")
     )
     zaaktype = models.URLField(
-        help_text="Url of the zaaktype that is allowed",
+        _("zaaktype"),
+        help_text=_("URL naar het zaaktype waarop de autorisatie van toepassing is."),
         max_length=1000, blank=True
     )
     scopes = ArrayField(
         models.CharField(max_length=100),
-        help_text=_("Comma-separated list of identifiers used for authentication")
+        verbose_name=_("scopes"),
+        help_text=_("Komma-gescheiden lijst van scope labels.")
     )
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingField(
-        help_text=_("Maximum level of confidentiality that is allowed"),
+        help_text=_("Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief)."),
         blank=True
     )
 

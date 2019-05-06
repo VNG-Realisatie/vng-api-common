@@ -5,20 +5,31 @@ from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from ..constants import ComponentTypes
+from ..serializers import add_choice_values_help_text
+from .models import Applicatie, Autorisatie
 
 logger = logging.getLogger(__name__)
 
 
 class AutorisatieSerializer(serializers.HyperlinkedModelSerializer):
+    component_weergave = serializers.CharField(source='get_component_display', read_only=True)
+
     class Meta:
         model = Autorisatie
         fields = (
             'component',
+            'component_weergave',
             'scopes',
             'zaaktype',
             'max_vertrouwelijkheidaanduiding',
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        value_display_mapping = add_choice_values_help_text(ComponentTypes)
+        self.fields['component'].help_text += f"\n\n{value_display_mapping}"
 
 
 class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
