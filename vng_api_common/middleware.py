@@ -23,9 +23,6 @@ from .constants import VERSION_HEADER, VertrouwelijkheidsAanduiding
 from .models import JWTSecret
 from .scopes import Scope
 from .utils import get_uuid_from_path
-from django.db.models import Case, When
-
-
 
 logger = logging.getLogger(__name__)
 
