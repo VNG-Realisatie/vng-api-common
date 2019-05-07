@@ -83,30 +83,31 @@ class AuthScopesRequired(permissions.BasePermission):
     Look at the scopes required for the current action
     and check that they are present in the AC for this client
     """
+    permission_fields = None
 
-    def get_zaaktype(self, obj):
-        return None
-
-    def get_vertrouwelijkheidaanduiding(self, obj):
-        return None
-
-    def get_zaaktype_from_request(self, request):
-        return None
-
-    def get_vertrouwelijkheidaanduiding_from_request(self, request):
-        return None
+    def get_permission_fields(self):
+        return self.permission_fields or {}
 
     def has_permission(self, request: Request, view) -> bool:
         if bypass_permissions(request):
             return True
 
         scopes_required = get_required_scopes(view)
+
         if view.action == 'create':
-            zaaktype = self.get_zaaktype_from_request(request)
-            vertrouwelijkheidaanduiding = self.get_vertrouwelijkheidaanduiding_from_request(request)
-            return request.jwt_auth.has_auth(scopes_required, zaaktype, vertrouwelijkheidaanduiding)
+            fields_from_request = {}
+            for field in self.get_permission_fields():
+                try:
+                    value = getattr(self, f'get_{field}_from_request')(request)
+                except AttributeError:
+                    warnings.warn(f'method get_{field}_from_request is not implemented')
+                    return False
+                else:
+                    fields_from_request[field] = value
+            return request.jwt_auth.has_auth(scopes_required, **fields_from_request)
+
         elif view.action == 'list':
-            return request.jwt_auth.has_auth(scopes_required, None, None)
+            return request.jwt_auth.has_auth(scopes_required)
 
         return True
 
@@ -115,6 +116,15 @@ class AuthScopesRequired(permissions.BasePermission):
             return True
 
         scopes_required = get_required_scopes(view)
-        zaaktype = self.get_zaaktype(obj)
-        vertrouwelijkheidaanduiding = self.get_vertrouwelijkheidaanduiding(obj)
-        return request.jwt_auth.has_auth(scopes_required, zaaktype, vertrouwelijkheidaanduiding)
+
+        fields_from_object = {}
+        for field in self.get_permission_fields():
+            try:
+                value = getattr(self, f'get_{field}')(obj)
+            except AttributeError:
+                warnings.warn(f'method get_{field} is not implemented')
+                return False
+            else:
+                fields_from_object[field] = value
+
+        return request.jwt_auth.has_auth(scopes_required, **fields_from_object)
