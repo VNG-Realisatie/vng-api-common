@@ -1,5 +1,6 @@
 import warnings
 from typing import Union
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -9,6 +10,7 @@ from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.request import Request
 
 from .scopes import Scope
+from .utils import get_resource_for_path
 
 
 def get_required_scopes(view) -> Union[Scope, None]:
@@ -88,6 +90,12 @@ class AuthScopesRequired(permissions.BasePermission):
     def get_permission_fields(self):
         return self.permission_fields or {}
 
+    def get_from_request_default(self, request, field):
+        return None
+
+    def get_from_object_default(self, obj, field):
+        return None
+
     def has_permission(self, request: Request, view) -> bool:
         if bypass_permissions(request):
             return True
@@ -97,13 +105,11 @@ class AuthScopesRequired(permissions.BasePermission):
         if view.action == 'create':
             fields_from_request = {}
             for field in self.get_permission_fields():
-                try:
-                    value = getattr(self, f'get_{field}_from_request')(request)
-                except AttributeError:
-                    warnings.warn(f'method get_{field}_from_request is not implemented')
-                    return False
+                if hasattr(self, f'get_{field}_from_request'):
+                    fields_from_request[field] = getattr(self, f'get_{field}_from_request')(request)
                 else:
-                    fields_from_request[field] = value
+                    fields_from_request[field] = self.get_from_request_default(request, field)
+
             return request.jwt_auth.has_auth(scopes_required, **fields_from_request)
 
         elif view.action == 'list':
@@ -119,12 +125,31 @@ class AuthScopesRequired(permissions.BasePermission):
 
         fields_from_object = {}
         for field in self.get_permission_fields():
-            try:
-                value = getattr(self, f'get_{field}')(obj)
-            except AttributeError:
-                warnings.warn(f'method get_{field} is not implemented')
-                return False
+            if hasattr(self, f'get_{field}'):
+                fields_from_object[field] = getattr(self, f'get_{field}')(obj)
             else:
-                fields_from_object[field] = value
+                fields_from_object[field] = self.get_from_object_default(obj, field)
 
         return request.jwt_auth.has_auth(scopes_required, **fields_from_object)
+
+
+class MainObjAuthScopesRequired(AuthScopesRequired):
+    def get_from_request_default(self, request, field):
+        return request.data.get(field, None)
+
+    def get_from_object_default(self, obj, field):
+        return getattr(obj, field)
+
+
+class RelatedObjAuthScopesRequired(AuthScopesRequired):
+    main_object = None
+
+    def get_from_request_default(self, request, field):
+        main_obj_str = request.data.get(self.main_object, None)
+        main_obj_url = urlparse(main_obj_str).path
+        main_obj = get_resource_for_path(main_obj_url)
+        return getattr(main_obj, field)
+
+    def get_from_object_default(self, obj, field):
+        main_obj = getattr(obj, self.main_object)
+        return getattr(main_obj, field)
