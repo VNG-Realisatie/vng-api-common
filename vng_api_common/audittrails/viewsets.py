@@ -12,6 +12,8 @@ class AuditTrailMixin:
     audit = None
 
     def get_audittrail_main_object_url(self, data, main_resource):
+        if hasattr(self, 'audittrail_main_resource_key'):
+            return data[self.audittrail_main_resource_key]
         return data[main_resource]
 
     def create_audittrail(self, status_code, action, version_before_edit, version_after_edit):
