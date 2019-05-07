@@ -12,11 +12,17 @@ class AuditTrailMixin:
     audit = None
 
     def get_audittrail_main_object_url(self, data, main_resource):
+        """
+        Retrieve the URL that points to the main resource
+        """
         if hasattr(self, 'audittrail_main_resource_key'):
             return data[self.audittrail_main_resource_key]
         return data[main_resource]
 
     def create_audittrail(self, status_code, action, version_before_edit, version_after_edit):
+        """
+        Create the audittrail for the action that has been carried out.
+        """
         data = version_after_edit if version_after_edit else version_before_edit
         if self.basename == self.audit.main_resource:
             main_object = data['url']
@@ -51,6 +57,7 @@ class AuditTrailCreateMixin(AuditTrailMixin):
 
 class AuditTrailUpdateMixin(AuditTrailMixin):
     def update(self, request, *args, **kwargs):
+        # Retrieve the data stored in the object before updating
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         version_before_edit = serializer.data
@@ -69,10 +76,13 @@ class AuditTrailUpdateMixin(AuditTrailMixin):
 
 class AuditTrailDestroyMixin(AuditTrailMixin):
     def destroy(self, request, *args, **kwargs):
+        # Retrieve the data stored in the object before updating
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         version_before_edit = serializer.data
 
+        # If the resource being deleted is the main resource, delete all the
+        # audittrails associated with it
         if self.basename == self.audit.main_resource:
             with transaction.atomic():
                 response = super().destroy(request, *args, **kwargs)
@@ -103,7 +113,7 @@ class AuditTrailViewset(viewsets.ReadOnlyModelViewSet, NestedViewSetMixin):
     serializer_class = AuditTrailSerializer
     lookup_field = 'uuid'
 
-    main_resource_lookup_field = None       # Must be overwritten by subclasses
+    main_resource_lookup_field = None   # Must be overwritten by subclasses
 
     def get_queryset(self):
         base = super().get_queryset()
