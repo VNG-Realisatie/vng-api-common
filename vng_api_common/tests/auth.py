@@ -130,6 +130,8 @@ class JWTAuthMixin:
     scopes = None
     heeft_alle_autorisaties = False
     zaaktype = None
+    informatieobjecttype = None
+    besluittype = None
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
 
     @classmethod
@@ -155,6 +157,8 @@ class JWTAuthMixin:
                 component=config.component,
                 scopes=cls.scopes or [],
                 zaaktype=cls.zaaktype or '',
+                informatieobjecttype=cls.informatieobjecttype or '',
+                besluittype = cls.besluittype or '',
                 max_vertrouwelijkheidaanduiding=cls.max_vertrouwelijkheidaanduiding
             )
 
