@@ -1,5 +1,6 @@
 import warnings
 from typing import Union
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -9,6 +10,7 @@ from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.request import Request
 
 from .scopes import Scope
+from .utils import get_resource_for_path
 
 
 def get_required_scopes(view) -> Union[Scope, None]:
@@ -146,9 +148,7 @@ class AuthScopesRequired (BaseAuthRequired):
 
 class MainObjAuthScopesRequired(BaseAuthRequired):
     def _get_obj(self, view, request):
-        serializer = view.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return serializer.validated_data
+        return request.data
 
     def _get_obj_from_path(self, obj):
         return obj
@@ -158,11 +158,10 @@ class MainObjAuthScopesRequired(BaseAuthRequired):
 
 
 class RelatedObjAuthScopesRequired(BaseAuthRequired):
-
     def _get_obj(self, view, request):
-        serializer = view.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        main_obj = serializer.validated_data.get(self.obj_path, None)
+        main_obj_str = request.data.get(self.obj_path, None)
+        main_obj_url = urlparse(main_obj_str).path
+        main_obj = get_resource_for_path(main_obj_url)
         return main_obj
 
 
