@@ -1,6 +1,5 @@
 import warnings
 from typing import Union
-from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -10,7 +9,6 @@ from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.request import Request
 
 from .scopes import Scope
-from .utils import get_resource_for_path
 
 
 def get_required_scopes(view) -> Union[Scope, None]:
@@ -80,21 +78,36 @@ class ClientIdRequired(permissions.BasePermission):
             return request.jwt_payload['client_id'] == obj.client_id
 
 
-class AuthScopesRequired(permissions.BasePermission):
+class BaseAuthRequired(permissions.BasePermission):
     """
     Look at the scopes required for the current action
     and check that they are present in the AC for this client
     """
     permission_fields = None
+    get_obj = None
+    obj_path = None
+
+    def _get_obj(self, view, request):
+        if not isinstance(self.get_obj, str):
+            raise TypeError("'get_obj' must be set to a string, representing a view method name")
+
+        method = getattr(view, self.get_obj)
+        return method()
+
+    def _get_obj_from_path(self, obj):
+        if not isinstance(self.obj_path, str):
+            raise TypeError("'obj_path' must be a python dotted path to the main object FK")
+
+        bits = self.obj_path.split('.')
+        for bit in bits:
+            obj = getattr(obj, bit)
+        return obj
+
+    def _extract_field_value(self, main_obj, field):
+        return getattr(main_obj, field)
 
     def get_permission_fields(self):
         return self.permission_fields or {}
-
-    def get_from_request_default(self, request, field):
-        return None
-
-    def get_from_object_default(self, obj, field):
-        return None
 
     def has_permission(self, request: Request, view) -> bool:
         if bypass_permissions(request):
@@ -103,14 +116,9 @@ class AuthScopesRequired(permissions.BasePermission):
         scopes_required = get_required_scopes(view)
 
         if view.action == 'create':
-            fields_from_request = {}
-            for field in self.get_permission_fields():
-                if hasattr(self, f'get_{field}_from_request'):
-                    fields_from_request[field] = getattr(self, f'get_{field}_from_request')(request)
-                else:
-                    fields_from_request[field] = self.get_from_request_default(request, field)
-
-            return request.jwt_auth.has_auth(scopes_required, **fields_from_request)
+            main_obj = self._get_obj(view, request)
+            fields = {k: self._extract_field_value(main_obj, k) for k in self.get_permission_fields()}
+            return request.jwt_auth.has_auth(scopes_required, **fields)
 
         elif view.action == 'list':
             return request.jwt_auth.has_auth(scopes_required)
@@ -122,34 +130,47 @@ class AuthScopesRequired(permissions.BasePermission):
             return True
 
         scopes_required = get_required_scopes(view)
+        main_obj = self._get_obj_from_path(obj)
+        fields = {k: getattr(main_obj, k) for k in self.get_permission_fields()}
 
-        fields_from_object = {}
-        for field in self.get_permission_fields():
-            if hasattr(self, f'get_{field}'):
-                fields_from_object[field] = getattr(self, f'get_{field}')(obj)
-            else:
-                fields_from_object[field] = self.get_from_object_default(obj, field)
-
-        return request.jwt_auth.has_auth(scopes_required, **fields_from_object)
+        return request.jwt_auth.has_auth(scopes_required, **fields)
 
 
-class MainObjAuthScopesRequired(AuthScopesRequired):
-    def get_from_request_default(self, request, field):
-        return request.data.get(field, None)
+class AuthScopesRequired (BaseAuthRequired):
+    def _get_obj(self, view, request):
+        return None
 
-    def get_from_object_default(self, obj, field):
-        return getattr(obj, field)
+    def _get_obj_from_path(self, obj):
+        return None
 
 
-class RelatedObjAuthScopesRequired(AuthScopesRequired):
-    main_object = None
+class MainObjAuthScopesRequired(BaseAuthRequired):
+    def _get_obj(self, view, request):
+        serializer = view.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return serializer.validated_data
 
-    def get_from_request_default(self, request, field):
-        main_obj_str = request.data.get(self.main_object, None)
-        main_obj_url = urlparse(main_obj_str).path
-        main_obj = get_resource_for_path(main_obj_url)
-        return getattr(main_obj, field)
+    def _get_obj_from_path(self, obj):
+        return obj
 
-    def get_from_object_default(self, obj, field):
-        main_obj = getattr(obj, self.main_object)
-        return getattr(main_obj, field)
+    def _extract_field_value(self, main_obj, field):
+        return main_obj.get(field, None)
+
+
+class RelatedObjAuthScopesRequired(BaseAuthRequired):
+
+    def _get_obj(self, view, request):
+        serializer = view.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        main_obj = serializer.validated_data.get(self.obj_path, None)
+        return main_obj
+
+
+def permission_class_factory(base=BaseAuthRequired, **attrs) -> type:
+    """
+    Build a view-specific permission class
+
+    This is just a small wrapper around ``type`` intended to keep the code readable.
+    """
+    name = base.__name__
+    return type(name, (base,), attrs)

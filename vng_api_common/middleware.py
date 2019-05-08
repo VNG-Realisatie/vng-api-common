@@ -246,10 +246,10 @@ class JWTAuth:
     def filter_default(self, base: QuerySet, name, value) -> QuerySet:
         if value is None:
             return base
+
         return base.filter(**{name: value})
 
     def has_auth(self, scopes: List[str], **kwargs) -> bool:
-
         if scopes is None:
             return False
 

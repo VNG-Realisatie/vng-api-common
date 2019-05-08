@@ -61,7 +61,7 @@ class AuthCheckMixin:
         with self.subTest(case='JWT missing'):
             response = do_request(url, **request_kwargs)
 
-            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
         with self.subTest(case='Invalid JWT structure'):
             invalid_jwt = generate_jwt_auth('testsuite', 'letmein')[:-10]
@@ -69,7 +69,7 @@ class AuthCheckMixin:
 
             response = do_request(url, **request_kwargs)
 
-            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def assertForbiddenWithCorrectScope(
             self, url: str, scopes: list, method='get',
@@ -158,7 +158,7 @@ class JWTAuthMixin:
                 scopes=cls.scopes or [],
                 zaaktype=cls.zaaktype or '',
                 informatieobjecttype=cls.informatieobjecttype or '',
-                besluittype = cls.besluittype or '',
+                besluittype=cls.besluittype or '',
                 max_vertrouwelijkheidaanduiding=cls.max_vertrouwelijkheidaanduiding
             )
 
