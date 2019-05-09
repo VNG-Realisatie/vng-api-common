@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from ...permissions import ScopesRequired
+from ...permissions import AuthScopesRequired
 from ...scopes import Scope
 from ...serializers import FoutSerializer, ValidatieFoutSerializer
 from ..constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
@@ -19,7 +19,7 @@ class NotificationBaseView(APIView):
     """
     swagger_schema = None
 
-    permission_classes = (ScopesRequired,)
+    permission_classes = (AuthScopesRequired,)
     required_scopes = Scope(SCOPE_NOTIFICATIES_PUBLICEREN_LABEL)  # FIXME: this should be standalone!
 
     def get_serializer(self, *args, **kwargs):
@@ -46,6 +46,15 @@ class NotificationBaseView(APIView):
 
 
 class NotificationView(NotificationBaseView):
+    action = 'create'
+    permission_classes = (AuthScopesRequired,)
+    required_scopes = {
+        'create': Scope(SCOPE_NOTIFICATIES_PUBLICEREN_LABEL),
+    }
+
+    def create(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
     def handle_notification(self, message: dict) -> None:
         _handler = getattr(
             settings, 'DEFAULT_NOTIFICATIONS_HANDLER',
