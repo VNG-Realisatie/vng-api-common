@@ -69,12 +69,7 @@ class FoutSerializer(serializers.Serializer):
 
 
 class ValidatieFoutSerializer(FoutSerializer):
-    pass
-
-
-# can't declare stuff with dashes and DSO prescribes dashed key...
-ValidatieFoutSerializer._declared_fields['invalid-params'] = \
-    FieldValidationErrorSerializer(source='invalid_params', many=True)
+    invalid_params = FieldValidationErrorSerializer(many=True)
 
 
 def add_choice_values_help_text(choices: DjangoChoices) -> str:

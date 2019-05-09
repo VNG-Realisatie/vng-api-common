@@ -53,7 +53,7 @@ def get_validation_errors(response, field, index=0):
     """
     assert response.status_code == 400
     i = 0
-    for error in response.data['invalid-params']:
+    for error in response.data['invalid_params']:
         if error['name'] != field:
             continue
 
