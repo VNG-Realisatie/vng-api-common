@@ -5,7 +5,7 @@ from typing import List, Union
 
 from django.conf import settings
 from django.db import models, transaction
-from django.db.models import Q
+from django.db.models import QuerySet
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
@@ -19,7 +19,7 @@ from .authorizations.models import (
     Applicatie, AuthorizationsConfig, Autorisatie
 )
 from .authorizations.serializers import ApplicatieUuidSerializer
-from .constants import VERSION_HEADER
+from .constants import VERSION_HEADER, VertrouwelijkheidsAanduiding
 from .models import JWTSecret
 from .scopes import Scope
 from .utils import get_uuid_from_path
@@ -234,9 +234,27 @@ class JWTAuth:
 
         return client_id
 
-    def has_auth(self, scopes: List[str], zaaktype: Union[str, None],
-                 vertrouwelijkheidaanduiding: Union[str, None]) -> bool:
+    def filter_vertrouwelijkheidaanduiding(self, base: QuerySet, value) -> QuerySet:
+        if value is None:
+            return base
 
+        order_provided = VertrouwelijkheidsAanduiding.get_choice(value).order
+        order_case = VertrouwelijkheidsAanduiding.get_order_expression("max_vertrouwelijkheidaanduiding")
+
+        # In this case we are filtering Autorisatie model to look for auth which meets our needs.
+        # Therefore we're only considering authorizations here that have a max_vertrouwelijkheidaanduiding
+        # bigger or equal than what we're checking for the object.
+        # In cases when we are filtering data objects (Zaak, InformatieObject etc) it's the other way around
+
+        return base.annotate(max_vertr=order_case).filter(max_vertr__gte=order_provided)
+
+    def filter_default(self, base: QuerySet, name, value) -> QuerySet:
+        if value is None:
+            return base
+
+        return base.filter(**{name: value})
+
+    def has_auth(self, scopes: List[str], **fields) -> bool:
         if scopes is None:
             return False
 
@@ -248,17 +266,17 @@ class JWTAuth:
             if applicatie.heeft_alle_autorisaties is True:
                 return True
 
-            # consider all scopes at all zaaktypes and vertrouwelijkheidaanduiding
-            zaaktype_q = Q(zaaktype=zaaktype) if zaaktype is not None else Q()
+            autorisaties = applicatie.autorisaties.filter(component=config.component)
 
-            for autorisatie in applicatie.autorisaties.filter(zaaktype_q, component=config.component):
-                vertrouwelijkheidaanduiding_ok = (
-                    vertrouwelijkheidaanduiding is None
-                    or autorisatie.satisfy_vertrouwelijkheid(vertrouwelijkheidaanduiding)  # noqa
-                )
+            # filter on all additional components
+            for field_name, field_value in fields.items():
+                if hasattr(self, f'filter_{field_name}'):
+                    autorisaties = getattr(self, f'filter_{field_name}')(autorisaties, field_value)
+                else:
+                    autorisaties = self.filter_default(autorisaties, field_name, field_value)
 
-                if vertrouwelijkheidaanduiding_ok:
-                    scopes_provided.update(autorisatie.scopes)
+            for autorisatie in autorisaties:
+                scopes_provided.update(autorisatie.scopes)
 
         return scopes.is_contained_in(list(scopes_provided))
 
