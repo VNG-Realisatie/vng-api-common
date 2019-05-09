@@ -85,7 +85,7 @@ class BaseAuthRequired(permissions.BasePermission):
     Look at the scopes required for the current action
     and check that they are present in the AC for this client
     """
-    permission_fields = None
+    permission_fields = ()
     get_obj = None
     obj_path = None
 
@@ -108,8 +108,6 @@ class BaseAuthRequired(permissions.BasePermission):
     def _extract_field_value(self, main_obj, field):
         return getattr(main_obj, field)
 
-    def get_permission_fields(self):
-        return self.permission_fields or {}
 
     def has_permission(self, request: Request, view) -> bool:
         if bypass_permissions(request):
@@ -119,7 +117,7 @@ class BaseAuthRequired(permissions.BasePermission):
 
         if view.action == 'create':
             main_obj = self._get_obj(view, request)
-            fields = {k: self._extract_field_value(main_obj, k) for k in self.get_permission_fields()}
+            fields = {k: self._extract_field_value(main_obj, k) for k in self.permission_fields}
             return request.jwt_auth.has_auth(scopes_required, **fields)
 
         elif view.action == 'list':
@@ -133,7 +131,7 @@ class BaseAuthRequired(permissions.BasePermission):
 
         scopes_required = get_required_scopes(view)
         main_obj = self._get_obj_from_path(obj)
-        fields = {k: getattr(main_obj, k) for k in self.get_permission_fields()}
+        fields = {k: getattr(main_obj, k) for k in self.permission_fields}
 
         return request.jwt_auth.has_auth(scopes_required, **fields)
 

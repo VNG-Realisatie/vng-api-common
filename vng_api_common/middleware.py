@@ -241,6 +241,11 @@ class JWTAuth:
         order_provided = VertrouwelijkheidsAanduiding.get_choice(value).order
         order_case = VertrouwelijkheidsAanduiding.get_order_expression("max_vertrouwelijkheidaanduiding")
 
+        # In this case we are filtering Autorisatie model to look for auth which meets our needs.
+        # Therefore we're only considering authorizations here that have a max_vertrouwelijkheidaanduiding
+        # bigger or equal than what we're checking for the object.
+        # In cases when we are filtering data objects (Zaak, InformatieObject etc) it's the other way around
+
         return base.annotate(max_vertr=order_case).filter(max_vertr__gte=order_provided)
 
     def filter_default(self, base: QuerySet, name, value) -> QuerySet:
@@ -249,13 +254,12 @@ class JWTAuth:
 
         return base.filter(**{name: value})
 
-    def has_auth(self, scopes: List[str], **kwargs) -> bool:
+    def has_auth(self, scopes: List[str], **fields) -> bool:
         if scopes is None:
             return False
 
         scopes_provided = set()
         config = AuthorizationsConfig.get_solo()
-        fields = kwargs or {}
 
         for applicatie in self.applicaties:
             # allow everything
