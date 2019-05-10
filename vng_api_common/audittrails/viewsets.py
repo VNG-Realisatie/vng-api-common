@@ -92,7 +92,7 @@ class AuditTrailDestroyMixin(AuditTrailMixin):
             response = super().destroy(request, *args, **kwargs)
             self.create_audittrail(
                 response.status_code,
-                CommonResourceAction.delete,
+                CommonResourceAction.destroy,
                 version_before_edit=version_before_edit,
                 version_after_edit=None
             )
