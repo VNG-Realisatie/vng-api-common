@@ -150,8 +150,8 @@ class ResourceValidator(URLValidator):
     :param oas_schema: URL to the schema to validate the response object shape
       against. Must be a YAML OAS 3.0.x spec.
     """
-    message = _('The URL {url} resource did not look like a(n) `{resource}`. Please provide a valid URL.')
-    code = 'invalid-resource'
+    __message = _('The URL {url} resource did not look like a(n) `{resource}`. Please provide a valid URL.')
+    __code = 'invalid-resource'
 
     def __init__(self, resource: str, oas_schema: str, *args, **kwargs):
         self.resource = resource
@@ -167,8 +167,8 @@ class ResourceValidator(URLValidator):
         except json.JSONDecodeError as exc:
             logger.info("URL %s doesn't seem to point to a JSON endpoint", url, exc_info=1)
             raise serializers.ValidationError(
-                self.message.format(url=url, resource=self.resource),
-                code=self.code
+                self.__message.format(url=url, resource=self.resource),
+                code=self.__code
             )
 
         # check if the shape matches
@@ -176,8 +176,8 @@ class ResourceValidator(URLValidator):
         if not obj_has_shape(obj, schema, self.resource):
             logger.info("URL %s doesn't seem to point to a valid shape", url, exc_info=1)
             raise serializers.ValidationError(
-                self.message.format(url=url, resource=self.resource),
-                code=self.code
+                self.__message.format(url=url, resource=self.resource),
+                code=self.__code
             )
 
 
