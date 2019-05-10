@@ -5,8 +5,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from ..descriptors import GegevensGroepType
 from ..constants import CommonResourceAction
+from ..descriptors import GegevensGroepType
 
 
 class AuditTrail(models.Model):

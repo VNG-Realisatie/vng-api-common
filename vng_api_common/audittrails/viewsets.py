@@ -2,9 +2,9 @@ from django.db import transaction
 
 from rest_framework import viewsets
 
+from ..constants import CommonResourceAction
 from ..viewsets import NestedViewSetMixin
 from .api.serializers import AuditTrailSerializer
-from ..constants import CommonResourceAction
 from .models import AuditTrail
 
 
