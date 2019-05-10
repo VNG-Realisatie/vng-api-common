@@ -6,7 +6,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from ..descriptors import GegevensGroepType
-from .constants import AuditTrailAction
+from ..constants import CommonResourceAction
 
 
 class AuditTrail(models.Model):
@@ -15,18 +15,15 @@ class AuditTrail(models.Model):
         help_text="Unieke resource identifier (UUID4)"
     )
     bron = models.CharField(max_length=50)
-    actie = models.CharField(
-        choices=AuditTrailAction.choices,
-        max_length=50
-    )
+    actie = models.CharField(max_length=50)
     actieWeergave = models.CharField(
         max_length=200,
         blank=True
     )
     resultaat = models.IntegerField()
-    hoofdObject = models.URLField()
+    hoofdObject = models.URLField(max_length=1000)
     resource = models.CharField(max_length=50)
-    resourceUrl = models.URLField()
+    resourceUrl = models.URLField(max_length=1000)
     aanmaakdatum = models.DateTimeField(auto_now=True)
 
     oud = JSONField(null=True, encoder=DjangoJSONEncoder)

@@ -4,7 +4,7 @@ from rest_framework import viewsets
 
 from ..viewsets import NestedViewSetMixin
 from .api.serializers import AuditTrailSerializer
-from .constants import AuditTrailAction
+from ..constants import CommonResourceAction
 from .models import AuditTrail
 
 
@@ -32,7 +32,7 @@ class AuditTrailMixin:
         trail = AuditTrail(
             bron=self.audit.component_name,
             actie=action,
-            actieWeergave=AuditTrailAction.labels.get(action, ''),
+            actieWeergave=CommonResourceAction.labels.get(action, ''),
             resultaat=status_code,
             hoofdObject=main_object,
             resource=self.basename,
@@ -48,7 +48,7 @@ class AuditTrailCreateMixin(AuditTrailMixin):
         response = super().create(request, *args, **kwargs)
         self.create_audittrail(
             response.status_code,
-            AuditTrailAction.create,
+            CommonResourceAction.create,
             version_before_edit=None,
             version_after_edit=response.data,
         )
@@ -62,7 +62,7 @@ class AuditTrailUpdateMixin(AuditTrailMixin):
         serializer = self.get_serializer(instance)
         version_before_edit = serializer.data
 
-        action = AuditTrailAction.partial_update if kwargs.get('partial', False) else AuditTrailAction.update
+        action = CommonResourceAction.partial_update if kwargs.get('partial', False) else CommonResourceAction.update
 
         response = super().update(request, *args, **kwargs)
         self.create_audittrail(
@@ -92,7 +92,7 @@ class AuditTrailDestroyMixin(AuditTrailMixin):
             response = super().destroy(request, *args, **kwargs)
             self.create_audittrail(
                 response.status_code,
-                AuditTrailAction.delete,
+                CommonResourceAction.delete,
                 version_before_edit=version_before_edit,
                 version_after_edit=None
             )
@@ -108,7 +108,20 @@ class AuditTrailViewsetMixin(AuditTrailCreateMixin,
     pass
 
 
-class AuditTrailViewset(viewsets.ReadOnlyModelViewSet, NestedViewSetMixin):
+class AuditTrailViewSet(viewsets.ReadOnlyModelViewSet, NestedViewSetMixin):
+    """
+    ViewSet that shows the Audit trails for a resource (e.g. a Zaak)
+
+    In order to create an AuditTrailViewSet for a specific resource, this class
+    must be inherited from in the viewsets of the component where this resource
+    lives, and the `main_resource_lookup_field` must be set to the identifier
+    of the resource (usually uuid)
+
+    Example usage for a AuditTrailViewSet for the `Zaak`-resource:
+
+        class ZaakAuditTrailViewset(AuditTrailViewset):
+            main_resource_lookup_field = 'zaak_uuid'
+    """
     queryset = AuditTrail.objects.all()
     serializer_class = AuditTrailSerializer
     lookup_field = 'uuid'
@@ -116,8 +129,8 @@ class AuditTrailViewset(viewsets.ReadOnlyModelViewSet, NestedViewSetMixin):
     main_resource_lookup_field = None   # Must be overwritten by subclasses
 
     def get_queryset(self):
-        base = super().get_queryset()
+        qs = super().get_queryset()
         identifier = self.kwargs.get(self.main_resource_lookup_field)
         if identifier:
-            return base.filter(hoofdObject__contains=identifier)
-        return base
+            return qs.filter(hoofdObject__contains=identifier)
+        return qs
