@@ -108,7 +108,6 @@ class BaseAuthRequired(permissions.BasePermission):
     def _extract_field_value(self, main_obj, field):
         return getattr(main_obj, field)
 
-
     def has_permission(self, request: Request, view) -> bool:
         if bypass_permissions(request):
             return True
@@ -136,7 +135,7 @@ class BaseAuthRequired(permissions.BasePermission):
         return request.jwt_auth.has_auth(scopes_required, **fields)
 
 
-class AuthScopesRequired (BaseAuthRequired):
+class AuthScopesRequired(BaseAuthRequired):
     def _get_obj(self, view, request):
         return None
 
