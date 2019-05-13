@@ -16,14 +16,14 @@ class AuditTrail(models.Model):
     )
     bron = models.CharField(max_length=50)
     actie = models.CharField(max_length=50)
-    actieWeergave = models.CharField(
+    actie_weergave = models.CharField(
         max_length=200,
         blank=True
     )
     resultaat = models.IntegerField()
-    hoofdObject = models.URLField(max_length=1000)
+    hoofd_object = models.URLField(max_length=1000)
     resource = models.CharField(max_length=50)
-    resourceUrl = models.URLField(max_length=1000)
+    resource_url = models.URLField(max_length=1000)
     aanmaakdatum = models.DateTimeField(auto_now=True)
 
     oud = JSONField(null=True, encoder=DjangoJSONEncoder)

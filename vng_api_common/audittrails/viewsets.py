@@ -32,11 +32,11 @@ class AuditTrailMixin:
         trail = AuditTrail(
             bron=self.audit.component_name,
             actie=action,
-            actieWeergave=CommonResourceAction.labels.get(action, ''),
+            actie_weergave=CommonResourceAction.labels.get(action, ''),
             resultaat=status_code,
-            hoofdObject=main_object,
+            hoofd_object=main_object,
             resource=self.basename,
-            resourceUrl=data['url'],
+            resource_url=data['url'],
             oud=version_before_edit,
             nieuw=version_after_edit,
         )
@@ -99,7 +99,7 @@ class AuditTrailDestroyMixin(AuditTrailMixin):
             return response
 
     def _destroy_related_audittrails(self, main_object_url):
-        AuditTrail.objects.filter(hoofdObject=main_object_url).delete()
+        AuditTrail.objects.filter(hoofd_object=main_object_url).delete()
 
 
 class AuditTrailViewsetMixin(AuditTrailCreateMixin,
