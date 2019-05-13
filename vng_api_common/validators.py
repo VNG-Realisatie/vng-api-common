@@ -150,6 +150,9 @@ class ResourceValidator(URLValidator):
     :param oas_schema: URL to the schema to validate the response object shape
       against. Must be a YAML OAS 3.0.x spec.
     """
+
+    # Name mangling is applied to these attributes to avoid formatting issues
+    # that occur when overriding the superclass attributes
     __message = _('The URL {url} resource did not look like a(n) `{resource}`. Please provide a valid URL.')
     __code = 'invalid-resource'
 
