@@ -119,10 +119,8 @@ class BaseAuthRequired(permissions.BasePermission):
             fields = {k: self._extract_field_value(main_obj, k) for k in self.permission_fields}
             return request.jwt_auth.has_auth(scopes_required, **fields)
 
-        elif view.action == 'list':
-            return request.jwt_auth.has_auth(scopes_required)
-
-        return True
+        # by default - check if the action is allowed at all
+        return request.jwt_auth.has_auth(scopes_required)
 
     def has_object_permission(self, request: Request, view, obj) -> bool:
         if bypass_permissions(request):
