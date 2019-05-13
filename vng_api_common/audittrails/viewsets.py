@@ -132,5 +132,5 @@ class AuditTrailViewSet(viewsets.ReadOnlyModelViewSet, NestedViewSetMixin):
         qs = super().get_queryset()
         identifier = self.kwargs.get(self.main_resource_lookup_field)
         if identifier:
-            return qs.filter(hoofdObject__contains=identifier)
+            return qs.filter(hoofd_object__contains=identifier)
         return qs
