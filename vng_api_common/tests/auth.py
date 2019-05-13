@@ -114,6 +114,9 @@ class JWTScopesMixin:
 
 # tools fot testing with new authorization format
 def generate_jwt_auth(client_id, secret):
+    """
+    Generate a JWT suitable for the second version of the AC-based auth.
+    """
     payload = {
         # standard claims
         'iss': 'testsuite',
@@ -127,6 +130,12 @@ def generate_jwt_auth(client_id, secret):
 
 
 class JWTAuthMixin:
+    """
+    Configure the local auth cache.
+
+    Creates the local auth objects for permission checks, as if you're talking
+    to a real AC behind the scenes.
+    """
     scopes = None
     heeft_alle_autorisaties = False
     zaaktype = None

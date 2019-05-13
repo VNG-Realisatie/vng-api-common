@@ -1,4 +1,5 @@
 import os
+from functools import lru_cache
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -11,15 +12,23 @@ DEFAULT_PATH_PARAMETERS = {
 
 SPEC_PATH = os.path.join(settings.BASE_DIR, 'src', 'openapi.yaml')
 
-with open(SPEC_PATH, 'r') as infile:
-    SPEC = yaml.safe_load(infile)
+
+@lru_cache()
+def get_spec() -> dict:
+    with open(SPEC_PATH, 'r') as infile:
+        spec = yaml.safe_load(infile)
+    return spec
 
 
 def get_operation_url(operation, **kwargs):
-    url = SPEC['servers'][0]['url']
+    """
+    Look up the url of an operation from the API spec.
+    """
+    spec = get_spec()
+    url = spec['servers'][0]['url']
     base_path = urlparse(url).path
 
-    for path, methods in SPEC['paths'].items():
+    for path, methods in spec['paths'].items():
         for name, method in methods.items():
             if name == 'parameters':
                 continue
@@ -49,6 +58,8 @@ class TypeCheckMixin:
 
 def get_validation_errors(response, field, index=0):
     """
+    Extra the validation error for ``field`` from the response.
+
     Assumes there's only one validation error for the field.
     """
     assert response.status_code == 400

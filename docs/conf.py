@@ -38,6 +38,7 @@ settings.configure(
             'PASSWORD': 'docs',
         }
     },
+    BASE_DIR=sys.path[0],
     **{name: getattr(api_settings, name) for name in api_settings.__all__}
 )
 django.setup()

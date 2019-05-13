@@ -18,3 +18,4 @@ Modules reference
    polymorphism
    oas
    utils
+   testing
