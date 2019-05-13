@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class AudittrailConfig(AppConfig):
-    name = 'audittrails'
+    name = 'vng_api_common.audittrails'
