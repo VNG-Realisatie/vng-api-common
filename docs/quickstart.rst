@@ -10,6 +10,7 @@ Pre-requisites
 
 * Python 3.6 or higher
 * Setuptools 30.3.0 or higher
+* Only the PostgreSQL database is supported
 
 Install from PyPI
 -----------------
@@ -19,12 +20,6 @@ Install from PyPI with pip:
 .. code-block:: bash
 
     pip install vng-api-common
-
-or if you want :ref:`notifications` support:
-
-.. code-block:: bash
-
-    pip install vng-api-common[notifications]
 
 You will also need the NPM package ``swagger2openapi``:
 
@@ -47,6 +42,7 @@ Configure the Django settings
             'vng_api_common',  # before drf_yasg to override the management command
             'vng_api_common.authorizations',
             'vng_api_common.notifications',  # optional
+            'vng_api_common.audittrails',  # optional
             'drf_yasg',
             'rest_framework',
             'solo',  # required for authorizations and notifications
