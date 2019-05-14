@@ -19,14 +19,14 @@ class AuditTrailMixin:
             return data[self.audittrail_main_resource_key]
         return data[main_resource]
 
-    def get_applicatie_id(self):
+    def _get_applicatie_id(self):
         try:
             applicatie_id = self.request.jwt_payload['client_id']
         except:
             applicatie_id = self.request.META.get('X-NLX-Request-Application-Id', '')
         return applicatie_id
 
-    def get_applicatie_weergave(self):
+    def _get_applicatie_weergave(self):
         return self.request.jwt_auth.applicaties.get().label
 
     def create_audittrail(self, status_code, action, version_before_edit, version_after_edit):
@@ -41,8 +41,8 @@ class AuditTrailMixin:
 
         trail = AuditTrail(
             bron=self.audit.component_name,
-            applicatie_id=self.get_applicatie_id(),
-            applicatie_weergave=self.get_applicatie_weergave(),
+            applicatie_id=self._get_applicatie_id(),
+            applicatie_weergave=self._get_applicatie_weergave(),
             actie=action,
             actie_weergave=CommonResourceAction.labels.get(action, ''),
             resultaat=status_code,
