@@ -25,7 +25,14 @@ class AuditTrail(models.Model):
     resource = models.CharField(max_length=50)
     resource_url = models.URLField(max_length=1000)
     aanmaakdatum = models.DateTimeField(auto_now=True)
-
+    applicatie_id = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    applicatie_weergave = models.CharField(
+        max_length=200,
+        blank=True
+    )
     oud = JSONField(null=True, encoder=DjangoJSONEncoder)
     nieuw = JSONField(null=True, encoder=DjangoJSONEncoder)
     wijzigingen = GegevensGroepType({
