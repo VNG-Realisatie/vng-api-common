@@ -75,9 +75,14 @@ class ClientIdRequired(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            warnings.warn("The JWT-Payload based auth is deprecated, it will be "
-                          "removed before July 22nd 2019", DeprecationWarning)
-            return request.jwt_payload['client_id'] == obj.client_id
+            if not hasattr(request, 'jwt_auth'):
+                warnings.warn("The JWT-Payload based auth is deprecated, it will be "
+                              "removed before July 22nd 2019", DeprecationWarning)
+                client_id = request.jwt_payload['client_id']
+            else:
+                client_id = request.jwt_auth.client_id
+
+            return client_id == obj.client_id
 
 
 class BaseAuthRequired(permissions.BasePermission):
@@ -109,6 +114,8 @@ class BaseAuthRequired(permissions.BasePermission):
         return getattr(main_obj, field)
 
     def has_permission(self, request: Request, view) -> bool:
+        from rest_framework.viewsets import ViewSetMixin
+
         if bypass_permissions(request):
             return True
 
@@ -118,6 +125,11 @@ class BaseAuthRequired(permissions.BasePermission):
             main_obj = self._get_obj(view, request)
             fields = {k: self._extract_field_value(main_obj, k) for k in self.permission_fields}
             return request.jwt_auth.has_auth(scopes_required, **fields)
+
+        # detect if this is an unsupported method - if it's a viewset and the
+        # action was not mapped, it's not supported and DRF will catch it
+        if isinstance(view, ViewSetMixin) and view.action is None:
+            return True
 
         # by default - check if the action is allowed at all
         return request.jwt_auth.has_auth(scopes_required)
