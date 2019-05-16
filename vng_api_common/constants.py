@@ -191,9 +191,9 @@ class ComponentTypes(DjangoChoices):
 
 
 class CommonResourceAction(DjangoChoices):
-    create = ChoiceItem('create', _("De resource is aangemaakt"))
-    list = ChoiceItem('list', _("De gegevens van de resources zijn opgehaald"))
-    retrieve = ChoiceItem('retrieve', _("De gegevens van de resource zijn opgehaald"))
-    destroy = ChoiceItem('destroy', _("De resource is verwijderd"))
-    update = ChoiceItem('update', _("De gegevens van de resource zijn bijgewerkt"))
-    partial_update = ChoiceItem('partial_update', _("De gegevens van de resource zijn deels bijgewerkt"))
+    create = ChoiceItem('create', _("aangemaakt"))
+    list = ChoiceItem('list', _("opgehaald"))
+    retrieve = ChoiceItem('retrieve', _("opgehaald"))
+    destroy = ChoiceItem('destroy', _("verwijderd"))
+    update = ChoiceItem('update', _("bijgewerkt"))
+    partial_update = ChoiceItem('partial_update', _("deels bijgewerkt"))
