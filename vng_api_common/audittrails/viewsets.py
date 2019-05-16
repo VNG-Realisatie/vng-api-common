@@ -29,8 +29,22 @@ class AuditTrailMixin:
         else:
             main_object = self.get_audittrail_main_object_url(data, self.audit.main_resource)
 
+        try:
+            applicatie_id = self.request.jwt_payload['client_id']
+        except:
+            # Django 2.2
+            if hasattr(self.request, 'headers'):
+                applicatie_id = self.request.headers.get('X-NLX-Request-Application-Id', '')
+            else:
+                applicatie_id = self.request.META.get('X-NLX-Request-Application-Id', '')
+
+        # Combine labels of all applicaties for the current client_id
+        applicatie_weergave = ', '.join(self.request.jwt_auth.applicaties.values_list('label', flat=True))
+
         trail = AuditTrail(
             bron=self.audit.component_name,
+            applicatie_id=applicatie_id,
+            applicatie_weergave=applicatie_weergave,
             actie=action,
             actie_weergave=CommonResourceAction.labels.get(action, ''),
             resultaat=status_code,
@@ -108,7 +122,7 @@ class AuditTrailViewsetMixin(AuditTrailCreateMixin,
     pass
 
 
-class AuditTrailViewSet(viewsets.ReadOnlyModelViewSet, NestedViewSetMixin):
+class AuditTrailViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     """
     ViewSet that shows the Audit trails for a resource (e.g. a Zaak)
 
