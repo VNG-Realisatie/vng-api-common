@@ -53,12 +53,16 @@ class Discriminator:
 
     def to_representation(self, instance) -> OrderedDict:
         discriminator_value = getattr(instance, self.discriminator_field)
-        serializer = self.mapping[discriminator_value]
+        serializer = self.mapping.get(discriminator_value)
+        if serializer is None:
+            return None
         return serializer.to_representation(instance)
 
     def to_internal_value(self, data) -> OrderedDict:
         discriminator_value = data[self.discriminator_field]
-        serializer = self.mapping[discriminator_value]
+        serializer = self.mapping.get(discriminator_value)
+        if serializer is None:
+            return None
         return serializer.to_internal_value(data)
 
 
@@ -124,11 +128,13 @@ class PolymorphicSerializer(serializers.HyperlinkedModelSerializer, metaclass=Po
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         extra_fields = self.discriminator.to_representation(instance)
-        representation.update(extra_fields)
+        if extra_fields:
+            representation.update(extra_fields)
         return representation
 
     def to_internal_value(self, data):
         internal_value = super().to_internal_value(data)
         extra_fields = self.discriminator.to_internal_value(data)
-        internal_value.update(extra_fields)
+        if extra_fields:
+            internal_value.update(extra_fields)
         return internal_value
