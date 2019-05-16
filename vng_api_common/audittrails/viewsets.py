@@ -122,7 +122,7 @@ class AuditTrailViewsetMixin(AuditTrailCreateMixin,
     pass
 
 
-class AuditTrailViewSet(viewsets.ReadOnlyModelViewSet, NestedViewSetMixin):
+class AuditTrailViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     """
     ViewSet that shows the Audit trails for a resource (e.g. a Zaak)
 
