@@ -40,6 +40,15 @@ class AutorisatieBaseSerializer(PolymorphicSerializer):
             'component_weergave',
             'scopes',
         )
+        extra_kwargs = {
+            'scopes': {
+                'help_text': _(
+                    "Lijst van scope labels. Elke scope geeft toegang tot een "
+                    "set van acties/operaties, zoals gedocumenteerd bij de "
+                    "betreffende component."
+                ),
+            }
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -66,8 +75,10 @@ class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
             },
             'heeft_alle_autorisaties': {
                 'required': False,
+            },
+            'client_ids': {
+                'help_text': _("Lijst van consumer identifiers (hun 'client_id')"),
             }
-
         }
 
     def validate(self, attrs):
