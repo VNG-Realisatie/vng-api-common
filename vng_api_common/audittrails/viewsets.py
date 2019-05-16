@@ -136,7 +136,7 @@ class AuditTrailViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
         class ZaakAuditTrailViewset(AuditTrailViewset):
             main_resource_lookup_field = 'zaak_uuid'
     """
-    queryset = AuditTrail.objects.all()
+    queryset = AuditTrail.objects.all().order_by('aanmaakdatum')
     serializer_class = AuditTrailSerializer
     lookup_field = 'uuid'
 
