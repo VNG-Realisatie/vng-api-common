@@ -19,16 +19,6 @@ class AuditTrailMixin:
             return data[self.audittrail_main_resource_key]
         return data[main_resource]
 
-    def _get_applicatie_id(self):
-        try:
-            applicatie_id = self.request.jwt_payload['client_id']
-        except:
-            applicatie_id = self.request.META.get('X-NLX-Request-Application-Id', '')
-        return applicatie_id
-
-    def _get_applicatie_weergave(self):
-        return self.request.jwt_auth.applicaties.get().label
-
     def create_audittrail(self, status_code, action, version_before_edit, version_after_edit):
         """
         Create the audittrail for the action that has been carried out.
@@ -39,10 +29,22 @@ class AuditTrailMixin:
         else:
             main_object = self.get_audittrail_main_object_url(data, self.audit.main_resource)
 
+        try:
+            applicatie_id = self.request.jwt_payload['client_id']
+        except:
+            # Django 2.2
+            if hasattr(self.request, 'headers'):
+                applicatie_id = self.request.headers.get('X-NLX-Request-Application-Id', '')
+            else:
+                applicatie_id = self.request.META.get('X-NLX-Request-Application-Id', '')
+
+        # Combine labels of all applicaties for the current client_id
+        applicatie_weergave = ', '.join(self.request.jwt_auth.applicaties.values_list('label', flat=True))
+
         trail = AuditTrail(
             bron=self.audit.component_name,
-            applicatie_id=self._get_applicatie_id(),
-            applicatie_weergave=self._get_applicatie_weergave(),
+            applicatie_id=applicatie_id,
+            applicatie_weergave=applicatie_weergave,
             actie=action,
             actie_weergave=CommonResourceAction.labels.get(action, ''),
             resultaat=status_code,

@@ -27,11 +27,13 @@ class AuditTrail(models.Model):
     aanmaakdatum = models.DateTimeField(auto_now=True)
     applicatie_id = models.CharField(
         max_length=100,
-        blank=True
+        blank=True,
+        help_text=_("Unieke identificatie van de applicatie, binnen de organisatie")
     )
     applicatie_weergave = models.CharField(
         max_length=200,
-        blank=True
+        blank=True,
+        help_text=_("Vriendelijke naam van de applicatie")
     )
     oud = JSONField(null=True, encoder=DjangoJSONEncoder)
     nieuw = JSONField(null=True, encoder=DjangoJSONEncoder)
