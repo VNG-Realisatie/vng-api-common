@@ -49,6 +49,10 @@ class AuditTrail(models.Model):
         auto_now=True,
         help_text=_("De datum waarop de handeling is gedaan")
     )
+    resource_weergave = models.URLField(
+        max_length=200,
+        help_text=_("Vriendelijke identificatie van het object")
+    )
     applicatie_id = models.CharField(
         max_length=100,
         blank=True,

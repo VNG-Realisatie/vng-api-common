@@ -7,6 +7,7 @@ from rest_framework import viewsets
 from ..compat import get_header
 from ..constants import CommonResourceAction
 from ..permissions import AuthScopesRequired
+from ..utils import get_uuid_from_path
 from ..viewsets import NestedViewSetMixin
 from .api.scopes import SCOPE_AUDITTRAILS_LEZEN
 from .api.serializers import AuditTrailSerializer
@@ -26,7 +27,7 @@ class AuditTrailMixin:
             return data[self.audittrail_main_resource_key]
         return data[main_resource]
 
-    def create_audittrail(self, status_code, action, version_before_edit, version_after_edit):
+    def create_audittrail(self, status_code, action, version_before_edit, version_after_edit, unique_representation):
         """
         Create the audittrail for the action that has been carried out.
         """
@@ -66,6 +67,7 @@ class AuditTrailMixin:
             resource=self.basename,
             resource_url=data['url'],
             toelichting=toelichting,
+            resource_weergave=unique_representation,
             oud=version_before_edit,
             nieuw=version_after_edit,
         )
@@ -75,11 +77,14 @@ class AuditTrailMixin:
 class AuditTrailCreateMixin(AuditTrailMixin):
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
+        zaak_uuid = get_uuid_from_path(response.data['url'])
+        instance = self.queryset.get(uuid=zaak_uuid)
         self.create_audittrail(
             response.status_code,
             CommonResourceAction.create,
             version_before_edit=None,
             version_after_edit=response.data,
+            unique_representation=instance.unique_representation()
         )
         return response
 
@@ -99,6 +104,7 @@ class AuditTrailUpdateMixin(AuditTrailMixin):
             action,
             version_before_edit=version_before_edit,
             version_after_edit=response.data,
+            unique_representation=instance.unique_representation()
         )
         return response
 
@@ -123,7 +129,8 @@ class AuditTrailDestroyMixin(AuditTrailMixin):
                 response.status_code,
                 CommonResourceAction.destroy,
                 version_before_edit=version_before_edit,
-                version_after_edit=None
+                version_after_edit=None,
+                unique_representation=instance.unique_representation()
             )
             return response
 
