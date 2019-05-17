@@ -34,9 +34,9 @@ class AuditTrailMixin:
         except AttributeError:
             # Django 2.2
             if hasattr(self.request, 'headers'):
-                applicatie_id = self.request.headers.get('X-NLX-Request-Application-Id', '')
+                applicatie_id = self.request.headers.get('X_NLX_REQUEST_APPLICATION_ID')
             else:
-                applicatie_id = self.request.META.get('X-NLX-Request-Application-Id', '')
+                applicatie_id = self.request.META.get('X_NLX_REQUEST_APPLICATION_ID')
 
         # Combine labels of all applicaties for the current client_id
         applicatie_weergave = ', '.join(self.request.jwt_auth.applicaties.values_list('label', flat=True))
