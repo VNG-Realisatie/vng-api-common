@@ -30,8 +30,8 @@ class AuditTrailMixin:
             main_object = self.get_audittrail_main_object_url(data, self.audit.main_resource)
 
         try:
-            applicatie_id = self.request.jwt_payload['client_id']
-        except:
+            applicatie_id = self.request.jwt_auth.client_id
+        except AttributeError:
             # Django 2.2
             if hasattr(self.request, 'headers'):
                 applicatie_id = self.request.headers.get('X-NLX-Request-Application-Id', '')
