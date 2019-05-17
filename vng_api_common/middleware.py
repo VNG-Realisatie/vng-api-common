@@ -173,7 +173,7 @@ class JWTAuth:
         return applicaties
 
     @cached_property
-    def client_id(self) -> Union[str, None]:
+    def payload(self) -> dict:
         if self.encoded is None:
             return None
 
@@ -187,9 +187,16 @@ class JWTAuth:
                 code='jwt-decode-error'
             )
 
+        return payload
+
+    @cached_property
+    def client_id(self) -> Union[str, None]:
+        if self.payload is None:
+            return None
+
         # get client_id
         try:
-            client_id = payload['client_id']
+            client_id = self.payload['client_id']
         except KeyError:
             try:
                 header = jwt.get_unverified_header(self.encoded)
