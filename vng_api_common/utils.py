@@ -11,8 +11,6 @@ from django.utils.module_loading import import_string
 
 from zds_client.client import ClientError
 
-from .models import APICredential
-
 try:
     from djangorestframework_camel_case.util import underscore_to_camel as _underscore_to_camel
 except ImportError:
@@ -102,6 +100,7 @@ def get_uuid_from_path(path: str) -> str:
 
 
 def request_object_attribute(url: str, attribute: str, resource: Union[str, None] = None) -> str:
+    from .models import APICredential
     Client = import_string(settings.ZDS_CLIENT_CLASS)
     client = Client.from_url(url)
     client.auth = APICredential.get_auth(url)
