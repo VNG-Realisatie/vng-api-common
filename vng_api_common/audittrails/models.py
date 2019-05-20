@@ -69,6 +69,7 @@ class AuditTrail(models.Model):
 
     gebruikers_id = models.CharField(
         max_length=255,
+        blank=True,
         help_text=_("Unieke identificatie van de gebruiker die binnen de organisatie herleid kan worden naar een persoon")
     )
     gebruikers_weergave = models.CharField(
