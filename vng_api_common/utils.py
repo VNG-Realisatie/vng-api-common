@@ -1,3 +1,4 @@
+import logging
 import re
 import uuid
 from typing import Union
@@ -16,6 +17,9 @@ try:
     from djangorestframework_camel_case.util import underscore_to_camel as _underscore_to_camel
 except ImportError:
     from djangorestframework_camel_case.util import underscoreToCamel as _underscore_to_camel
+
+
+logger = logging.getLogger(__name__)
 
 RE_UNDERSCORE = re.compile(r"[a-z]_[a-z]")
 
@@ -103,6 +107,7 @@ def request_object_attribute(url: str, attribute: str, resource: Union[str, None
     client.auth = APICredential.get_auth(url)
     try:
         result = client.retrieve(resource, url=url)[attribute]
-    except (ClientError, KeyError):
+    except (ClientError, KeyError) as exc:
+        logger.warning(f"{attribute} was retrieved from {url} with an {exc.__class__.__name__}: {exc}")
         result = ''
     return result
