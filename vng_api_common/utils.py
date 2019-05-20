@@ -6,6 +6,11 @@ from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
 from django.urls import Resolver404, get_resolver
+from django.utils.module_loading import import_string
+
+from zds_client.client import ClientError
+
+from .models import APICredential
 
 try:
     from djangorestframework_camel_case.util import underscore_to_camel as _underscore_to_camel
@@ -90,3 +95,14 @@ def get_uuid_from_path(path: str) -> str:
     uuid.UUID(uuid_str)
 
     return uuid_str
+
+
+def request_object_attribute(url: str, attribute: str, resource: Union[str, None] = None) -> str:
+    Client = import_string(settings.ZDS_CLIENT_CLASS)
+    client = Client.from_url(url)
+    client.auth = APICredential.get_auth(url)
+    try:
+        result = client.retrieve(resource, url=url)[attribute]
+    except (ClientError, KeyError):
+        result = ''
+    return result
