@@ -1,3 +1,5 @@
+import logging
+
 from django.db import transaction
 
 from rest_framework import viewsets
@@ -7,6 +9,7 @@ from ..viewsets import NestedViewSetMixin
 from .api.serializers import AuditTrailSerializer
 from .models import AuditTrail
 
+logger = logging.getLogger(__name__)
 
 class AuditTrailMixin:
     audit = None
@@ -29,21 +32,26 @@ class AuditTrailMixin:
         else:
             main_object = self.get_audittrail_main_object_url(data, self.audit.main_resource)
 
-        try:
-            applicatie_id = self.request.jwt_payload['client_id']
-        except:
-            # Django 2.2
+        applications = self.request.jwt_auth.applicaties
+        if len(applications) > 1:
+            logger.warning("Unexpectedly found %d applications, expected at most one", len(applications))
+        if applications:
+            application = applications[0]
+            app_id, app_presentation = str(application.uuid), application.label
+        else:
+            header = 'X_NLX_REQUEST_APPLICATION_ID'
             if hasattr(self.request, 'headers'):
-                applicatie_id = self.request.headers.get('X-NLX-Request-Application-Id', '')
+                app_id = self.request.headers.get(header)
             else:
-                applicatie_id = self.request.META.get('X-NLX-Request-Application-Id', '')
+                app_id = self.request.META.get(header)
+            app_presentation = app_id  # we don't have any extra information...
 
         # Combine labels of all applicaties for the current client_id
         applicatie_weergave = ', '.join(self.request.jwt_auth.applicaties.values_list('label', flat=True))
 
         trail = AuditTrail(
             bron=self.audit.component_name,
-            applicatie_id=applicatie_id,
+            applicatie_id=app_id,
             applicatie_weergave=applicatie_weergave,
             actie=action,
             actie_weergave=CommonResourceAction.labels.get(action, ''),
