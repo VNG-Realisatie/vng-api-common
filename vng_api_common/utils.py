@@ -108,6 +108,6 @@ def request_object_attribute(url: str, attribute: str, resource: Union[str, None
     try:
         result = client.retrieve(resource, url=url)[attribute]
     except (ClientError, KeyError) as exc:
-        logger.warning(f"{attribute} was retrieved from {url} with an {exc.__class__.__name__}: {exc}")
+        logger.warning("%s was retrieved from %s with the %s: %s", attribute, url, exc.__class__.__name__, exc)
         result = ''
     return result
