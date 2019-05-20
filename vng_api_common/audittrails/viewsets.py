@@ -42,6 +42,7 @@ class AuditTrailMixin:
         applications = self.request.jwt_auth.applicaties
         if len(applications) > 1:
             logger.warning("Unexpectedly found %d applications, expected at most one", len(applications))
+
         if applications:
             application = applications[0]
             app_id, app_presentation = str(application.uuid), application.label
