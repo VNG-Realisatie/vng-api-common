@@ -113,7 +113,7 @@ class JWTScopesMixin:
 
 
 # tools fot testing with new authorization format
-def generate_jwt_auth(client_id, secret):
+def generate_jwt_auth(client_id, secret, user_id='test_user_id', user_representation='Test User'):
     """
     Generate a JWT suitable for the second version of the AC-based auth.
     """
@@ -122,7 +122,9 @@ def generate_jwt_auth(client_id, secret):
         'iss': 'testsuite',
         'iat': int(time.time()),
         # custom
-        'client_id': client_id
+        'client_id': client_id,
+        'user_id': user_id,
+        'user_representation': user_representation
     }
     encoded = jwt.encode(payload, secret, algorithm='HS256')
     encoded = encoded.decode('ascii')
@@ -136,6 +138,12 @@ class JWTAuthMixin:
     Creates the local auth objects for permission checks, as if you're talking
     to a real AC behind the scenes.
     """
+    client_id = 'testsuite'
+    secret = 'letmein'
+
+    user_id = 'test_user_id'
+    user_representation = 'Test User'
+
     scopes = None
     heeft_alle_autorisaties = False
     zaaktype = None
@@ -148,14 +156,14 @@ class JWTAuthMixin:
         super().setUpTestData()
 
         JWTSecret.objects.get_or_create(
-            identifier='testsuite',
-            defaults={'secret': 'letmein'}
+            identifier=cls.client_id,
+            defaults={'secret': cls.secret}
         )
 
         config = AuthorizationsConfig.get_solo()
 
         cls.applicatie = Applicatie.objects.create(
-            client_ids=['testsuite'],
+            client_ids=[cls.client_id],
             label='for test',
             heeft_alle_autorisaties=cls.heeft_alle_autorisaties
         )
@@ -174,5 +182,10 @@ class JWTAuthMixin:
     def setUp(self):
         super().setUp()
 
-        token = generate_jwt_auth(client_id='testsuite', secret='letmein')
+        token = generate_jwt_auth(
+            client_id=self.client_id,
+            secret=self.secret,
+            user_id=self.user_id,
+            user_representation=self.user_representation
+        )
         self.client.credentials(HTTP_AUTHORIZATION=token)

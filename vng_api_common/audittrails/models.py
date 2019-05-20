@@ -69,6 +69,17 @@ class AuditTrail(models.Model):
         encoder=DjangoJSONEncoder,
         help_text=_("Volledige JSON body van het object na de actie")
     )
+
+    gebruikers_id = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text=_("Unieke identificatie van de gebruiker die binnen de organisatie herleid kan worden naar een persoon")
+    )
+    gebruikers_weergave = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text=_("Vriendelijke naam van de gebruiker")
+    )
     wijzigingen = GegevensGroepType({
         'oud': oud,
         'nieuw': nieuw,

@@ -32,6 +32,12 @@ class AuditTrailMixin:
         else:
             main_object = self.get_audittrail_main_object_url(data, self.audit.main_resource)
 
+        # Django 2.2 compatibility
+        if hasattr(self.request, 'headers'):
+            headers_attr = 'headers'
+        else:
+            headers_attr = 'META'
+
         applications = self.request.jwt_auth.applicaties
         if len(applications) > 1:
             logger.warning("Unexpectedly found %d applications, expected at most one", len(applications))
@@ -39,22 +45,21 @@ class AuditTrailMixin:
             application = applications[0]
             app_id, app_presentation = str(application.uuid), application.label
         else:
-            header = 'X_NLX_REQUEST_APPLICATION_ID'
-            if hasattr(self.request, 'headers'):
-                app_id = self.request.headers.get(header)
-            else:
-                app_id = self.request.META.get(header)
+            app_id = getattr(self.request, headers_attr).get('HTTP_X_NLX_REQUEST_APPLICATION_ID')
             app_presentation = app_id  # we don't have any extra information...
 
-        # Combine labels of all applicaties for the current client_id
-        applicatie_weergave = ', '.join(self.request.jwt_auth.applicaties.values_list('label', flat=True))
+        user_id = self.request.jwt_auth.payload.get('user_id', '')
+        if not user_id:
+            user_id = getattr(self.request, headers_attr).get('HTTP_X_NLX_REQUEST_USER_ID', '')
 
         trail = AuditTrail(
             bron=self.audit.component_name,
             applicatie_id=app_id,
-            applicatie_weergave=applicatie_weergave,
+            applicatie_weergave=app_presentation,
             actie=action,
             actie_weergave=CommonResourceAction.labels.get(action, ''),
+            gebruikers_id=user_id,
+            gebruikers_weergave=self.request.jwt_auth.payload.get('user_representation', ''),
             resultaat=status_code,
             hoofd_object=main_object,
             resource=self.basename,

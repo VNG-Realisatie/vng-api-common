@@ -66,6 +66,8 @@ class APICredential(models.Model):
     label = models.CharField(_("label"), max_length=100, help_text=_("human readable label"), default='')
     client_id = models.CharField(_("client id"), max_length=255)
     secret = models.CharField(_("secret"), max_length=255)
+    user_id = models.CharField(_("user id"), max_length=255)
+    user_representation = models.CharField(_("user representation"), max_length=255, default='')
 
     class Meta:
         verbose_name = _("external API credential")
@@ -97,6 +99,8 @@ class APICredential(models.Model):
         auth = ClientAuth(
             client_id=credentials.client_id,
             secret=credentials.secret,
+            user_id=credentials.user_id,
+            user_representation=credentials.user_representation,
             **kwargs
         )
         return auth
