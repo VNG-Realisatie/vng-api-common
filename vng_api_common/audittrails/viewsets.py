@@ -55,6 +55,8 @@ class AuditTrailMixin:
             applicatie_weergave=applicatie_weergave,
             actie=action,
             actie_weergave=CommonResourceAction.labels.get(action, ''),
+            gebruikers_id=self.request.jwt_auth.payload['user_id'],
+            gebruikers_weergave=self.request.jwt_auth.payload['user_representation'],
             resultaat=status_code,
             hoofd_object=main_object,
             resource=self.basename,
