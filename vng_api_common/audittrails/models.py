@@ -2,10 +2,11 @@ import uuid
 
 from django.contrib.postgres.fields import JSONField
 from django.core.serializers.json import DjangoJSONEncoder
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from ..constants import CommonResourceAction
+from ..constants import CommonResourceAction, ComponentTypes
 from ..descriptors import GegevensGroepType
 
 
@@ -16,7 +17,8 @@ class AuditTrail(models.Model):
     )
     bron = models.CharField(
         max_length=50,
-        help_text=_("De naam van het component waar de wijziging in is gedaan")
+        help_text=_("De naam van het component waar de wijziging in is gedaan"),
+        choices=ComponentTypes
     )
     actie = models.CharField(
         max_length=50,
@@ -28,7 +30,8 @@ class AuditTrail(models.Model):
         help_text=_("Vriendelijke naam van de actie")
     )
     resultaat = models.IntegerField(
-        help_text=_("HTTP status code van de API response van de uitgevoerde handeling")
+        help_text=_("HTTP status code van de API response van de uitgevoerde handeling"),
+        validators=[MinValueValidator(100), MaxValueValidator(599)]
     )
     hoofd_object = models.URLField(
         max_length=1000,
