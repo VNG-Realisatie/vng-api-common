@@ -11,6 +11,7 @@ from .models import AuditTrail
 
 logger = logging.getLogger(__name__)
 
+
 class AuditTrailMixin:
     audit = None
 
