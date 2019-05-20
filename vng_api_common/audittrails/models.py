@@ -83,4 +83,4 @@ class AuditTrail(models.Model):
     wijzigingen = GegevensGroepType({
         'oud': oud,
         'nieuw': nieuw,
-    })
+    }, optional=['oud', 'nieuw'], none_for_empty=True)

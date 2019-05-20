@@ -98,20 +98,19 @@ class GegevensGroepSerializerMetaclass(serializers.SerializerMetaclass):
 
                 # the field is always required and may not be empty in any form
                 default_extra_kwargs = {
-                    'source': model_field.name,
                     'required': field_name not in gegevensgroep.optional,
                     'allow_null': False,
                     'allow_blank': field_name in gegevensgroep.optional,
                 }
+
+                if model_field.name != field_name:
+                    default_extra_kwargs['source'] = model_field.name
 
                 internal_type = model_field.get_internal_type()
                 if internal_type not in ['CharField', 'TextField']:
                     del default_extra_kwargs['allow_blank']
                 if internal_type == 'BooleanField':
                     del default_extra_kwargs['allow_null']
-
-                # if internal_type == 'RelativeDeltaField':
-                #     import bpdb; bpdb.set_trace()
 
                 extra_kwargs[field_name] = default_extra_kwargs
 

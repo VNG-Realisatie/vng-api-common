@@ -1,11 +1,19 @@
 from rest_framework import serializers
 
 from ...constants import CommonResourceAction, ComponentTypes
-from ...serializers import add_choice_values_help_text
+from ...serializers import GegevensGroepSerializer, add_choice_values_help_text
 from ..models import AuditTrail
 
 
+class WijzgingenSerializer(GegevensGroepSerializer):
+    class Meta:
+        model = AuditTrail
+        gegevensgroep = 'wijzigingen'
+
+
 class AuditTrailSerializer(serializers.ModelSerializer):
+    wijzigingen = WijzgingenSerializer()
+
     class Meta:
         model = AuditTrail
         fields = (
