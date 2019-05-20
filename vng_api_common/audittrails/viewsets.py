@@ -48,9 +48,8 @@ class AuditTrailMixin:
             app_id = getattr(self.request, headers_attr).get('HTTP_X_NLX_REQUEST_APPLICATION_ID')
             app_presentation = app_id  # we don't have any extra information...
 
-        try:
-            user_id = self.request.jwt_auth.payload['user_id']
-        except KeyError:
+        user_id = self.request.jwt_auth.payload.get('user_id', '')
+        if not user_id:
             user_id = getattr(self.request, headers_attr).get('HTTP_X_NLX_REQUEST_USER_ID', '')
 
         trail = AuditTrail(
