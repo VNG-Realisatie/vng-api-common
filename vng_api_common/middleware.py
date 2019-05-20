@@ -172,74 +172,82 @@ class JWTAuth:
 
         return applicaties
 
-    @cached_property
-    def payload(self) -> dict:
+    @property
+    def payload(self):
         if self.encoded is None:
             return None
 
-        # jwt check
-        try:
-            payload = jwt.decode(self.encoded, verify=False)
-        except jwt.DecodeError:
-            logger.info("Invalid JWT encountered")
-            raise PermissionDenied(
-                _('JWT could not be decoded. Possibly you made a copy-paste mistake.'),
-                code='jwt-decode-error'
-            )
+        if not hasattr(self, '_payload'):
+            # decode the JWT and validate it
 
-        return payload
-
-    @cached_property
-    def client_id(self) -> Union[str, None]:
-        if self.payload is None:
-            return None
-
-        # get client_id
-        try:
-            client_id = self.payload['client_id']
-        except KeyError:
+            # jwt check
             try:
-                header = jwt.get_unverified_header(self.encoded)
+                payload = jwt.decode(self.encoded, verify=False)
             except jwt.DecodeError:
                 logger.info("Invalid JWT encountered")
                 raise PermissionDenied(
                     _('JWT could not be decoded. Possibly you made a copy-paste mistake.'),
                     code='jwt-decode-error'
                 )
-            else:
+
+            # get client_id
+            try:
+                client_id = payload['client_id']
+            except KeyError:
                 try:
-                    client_id = header['client_identifier']
-                except KeyError:
+                    header = jwt.get_unverified_header(self.encoded)
+                except jwt.DecodeError:
+                    logger.info("Invalid JWT encountered")
                     raise PermissionDenied(
-                        'Client identifier is niet aanwezig in JWT',
-                        code='missing-client-identifier'
+                        _('JWT could not be decoded. Possibly you made a copy-paste mistake.'),
+                        code='jwt-decode-error'
                     )
                 else:
-                    logger.warning(_('The support of authorization old format will be terminated soon. '
-                                     'Please use a new format with the separate Authorization Component'))
+                    try:
+                        client_id = header['client_identifier']
+                    except KeyError:
+                        raise PermissionDenied(
+                            'Client identifier is niet aanwezig in JWT',
+                            code='missing-client-identifier'
+                        )
+                    else:
+                        logger.warning(_('The support of authorization old format will be terminated soon. '
+                                         'Please use a new format with the separate Authorization Component'))
 
-        # find client_id in DB and retrieve it's secret
-        try:
-            jwt_secret = JWTSecret.objects.get(identifier=client_id)
-        except JWTSecret.DoesNotExist:
-            raise PermissionDenied(
-                'Client identifier bestaat niet',
-                code='invalid-client-identifier'
-            )
-        else:
-            key = jwt_secret.secret
+            # find client_id in DB and retrieve it's secret
+            try:
+                jwt_secret = JWTSecret.objects.get(identifier=client_id)
+            except JWTSecret.DoesNotExist:
+                raise PermissionDenied(
+                    'Client identifier bestaat niet',
+                    code='invalid-client-identifier'
+                )
+            else:
+                key = jwt_secret.secret
 
-        # check signature of the token
-        try:
-            jwt.decode(self.encoded, key, algorithms='HS256')
-        except jwt.InvalidSignatureError as exc:
-            logger.exception("Invalid signature - possible payload tampering?")
-            raise PermissionDenied(
-                'Client credentials zijn niet geldig',
-                code='invalid-jwt-signature'
-            )
+            # check signature of the token
+            try:
+                payload = jwt.decode(self.encoded, key, algorithms='HS256')
+            except jwt.InvalidSignatureError as exc:
+                logger.exception("Invalid signature - possible payload tampering?")
+                raise PermissionDenied(
+                    'Client credentials zijn niet geldig',
+                    code='invalid-jwt-signature'
+                )
 
-        return client_id
+            if 'client_id' not in payload:
+                payload['client_id'] = client_id
+
+            self._payload = payload
+
+        return self._payload
+
+    @property
+    def client_id(self):
+        if not self.payload:
+            return None
+
+        return self.payload['client_id']
 
     def filter_vertrouwelijkheidaanduiding(self, base: QuerySet, value) -> QuerySet:
         if value is None:
