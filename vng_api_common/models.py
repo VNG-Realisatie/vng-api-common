@@ -115,6 +115,11 @@ class ClientConfig(SingletonModel):
     def __str__(self):
         return self.api_root
 
+    def save(self, *args, **kwargs):
+        if not self.api_root.endswith('/'):
+            self.api_root = f"{self.api_root}/"
+        super().save(*args, **kwargs)
+
     @classmethod
     def get_client(cls) -> Client:
         """
