@@ -1,4 +1,3 @@
-from django.db.models import Case, IntegerField, Value, When
 from django.utils.translation import ugettext_lazy as _
 
 from djchoices import ChoiceItem, DjangoChoices
