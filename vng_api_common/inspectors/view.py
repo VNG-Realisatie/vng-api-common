@@ -7,7 +7,9 @@ from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
 from rest_framework import exceptions, serializers, status
 
-from ..constants import VERSION_HEADER
+from ..constants import (
+    HEADER_APPLICATION, HEADER_AUDIT, HEADER_USER_ID, VERSION_HEADER
+)
 from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
 from ..permissions import (
@@ -61,6 +63,31 @@ DEFAULT_ACTION_ERRORS = {
         exceptions.NotFound,
     ],
 }
+
+
+AUDIT_REQUEST_HEADERS = [
+    openapi.Parameter(
+        name=HEADER_APPLICATION,
+        type=openapi.TYPE_STRING,
+        in_=openapi.IN_HEADER,
+        required=False,
+        description="Application that performs request"
+    ),
+    openapi.Parameter(
+        name=HEADER_USER_ID,
+        type=openapi.TYPE_STRING,
+        in_=openapi.IN_HEADER,
+        required=False,
+        description="Identifier of the user that performs request"
+    ),
+    openapi.Parameter(
+        name=HEADER_AUDIT,
+        type=openapi.TYPE_STRING,
+        in_=openapi.IN_HEADER,
+        required=False,
+        description="Explanation why the request is done"
+    )
+]
 
 
 def response_header(description: str, type: str, format: str = None) -> OrderedDict:
@@ -249,7 +276,8 @@ class AutoSchema(SwaggerAutoSchema):
             self.field_inspectors, 'get_request_header_parameters',
             serializer, {'field_inspectors': self.field_inspectors}
         ) or []
-        return base + extra
+
+        return base + extra + AUDIT_REQUEST_HEADERS
 
     def get_security(self):
         """Return a list of security requirements for this operation.
