@@ -5,11 +5,11 @@ from django.db import transaction
 from rest_framework import viewsets
 
 from ..constants import CommonResourceAction
+from ..permissions import AuthScopesRequired
 from ..viewsets import NestedViewSetMixin
+from .api.scopes import SCOPE_AUDITTRAILS_LEZEN
 from .api.serializers import AuditTrailSerializer
 from .models import AuditTrail
-from ..permissions import AuthScopesRequired
-from .api.scopes import SCOPE_AUDITTRAILS_LEZEN
 
 logger = logging.getLogger(__name__)
 

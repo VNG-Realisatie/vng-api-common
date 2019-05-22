@@ -1,6 +1,5 @@
 from vng_api_common.scopes import Scope
 
-
 SCOPE_AUDITTRAILS_LEZEN = Scope(
     'audittrails.lezen',
     description="""
