@@ -91,7 +91,7 @@ class Subscription(models.Model):
                 {
                     "naam": channel,
                     # FIXME: You need to be able to configure these.
-                    "filters": [],
+                    "filters": {},
                 }
                 for channel in self.channels
             ],

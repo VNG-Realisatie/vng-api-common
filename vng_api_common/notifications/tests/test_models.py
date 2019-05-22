@@ -22,8 +22,11 @@ class SubscriptionTests(JWTAuthMixin, APITestCase):
 
     @classmethod
     def setUpTestData(cls):
+        from notifications.datamodel.models import Kanaal
+
         super().setUpTestData()
 
+        Kanaal.objects.create(naam='zaken')
         cls.config = NotificationsConfig.objects.create(api_root='http://testserver/api/')
 
     @patch('vng_api_common.notifications.models.Client.create', return_value={'url': 'http://example.com/'})
@@ -31,7 +34,7 @@ class SubscriptionTests(JWTAuthMixin, APITestCase):
         url = reverse('abonnement-list', kwargs={'version': 1})
         sub = Subscription.objects.create(
             config=self.config,
-            callback_url='http://testserver/api/callbacks',
+            callback_url='http://testserver.com/api/callbacks',
             client_id='test',
             secret='test',
             channels=['zaken'],
@@ -45,4 +48,4 @@ class SubscriptionTests(JWTAuthMixin, APITestCase):
 
         response = self.client.post(url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
