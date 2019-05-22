@@ -54,6 +54,8 @@ class AuditTrailMixin:
         if not user_id:
             user_id = getattr(self.request, headers_attr).get('HTTP_X_NLX_REQUEST_USER_ID', '')
 
+        toelichting = getattr(self.request, headers_attr).get('HTTP_X_AUDIT_TOELICHTING', '')
+
         trail = AuditTrail(
             bron=self.audit.component_name,
             applicatie_id=app_id,
@@ -66,6 +68,7 @@ class AuditTrailMixin:
             hoofd_object=main_object,
             resource=self.basename,
             resource_url=data['url'],
+            toelichting=toelichting,
             oud=version_before_edit,
             nieuw=version_after_edit,
         )

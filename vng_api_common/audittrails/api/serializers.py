@@ -30,7 +30,7 @@ class AuditTrailSerializer(serializers.ModelSerializer):
             'resource',
             'resource_url',
             # 'resource_weergave',
-            # 'toelichting',
+            'toelichting',
             'aanmaakdatum',
             'wijzigingen',
         )

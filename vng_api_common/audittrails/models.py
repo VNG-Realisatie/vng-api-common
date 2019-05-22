@@ -81,6 +81,11 @@ class AuditTrail(models.Model):
         blank=True,
         help_text=_("Vriendelijke naam van de gebruiker")
     )
+    toelichting = models.TextField(
+        _("toelichting"),
+        blank=True,
+        help_text=_("Toelichting waarom de handeling is uitgevoerd")
+    )
     wijzigingen = GegevensGroepType({
         'oud': oud,
         'nieuw': nieuw,
