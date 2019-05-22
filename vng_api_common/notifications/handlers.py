@@ -7,6 +7,7 @@ from djangorestframework_camel_case.util import underscoreize
 
 from ..authorizations.models import Applicatie
 from ..authorizations.serializers import ApplicatieUuidSerializer
+from ..models import APICredential
 from ..utils import get_uuid_from_path
 
 
@@ -18,11 +19,12 @@ class LoggingHandler:
 
 
 class AuthHandler:
-    
-    def _request_auth(self, path: str) -> dict:
+
+    def _request_auth(self, url: str) -> dict:
         Client = import_string(settings.ZDS_CLIENT_CLASS)
-        client = Client.from_url(path)
-        response = client.retrieve('applicatie', path)
+        client = Client.from_url(url)
+        client.auth = APICredential.get_auth(url)
+        response = client.retrieve('applicatie', url)
         return underscoreize(response)
 
     def handle(self, message: dict) -> None:
