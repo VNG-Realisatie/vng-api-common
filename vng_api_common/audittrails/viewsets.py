@@ -8,6 +8,8 @@ from ..constants import CommonResourceAction
 from ..viewsets import NestedViewSetMixin
 from .api.serializers import AuditTrailSerializer
 from .models import AuditTrail
+from ..permissions import AuthScopesRequired
+from .api.scopes import SCOPE_AUDITTRAILS_LEZEN
 
 logger = logging.getLogger(__name__)
 
@@ -157,6 +159,11 @@ class AuditTrailViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     queryset = AuditTrail.objects.all().order_by('aanmaakdatum')
     serializer_class = AuditTrailSerializer
     lookup_field = 'uuid'
+    permission_classes = (AuthScopesRequired,)
+    required_scopes = {
+        'list': SCOPE_AUDITTRAILS_LEZEN,
+        'retrieve': SCOPE_AUDITTRAILS_LEZEN,
+    }
 
     main_resource_lookup_field = None   # Must be overwritten by subclasses
 
