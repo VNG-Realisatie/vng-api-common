@@ -81,8 +81,8 @@ class AuditTrail(models.Model):
         blank=True,
         help_text=_("Vriendelijke naam van de gebruiker")
     )
-    toelichting = models.CharField(
-        max_length=200,
+    toelichting = models.TextField(
+        _("toelichting"),
         blank=True,
         help_text=_("Toelichting waarom de handeling is uitgevoerd")
     )
