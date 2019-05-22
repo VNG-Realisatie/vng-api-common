@@ -1,14 +1,18 @@
+from django.test import override_settings
+from django.urls import reverse_lazy
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from vng_api_common.tests import JWTScopesMixin, reverse_lazy
+from vng_api_common.tests import JWTAuthMixin
 
-from ..api.scopes import SCOPE_NOTIFICATIES_STUREN
+from ..constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
 
 
-class WebhookTests(JWTScopesMixin, APITestCase):
+@override_settings(ROOT_URLCONF='vng_api_common.notifications.tests.urls')
+class WebhookTests(JWTAuthMixin, APITestCase):
 
-    scopes = [SCOPE_NOTIFICATIES_STUREN]
+    scopes = [SCOPE_NOTIFICATIES_PUBLICEREN_LABEL]
     url = reverse_lazy('notificaties-webhook')
 
     def test_auth_required(self):
@@ -26,13 +30,13 @@ class WebhookTests(JWTScopesMixin, APITestCase):
             "resourceUrl": "https://ref.tst.vng.cloud/zrc/api/v1/statussen/d7a22/721c9",
             "actie": "create",
             "aanmaakdatum": "2018-01-01T17:00:00Z",
-            "kenmerken": [
-                {"bron": "082096752011"},
-                {"zaaktype": "https://example.com/api/v1/zaaktypen/5aa5c"},
-                {"vertrouwelijkeidaanduiding": "openbaar"}
-            ]
+            "kenmerken": {
+                "bron": "082096752011",
+                "zaaktype": "https://example.com/api/v1/zaaktypen/5aa5c",
+                "vertrouwelijkeidaanduiding": "openbaar",
+            }
         }
 
         response = self.client.post(self.url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
