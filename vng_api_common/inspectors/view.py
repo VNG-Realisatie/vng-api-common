@@ -6,6 +6,7 @@ from django.conf import settings
 from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
 from rest_framework import exceptions, serializers, status
+from rest_framework.permissions import SAFE_METHODS
 
 from ..constants import (
     HEADER_APPLICATION, HEADER_AUDIT, HEADER_USER_ID, VERSION_HEADER
@@ -276,8 +277,12 @@ class AutoSchema(SwaggerAutoSchema):
             self.field_inspectors, 'get_request_header_parameters',
             serializer, {'field_inspectors': self.field_inspectors}
         ) or []
+        result = base + extra
 
-        return base + extra + AUDIT_REQUEST_HEADERS
+        if self.method not in SAFE_METHODS:
+            result += AUDIT_REQUEST_HEADERS
+
+        return result
 
     def get_security(self):
         """Return a list of security requirements for this operation.
