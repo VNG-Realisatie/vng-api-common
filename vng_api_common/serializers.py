@@ -157,6 +157,7 @@ class GegevensGroepSerializer(serializers.ModelSerializer, metaclass=GegevensGro
         """
         Pass through the original keys instead of reverse-mapping the source attrs.
         """
+        self.root.partial = False   # To ensure that validation happens for required fields
         value = super().to_internal_value(data)
         ret = {}
         for name, field in self.fields.items():
