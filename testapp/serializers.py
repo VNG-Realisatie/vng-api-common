@@ -11,7 +11,7 @@ class AddressSerializer(GegevensGroepSerializer):
 
 
 class PersonSerializer(serializers.ModelSerializer):
-    address = AddressSerializer()
+    address = AddressSerializer(allow_null=True)
 
     class Meta:
         model = Person
