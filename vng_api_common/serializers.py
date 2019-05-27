@@ -138,6 +138,22 @@ class GegevensGroepSerializer(serializers.ModelSerializer, metaclass=GegevensGro
     Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
     """
 
+    def validate_empty_values(self, data):
+        """
+        Even if we're in partial-serializer mode, the full gegevensgroep
+        _must_ be provided.
+        """
+        (is_empty_value, data) = super().validate_empty_values(data)
+
+        if is_empty_value:
+            return data
+
+        for field_name, field in self.fields.items():
+            if field.required and field_name not in data:
+                field.fail('required')
+
+        return (is_empty_value, data)
+
     def to_representation(self, instance) -> dict:
         """
         Output the result of accessing the descriptor.
