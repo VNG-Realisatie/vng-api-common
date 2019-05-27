@@ -1,4 +1,3 @@
-from django.db.models import Case, IntegerField, Value, When
 from django.utils.translation import ugettext_lazy as _
 
 from djchoices import ChoiceItem, DjangoChoices
@@ -9,6 +8,11 @@ RSIN_LENGTH = 9
 VERSION_HEADER = 'API-version'
 
 SCOPE_NOTIFICATIES_PUBLICEREN_LABEL = 'notificaties.scopes.publiceren'
+
+# see https://docs.nlx.io/further-reading/transaction-logs/
+HEADER_APPLICATION = 'X-NLX-Request-Application-Id'
+HEADER_USER_ID = 'X-NLX-Request-User-Id'
+HEADER_AUDIT = 'X-Audit-Toelichting'
 
 
 class VertrouwelijkheidsAanduiding(DjangoChoices):
