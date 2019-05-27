@@ -40,6 +40,7 @@ class Command(generate_swagger.Command):
     """
     Patches to the provided command to modify the schema for ZDS needs.
     """
+    leave_locale_alone = True
 
     def add_arguments(self, parser):
         super().add_arguments(parser)

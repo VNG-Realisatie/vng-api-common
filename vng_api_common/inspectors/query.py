@@ -27,7 +27,7 @@ class FilterInspector(CoreAPICompatInspector):
                 model_field = queryset.model._meta.get_field(parameter.name.split('__')[0])
 
                 if isinstance(filter_field, URLModelChoiceFilter):
-                    parameter.description = _("URL to the related resource")
+                    parameter.description = _("URL to the related {resource}").format(resource=parameter.name)
                     parameter.format = openapi.FORMAT_URI
                 elif isinstance(filter_field, ChoiceFilter):
                     parameter.enum = [choice[0] for choice in filter_field.extra['choices']]

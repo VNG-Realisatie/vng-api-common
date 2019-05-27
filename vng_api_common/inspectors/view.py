@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 from django.apps import apps
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 
 from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
@@ -73,21 +74,21 @@ AUDIT_REQUEST_HEADERS = [
         type=openapi.TYPE_STRING,
         in_=openapi.IN_HEADER,
         required=False,
-        description="Application that performs request"
+        description=_("Application that performs request")
     ),
     openapi.Parameter(
         name=HEADER_USER_ID,
         type=openapi.TYPE_STRING,
         in_=openapi.IN_HEADER,
         required=False,
-        description="Identifier of the user that performs request"
+        description=_("Identifier of the user that performs request")
     ),
     openapi.Parameter(
         name=HEADER_AUDIT,
         type=openapi.TYPE_STRING,
         in_=openapi.IN_HEADER,
         required=False,
-        description="Explanation why the request is done"
+        description=_("Explanation why the request is done")
     )
 ]
 
@@ -353,3 +354,8 @@ class AutoSchema(SwaggerAutoSchema):
         return [{
             settings.SECURITY_DEFINITION_NAME: scopes,
         }]
+
+
+# translations aren't picked up/defined in DRF, so we need to hook them up here
+_('A page number within the paginated result set.')
+_('Number of results to return per page.')
