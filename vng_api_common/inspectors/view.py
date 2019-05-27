@@ -1,12 +1,13 @@
+import inspect
 import logging
 from collections import OrderedDict
 
+from django.apps import apps
 from django.conf import settings
 
 from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
-from rest_framework import exceptions, serializers, status
-from rest_framework.permissions import SAFE_METHODS
+from rest_framework import exceptions, serializers, status, viewsets
 
 from ..constants import (
     HEADER_APPLICATION, HEADER_AUDIT, HEADER_USER_ID, VERSION_HEADER
@@ -40,7 +41,6 @@ COMMON_ERRORS = [
     exceptions.APIException,
 ]
 
-
 DEFAULT_ACTION_ERRORS = {
     'create': COMMON_ERRORS + [
         exceptions.ParseError,
@@ -65,6 +65,7 @@ DEFAULT_ACTION_ERRORS = {
     ],
 }
 
+AUDIT_TRAIL_ENABLED = apps.is_installed('vng_api_common.audittrails')
 
 AUDIT_REQUEST_HEADERS = [
     openapi.Parameter(
@@ -113,6 +114,37 @@ location_header = response_header(
     type=openapi.TYPE_STRING,
     format=openapi.FORMAT_URI
 )
+
+
+def _view_supports_audittrail(view: viewsets.ViewSet) -> bool:
+    if not AUDIT_TRAIL_ENABLED:
+        return False
+
+    if not hasattr(view, 'action'):
+        logger.debug("Could not determine view action for view %r", view)
+        return False
+
+    # local imports, since you get errors if you try to import non-installed app
+    # models
+    from ..audittrails.viewsets import AuditTrailMixin
+
+    relevant_bases = [base for base in view.__class__.__bases__ if issubclass(base, AuditTrailMixin)]
+    if not relevant_bases:
+        return False
+
+    # check if the view action is listed in any of the audit trail mixins
+    action = view.action
+    if action == 'partial_update':  # partial update is self.update(partial=True)
+        action = 'update'
+
+    # if the current view action is not provided by any of the audit trail
+    # related bases, then it's not audit trail enabled
+    action_in_audit_bases = any(
+        action in dict(inspect.getmembers(base))
+        for base in relevant_bases
+    )
+
+    return action_in_audit_bases
 
 
 class AutoSchema(SwaggerAutoSchema):
@@ -279,7 +311,7 @@ class AutoSchema(SwaggerAutoSchema):
         ) or []
         result = base + extra
 
-        if self.method not in SAFE_METHODS:
+        if _view_supports_audittrail(self.view):
             result += AUDIT_REQUEST_HEADERS
 
         return result
