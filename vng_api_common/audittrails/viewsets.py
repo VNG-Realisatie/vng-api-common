@@ -5,7 +5,9 @@ from django.db import transaction
 from rest_framework import viewsets
 
 from ..constants import CommonResourceAction
+from ..permissions import AuthScopesRequired
 from ..viewsets import NestedViewSetMixin
+from .api.scopes import SCOPE_AUDITTRAILS_LEZEN
 from .api.serializers import AuditTrailSerializer
 from .models import AuditTrail
 
@@ -157,6 +159,11 @@ class AuditTrailViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     queryset = AuditTrail.objects.all().order_by('aanmaakdatum')
     serializer_class = AuditTrailSerializer
     lookup_field = 'uuid'
+    permission_classes = (AuthScopesRequired,)
+    required_scopes = {
+        'list': SCOPE_AUDITTRAILS_LEZEN,
+        'retrieve': SCOPE_AUDITTRAILS_LEZEN,
+    }
 
     main_resource_lookup_field = None   # Must be overwritten by subclasses
 
