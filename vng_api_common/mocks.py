@@ -114,31 +114,41 @@ class ZTCMockClient(MockClient):
     }
 
 
-class ZRCMockClient(MockClient):
+class RemoteInformatieObjectMockClient(MockClient):
+    """
+    Kept for backwards compatability.
+    """
 
     data = {
         'zaakinformatieobject': [{
-            'url': 'https://mock/objectinformatieobjecten/1234',
+            'url': 'https://mock/zaakinformatieobjecten/1234',
+            'informatieobject': '',
+            'object': '',
+        }],
+        'besluitinformatieobject': [{
+            'url': 'https://mock/besluitinformatieobjecten/1234',
             'informatieobject': '',
             'object': '',
         }],
     }
 
-
-class ZaakInformatieObjectClient(ZRCMockClient):
-    """
-    Kept for backwards compatability.
-    """
     @classmethod
     def from_url(cls, *args, **kwargs):
         return cls()
 
     def list(self, resource, *args, **kwargs):
-        assert resource == 'zaakinformatieobject'
-        data = self.data[resource]
+        if 'zaak' in resource:
+            assert resource == 'zaakinformatieobject'
+            data = self.data[resource]
 
-        data[0]['object'] = kwargs['query_params']['zaak']
-        data[0]['informatieobject'] = kwargs['query_params']['informatieobject']
+            data[0]['object'] = kwargs['query_params']['zaak']
+            data[0]['informatieobject'] = kwargs['query_params']['informatieobject']
+        elif 'besluit' in resource:
+            assert resource == 'besluitinformatieobject'
+            data = self.data[resource]
+
+            data[0]['object'] = kwargs['query_params']['besluit']
+            data[0]['informatieobject'] = kwargs['query_params']['informatieobject']
         return data
 
 
