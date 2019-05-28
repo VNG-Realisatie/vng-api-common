@@ -114,22 +114,18 @@ class ZTCMockClient(MockClient):
     }
 
 
-class DRCMockClient(MockClient):
+class ZRCMockClient(MockClient):
 
     data = {
-        'objectinformatieobject': [{
+        'zaakinformatieobject': [{
             'url': 'https://mock/objectinformatieobjecten/1234',
             'informatieobject': '',
             'object': '',
-            'objectType': '',
-            'titel': '',
-            'beschrijving': '',
-            'registratiedatum': '',
-        }]
+        }],
     }
 
 
-class ObjectInformatieObjectClient(DRCMockClient):
+class ZaakInformatieObjectClient(ZRCMockClient):
     """
     Kept for backwards compatability.
     """
@@ -138,8 +134,12 @@ class ObjectInformatieObjectClient(DRCMockClient):
         return cls()
 
     def list(self, resource, *args, **kwargs):
-        assert resource == 'objectinformatieobject'
-        return self.data[resource]
+        assert resource == 'zaakinformatieobject'
+        data = self.data[resource]
+
+        data[0]['object'] = kwargs['query_params']['zaak']
+        data[0]['informatieobject'] = kwargs['query_params']['informatieobject']
+        return data
 
 
 class NotifMockClient(MockClient):
