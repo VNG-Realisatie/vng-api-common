@@ -79,6 +79,7 @@ class ViewConfigView(TemplateView):
 
         config = []
         config += _test_ac_config()
+        config += _test_nrc_config()
 
         context['config'] = config
 
@@ -130,6 +131,54 @@ def _test_ac_config() -> list:
 
         checks.append((
             _("AC connection and authorizations"),
+            message,
+            not error,
+        ))
+
+    return checks
+
+
+def _test_nrc_config() -> list:
+    if not apps.is_installed('vng_api_common.notifications'):
+        return []
+
+    from .notifications.models import NotificationsConfig
+
+    nrc_config = NotificationsConfig.get_solo()
+
+    nrc_client = NotificationsConfig.get_client()
+
+    has_nrc_auth = nrc_client.auth is not None
+
+    checks = [
+        (_("NRC"), nrc_config.api_root, bool(nrc_config.api_root)),
+        (
+            _("Credentials for NRC"),
+            _("Configured") if has_nrc_auth else _("Missing"),
+            has_nrc_auth
+        ),
+    ]
+
+    # check if permissions in AC are fine
+    if has_nrc_auth:
+        error = False
+
+        try:
+            nrc_client.list("kanaal")
+        except requests.ConnectionError:
+            error = True
+            message = _("Could not connect with NRC")
+        except ClientError as exc:
+            error = True
+            message = _("Cannot retrieve kanalen: HTTP {status_code} - {error_code}").format(
+                status_code=exc.args[0]['status'],
+                error_code=exc.args[0]['code']
+            )
+        else:
+            message = _("Can retrieve kanalen")
+
+        checks.append((
+            _("NRC connection and authorizations"),
             message,
             not error,
         ))
