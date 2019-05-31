@@ -1,10 +1,14 @@
 from collections import OrderedDict
 
+from django.apps import apps
 from django.http import Http404
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView
 
+import requests
 from rest_framework import exceptions as drf_exceptions
 from rest_framework.views import exception_handler as drf_exception_handler
+from zds_client import ClientError
 
 from . import exceptions
 from .exception_handling import HandledException
@@ -65,3 +69,69 @@ class ScopesView(TemplateView):
             key=lambda s: s.label
         )
         return context
+
+
+class ViewConfigView(TemplateView):
+    template_name = 'vng_api_common/view_config.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        config = []
+        config += _test_ac_config()
+
+        context['config'] = config
+
+        return context
+
+
+def _test_ac_config() -> list:
+    if not apps.is_installed('vng_api_common.authorizations'):
+        return []
+
+    from .authorizations.models import AuthorizationsConfig
+
+    auth_config = AuthorizationsConfig.get_solo()
+
+    # check if AC auth is configured
+    ac_client = AuthorizationsConfig.get_client()
+    has_ac_auth = ac_client.auth is not None
+
+    checks = [
+        (_("Type of component"), auth_config.get_component_display(), None),
+        (_("AC"), auth_config.api_root, bool(auth_config.api_root)),
+        (
+            _("Credentials for AC"),
+            _("Configured") if has_ac_auth else _("Missing"),
+            has_ac_auth
+        ),
+    ]
+
+    # check if permissions in AC are fine
+    if has_ac_auth:
+        error = False
+
+        try:
+            ac_client.list(
+                "applicatie",
+                query_params={"clientIds": ac_client.auth.client_id}
+            )
+        except requests.ConnectionError:
+            error = True
+            message = _("Could not connect with AC")
+        except ClientError as exc:
+            error = True
+            message = _("Cannot retrieve authorizations: HTTP {status_code} - {error_code}").format(
+                status_code=exc.args[0]['status'],
+                error_code=exc.args[0]['code']
+            )
+        else:
+            message = _("Can retrieve authorizations")
+
+        checks.append((
+            _("AC connection and authorizations"),
+            message,
+            not error,
+        ))
+
+    return checks
