@@ -145,12 +145,13 @@ class GegevensGroepSerializer(serializers.ModelSerializer, metaclass=GegevensGro
         """
         (is_empty_value, data) = super().validate_empty_values(data)
 
-        if is_empty_value:
-            return (is_empty_value, data)
+        if self.root.partial:
+            if is_empty_value:
+                return (is_empty_value, data)
 
-        for field_name, field in self.fields.items():
-            if field.required and field_name not in data:
-                field.fail('required')
+            for field_name, field in self.fields.items():
+                if field.required and field_name not in data:
+                    field.fail('required')
 
         return (is_empty_value, data)
 

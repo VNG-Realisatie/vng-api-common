@@ -71,3 +71,19 @@ def test_full_serializer_validation_gegevensgroep_invalid():
     }, partial=False)
 
     assert not serializer.is_valid()
+
+
+def test_gegevensgroep_serializer_nested_error_message():
+    serializer = PersonSerializer(data={
+        "name": "Willy De Kooning",
+        "address": {
+            "street": "Keizersgracht",
+        }
+    }, partial=False)
+
+    serializer.is_valid()
+    errors = serializer.errors
+
+    assert 'address' in errors
+    assert 'number' in errors['address']
+    assert errors['address']['number'][0].code == 'required'
