@@ -1,7 +1,8 @@
 from collections import OrderedDict
 
 from django.apps import apps
-from django.http import Http404
+from django.conf import settings
+from django.http import Http404, HttpRequest
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView
 
@@ -78,12 +79,27 @@ class ViewConfigView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         config = []
+        config += _test_sites_config(self.request)
         config += _test_ac_config()
         config += _test_nrc_config()
 
         context['config'] = config
 
         return context
+
+
+def _test_sites_config(request: HttpRequest) -> list:
+    if not apps.is_installed('django.contrib.sites'):
+        return []
+
+    from django.contrib.sites.models import Site
+
+    site = Site.objects.get_current()
+
+    return [
+        (_("Site domain"), site.domain, request.get_host() == site.domain),
+        (_("HTTPS"), settings.IS_HTTPS, settings.IS_HTTPS == request.is_secure()),
+    ]
 
 
 def _test_ac_config() -> list:
