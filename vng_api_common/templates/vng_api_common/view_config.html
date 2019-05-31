@@ -1,0 +1,31 @@
+{% extends "vng_api_common/master.html" %}
+
+{% block content %}
+<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">{{ settings.PROJECT_NAME }} configuratie</h1>
+    <p class="lead">{{ settings.SITE_TITLE }}</p>
+</div>
+
+<div class="container text-left">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Parameter</th>
+                <th scope="col">Waarde</th>
+                <th scope="col">Ok?</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for param, value, ok in config %}
+                <tr>
+                    <td><strong>{{ param }}</strong></td>
+                    <td>{{ value|urlize }}</td>
+                    <td class="text-{{ ok|yesno:'success,danger,muted' }}">
+                        <i class="fa fa-{{ ok|yesno:'check,times,minus' }}"></i>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
