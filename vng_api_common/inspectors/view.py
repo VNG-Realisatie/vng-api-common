@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 from django.apps import apps
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext, ugettext_lazy as _
 
 from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
@@ -74,21 +74,21 @@ AUDIT_REQUEST_HEADERS = [
         type=openapi.TYPE_STRING,
         in_=openapi.IN_HEADER,
         required=False,
-        description=_("Application that performs request")
+        description=ugettext("Application that performs request")
     ),
     openapi.Parameter(
         name=HEADER_USER_ID,
         type=openapi.TYPE_STRING,
         in_=openapi.IN_HEADER,
         required=False,
-        description=_("Identifier of the user that performs request")
+        description=ugettext("Identifier of the user that performs request")
     ),
     openapi.Parameter(
         name=HEADER_AUDIT,
         type=openapi.TYPE_STRING,
         in_=openapi.IN_HEADER,
         required=False,
-        description=_("Explanation why the request is done")
+        description=ugettext("Explanation why the request is done")
     )
 ]
 
