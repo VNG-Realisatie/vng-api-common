@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-27 08:53-0500\n"
+"POT-Creation-Date: 2019-05-31 07:58-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -381,14 +381,19 @@ msgstr "URL naar de/het gerelateerde {resource}"
 #: inspectors/view.py:77
 msgid "Application that performs request"
 msgstr ""
+"Identificatie van de applicatie die het verzoek stuurt "
+"(indien NLX wordt gebruikt)."
 
 #: inspectors/view.py:84
 msgid "Identifier of the user that performs request"
 msgstr ""
+"Identificatie van de gebruiker die het verzoek stuurt "
+"(indien NLX wordt gebruikt)."
 
 #: inspectors/view.py:91
 msgid "Explanation why the request is done"
-msgstr ""
+msgstr "Toelichting waarom een bepaald verzoek wordt gedaan"
+
 
 #: inspectors/view.py:360
 msgid "A page number within the paginated result set."
@@ -401,8 +406,8 @@ msgstr "Het aantal resultaten terug te geven per pagina."
 #: middleware.py:59 middleware.py:189 middleware.py:202
 msgid "JWT could not be decoded. Possibly you made a copy-paste mistake."
 msgstr ""
-"Het JWT kon niet gedecodeerd worden. Mogelijks heb je een copy-paste "
-"fout gemaakt"
+"Het JWT kon niet gedecodeerd worden. Mogelijks heb je een copy-paste fout "
+"gemaakt"
 
 #: middleware.py:151
 msgid ""
@@ -585,6 +590,68 @@ msgstr ""
 
 #: validators.py:344
 msgid "Dit veld mag niet gewijzigd worden."
+msgstr ""
+
+#: views.py:102
+msgid "Type of component"
+msgstr ""
+
+#: views.py:103
+msgid "AC"
+msgstr ""
+
+#: views.py:105
+msgid "Credentials for AC"
+msgstr ""
+
+#: views.py:106 views.py:157
+msgid "Configured"
+msgstr ""
+
+#: views.py:106 views.py:157
+msgid "Missing"
+msgstr ""
+
+#: views.py:122
+msgid "Could not connect with AC"
+msgstr ""
+
+#: views.py:125
+#, python-brace-format
+msgid "Cannot retrieve authorizations: HTTP {status_code} - {error_code}"
+msgstr ""
+
+#: views.py:130
+msgid "Can retrieve authorizations"
+msgstr ""
+
+#: views.py:133
+msgid "AC connection and authorizations"
+msgstr ""
+
+#: views.py:154
+msgid "NRC"
+msgstr ""
+
+#: views.py:156
+msgid "Credentials for NRC"
+msgstr ""
+
+#: views.py:170
+msgid "Could not connect with NRC"
+msgstr ""
+
+#: views.py:173
+#, python-brace-format
+msgid "Cannot retrieve kanalen: HTTP {status_code} - {error_code}"
+msgstr ""
+
+#: views.py:178
+msgid "Can retrieve kanalen"
+msgstr ""
+
+#: views.py:181
+msgid "NRC connection and authorizations"
 msgstr ""
 
 #: viewsets.py:57
