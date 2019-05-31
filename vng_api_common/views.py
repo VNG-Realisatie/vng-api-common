@@ -100,7 +100,7 @@ def _test_ac_config() -> list:
 
     checks = [
         (_("Type of component"), auth_config.get_component_display(), None),
-        (_("AC"), auth_config.api_root, bool(auth_config.api_root)),
+        (_("AC"), auth_config.api_root, auth_config.api_root.endswith('/')),
         (
             _("Credentials for AC"),
             _("Configured") if has_ac_auth else _("Missing"),
@@ -151,7 +151,7 @@ def _test_nrc_config() -> list:
     has_nrc_auth = nrc_client.auth is not None
 
     checks = [
-        (_("NRC"), nrc_config.api_root, bool(nrc_config.api_root)),
+        (_("NRC"), nrc_config.api_root, nrc_config.api_root.endswith('/')),
         (
             _("Credentials for NRC"),
             _("Configured") if has_nrc_auth else _("Missing"),
