@@ -288,3 +288,9 @@ class AutoSchema(SwaggerAutoSchema):
         return [{
             settings.SECURITY_DEFINITION_NAME: scopes,
         }]
+
+    # patch around drf-yasg not taking overrides into account
+    # TODO: contribute back in PR
+    def get_produces(self) -> list:
+        produces = super().get_produces()
+        return self.overrides.get('produces', produces)
