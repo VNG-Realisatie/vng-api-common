@@ -27,7 +27,7 @@ class MockClient:
     def from_url(cls, detail_url: str):
         clients = {
             'ztc': ZTCMockClient,
-            'drc': DRCMockClient,
+            'drc': RemoteInformatieObjectMockClient,
             'notificaties': NotifMockClient
         }
 
