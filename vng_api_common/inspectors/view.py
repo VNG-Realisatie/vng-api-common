@@ -355,7 +355,15 @@ class AutoSchema(SwaggerAutoSchema):
             settings.SECURITY_DEFINITION_NAME: scopes,
         }]
 
+<<<<<<< HEAD
 
 # translations aren't picked up/defined in DRF, so we need to hook them up here
 _('A page number within the paginated result set.')
 _('Number of results to return per page.')
+=======
+    # patch around drf-yasg not taking overrides into account
+    # TODO: contribute back in PR
+    def get_produces(self) -> list:
+        produces = super().get_produces()
+        return self.overrides.get('produces', produces)
+>>>>>>> fix/produces-introspection
