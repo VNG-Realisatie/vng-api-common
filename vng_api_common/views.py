@@ -12,6 +12,7 @@ from rest_framework.views import exception_handler as drf_exception_handler
 from zds_client import ClientError
 
 from . import exceptions
+from .constants import ComponentTypes
 from .exception_handling import HandledException
 from .scopes import SCOPE_REGISTRY
 
@@ -158,7 +159,7 @@ def _test_nrc_config() -> list:
     if not apps.is_installed('vng_api_common.notifications'):
         return []
 
-    from .notifications.models import NotificationsConfig
+    from .notifications.models import NotificationsConfig, Subscription
 
     nrc_config = NotificationsConfig.get_solo()
 
@@ -198,5 +199,26 @@ def _test_nrc_config() -> list:
             message,
             not error,
         ))
+
+    #  check if there's a subscription for AC notifications
+    has_sub = (
+        Subscription.objects
+        .filter(channels__contains=['autorisaties'])
+        .exclude(_subscription='')
+        .exists()
+    )
+    check_ok = has_sub
+
+    if apps.is_installed('vng_api_common.authorizations'):
+        from .authorizations.models import AuthorizationsConfig
+        auth_config = AuthorizationsConfig.get_solo()
+        if auth_config.component == ComponentTypes.ac and not has_sub:
+            check_ok = True
+
+    checks.append((
+        _("Listens to AC notifications?"),
+        _("Yes") if has_sub else _("No"),
+        check_ok
+    ))
 
     return checks
