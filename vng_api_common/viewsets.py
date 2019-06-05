@@ -1,9 +1,9 @@
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.settings import api_settings
-from rest_framework.filters import OrderingFilter
 
 from .filters import Backend
 from .utils import lookup_kwargs_to_filters, underscore_to_camel
