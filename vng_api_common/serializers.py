@@ -149,9 +149,17 @@ class GegevensGroepSerializer(serializers.ModelSerializer, metaclass=GegevensGro
             if is_empty_value:
                 return (is_empty_value, data)
 
+            errors = OrderedDict()
+
             for field_name, field in self.fields.items():
                 if field.required and field_name not in data:
-                    field.fail('required')
+                    try:
+                        field.fail('required')
+                    except serializers.ValidationError as exc:
+                        errors[field_name] = exc.detail
+
+            if errors:
+                raise serializers.ValidationError(errors)
 
         return (is_empty_value, data)
 
