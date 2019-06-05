@@ -5,6 +5,7 @@ from django.utils.translation import ugettext as _
 from django_filters.filters import ChoiceFilter
 from drf_yasg import openapi
 from drf_yasg.inspectors.query import CoreAPICompatInspector
+from rest_framework.filters import OrderingFilter
 
 from ..filters import URLModelChoiceFilter
 from ..utils import underscore_to_camel
@@ -18,6 +19,9 @@ class FilterInspector(CoreAPICompatInspector):
 
     def get_filter_parameters(self, filter_backend):
         fields = super().get_filter_parameters(filter_backend)
+        if isinstance(filter_backend, OrderingFilter):
+            return fields
+
         if fields:
             queryset = self.view.get_queryset()
             filter_class = filter_backend.get_filter_class(self.view, queryset)
