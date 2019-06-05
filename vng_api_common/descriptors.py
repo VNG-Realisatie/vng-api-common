@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from django.db import models
 
@@ -58,7 +58,7 @@ class GegevensGroepType:
             for key, field in self.mapping.items()
         }
 
-    def __set__(self, obj, value: dict):
+    def __set__(self, obj, value: Optional[dict]):
         # value can be empty, if that's the case, empty all model fields
         if not value:
             if self.required:

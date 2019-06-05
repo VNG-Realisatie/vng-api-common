@@ -4,6 +4,7 @@ from django.db import transaction
 
 from rest_framework import viewsets
 
+from ..compat import get_header
 from ..constants import CommonResourceAction
 from ..permissions import AuthScopesRequired
 from ..viewsets import NestedViewSetMixin
@@ -35,12 +36,6 @@ class AuditTrailMixin:
         else:
             main_object = self.get_audittrail_main_object_url(data, self.audit.main_resource)
 
-        # Django 2.2 compatibility
-        if hasattr(self.request, 'headers'):
-            headers_attr = 'headers'
-        else:
-            headers_attr = 'META'
-
         applications = self.request.jwt_auth.applicaties
         if len(applications) > 1:
             logger.warning("Unexpectedly found %d applications, expected at most one", len(applications))
@@ -49,14 +44,14 @@ class AuditTrailMixin:
             application = applications[0]
             app_id, app_presentation = str(application.uuid), application.label
         else:
-            app_id = getattr(self.request, headers_attr).get('HTTP_X_NLX_REQUEST_APPLICATION_ID')
+            app_id = get_header(self.request, 'X-NLX-Request-Application-Id')
             app_presentation = app_id  # we don't have any extra information...
 
         user_id = self.request.jwt_auth.payload.get('user_id', '')
         if not user_id:
-            user_id = getattr(self.request, headers_attr).get('HTTP_X_NLX_REQUEST_USER_ID', '')
+            user_id = get_header(self.request, 'X-NLX-Request-User-Id')
 
-        toelichting = getattr(self.request, headers_attr).get('HTTP_X_AUDIT_TOELICHTING', '')
+        toelichting = get_header(self.request, 'X-Audit-Toelichting') or ""
 
         trail = AuditTrail(
             bron=self.audit.component_name,
