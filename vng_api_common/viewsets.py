@@ -1,6 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.settings import api_settings
 
@@ -53,6 +54,9 @@ class CheckQueryParamsMixin:
                 raise NotImplementedError("Unknown paginator class: %s" % type(self.paginator))
 
         unknown_params = set(request.query_params.keys()) - known_params
+        if OrderingFilter in self.filter_backends:
+            unknown_params.discard(api_settings.ORDERING_PARAM)
+
         if unknown_params:
             msg = _("Onbekende query parameters: %s" % ", ".join(unknown_params))
             raise ValidationError(

@@ -44,7 +44,7 @@ BASE_REST_FRAMEWORK = {
     #
     # # Filtering
     # 'SEARCH_PARAM': 'zoek',  # 'search',
-    # 'ORDERING_PARAM': 'sorteer',  # 'ordering',
+    'ORDERING_PARAM': 'ordering',  # 'ordering',
     #
     # Versioning
     'DEFAULT_VERSION': '1',  # NOT to be confused with API_VERSION - it's the major version part
