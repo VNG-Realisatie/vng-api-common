@@ -26,8 +26,10 @@ class MockClient:
     @classmethod
     def from_url(cls, detail_url: str):
         clients = {
+            'zrc': ZRCMockClient,
             'ztc': ZTCMockClient,
-            'drc': RemoteInformatieObjectMockClient,
+            'drc': DRCMockClient,
+            'brc': BRCMockClient,
             'notificaties': NotifMockClient
         }
 
@@ -36,7 +38,7 @@ class MockClient:
         if ':' in parsed_url.netloc:
             host, port = parsed_url.netloc.split(':')
         else:
-            host = parsed_url.netloc
+            host = parsed_url.netloc.split('.')[0] # Remove top-level domain from host
 
         # Try mock client based on host.
         if host in clients:
@@ -111,45 +113,63 @@ class ZTCMockClient(MockClient):
             'volgnummer': 2,
             'isEindstatus': True,
         }],
+        'resultaattype': [{
+            'url': 'https://ztc/api/v1/resultaattypen/{uuid}',
+            'zaaktype': 'https://ztc/api/v1/catalogussen/{catalogus_uuid}/zaaktypen/{zaaktype_uuid}',
+            'omschrijving': 'Klaar',
+            'resultaattypeomschrijving': 'https://ref.tst.vng.cloud/referentielijsten/api/v1/resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7',
+            'omschrijvingGeneriek': 'Afgewezen',
+            'selectielijstklasse': 'https://ref.tst.vng.cloud/referentielijsten/api/v1/resultaten/d8bd516e-95b5-47ee-988d-d6624e94db1f',
+            'toelichting': '',
+            'archiefnominatie': 'vernietigen',
+            'archiefactietermijn': 'P5Y',
+            'brondatumArchiefprocedure': {
+                'afleidingswijze': 'afgehandeld',
+                'datumkenmerk': None,
+                'einddatumBekend': False,
+                'objecttype': None,
+                'registratie': None,
+                'procestermijn': None
+            }
+        }]
     }
 
 
-class RemoteInformatieObjectMockClient(MockClient):
-    """
-    Kept for backwards compatability.
-    """
+class DRCMockClient(MockClient):
+    data = {
+        'enkelvoudiginformatieobject': [{
+            'url': 'https://mock/enkelvoudiginformatieobjecten/1234',
+            'identificatie': '9560b006-25ef-4111-9f53-966762173d41',
+        }],
+    }
 
+
+class ZRCMockClient(MockClient):
     data = {
         'zaakinformatieobject': [{
             'url': 'https://mock/zaakinformatieobjecten/1234',
             'informatieobject': '',
             'object': '',
         }],
+        'zaak': [{
+            'url': 'https://zrc/api/v1/zaken/e0c464e4-727c-41ef-948d-e3109ae870f4',
+            'identificatie': '3a179da6-ce9e-4723-bb8e-f47895836a9a',
+        }],
+    }
+
+
+class BRCMockClient(MockClient):
+    data = {
         'besluitinformatieobject': [{
             'url': 'https://mock/besluitinformatieobjecten/1234',
             'informatieobject': '',
             'object': '',
         }],
+        'besluit': [{
+            'url': 'https://brc/api/v1/besluiten/1fc80bc9-5563-448a-8fd7-46cb44207528',
+            'identificatie': '3e563db0-0bcf-46f2-a881-08f76712a40d',
+        }],
     }
-
-    @classmethod
-    def from_url(cls, *args, **kwargs):
-        return cls()
-
-    def list(self, resource, *args, **kwargs):
-        if 'zaak' in resource:
-            assert resource == 'zaakinformatieobject'
-            data = self.data[resource]
-
-            data[0]['object'] = kwargs['query_params']['zaak']
-            data[0]['informatieobject'] = kwargs['query_params']['informatieobject']
-        elif 'besluit' in resource:
-            assert resource == 'besluitinformatieobject'
-            data = self.data[resource]
-
-            data[0]['object'] = kwargs['query_params']['besluit']
-            data[0]['informatieobject'] = kwargs['query_params']['informatieobject']
-        return data
 
 
 class NotifMockClient(MockClient):
