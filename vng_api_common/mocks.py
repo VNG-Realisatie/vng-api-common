@@ -111,6 +111,25 @@ class ZTCMockClient(MockClient):
             'volgnummer': 2,
             'isEindstatus': True,
         }],
+        'resultaattype': [{
+            'url': 'https://ztc/api/v1/resultaattypen/{uuid}',
+            'zaaktype': 'https://ztc/api/v1/catalogussen/{catalogus_uuid}/zaaktypen/{zaaktype_uuid}',
+            'omschrijving': 'Klaar',
+            'resultaattypeomschrijving': 'https://ref.tst.vng.cloud/referentielijsten/api/v1/resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7',
+            'omschrijvingGeneriek': 'Afgewezen',
+            'selectielijstklasse': 'https://ref.tst.vng.cloud/referentielijsten/api/v1/resultaten/d8bd516e-95b5-47ee-988d-d6624e94db1f',
+            'toelichting': '',
+            'archiefnominatie': 'vernietigen',
+            'archiefactietermijn': 'P5Y',
+            'brondatumArchiefprocedure': {
+                'afleidingswijze': 'afgehandeld',
+                'datumkenmerk': None,
+                'einddatumBekend': False,
+                'objecttype': None,
+                'registratie': None,
+                'procestermijn': None
+            }
+        }]
     }
 
 
