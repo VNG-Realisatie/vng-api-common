@@ -47,15 +47,20 @@ logger = logging.getLogger(__name__)
 
 
 class Discriminator:
-    def __init__(self, discriminator_field: str, mapping: Dict[Any, Union[tuple, serializers.ModelSerializer]]):
+    def __init__(self, discriminator_field: str,
+                 mapping: Dict[Any, Union[tuple, serializers.ModelSerializer]],
+                 group_field: Union[None, str] = None):
         self.discriminator_field = discriminator_field
         self.mapping = mapping
+        self.group_field = group_field
 
     def to_representation(self, instance) -> OrderedDict:
         discriminator_value = getattr(instance, self.discriminator_field)
         serializer = self.mapping.get(discriminator_value)
         if serializer is None:
             return None
+        if self.group_field:
+            return OrderedDict({self.group_field: serializer.to_representation(instance)})
         return serializer.to_representation(instance)
 
     def to_internal_value(self, data) -> OrderedDict:
@@ -63,6 +68,9 @@ class Discriminator:
         serializer = self.mapping.get(discriminator_value)
         if serializer is None:
             return None
+        if self.group_field:
+            group_field_data = data.pop(self.group_field, None)
+            return serializer.to_internal_value(group_field_data)
         return serializer.to_internal_value(data)
 
 
@@ -136,5 +144,8 @@ class PolymorphicSerializer(serializers.HyperlinkedModelSerializer, metaclass=Po
         internal_value = super().to_internal_value(data)
         extra_fields = self.discriminator.to_internal_value(data)
         if extra_fields:
-            internal_value.update(extra_fields)
+            if self.discriminator.group_field:
+                internal_value[self.discriminator.group_field] = extra_fields
+            else:
+                internal_value.update(extra_fields)
         return internal_value
