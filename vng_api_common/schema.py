@@ -75,21 +75,27 @@ SPEC_RENDERERS = (
 
 
 class SchemaView(DefaultSchemaView):
+    """
+    Always serve the v3 version, which is kept in version control.
 
+    .. warn:: there is a risk of the generated schema not being in sync with
+      the code. Unfortunately, that's the tradeoff we have. We could set up
+      CI to check for outdated schemas.
+    """
     @property
-    def _is_openapi_v3(self) -> bool:
-        version = self.request.GET.get('v', '')
-        return version.startswith('3')
+    def _is_openapi_v2(self) -> bool:
+        default = '3' if 'format' in self.kwargs else '2'
+        version = self.request.GET.get('v', default)
+        return version.startswith('2')
 
     def get_renderers(self):
-        if not self._is_openapi_v3:
+        if self._is_openapi_v2:
             return super().get_renderers()
         return [renderer() for renderer in SPEC_RENDERERS]
 
     def get(self, request, *args, **kwargs):
-        response = super().get(request, *args, **kwargs)
-
-        if not self._is_openapi_v3:
+        if self._is_openapi_v2:
+            response = super().get(request, *args, **kwargs)
             return response
 
         # serve the staticically included V3 schema
