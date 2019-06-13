@@ -37,7 +37,7 @@ import logging
 from collections import OrderedDict
 from typing import Any, Dict, Union
 
-from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
+from django.core.exceptions import FieldDoesNotExist
 
 from rest_framework import serializers
 
@@ -56,36 +56,13 @@ class Discriminator:
         self.group_field = group_field
         self.same_model = same_model
 
-    def get_poly_instance(self, instance, serializer):
-        if self.same_model:
-            return instance
-
-        # in case another model - search instance for related fields
-        model = serializer.Meta.model
-        related_fields = instance._meta.fields_map
-
-        for field, field_type in related_fields.items():
-            if field_type.related_model == model:
-                try:
-                    return getattr(instance, field)
-                except ObjectDoesNotExist:
-                    return None
-
-        return instance
-
     def to_representation(self, instance) -> OrderedDict:
         discriminator_value = getattr(instance, self.discriminator_field)
         serializer = self.mapping.get(discriminator_value)
         if serializer is None:
             return None
-        poly_instance = self.get_poly_instance(instance, serializer)
-        if poly_instance is None:
-            return None
 
-        representation = serializer.to_representation(poly_instance)
-        if self.group_field:
-            representation = OrderedDict({self.group_field: representation})
-
+        representation = serializer.to_representation(instance)
         return representation
 
     def to_internal_value(self, data) -> OrderedDict:
@@ -94,11 +71,14 @@ class Discriminator:
         if serializer is None:
             return None
 
-        if self.group_field and self.group_field in data:
-            poly_data = data[self.group_field]
-            internal_value = serializer.to_internal_value(poly_data)
-            return OrderedDict({self.group_field: internal_value})
-        return serializer.to_internal_value(data)
+        internal_value = serializer.to_internal_value(data)
+        # if nested serializer was generated in _sanitize_discriminator name if group_field
+        # was changed in the internal_value. We need to return it
+        if self.group_field and self.group_field not in internal_value and len(internal_value) == 1:
+            key, value = internal_value.popitem()
+            internal_value = OrderedDict({self.group_field: value})
+
+        return internal_value
 
 
 class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
@@ -140,6 +120,32 @@ class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
                 discriminator.mapping[value] = serializer_class()
 
             values_seen.add(value)
+
+            serializer = discriminator.mapping[value]
+            # rewrite it to nested serializer
+            if discriminator.group_field:
+                group_name = f"{discriminator.group_field}_{serializer.__class__.__name__}"
+                group_meta = type('Meta', (), {
+                    'model': model,
+                    'fields': (discriminator.group_field, ),
+                })
+
+                # find source field for nested serializer
+                source = None
+                related_fields = model._meta.fields_map
+                for field_name, field_type in related_fields.items():
+                    if field_type.related_model == serializer.Meta.model:
+                        source = field_name
+
+                group_field = serializer.__class__(source=source, required=False, label=discriminator.group_field)
+
+                group_serializer_class = type(
+                    group_name,
+                    (serializers.ModelSerializer,),
+                    {'Meta': group_meta,
+                     discriminator.group_field: group_field}
+                )
+                discriminator.mapping[value] = group_serializer_class()
 
         if field.choices:
             values = {choice[0] for choice in field.choices}
