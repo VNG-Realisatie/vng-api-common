@@ -37,7 +37,7 @@ import logging
 from collections import OrderedDict
 from typing import Any, Dict, Union
 
-from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
 
 from rest_framework import serializers
 
@@ -49,28 +49,55 @@ logger = logging.getLogger(__name__)
 class Discriminator:
     def __init__(self, discriminator_field: str,
                  mapping: Dict[Any, Union[tuple, serializers.ModelSerializer]],
-                 group_field: Union[None, str] = None):
+                 group_field: Union[None, str] = None,
+                 same_model: bool = True):
         self.discriminator_field = discriminator_field
         self.mapping = mapping
         self.group_field = group_field
+        self.same_model = same_model
+
+    def get_poly_instance(self, instance, serializer):
+        if self.same_model:
+            return instance
+
+        # in case another model - search instance for related fields
+        model = serializer.Meta.model
+        related_fields = instance._meta.fields_map
+
+        for field, field_type in related_fields.items():
+            if field_type.related_model == model:
+                try:
+                    return getattr(instance, field)
+                except ObjectDoesNotExist:
+                    return None
+
+        return instance
 
     def to_representation(self, instance) -> OrderedDict:
         discriminator_value = getattr(instance, self.discriminator_field)
         serializer = self.mapping.get(discriminator_value)
         if serializer is None:
             return None
+        poly_instance = self.get_poly_instance(instance, serializer)
+        if poly_instance is None:
+            return None
+
+        representation = serializer.to_representation(poly_instance)
         if self.group_field:
-            return OrderedDict({self.group_field: serializer.to_representation(instance)})
-        return serializer.to_representation(instance)
+            representation = OrderedDict({self.group_field: representation})
+
+        return representation
 
     def to_internal_value(self, data) -> OrderedDict:
         discriminator_value = data[self.discriminator_field]
         serializer = self.mapping.get(discriminator_value)
         if serializer is None:
             return None
-        if self.group_field:
-            group_field_data = data.pop(self.group_field, None)
-            return serializer.to_internal_value(group_field_data)
+
+        if self.group_field and self.group_field in data:
+            poly_data = data[self.group_field]
+            internal_value = serializer.to_internal_value(poly_data)
+            return OrderedDict({self.group_field: internal_value})
         return serializer.to_internal_value(data)
 
 
@@ -144,8 +171,5 @@ class PolymorphicSerializer(serializers.HyperlinkedModelSerializer, metaclass=Po
         internal_value = super().to_internal_value(data)
         extra_fields = self.discriminator.to_internal_value(data)
         if extra_fields:
-            if self.discriminator.group_field:
-                internal_value[self.discriminator.group_field] = extra_fields
-            else:
-                internal_value.update(extra_fields)
+            internal_value.update(extra_fields)
         return internal_value
