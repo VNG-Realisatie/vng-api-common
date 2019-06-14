@@ -44,8 +44,14 @@ class JWTSecret(models.Model):
 
     Only clients that are known can access the API (if so configured).
     """
-    identifier = models.CharField(_("identifier"), max_length=50, unique=True)
-    secret = models.CharField(_("secret"), max_length=255)
+    identifier = models.CharField(
+        _("client ID"), max_length=50, unique=True,
+        help_text=_("Client ID to identify external API's and applications that access this API.")
+    )
+    secret = models.CharField(
+        _("secret"), max_length=255,
+        help_text=_("Secret belonging to the client ID.")
+    )
 
     class Meta:
         verbose_name = _("client credential")
@@ -62,12 +68,31 @@ class APICredential(models.Model):
     When we need to authenticate against a remote API, we need to know which
     client ID and secret to use to sign the JWT.
     """
-    api_root = models.URLField(_("api root"), unique=True)
-    label = models.CharField(_("label"), max_length=100, help_text=_("human readable label"), default='')
-    client_id = models.CharField(_("client id"), max_length=255)
-    secret = models.CharField(_("secret"), max_length=255)
-    user_id = models.CharField(_("user id"), max_length=255)
-    user_representation = models.CharField(_("user representation"), max_length=255, default='')
+    api_root = models.URLField(
+        _("API-root"), unique=True,
+        help_text=_("URL of the external API, ending in a trailing slash. Example: https://example.com/api/v1/")
+    )
+    label = models.CharField(
+        _("label"), max_length=100, default='',
+        help_text=_("Human readable label of the external API.")
+    )
+    client_id = models.CharField(
+        _("client ID"), max_length=255,
+        help_text=_("Client ID to identify this API at the external API.")
+    )
+    secret = models.CharField(
+        _("secret"), max_length=255,
+        help_text=_("Secret belonging to the client ID.")
+    )
+    user_id = models.CharField(
+        _("user ID"), max_length=255,
+        help_text=_("User ID to use for the audit trail. Although these external API credentials are typically used by"
+                    "this API itself instead of a user, the user ID is required.")
+    )
+    user_representation = models.CharField(
+        _("user representation"), max_length=255, default='',
+        help_text=_("Human readable representation of the user.")
+    )
 
     class Meta:
         verbose_name = _("external API credential")
