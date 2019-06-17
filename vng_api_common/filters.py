@@ -94,6 +94,7 @@ class URLModelChoiceFilter(filters.ModelChoiceFilter):
         self.instance_path = kwargs.get('instance_path', None)
         self.queryset = kwargs.get('queryset')
 
+
 class RSINFilter(filters.CharFilter):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('validators', [validate_rsin])
