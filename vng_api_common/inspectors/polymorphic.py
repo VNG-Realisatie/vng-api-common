@@ -42,6 +42,7 @@ class PolymorphicSerializerInspector(CamelCaseJSONFilter, ReferencingSerializerI
                 type=openapi.TYPE_OBJECT,
                 all_of=[base_schema_ref, derived_ref]
             )
-            self.components.set(value, allof_derived, scope=openapi.SCHEMA_DEFINITIONS)
+            if not self.components.has(value, scope=openapi.SCHEMA_DEFINITIONS):
+                self.components.set(value, allof_derived, scope=openapi.SCHEMA_DEFINITIONS)
 
         return base_schema_ref

@@ -47,23 +47,38 @@ logger = logging.getLogger(__name__)
 
 
 class Discriminator:
-    def __init__(self, discriminator_field: str, mapping: Dict[Any, Union[tuple, serializers.ModelSerializer]]):
+    def __init__(self, discriminator_field: str,
+                 mapping: Dict[Any, Union[tuple, serializers.ModelSerializer]],
+                 group_field: Union[None, str] = None,
+                 same_model: bool = True):
         self.discriminator_field = discriminator_field
         self.mapping = mapping
+        self.group_field = group_field
+        self.same_model = same_model
 
     def to_representation(self, instance) -> OrderedDict:
         discriminator_value = getattr(instance, self.discriminator_field)
         serializer = self.mapping.get(discriminator_value)
         if serializer is None:
             return None
-        return serializer.to_representation(instance)
+
+        representation = serializer.to_representation(instance)
+        return representation
 
     def to_internal_value(self, data) -> OrderedDict:
         discriminator_value = data[self.discriminator_field]
         serializer = self.mapping.get(discriminator_value)
         if serializer is None:
             return None
-        return serializer.to_internal_value(data)
+
+        internal_value = serializer.to_internal_value(data)
+        # if nested serializer was generated in _sanitize_discriminator name if group_field
+        # was changed in the internal_value. We need to return it
+        if self.group_field and self.group_field not in internal_value and len(internal_value) == 1:
+            key, value = internal_value.popitem()
+            internal_value = OrderedDict({self.group_field: value})
+
+        return internal_value
 
 
 class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
@@ -105,6 +120,32 @@ class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
                 discriminator.mapping[value] = serializer_class()
 
             values_seen.add(value)
+
+            serializer = discriminator.mapping[value]
+            # rewrite it to nested serializer
+            if discriminator.group_field:
+                group_name = f"{discriminator.group_field}_{serializer.__class__.__name__}"
+                group_meta = type('Meta', (), {
+                    'model': model,
+                    'fields': (discriminator.group_field, ),
+                })
+
+                # find source field for nested serializer
+                source = None
+                related_fields = model._meta.fields_map
+                for field_name, field_type in related_fields.items():
+                    if field_type.related_model == serializer.Meta.model:
+                        source = field_name
+
+                group_field = serializer.__class__(source=source, required=False, label=discriminator.group_field)
+
+                group_serializer_class = type(
+                    group_name,
+                    (serializers.ModelSerializer,),
+                    {'Meta': group_meta,
+                     discriminator.group_field: group_field}
+                )
+                discriminator.mapping[value] = group_serializer_class()
 
         if field.choices:
             values = {choice[0] for choice in field.choices}
