@@ -1,6 +1,7 @@
 import logging
 
 from django.db import transaction
+from django.http import Http404
 
 from rest_framework import viewsets
 
@@ -173,5 +174,9 @@ class AuditTrailViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
         qs = super().get_queryset()
         identifier = self.kwargs.get(self.main_resource_lookup_field)
         if identifier:
-            return qs.filter(hoofd_object__contains=identifier)
+            filtered = qs.filter(hoofd_object__contains=identifier)
+            if filtered.exists():
+                return filtered
+            else:
+                raise Http404
         return qs
