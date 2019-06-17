@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from typing import Callable
 
 from django.conf import settings
@@ -12,7 +13,6 @@ from django.utils.translation import ugettext_lazy as _
 
 import requests
 from rest_framework import serializers, validators
-from unidecode import unidecode
 
 from .constants import RSIN_LENGTH
 from .oas import fetcher, obj_has_shape
@@ -20,10 +20,16 @@ from .oas import fetcher, obj_has_shape
 logger = logging.getLogger(__name__)
 
 
+WORD_REGEX = re.compile(r'[\w\-]+$', re.ASCII)
+
+
 @deconstructible
 class AlphanumericExcludingDiacritic:
     """
     Alle alfanumerieke tekens m.u.v. diacrieten.
+
+    RGBZ heeft hier een vreemde definitie voor. De oorsprong is dat dit gek is
+    voor bestandsnamen, en dus speciale karakters uitgesloten worden.
     """
 
     def __init__(self, start=0):
@@ -31,9 +37,8 @@ class AlphanumericExcludingDiacritic:
 
     def __call__(self, value):
         stripped_value = value[self.start:]
-        non_diactric = unidecode(stripped_value)
-        non_diactric.encode('ascii')
-        if stripped_value != non_diactric:
+        match = WORD_REGEX.match(stripped_value)
+        if not match:
             raise ValidationError(
                 'Waarde "{0}" mag geen diakrieten of non-ascii tekens bevatten{1}'.format(
                     value, ' na de eerste {0} karakters'.format(self.start) if self.start else ''
