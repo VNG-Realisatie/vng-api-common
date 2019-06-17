@@ -60,10 +60,17 @@ class Backend(DjangoFilterBackend):
 class URLModelChoiceField(fields.ModelChoiceField):
     widget = URLInput
 
+    def __init__(self, *args, **kwargs):
+        self.instance_path = kwargs.pop('instance_path', None)
+        super().__init__(*args, **kwargs)
+
     def url_to_pk(self, url: str):
         parsed = urlparse(url)
         path = parsed.path
         instance = get_resource_for_path(path)
+        if self.instance_path:
+            for bit in self.instance_path.split('.'):
+                instance = getattr(instance, bit)
         model = self.queryset.model
         if not isinstance(instance, model):
             raise ValidationError(_("Invalid resource type supplied, expected %r") % model, code='invalid-type')
@@ -82,6 +89,10 @@ class URLModelChoiceField(fields.ModelChoiceField):
 class URLModelChoiceFilter(filters.ModelChoiceFilter):
     field_class = URLModelChoiceField
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instance_path = kwargs.get('instance_path', None)
+        self.queryset = kwargs.get('queryset')
 
 class RSINFilter(filters.CharFilter):
     def __init__(self, *args, **kwargs):
