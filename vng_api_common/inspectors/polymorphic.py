@@ -11,6 +11,7 @@ from drf_yasg.inspectors.field import (
 )
 
 from ..polymorphism import PolymorphicSerializer
+from ..utils import underscore_to_camel
 
 
 class PolymorphicSerializerInspector(CamelCaseJSONFilter, ReferencingSerializerInspector):
@@ -31,7 +32,7 @@ class PolymorphicSerializerInspector(CamelCaseJSONFilter, ReferencingSerializerI
             raise SwaggerGenerationError("discriminator inheritance requires model references")
 
         base_schema = base_schema_ref.resolve(self.components)  # type: openapi.Schema
-        base_schema.discriminator = field.discriminator.discriminator_field
+        base_schema.discriminator = underscore_to_camel(field.discriminator.discriminator_field)
 
         for value, serializer in field.discriminator.mapping.items():
             derived_ref = self.probe_field_inspectors(serializer, openapi.Schema, use_references=True)
