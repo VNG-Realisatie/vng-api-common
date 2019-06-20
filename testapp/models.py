@@ -4,6 +4,10 @@ from django.utils.translation import ugettext_lazy as _
 from vng_api_common.descriptors import GegevensGroepType
 
 
+class Group(models.Model):
+    pass
+
+
 class Person(models.Model):
     name = models.CharField(_("name"), max_length=50)
 
@@ -14,3 +18,5 @@ class Person(models.Model):
         'street': address_street,
         'number': address_number,
     })
+
+    group = models.ForeignKey('Group', null=True, on_delete=models.CASCADE)
