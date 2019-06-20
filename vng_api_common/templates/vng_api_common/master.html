@@ -52,6 +52,15 @@
             </ul>
           </div>
         </div>
+
+        <div class="row">
+          <div class="col-6 text-muted">
+            <code>{{ settings.API_VERSION }}</code>
+          </div>
+          <div class="col-6 text-muted text-right">
+            <code>{{ settings.COMMIT_HASH|default:"" }}</code>
+          </div>
+        </div>
       </footer>
     </div>
 
