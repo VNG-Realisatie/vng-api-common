@@ -64,10 +64,10 @@ class RolOmschrijving(DjangoChoices):
 
 
 class RolTypes(DjangoChoices):
-    natuurlijk_persoon = ChoiceItem('Natuurlijk persoon', "Natuurlijk persoon")
-    niet_natuurlijk_persoon = ChoiceItem('Niet-natuurlijk persoon', "Niet-natuurlijk persoon")
+    natuurlijk_persoon = ChoiceItem('Natuurlijk_persoon', "Natuurlijk persoon")
+    niet_natuurlijk_persoon = ChoiceItem('Niet-natuurlijk_persoon', "Niet-natuurlijk persoon")
     vestiging = ChoiceItem('Vestiging', "Vestiging")
-    organisatorische_eenheid = ChoiceItem('Organisatorische eenheid', "Organisatorische eenheid")
+    organisatorische_eenheid = ChoiceItem('Organisatorische_eenheid', "Organisatorische eenheid")
     medewerker = ChoiceItem('Medewerker', "Medewerker")
 
 
