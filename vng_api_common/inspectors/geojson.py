@@ -15,7 +15,6 @@ def register_geojson(definitions):
         type=openapi.TYPE_OBJECT,
         title="Geometry",
         description="GeoJSON geometry",
-        discriminator='type',
         required=['type'],
         externalDocs=OrderedDict(url='https://tools.ietf.org/html/rfc7946#section-3.1'),
         properties=OrderedDict((
@@ -209,7 +208,8 @@ def register_geojson(definitions):
             openapi.SchemaRef(definitions, 'Polygon'),
             openapi.SchemaRef(definitions, 'MultiPolygon'),
             openapi.SchemaRef(definitions, 'GeometryCollection'),
-        ]
+        ],
+        discriminator='type',
     )
     definitions.set(REF_NAME_GEOJSON_GEOMETRY, GeoJSONGeometry)
 
