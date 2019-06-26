@@ -119,13 +119,13 @@ def generate_unique_identification(instance: models.Model, date_field_name: str)
 
     pattern = prefix + r'-\d{10}'
 
-    issued_ids_for_year = instance.__class__.objects.filter(identificatie__regex=pattern)
+    issued_ids_for_year = instance.__class__._default_manager.filter(identificatie__regex=pattern)
 
-    if issued_ids_for_year:
+    if issued_ids_for_year.exists():
         max_id = issued_ids_for_year.aggregate(models.Max('identificatie'))['identificatie__max']
-        zaak_number = int(max_id.split('-')[-1]) + 1
+        number = int(max_id.split('-')[-1]) + 1
     else:
-        zaak_number = 1
+        number = 1
 
-    padded_number = str(zaak_number).zfill(10)
+    padded_number = str(number).zfill(10)
     return f'{prefix}-{padded_number}'
