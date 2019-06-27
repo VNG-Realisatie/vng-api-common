@@ -4,10 +4,53 @@ from vng_api_common.exception_handling import get_validation_errors
 
 
 def test_create_invalid_params():
+    """
+    Original validation errors:
+
+    {
+        'person': [
+            {
+            },
+            {
+                'address': {
+                    'street': [
+                        ErrorDetail(string='This field is required.', code='required')
+                    ]
+                }
+            }, {
+                'name': [
+                    ErrorDetail(string='This field is required.', code='required')
+                ]
+            }
+        ]
+    }
+
+    Expected converted validation errors (`dict`'s are actually `OrderedDict`'s):
+
+    [
+        {
+            'name': 'person.1.address.street',
+            'code': 'required',
+            'reason': 'This field is required.'
+        }
+        {
+            'name': 'person.2.name',
+            'code': 'required',
+            'reason': 'This field is required.'
+        }
+    ]
+    """
     serializer = GroupSerializer(data={
         "person": [
             {
-                "name": "test",
+                "name": "john",
+                "address": {
+                    "street": "Keizersgracht",
+                    "number": "416"
+                }
+            },
+            {
+                "name": "jane",
                 "address": {
                     "number": "117"
                 }
@@ -25,11 +68,12 @@ def test_create_invalid_params():
 
     validation_errors = list(get_validation_errors(serializer.errors))
 
-    assert validation_errors[0]['name'] == 'person.0.address.street'
+    assert validation_errors[0]['name'] == 'person.1.address.street'
     assert validation_errors[0]['code'] == 'required'
 
-    assert validation_errors[1]['name'] == 'person.1.name'
+    assert validation_errors[1]['name'] == 'person.2.name'
     assert validation_errors[1]['code'] == 'required'
+
 
 def test_create_valid():
     serializer = GroupSerializer(data={
