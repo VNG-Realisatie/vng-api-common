@@ -27,6 +27,8 @@ class FilterInspector(CoreAPICompatInspector):
             filter_class = filter_backend.get_filter_class(self.view, queryset)
 
             for parameter in fields:
+                if parameter.name in filter_class.declared_filters:
+                    continue
                 filter_field = filter_class.base_filters[parameter.name]
                 model_field = queryset.model._meta.get_field(parameter.name.split('__')[0])
 
