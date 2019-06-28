@@ -30,6 +30,13 @@ def _translate_exceptions(exc):
 
 def get_validation_errors(validation_errors: dict):
     for field_name, error_list in validation_errors.items():
+        # nested validation for fields where many=True
+        if isinstance(error_list, list):
+            for i, nested_error_dict in enumerate(error_list):
+                if isinstance(nested_error_dict, dict):
+                    for err in get_validation_errors(nested_error_dict):
+                        err['name'] = f"{underscore_to_camel(field_name)}.{i}.{err['name']}"
+                        yield err
 
         # nested validation - recursively call the function
         if isinstance(error_list, dict):
@@ -42,6 +49,8 @@ def get_validation_errors(validation_errors: dict):
             error_list = [error_list]
 
         for error in error_list:
+            if isinstance(error, dict):
+                continue
             yield OrderedDict([
                 # see https://tools.ietf.org/html/rfc7807#section-3.1
                 # ('type', 'about:blank'),
