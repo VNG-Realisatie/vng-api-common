@@ -110,3 +110,22 @@ def request_object_attribute(url: str, attribute: str, resource: Union[str, None
         logger.warning("%s was retrieved from %s with the %s: %s", attribute, url, exc.__class__.__name__, exc)
         result = ''
     return result
+
+
+def generate_unique_identification(instance: models.Model, date_field_name: str):
+    model_name = instance._meta.model_name.upper()
+    year = getattr(instance, date_field_name).year
+    prefix = f'{model_name}-{year}'
+
+    pattern = prefix + r'-\d{10}'
+
+    issued_ids_for_year = instance.__class__._default_manager.filter(identificatie__regex=pattern)
+
+    if issued_ids_for_year.exists():
+        max_id = issued_ids_for_year.aggregate(models.Max('identificatie'))['identificatie__max']
+        number = int(max_id.split('-')[-1]) + 1
+    else:
+        number = 1
+
+    padded_number = str(number).zfill(10)
+    return f'{prefix}-{padded_number}'
