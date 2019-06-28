@@ -35,14 +35,20 @@ class PolymorphicSerializerInspector(CamelCaseJSONFilter, ReferencingSerializerI
         base_schema.discriminator = underscore_to_camel(field.discriminator.discriminator_field)
 
         for value, serializer in field.discriminator.mapping.items():
-            derived_ref = self.probe_field_inspectors(serializer, openapi.Schema, use_references=True)
-            if not isinstance(derived_ref, openapi.SchemaRef):
-                raise SwaggerGenerationError("discriminator inheritance requies model references")
+            if serializer is None:
+                allof_derived = openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    all_of=[base_schema_ref]
+                )
+            else:
+                derived_ref = self.probe_field_inspectors(serializer, openapi.Schema, use_references=True)
+                if not isinstance(derived_ref, openapi.SchemaRef):
+                    raise SwaggerGenerationError("discriminator inheritance requies model references")
 
-            allof_derived = openapi.Schema(
-                type=openapi.TYPE_OBJECT,
-                all_of=[base_schema_ref, derived_ref]
-            )
+                allof_derived = openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    all_of=[base_schema_ref, derived_ref]
+                )
             if not self.components.has(value, scope=openapi.SCHEMA_DEFINITIONS):
                 self.components.set(value, allof_derived, scope=openapi.SCHEMA_DEFINITIONS)
 
