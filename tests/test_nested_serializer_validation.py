@@ -1,10 +1,12 @@
-from testapp.serializers import GroupSerializer, PersonSerializer
+from testapp.serializers import GroupSerializer
 
 from vng_api_common.exception_handling import get_validation_errors
 
 
 def test_create_invalid_params():
     """
+    Test that nested validation works as expected.
+
     Original validation errors:
 
     {
