@@ -122,6 +122,10 @@ class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
             values_seen.add(value)
 
             serializer = discriminator.mapping[value]
+
+            if serializer is None:
+                continue
+
             # rewrite it to nested serializer
             if discriminator.group_field:
                 group_name = f"{discriminator.group_field}_{serializer.__class__.__name__}"
