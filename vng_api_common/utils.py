@@ -113,13 +113,19 @@ def request_object_attribute(url: str, attribute: str, resource: Union[str, None
 
 
 def generate_unique_identification(instance: models.Model, date_field_name: str):
-    model_name = instance._meta.model_name.upper()
+    model = type(instance)
+    model_name = getattr(
+        model,
+        "IDENTIFICATIE_PREFIX",
+        model._meta.model_name.upper()
+    )
+
     year = getattr(instance, date_field_name).year
     prefix = f'{model_name}-{year}'
 
     pattern = prefix + r'-\d{10}'
 
-    issued_ids_for_year = instance.__class__._default_manager.filter(identificatie__regex=pattern)
+    issued_ids_for_year = model._default_manager.filter(identificatie__regex=pattern)
 
     if issued_ids_for_year.exists():
         max_id = issued_ids_for_year.aggregate(models.Max('identificatie'))['identificatie__max']
