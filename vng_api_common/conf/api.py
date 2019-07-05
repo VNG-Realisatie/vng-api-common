@@ -98,7 +98,8 @@ BASE_SWAGGER_SETTINGS = {
 }
 
 REDOC_SETTINGS = {
-    'EXPAND_RESPONSES': '200,201'
+    'EXPAND_RESPONSES': '200,201',
+    'SPEC_URL': 'openapi.json'
 }
 
 # See: https://github.com/Rebilly/ReDoc#redoc-options-object
