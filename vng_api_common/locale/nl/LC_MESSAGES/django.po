@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-31 07:58-0500\n"
+"POT-Creation-Date: 2019-07-08 07:11-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: admin.py:18
+msgid "external API"
+msgstr ""
+
+#: admin.py:24
+msgid "credentials"
+msgstr ""
+
+#: admin.py:25
+msgid ""
+"Credentials that indicate how this API or application identifies itself at "
+"the external API."
+msgstr ""
 
 #: audittrails/models.py:16
 msgid "Unieke identificatie van de audit regel"
@@ -54,39 +68,43 @@ msgstr ""
 msgid "De datum waarop de handeling is gedaan"
 msgstr ""
 
-#: audittrails/models.py:55
+#: audittrails/models.py:54
+msgid "Vriendelijke identificatie van het object"
+msgstr ""
+
+#: audittrails/models.py:59
 msgid "Unieke identificatie van de applicatie, binnen de organisatie"
 msgstr ""
 
-#: audittrails/models.py:60
+#: audittrails/models.py:64
 msgid "Vriendelijke naam van de applicatie"
 msgstr ""
 
-#: audittrails/models.py:65
+#: audittrails/models.py:69
 msgid ""
 "Volledige JSON body van het object zoals dat bestond voordat de actie heeft "
 "plaatsgevonden"
 msgstr ""
 
-#: audittrails/models.py:70
+#: audittrails/models.py:74
 msgid "Volledige JSON body van het object na de actie"
 msgstr ""
 
-#: audittrails/models.py:76
+#: audittrails/models.py:80
 msgid ""
 "Unieke identificatie van de gebruiker die binnen de organisatie herleid kan "
 "worden naar een persoon"
 msgstr ""
 
-#: audittrails/models.py:82
+#: audittrails/models.py:86
 msgid "Vriendelijke naam van de gebruiker"
 msgstr ""
 
-#: audittrails/models.py:85
+#: audittrails/models.py:89
 msgid "toelichting"
 msgstr ""
 
-#: audittrails/models.py:87
+#: audittrails/models.py:91
 msgid "Toelichting waarom de handeling is uitgevoerd"
 msgstr ""
 
@@ -320,24 +338,32 @@ msgid ""
 "datum-attribuutsoort van het zaakobjecttype het betreft."
 msgstr ""
 
-#: constants.py:198
+#: constants.py:226
 msgid "aangemaakt"
 msgstr ""
 
-#: constants.py:199 constants.py:200
+#: constants.py:227 constants.py:228
 msgid "opgehaald"
 msgstr ""
 
-#: constants.py:201
+#: constants.py:229
 msgid "verwijderd"
 msgstr ""
 
-#: constants.py:202
+#: constants.py:230
 msgid "bijgewerkt"
 msgstr ""
 
-#: constants.py:203
+#: constants.py:231
 msgid "deels bijgewerkt"
+msgstr ""
+
+#: constants.py:235
+msgid "Hoort bij, omgekeerd: kent"
+msgstr ""
+
+#: constants.py:236
+msgid "Legt vast, omgekeerd: kan vastgelegd zijn als"
 msgstr ""
 
 #: exceptions.py:9
@@ -346,11 +372,11 @@ msgstr ""
 
 #: exceptions.py:15
 msgid "The resource is gone"
-msgstr ""
+msgstr "De resource bestaat niet meer"
 
 #: exceptions.py:21
 msgid "Precondition failed"
-msgstr ""
+msgstr "Voorwaarde is niet vervuld"
 
 #: fields.py:22
 msgid "RSIN"
@@ -364,16 +390,24 @@ msgstr ""
 msgid "Specifieer de duur als 'DD 00:00'"
 msgstr ""
 
-#: filters.py:69
+#: filters.py:76
 #, python-format
 msgid "Invalid resource type supplied, expected %r"
-msgstr ""
+msgstr "Invalide resourcetype opgegeven, verwachtte %r"
 
-#: filters.py:78
+#: filters.py:85
 msgid "Invalid resource URL supplied"
-msgstr ""
+msgstr "Ongeldige resource URL opgegeven"
 
-#: inspectors/query.py:30
+#: inspectors/files.py:36
+msgid "Base64 encoded binary content."
+msgstr "Binaire inhoud, in base64 geëncodeerd."
+
+#: inspectors/files.py:42
+msgid "Download URL of the binary content."
+msgstr "Download URL van de binaire inhoud."
+
+#: inspectors/query.py:36
 #, python-brace-format
 msgid "URL to the related {resource}"
 msgstr "URL naar de/het gerelateerde {resource}"
@@ -381,25 +415,24 @@ msgstr "URL naar de/het gerelateerde {resource}"
 #: inspectors/view.py:77
 msgid "Application that performs request"
 msgstr ""
-"Identificatie van de applicatie die het verzoek stuurt "
-"(indien NLX wordt gebruikt)."
+"Identificatie van de applicatie die het verzoek stuurt (indien NLX wordt "
+"gebruikt)."
 
 #: inspectors/view.py:84
 msgid "Identifier of the user that performs request"
 msgstr ""
-"Identificatie van de gebruiker die het verzoek stuurt "
-"(indien NLX wordt gebruikt)."
+"Identificatie van de gebruiker die het verzoek stuurt (indien NLX wordt "
+"gebruikt)."
 
 #: inspectors/view.py:91
 msgid "Explanation why the request is done"
 msgstr "Toelichting waarom een bepaald verzoek wordt gedaan"
 
-
-#: inspectors/view.py:360
+#: inspectors/view.py:366
 msgid "A page number within the paginated result set."
 msgstr "Een pagina binnen de gepagineerde set resultaten."
 
-#: inspectors/view.py:361
+#: inspectors/view.py:367
 msgid "Number of results to return per page."
 msgstr "Het aantal resultaten terug te geven per pagina."
 
@@ -423,52 +456,84 @@ msgid ""
 "a new format with the separate Authorization Component"
 msgstr ""
 
-#: models.py:47
-msgid "identifier"
+#: models.py:48 models.py:80 notifications/models.py:40
+msgid "client ID"
 msgstr ""
 
-#: models.py:48 models.py:68
+#: models.py:49
+msgid ""
+"Client ID to identify external API's and applications that access this API."
+msgstr ""
+"Client ID om externe APIs and applicaties te identificeren die toegang "
+"hebben tot deze API."
+
+#: models.py:52 models.py:84
 msgid "secret"
 msgstr ""
 
-#: models.py:51
+#: models.py:53 models.py:85
+msgid "Secret belonging to the client ID."
+msgstr ""
+
+#: models.py:57
 msgid "client credential"
 msgstr ""
 
-#: models.py:52
+#: models.py:58
 msgid "client credentials"
 msgstr ""
 
-#: models.py:65 models.py:110
-msgid "api root"
-msgstr ""
-
-#: models.py:66
-msgid "label"
-msgstr ""
-
-#: models.py:66
-msgid "human readable label"
-msgstr ""
-
-#: models.py:67
-msgid "client id"
-msgstr ""
-
-#: models.py:69
-msgid "user id"
-msgstr ""
-
-#: models.py:70
-msgid "user representation"
+#: models.py:72
+msgid "API-root"
 msgstr ""
 
 #: models.py:73
-msgid "external API credential"
+msgid ""
+"URL of the external API, ending in a trailing slash. Example: https://"
+"example.com/api/v1/"
 msgstr ""
 
-#: models.py:74
+#: models.py:76
+msgid "label"
+msgstr ""
+
+#: models.py:77
+msgid "Human readable label of the external API."
+msgstr ""
+
+#: models.py:81
+msgid "Client ID to identify this API at the external API."
+msgstr ""
+
+#: models.py:88
+msgid "user ID"
+msgstr ""
+
+#: models.py:89
+msgid ""
+"User ID to use for the audit trail. Although these external API credentials "
+"are typically used bythis API itself instead of a user, the user ID is "
+"required."
+msgstr ""
+
+#: models.py:93
+msgid "user representation"
+msgstr ""
+
+#: models.py:94
+msgid "Human readable representation of the user."
+msgstr ""
+
+#: models.py:98
+msgid "external API credential"
+msgstr "externe API credential"
+
+#: models.py:99
 msgid "external API credentials"
+msgstr "externe API credentials"
+
+#: models.py:135
+msgid "api root"
 msgstr ""
 
 #: notifications/admin.py:29
@@ -515,10 +580,6 @@ msgstr ""
 msgid "Where to send the notifications (webhook url)"
 msgstr ""
 
-#: notifications/models.py:40
-msgid "client ID"
-msgstr ""
-
 #: notifications/models.py:41
 msgid "Client ID to construct the auth token"
 msgstr ""
@@ -555,19 +616,19 @@ msgstr ""
 msgid "Webhook subscriptions"
 msgstr ""
 
-#: validators.py:106
+#: validators.py:111
 #, python-brace-format
 msgid ""
 "The URL {url} responded with HTTP {status_code}. Please provide a valid URL."
 msgstr ""
 "De URL {url} gaf als antwoord HTTP {status_code}. Geef een geldige URL op."
 
-#: validators.py:129
+#: validators.py:134
 #, python-brace-format
 msgid "The URL {url} could not be fetched. Exception: {exc}"
 msgstr "De URL {url} kon niet opgehaald worden. Foutmelding: {exc}"
 
-#: validators.py:156
+#: validators.py:161
 #, python-brace-format
 msgid ""
 "The URL {url} resource did not look like a(n) `{resource}`. Please provide a "
@@ -576,85 +637,105 @@ msgstr ""
 "De URL {url} resource lijkt niet op een `{resource}`. Geef een validate URL "
 "op."
 
-#: validators.py:212
+#: validators.py:217
 msgid "Het informatieobject is in het DRC nog niet gerelateerd aan dit object."
 msgstr ""
 
-#: validators.py:254
+#: validators.py:259
 msgid "Ensure this value is not in the future."
 msgstr "Deze waarde mag niet in de toekomst liggen."
 
-#: validators.py:291
+#: validators.py:296
 msgid "Deze identificatie bestaat al binnen de organisatie"
 msgstr ""
 
-#: validators.py:344
+#: validators.py:349
 msgid "Dit veld mag niet gewijzigd worden."
 msgstr ""
 
+#: views.py:101
+msgid "Site domain"
+msgstr ""
+
 #: views.py:102
+msgid "HTTPS"
+msgstr ""
+
+#: views.py:119
 msgid "Type of component"
 msgstr ""
 
-#: views.py:103
+#: views.py:120
 msgid "AC"
 msgstr ""
 
-#: views.py:105
+#: views.py:122
 msgid "Credentials for AC"
 msgstr ""
 
-#: views.py:106 views.py:157
+#: views.py:123 views.py:174
 msgid "Configured"
 msgstr ""
 
-#: views.py:106 views.py:157
+#: views.py:123 views.py:174
 msgid "Missing"
 msgstr ""
 
-#: views.py:122
+#: views.py:139
 msgid "Could not connect with AC"
 msgstr ""
 
-#: views.py:125
+#: views.py:142
 #, python-brace-format
 msgid "Cannot retrieve authorizations: HTTP {status_code} - {error_code}"
 msgstr ""
 
-#: views.py:130
+#: views.py:147
 msgid "Can retrieve authorizations"
 msgstr ""
 
-#: views.py:133
+#: views.py:150
 msgid "AC connection and authorizations"
 msgstr ""
 
-#: views.py:154
+#: views.py:171
 msgid "NRC"
 msgstr ""
 
-#: views.py:156
+#: views.py:173
 msgid "Credentials for NRC"
 msgstr ""
 
-#: views.py:170
+#: views.py:187
 msgid "Could not connect with NRC"
 msgstr ""
 
-#: views.py:173
+#: views.py:190
 #, python-brace-format
 msgid "Cannot retrieve kanalen: HTTP {status_code} - {error_code}"
 msgstr ""
 
-#: views.py:178
+#: views.py:195
 msgid "Can retrieve kanalen"
 msgstr ""
 
-#: views.py:181
+#: views.py:198
 msgid "NRC connection and authorizations"
 msgstr ""
 
-#: viewsets.py:57
+#: views.py:219
+msgid "Listens to AC notifications?"
+msgstr ""
+
+#: views.py:220
+msgid "Yes"
+msgstr ""
+
+#: views.py:220
+msgid "No"
+msgstr ""
+
+#: viewsets.py:61
 #, python-format
 msgid "Onbekende query parameters: %s"
 msgstr ""

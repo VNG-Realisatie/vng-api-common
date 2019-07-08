@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+from django.utils.translation import ugettext as _
+
 from drf_extra_fields.fields import Base64FieldMixin
 from drf_yasg import openapi
 from drf_yasg.inspectors import FieldInspector, NotHandled, ViewInspector
@@ -28,8 +30,17 @@ class FileFieldInspector(FieldInspector):
 
         SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
 
-        type_b64 = SwaggerType(type=openapi.TYPE_STRING, format=openapi.FORMAT_BASE64)
-        type_uri = SwaggerType(type=openapi.TYPE_STRING, read_only=True, format=openapi.FORMAT_URI)
+        type_b64 = SwaggerType(
+            type=openapi.TYPE_STRING,
+            format=openapi.FORMAT_BASE64,
+            description=_("Base64 encoded binary content.")
+        )
+        type_uri = SwaggerType(
+            type=openapi.TYPE_STRING,
+            read_only=True,
+            format=openapi.FORMAT_URI,
+            description=_("Download URL of the binary content.")
+        )
 
         if swagger_object_type == openapi.Schema:
             # on writes, it's always b64
