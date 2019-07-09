@@ -66,6 +66,60 @@ DEFAULT_ACTION_ERRORS = {
     ],
 }
 
+HTTP_STATUS_CODE_TITLES = {
+    status.HTTP_100_CONTINUE: 'Continue',
+    status.HTTP_101_SWITCHING_PROTOCOLS: 'Switching protocols',
+    status.HTTP_200_OK: 'OK',
+    status.HTTP_201_CREATED: 'Created',
+    status.HTTP_202_ACCEPTED: 'Accepted',
+    status.HTTP_203_NON_AUTHORITATIVE_INFORMATION: 'Non authoritative information',
+    status.HTTP_204_NO_CONTENT: 'No content',
+    status.HTTP_205_RESET_CONTENT: 'Reset content',
+    status.HTTP_206_PARTIAL_CONTENT: 'Partial content',
+    status.HTTP_207_MULTI_STATUS: 'Multi status',
+    status.HTTP_300_MULTIPLE_CHOICES: 'Multiple choices',
+    status.HTTP_301_MOVED_PERMANENTLY: 'Moved permanently',
+    status.HTTP_302_FOUND: 'Found',
+    status.HTTP_303_SEE_OTHER: 'See other',
+    status.HTTP_304_NOT_MODIFIED: 'Not modified',
+    status.HTTP_305_USE_PROXY: 'Use proxy',
+    status.HTTP_306_RESERVED: 'Reserved',
+    status.HTTP_307_TEMPORARY_REDIRECT: 'Temporary redirect',
+    status.HTTP_400_BAD_REQUEST: 'Bad request',
+    status.HTTP_401_UNAUTHORIZED: 'Unauthorized',
+    status.HTTP_402_PAYMENT_REQUIRED: 'Payment required',
+    status.HTTP_403_FORBIDDEN: 'Forbidden',
+    status.HTTP_404_NOT_FOUND: 'Not_found',
+    status.HTTP_405_METHOD_NOT_ALLOWED: 'Method not allowed',
+    status.HTTP_406_NOT_ACCEPTABLE: 'Not acceptable',
+    status.HTTP_407_PROXY_AUTHENTICATION_REQUIRED: 'Proxy authentication required',
+    status.HTTP_408_REQUEST_TIMEOUT: 'Request timeout',
+    status.HTTP_409_CONFLICT: 'Conflict',
+    status.HTTP_410_GONE: 'Gone',
+    status.HTTP_411_LENGTH_REQUIRED: 'Length required',
+    status.HTTP_412_PRECONDITION_FAILED: 'Precondition failed',
+    status.HTTP_413_REQUEST_ENTITY_TOO_LARGE: 'Request entity too large',
+    status.HTTP_414_REQUEST_URI_TOO_LONG: 'Request uri too long',
+    status.HTTP_415_UNSUPPORTED_MEDIA_TYPE: 'Unsupported media type',
+    status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: 'Requested range not satisfiable',
+    status.HTTP_417_EXPECTATION_FAILED: 'Expectation failed',
+    status.HTTP_422_UNPROCESSABLE_ENTITY: 'Unprocessable entity',
+    status.HTTP_423_LOCKED: 'Locked',
+    status.HTTP_424_FAILED_DEPENDENCY: 'Failed dependency',
+    status.HTTP_428_PRECONDITION_REQUIRED: 'Precondition required',
+    status.HTTP_429_TOO_MANY_REQUESTS: 'Too many requests',
+    status.HTTP_431_REQUEST_HEADER_FIELDS_TOO_LARGE: 'Request header fields too large',
+    status.HTTP_451_UNAVAILABLE_FOR_LEGAL_REASONS: 'Unavailable for legal reasons',
+    status.HTTP_500_INTERNAL_SERVER_ERROR: 'Internal server error',
+    status.HTTP_501_NOT_IMPLEMENTED: 'Not implemented',
+    status.HTTP_502_BAD_GATEWAY: 'Bad gateway',
+    status.HTTP_503_SERVICE_UNAVAILABLE: 'Service unavailable',
+    status.HTTP_504_GATEWAY_TIMEOUT: 'Gateway timeout',
+    status.HTTP_505_HTTP_VERSION_NOT_SUPPORTED: 'HTTP version not supported',
+    status.HTTP_507_INSUFFICIENT_STORAGE: 'Insufficient storage',
+    status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED: 'Network authentication required',
+}
+
 AUDIT_TRAIL_ENABLED = apps.is_installed('vng_api_common.audittrails')
 
 AUDIT_REQUEST_HEADERS = [
@@ -161,10 +215,12 @@ class AutoSchema(SwaggerAutoSchema):
     def _is_search_view(self):
         return is_search_view(self.view)
 
-    def get_operation_id(self, operation_keys) -> str:
+    def get_operation_id(self, operation_keys=None) -> str:
         """
         Simply return the model name as lowercase string, postfixed with the operation name.
         """
+        operation_keys = operation_keys or self.operation_keys
+
         operation_id = self.overrides.get('operation_id', '')
         if operation_id:
             return operation_id
@@ -251,8 +307,15 @@ class AutoSchema(SwaggerAutoSchema):
             responses[status_code] = fout_schema
 
         # sort by status code
+
         return OrderedDict([
-            (status_code, schema)
+            (
+                status_code,
+                openapi.Response(
+                    description=HTTP_STATUS_CODE_TITLES.get(status_code, ''),
+                    schema=schema,
+                )
+            )
             for status_code, schema
             in sorted(responses.items())
         ])
@@ -276,7 +339,7 @@ class AutoSchema(SwaggerAutoSchema):
 
             assert isinstance(schema, openapi.Schema.OR_REF) or schema == ''
             response = openapi.Response(
-                description='',
+                description=HTTP_STATUS_CODE_TITLES.get(int(status_), ''),
                 schema=schema or None,
                 headers=custom_headers
             )
