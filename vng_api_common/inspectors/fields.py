@@ -55,3 +55,19 @@ class JSONFieldInspector(FieldInspector):
             return SwaggerType(type=openapi.TYPE_OBJECT)
 
         return NotHandled
+
+
+class HyperlinkedIdentityFieldInspector(FieldInspector):
+    def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):
+        SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
+
+        if isinstance(field, serializers.HyperlinkedIdentityField) and swagger_object_type == openapi.Schema:
+            return SwaggerType(
+                type=openapi.TYPE_STRING,
+                format=openapi.FORMAT_URI,
+                min_length=1,
+                max_length=1000,
+                description='URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.'
+            )
+
+        return NotHandled
