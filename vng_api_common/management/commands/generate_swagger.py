@@ -122,13 +122,14 @@ class Command(generate_swagger.Command):
             for field, _schema in definition.properties.items():
                 if isinstance(_schema, openapi.SchemaRef):
                     continue
+                required = hasattr(definition, 'required') and field in definition.required
 
                 readonly = getattr(_schema, 'readOnly', False)
                 table.rows.append(Row(
                     label=field,
                     description=getattr(_schema, 'description', ''),
                     type=_schema.type,
-                    required=field in definition.required,
+                    required=required,
                     create=not readonly,
                     read=True,
                     update=not readonly,
