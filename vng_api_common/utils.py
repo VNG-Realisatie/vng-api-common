@@ -3,6 +3,7 @@ import re
 import uuid
 from typing import Union
 
+from django.apps import apps
 from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
@@ -135,3 +136,9 @@ def generate_unique_identification(instance: models.Model, date_field_name: str)
 
     padded_number = str(number).zfill(10)
     return f'{prefix}-{padded_number}'
+
+
+def get_help_text(model_string: str, field_name: str) -> str:
+    ModelClass = apps.get_model(model_string, require_ready=False)
+    field = ModelClass._meta.get_field(field_name)
+    return field.help_text
