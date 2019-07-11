@@ -76,10 +76,8 @@ BASE_SWAGGER_SETTINGS = {
     'DEFAULT_AUTO_SCHEMA_CLASS': 'vng_api_common.inspectors.view.AutoSchema',
     'DEFAULT_INFO': 'must.be.overridden',
     'DEFAULT_FIELD_INSPECTORS': (
-        # GeometryFieldInspector **must** be the first inspector because it's
-        # excluded in most API configurations by adding the list minus the first
-        # element.
-        'vng_api_common.inspectors.geojson.GeometryFieldInspector',
+        # GeometryFieldInspector has external dependencies, and is opt-in
+        # 'vng_api_common.inspectors.geojson.GeometryFieldInspector',
         'vng_api_common.inspectors.fields.HyperlinkedIdentityFieldInspector',
         'vng_api_common.inspectors.fields.ReadOnlyFieldInspector',
         'vng_api_common.inspectors.fields.JSONFieldInspector',
