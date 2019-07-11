@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-08 07:11-0500\n"
+"POT-Creation-Date: 2019-07-11 11:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -412,27 +412,27 @@ msgstr "Download URL van de binaire inhoud."
 msgid "URL to the related {resource}"
 msgstr "URL naar de/het gerelateerde {resource}"
 
-#: inspectors/view.py:77
+#: inspectors/view.py:131
 msgid "Application that performs request"
 msgstr ""
 "Identificatie van de applicatie die het verzoek stuurt (indien NLX wordt "
 "gebruikt)."
 
-#: inspectors/view.py:84
+#: inspectors/view.py:138
 msgid "Identifier of the user that performs request"
 msgstr ""
 "Identificatie van de gebruiker die het verzoek stuurt (indien NLX wordt "
 "gebruikt)."
 
-#: inspectors/view.py:91
+#: inspectors/view.py:145
 msgid "Explanation why the request is done"
 msgstr "Toelichting waarom een bepaald verzoek wordt gedaan"
 
-#: inspectors/view.py:366
+#: inspectors/view.py:429
 msgid "A page number within the paginated result set."
 msgstr "Een pagina binnen de gepagineerde set resultaten."
 
-#: inspectors/view.py:367
+#: inspectors/view.py:430
 msgid "Number of results to return per page."
 msgstr "Het aantal resultaten terug te geven per pagina."
 
