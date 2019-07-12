@@ -10,7 +10,7 @@ from ..fields import VertrouwelijkheidsAanduidingField
 from ..models import APIMixin, ClientConfig
 
 
-@field_default('api_root', 'https://ref.tst.vng.cloud/ac/api/v1')
+@field_default('api_root', 'https://autorisaties-api.vng.cloud/api/v1')
 class AuthorizationsConfig(ClientConfig):
     component = models.CharField(
         _("component"),
