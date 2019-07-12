@@ -73,11 +73,17 @@ class ValidatieFoutSerializer(FoutSerializer):
 
 
 def add_choice_values_help_text(choices: DjangoChoices) -> str:
-    displays = "\n".join([
-        f"* `{value}` - {display}"
-        for value, display in choices.choices
-    ])
-    return f"De mapping van waarden naar weergave is als volgt:\n\n{displays}"
+    items = []
+
+    for key, value in choices.choices:
+        description = getattr(choices.get_choice(key), 'description', None)
+        if description:
+            item = f'* `{key}` - ({value}) {description}'
+        else:
+            item = f'* `{key}` - {value}'
+        items.append(item)
+
+    return 'Uitleg bij mogelijke waarden:\n\n' + '\n'.join(items)
 
 
 class GegevensGroepSerializerMetaclass(serializers.SerializerMetaclass):
