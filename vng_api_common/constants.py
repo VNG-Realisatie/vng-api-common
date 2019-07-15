@@ -215,7 +215,7 @@ class ZaakobjectTypes(DjangoChoices):
 
 class ComponentTypes(DjangoChoices):
     ac = ChoiceItem('ac', 'Autorisatiecomponent')
-    nc = ChoiceItem('nrc', 'Notificatierouteringcomponent')
+    nrc = ChoiceItem('nrc', 'Notificatierouteringcomponent')
     zrc = ChoiceItem('zrc', 'Zaakregistratiecomponent')
     ztc = ChoiceItem('ztc', 'Zaaktypecatalogus')
     drc = ChoiceItem('drc', 'Documentregistratiecomponent')
