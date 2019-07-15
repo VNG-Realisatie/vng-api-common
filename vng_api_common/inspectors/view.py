@@ -15,9 +15,7 @@ from ..constants import (
 )
 from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
-from ..permissions import (
-    ActionScopesRequired, BaseAuthRequired, get_required_scopes
-)
+from ..permissions import BaseAuthRequired, get_required_scopes
 from ..search import is_search_view
 from ..serializers import FoutSerializer, ValidatieFoutSerializer
 
@@ -389,8 +387,7 @@ class AutoSchema(SwaggerAutoSchema):
         :return: security requirements
         :rtype: list[dict[str,list[str]]]"""
         permissions = self.view.get_permissions()
-        perm_classes = (ActionScopesRequired, BaseAuthRequired)
-        scope_permissions = [perm for perm in permissions if isinstance(perm, perm_classes)]
+        scope_permissions = [perm for perm in permissions if isinstance(perm, BaseAuthRequired)]
 
         if not scope_permissions:
             return super().get_security()
