@@ -1,4 +1,3 @@
-import warnings
 from typing import Union
 from urllib.parse import urlparse
 
@@ -28,41 +27,6 @@ def bypass_permissions(request: Request) -> bool:
     return settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer)
 
 
-class ActionScopesRequired(permissions.BasePermission):
-    """
-    Look at the scopes required for the current action and check that they
-    are present in the JWT
-    """
-
-    def has_permission(self, request: Request, view) -> bool:
-        if bypass_permissions(request):
-            return True
-
-        scopes_needed = get_required_scopes(view)
-        # TODO: if no scopes are needed, what do???
-        warnings.warn("The JWT-Payload based auth is deprecated, it will be "
-                      "removed before July 22nd 2019", DeprecationWarning)
-        return request.jwt_payload.has_scopes(scopes_needed)
-
-
-class ScopesRequired(permissions.BasePermission):
-    """
-    Very simple scope-based permission, does not map to HTTP method or action.
-    """
-
-    def has_permission(self, request: Request, view) -> bool:
-        # don't enforce them in the browsable API during debugging/development
-        if bypass_permissions(request):
-            return True
-
-        if not hasattr(view, 'required_scopes'):
-            raise ImproperlyConfigured("The View(Set) must have a `required_scopes` attribute")
-
-        warnings.warn("The JWT-Payload based auth is deprecated, it will be "
-                      "removed before July 22nd 2019", DeprecationWarning)
-        return request.jwt_payload.has_scopes(view.required_scopes)
-
-
 class ClientIdRequired(permissions.BasePermission):
     """
     Look at the client_id of an object and check that it equals client_id in the JWT
@@ -75,13 +39,7 @@ class ClientIdRequired(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            if not hasattr(request, 'jwt_auth'):
-                warnings.warn("The JWT-Payload based auth is deprecated, it will be "
-                              "removed before July 22nd 2019", DeprecationWarning)
-                client_id = request.jwt_payload['client_id']
-            else:
-                client_id = request.jwt_auth.client_id
-
+            client_id = request.jwt_auth.client_id
             return client_id == obj.client_id
 
 

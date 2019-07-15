@@ -21,88 +21,9 @@ from .authorizations.models import (
 from .authorizations.serializers import ApplicatieUuidSerializer
 from .constants import VERSION_HEADER, VertrouwelijkheidsAanduiding
 from .models import JWTSecret
-from .scopes import Scope
 from .utils import get_uuid_from_path
 
 logger = logging.getLogger(__name__)
-
-EMPTY_PAYLOAD = {
-    'scopes': [],
-    'zaaktypes': [],
-}
-
-
-class JWTPayload:
-
-    def __init__(self, encoded: str=None):
-        self.encoded = encoded
-
-    def __repr__(self):
-        return "<%s: payload=%r>" % (self.__class__.__name__, self.payload)
-
-    def __getitem__(self, key):
-        return self.payload[key]
-
-    def get(self, attr, *args, **kwargs):
-        return self.payload.get(attr, *args, **kwargs)
-
-    @cached_property
-    def payload(self) -> dict:
-        if self.encoded is None:
-            return EMPTY_PAYLOAD
-
-        try:
-            header = jwt.get_unverified_header(self.encoded)
-        except jwt.DecodeError:
-            logger.info("Invalid JWT encountered")
-            raise PermissionDenied(
-                _('JWT could not be decoded. Possibly you made a copy-paste mistake.'),
-                code='jwt-decode-error'
-            )
-
-        try:
-            jwt_secret = JWTSecret.objects.get(identifier=header['client_identifier'])
-        except JWTSecret.DoesNotExist:
-            raise PermissionDenied(
-                'Client identifier bestaat niet',
-                code='invalid-client-identifier'
-            )
-        except KeyError:
-            raise PermissionDenied(
-                'Client identifier is niet aanwezig in JWT',
-                code='missing-client-identifier'
-            )
-        else:
-            key = jwt_secret.secret
-
-        # the jwt package does verification against tampering (TODO: unit test)
-        try:
-            payload = jwt.decode(self.encoded, key, algorithms='HS256')
-        except jwt.InvalidSignatureError as exc:
-            logger.exception("Invalid signature - possible payload tampering?")
-            raise PermissionDenied(
-                'Client credentials zijn niet geldig',
-                code='invalid-jwt-signature'
-            )
-
-        res = payload.get('zds', EMPTY_PAYLOAD)
-        res['client_id'] = header['client_identifier']
-
-        return res
-
-    def has_scopes(self, scopes: Union[Scope, None]) -> bool:
-        """
-        Check whether all of the expected scopes are present or not.
-        """
-        if scopes is None:
-            # TODO: should block instead of allow it - we'll gradually introduce this
-            return True
-
-        scopes_provided = self.payload.get('scopes', [])
-        logger.debug("Scopes provided are: %s", scopes)
-        # simple form - needs a more complex setup if a scope 'bundles'
-        # other scopes
-        return scopes.is_contained_in(scopes_provided)
 
 
 class JWTAuth:
@@ -228,7 +149,7 @@ class JWTAuth:
             # check signature of the token
             try:
                 payload = jwt.decode(self.encoded, key, algorithms='HS256')
-            except jwt.InvalidSignatureError as exc:
+            except jwt.InvalidSignatureError:
                 logger.exception("Invalid signature - possible payload tampering?")
                 raise PermissionDenied(
                     'Client credentials zijn niet geldig',
@@ -317,7 +238,6 @@ class AuthMiddleware:
         else:
             encoded = None
 
-        request.jwt_payload = JWTPayload(encoded)
         request.jwt_auth = JWTAuth(encoded)
 
 
