@@ -16,59 +16,59 @@ HEADER_AUDIT = 'X-Audit-Toelichting'
 
 
 class VertrouwelijkheidsAanduiding(DjangoChoices):
-    openbaar = ChoiceItem('openbaar', 'OPENBAAR')
-    beperkt_openbaar = ChoiceItem('beperkt openbaar', 'BEPERKT OPENBAAR')
-    intern = ChoiceItem('intern', 'INTERN')
-    zaakvertrouwelijk = ChoiceItem('zaakvertrouwelijk', 'ZAAKVERTROUWELIJK')
-    vertrouwelijk = ChoiceItem('vertrouwelijk', 'VERTROUWELIJK')
-    confidentieel = ChoiceItem('confidentieel', 'CONFIDENTIEEL')
-    geheim = ChoiceItem('geheim', 'GEHEIM')
-    zeer_geheim = ChoiceItem('zeer geheim', 'ZEER GEHEIM')
+    openbaar = ChoiceItem('openbaar', 'Openbaar')
+    beperkt_openbaar = ChoiceItem('beperkt_openbaar', 'Beperkt openbaar')
+    intern = ChoiceItem('intern', 'Intern')
+    zaakvertrouwelijk = ChoiceItem('zaakvertrouwelijk', 'Zaakvertrouwelijk')
+    vertrouwelijk = ChoiceItem('vertrouwelijk', 'Vertrouwelijk')
+    confidentieel = ChoiceItem('confidentieel', 'Confidentieel')
+    geheim = ChoiceItem('geheim', 'Geheim')
+    zeer_geheim = ChoiceItem('zeer_geheim', 'Zeer geheim')
 
 
 class RolOmschrijving(DjangoChoices):
     adviseur = ChoiceItem(
-        'Adviseur', 'Adviseur',
+        'adviseur', 'Adviseur',
         description='Kennis in dienst stellen van de behandeling van (een deel van) een zaak.'
     )
     behandelaar = ChoiceItem(
-        'Behandelaar', 'Behandelaar',
+        'behandelaar', 'Behandelaar',
         description='De vakinhoudelijke behandeling doen van (een deel van) een zaak.'
     )
     belanghebbende = ChoiceItem(
-        'Belanghebbende', 'Belanghebbende',
+        'belanghebbende', 'Belanghebbende',
         description='Vanuit eigen en objectief belang rechtstreeks betrokken '
                     'zijn bij de behandeling en/of de uitkomst van een zaak.'
     )
     beslisser = ChoiceItem(
-        'Beslisser', 'Beslisser',
+        'beslisser', 'Beslisser',
         description='Nemen van besluiten die voor de uitkomst van een zaak noodzakelijk zijn.'
     )
     initiator = ChoiceItem(
-        'Initiator', 'Initiator',
+        'initiator', 'Initiator',
         description='Aanleiding geven tot de start van een zaak ..'
     )
     klantcontacter = ChoiceItem(
-        'Klantcontacter', 'Klantcontacter',
+        'klantcontacter', 'Klantcontacter',
         description='Het eerste aanspreekpunt zijn voor vragen van burgers en bedrijven ..'
     )
     zaakcoordinator = ChoiceItem(
-        'Zaakcoördinator', 'Zaakcoördinator',
+        'zaakcoordinator', 'Zaakcoördinator',
         description='Er voor zorg dragen dat de behandeling van de zaak in samenhang '
                     'uitgevoerd wordt conform de daarover gemaakte afspraken.'
     )
     medeinitiator = ChoiceItem(
-        'Mede-initiator', 'Mede-initiator',
+        'mede_initiator', 'Mede-initiator',
         description=''
     )
 
 
 class RolTypes(DjangoChoices):
-    natuurlijk_persoon = ChoiceItem('Natuurlijk persoon', "Natuurlijk persoon")
-    niet_natuurlijk_persoon = ChoiceItem('Niet-natuurlijk persoon', "Niet-natuurlijk persoon")
-    vestiging = ChoiceItem('Vestiging', "Vestiging")
-    organisatorische_eenheid = ChoiceItem('Organisatorische eenheid', "Organisatorische eenheid")
-    medewerker = ChoiceItem('Medewerker', "Medewerker")
+    natuurlijk_persoon = ChoiceItem('natuurlijk_persoon', "Natuurlijk persoon")
+    niet_natuurlijk_persoon = ChoiceItem('niet_natuurlijk_persoon', "Niet-natuurlijk persoon")
+    vestiging = ChoiceItem('vestiging', "Vestiging")
+    organisatorische_eenheid = ChoiceItem('organisatorische_eenheid', "Organisatorische eenheid")
+    medewerker = ChoiceItem('medewerker', "Medewerker")
 
 
 class ObjectTypes(DjangoChoices):
@@ -183,52 +183,52 @@ class ZaakobjectTypes(DjangoChoices):
     adres = ChoiceItem('adres', 'Adres')
     besluit = ChoiceItem('besluit', 'Besluit')
     buurt = ChoiceItem('buurt', 'Buurt')
-    enkelvoudigDocument = ChoiceItem('enkelvoudigDocument', 'Enkelvoudig document')
+    enkelvoudig_document = ChoiceItem('enkelvoudig_document', 'Enkelvoudig document')
     gemeente = ChoiceItem('gemeente', 'Gemeente')
-    gemeentelijkeOpenbareRuimte = ChoiceItem('gemeentelijkeOpenbareRuimte', 'Gemeentelijke openbare ruimte')
+    gemeentelijke_openbare_ruimte = ChoiceItem('gemeentelijke_openbare_ruimte', 'Gemeentelijke openbare ruimte')
     huishouden = ChoiceItem('huishouden', 'Huishouden')
     inrichtingselement = ChoiceItem('inrichtingselement', 'Inrichtingselement')
-    kadastraleOnroerendeZaak = ChoiceItem('kadastraleOnroerendeZaak', 'Kadastrale onroerende zaak')
+    kadastrale_onroerende_zaak = ChoiceItem('kadastrale_onroerende_zaak', 'Kadastrale onroerende zaak')
     kunstwerkdeel = ChoiceItem('kunstwerkdeel', 'Kunstwerkdeel')
-    maatschappelijkeActiviteit = ChoiceItem('maatschappelijkeActiviteit', 'Maatschappelijke activiteit')
+    maatschappelijke_activiteit = ChoiceItem('maatschappelijke_activiteit', 'Maatschappelijke activiteit')
     medewerker = ChoiceItem('medewerker', 'Medewerker')
-    natuurlijkPersoon = ChoiceItem('natuurlijkPersoon', 'Natuurlijk persoon')
-    nietNatuurlijkPersoon = ChoiceItem('nietNatuurlijkPersoon', 'Niet-natuurlijk persoon')
-    openbareRuimte = ChoiceItem('openbareRuimte', 'Openbare ruimte')
-    organisatorischeEenheid = ChoiceItem('organisatorischeEenheid', 'Organisatorische eenheid')
+    natuurlijk_persoon = ChoiceItem('natuurlijk_persoon', 'Natuurlijk persoon')
+    niet_natuurlijk_persoon = ChoiceItem('niet_natuurlijk_persoon', 'Niet-natuurlijk persoon')
+    openbare_ruimte = ChoiceItem('openbare_ruimte', 'Openbare ruimte')
+    organisatorische_eenheid = ChoiceItem('organisatorische_eenheid', 'Organisatorische eenheid')
     pand = ChoiceItem('pand', 'Pand')
     spoorbaandeel = ChoiceItem('spoorbaandeel', 'Spoorbaandeel')
     status = ChoiceItem('status', 'Status')
     terreindeel = ChoiceItem('terreindeel', 'Terreindeel')
-    terreinGebouwdObject = ChoiceItem('terreinGebouwdObject', 'Terrein gebouwd object')
+    terrein_gebouwd_object = ChoiceItem('terrein_gebouwd_object', 'Terrein gebouwd object')
     vestiging = ChoiceItem('vestiging', 'Vestiging')
     waterdeel = ChoiceItem('waterdeel', 'Waterdeel')
     wegdeel = ChoiceItem('wegdeel', 'Wegdeel')
     wijk = ChoiceItem('wijk', 'Wijk')
     woonplaats = ChoiceItem('woonplaats', 'Woonplaats')
-    wozDeelobject = ChoiceItem('wozDeelobject', 'Woz deel object')
-    wozObject = ChoiceItem('wozObject', 'Woz object')
-    wozWaarde = ChoiceItem('wozWaarde', 'Woz waarde')
-    zakelijkRecht = ChoiceItem('zakelijkRecht', 'Zakelijk recht')
+    woz_deelobject = ChoiceItem('woz_deelobject', 'Woz deel object')
+    woz_object = ChoiceItem('woz_object', 'Woz object')
+    woz_waarde = ChoiceItem('woz_waarde', 'Woz waarde')
+    zakelijk_recht = ChoiceItem('zakelijk_recht', 'Zakelijk recht')
     overige = ChoiceItem('overige', 'Overige')
 
 
 class ComponentTypes(DjangoChoices):
-    ac = ChoiceItem('AC', 'Autorisatiecomponent')
-    nc = ChoiceItem('NRC', 'Notificatierouteringcomponent')
-    zrc = ChoiceItem('ZRC', 'Zaakregistratiecomponent')
-    ztc = ChoiceItem('ZTC', 'Zaaktypecatalogus')
-    drc = ChoiceItem('DRC', 'Documentregistratiecomponent')
-    brc = ChoiceItem('BRC', 'Besluitregistratiecomponent')
+    ac = ChoiceItem('ac', 'Autorisatiecomponent')
+    nrc = ChoiceItem('nrc', 'Notificatierouteringcomponent')
+    zrc = ChoiceItem('zrc', 'Zaakregistratiecomponent')
+    ztc = ChoiceItem('ztc', 'Zaaktypecatalogus')
+    drc = ChoiceItem('drc', 'Documentregistratiecomponent')
+    brc = ChoiceItem('brc', 'Besluitregistratiecomponent')
 
 
 class CommonResourceAction(DjangoChoices):
-    create = ChoiceItem('create', _("aangemaakt"))
-    list = ChoiceItem('list', _("opgehaald"))
-    retrieve = ChoiceItem('retrieve', _("opgehaald"))
-    destroy = ChoiceItem('destroy', _("verwijderd"))
-    update = ChoiceItem('update', _("bijgewerkt"))
-    partial_update = ChoiceItem('partial_update', _("deels bijgewerkt"))
+    create = ChoiceItem('create', _("Object aangemaakt"))
+    list = ChoiceItem('list', _("Lijst van objecten opgehaald"))
+    retrieve = ChoiceItem('retrieve', _("Object opgehaald"))
+    destroy = ChoiceItem('destroy', _("Object verwijderd"))
+    update = ChoiceItem('update', _("Object bijgewerkt"))
+    partial_update = ChoiceItem('partial_update', _("Object deels bijgewerkt"))
 
 
 class RelatieAarden(DjangoChoices):
