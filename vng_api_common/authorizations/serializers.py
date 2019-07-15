@@ -9,6 +9,7 @@ from ..constants import ComponentTypes
 from ..polymorphism import Discriminator, PolymorphicSerializer
 from ..serializers import add_choice_values_help_text
 from .models import Applicatie, Autorisatie
+from .validators import UniqueClientIDValidator
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +78,9 @@ class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
                 'required': False,
             },
             'client_ids': {
-                'help_text': _("Lijst van consumer identifiers (hun 'client_id')"),
+                'validators': [UniqueClientIDValidator()],
+                'help_text': _("Lijst van consumer identifiers (hun 'client_id'). Een "
+                               "client_id mag slechts bij één applicate-object voorkomen."),
             }
         }
 
