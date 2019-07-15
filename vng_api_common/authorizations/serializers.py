@@ -80,7 +80,7 @@ class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
             'client_ids': {
                 'validators': [UniqueClientIDValidator()],
                 'help_text': _("Lijst van consumer identifiers (hun 'client_id'). Een "
-                               "client_id mag slechts bij één applicate-object voorkomen."),
+                               "`client_id` mag slechts bij één applicatie-object voorkomen."),
             }
         }
 
