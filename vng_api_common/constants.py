@@ -192,7 +192,7 @@ class ZaakobjectTypes(DjangoChoices):
     kunstwerkdeel = ChoiceItem('kunstwerkdeel', 'Kunstwerkdeel')
     maatschappelijke_activiteit = ChoiceItem('maatschappelijke_activiteit', 'Maatschappelijke activiteit')
     medewerker = ChoiceItem('medewerker', 'Medewerker')
-    natuurlijkPersoon = ChoiceItem('natuurlijk_persoon', 'Natuurlijk persoon')
+    natuurlijk_persoon = ChoiceItem('natuurlijk_persoon', 'Natuurlijk persoon')
     niet_natuurlijk_persoon = ChoiceItem('niet_natuurlijk_persoon', 'Niet-natuurlijk persoon')
     openbare_ruimte = ChoiceItem('openbare_ruimte', 'Openbare ruimte')
     organisatorische_eenheid = ChoiceItem('organisatorische_eenheid', 'Organisatorische eenheid')
@@ -209,7 +209,7 @@ class ZaakobjectTypes(DjangoChoices):
     woz_deelobject = ChoiceItem('woz_deelobject', 'Woz deel object')
     woz_object = ChoiceItem('woz_object', 'Woz object')
     woz_waarde = ChoiceItem('woz_waarde', 'Woz waarde')
-    zakelijkRecht = ChoiceItem('zakelijk_recht', 'Zakelijk recht')
+    zakelijk_recht = ChoiceItem('zakelijk_recht', 'Zakelijk recht')
     overige = ChoiceItem('overige', 'Overige')
 
 
