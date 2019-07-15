@@ -6,7 +6,6 @@ from typing import List, Union
 from django.conf import settings
 from django.db import models, transaction
 from django.db.models import QuerySet
-from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
 import jwt
