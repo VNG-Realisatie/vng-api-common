@@ -4,12 +4,12 @@ from django.utils.translation import ugettext as _
 
 from drf_extra_fields.fields import Base64FieldMixin
 from drf_yasg import openapi
-from drf_yasg.inspectors import FieldInspector, NotHandled, ViewInspector
+from drf_yasg.inspectors import FieldInspector, NotHandled, ViewInspector, CamelCaseJSONFilter
 from drf_yasg.utils import filter_none, get_serializer_ref_name
 from rest_framework import serializers
 
 
-class FileFieldInspector(FieldInspector):
+class FileFieldInspector(CamelCaseJSONFilter):
 
     def get_schema(self, serializer):
         if self.method not in ViewInspector.body_methods:
@@ -98,7 +98,7 @@ class FileFieldInspector(FieldInspector):
             # Provide an option to add manual paremeters to a schema
             # for example, to add examples
             # self.add_manual_fields(serializer, result)
-            return result
+            return self.process_result(result, None, None)
 
         if not ref_name or not use_references:
             return make_schema_definition()
