@@ -87,7 +87,7 @@ HTTP_STATUS_CODE_TITLES = {
     status.HTTP_401_UNAUTHORIZED: 'Unauthorized',
     status.HTTP_402_PAYMENT_REQUIRED: 'Payment required',
     status.HTTP_403_FORBIDDEN: 'Forbidden',
-    status.HTTP_404_NOT_FOUND: 'Not_found',
+    status.HTTP_404_NOT_FOUND: 'Not found',
     status.HTTP_405_METHOD_NOT_ALLOWED: 'Method not allowed',
     status.HTTP_406_NOT_ACCEPTABLE: 'Not acceptable',
     status.HTTP_407_PROXY_AUTHENTICATION_REQUIRED: 'Proxy authentication required',

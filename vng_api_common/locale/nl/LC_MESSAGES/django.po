@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-11 11:21+0200\n"
+"POT-Creation-Date: 2019-07-18 07:04-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,71 +33,71 @@ msgid ""
 msgstr ""
 
 #: audittrails/models.py:16
-msgid "Unieke identificatie van de audit regel"
+msgid "Unieke identificatie van de audit regel."
 msgstr ""
 
 #: audittrails/models.py:20
-msgid "De naam van het component waar de wijziging in is gedaan"
+msgid "De naam van het component waar de wijziging in is gedaan."
 msgstr ""
 
 #: audittrails/models.py:25
-msgid "De uitgevoerde handeling"
+msgid "De uitgevoerde handeling."
 msgstr ""
 
 #: audittrails/models.py:30
-msgid "Vriendelijke naam van de actie"
+msgid "Vriendelijke naam van de actie."
 msgstr ""
 
 #: audittrails/models.py:33
-msgid "HTTP status code van de API response van de uitgevoerde handeling"
+msgid "HTTP status code van de API response van de uitgevoerde handeling."
 msgstr ""
 
 #: audittrails/models.py:38
-msgid "De URL naar het hoofdobject van een component"
+msgid "De URL naar het hoofdobject van een component."
 msgstr ""
 
 #: audittrails/models.py:42
-msgid "Het type resource waarop de actie gebeurde"
+msgid "Het type resource waarop de actie gebeurde."
 msgstr ""
 
 #: audittrails/models.py:46
-msgid "De URL naar het object"
+msgid "De URL naar het object."
 msgstr ""
 
 #: audittrails/models.py:50
-msgid "De datum waarop de handeling is gedaan"
+msgid "De datum waarop de handeling is gedaan."
 msgstr ""
 
 #: audittrails/models.py:54
-msgid "Vriendelijke identificatie van het object"
+msgid "Vriendelijke identificatie van het object."
 msgstr ""
 
 #: audittrails/models.py:59
-msgid "Unieke identificatie van de applicatie, binnen de organisatie"
+msgid "Unieke identificatie van de applicatie, binnen de organisatie."
 msgstr ""
 
 #: audittrails/models.py:64
-msgid "Vriendelijke naam van de applicatie"
+msgid "Vriendelijke naam van de applicatie."
 msgstr ""
 
 #: audittrails/models.py:69
 msgid ""
 "Volledige JSON body van het object zoals dat bestond voordat de actie heeft "
-"plaatsgevonden"
+"plaatsgevonden."
 msgstr ""
 
 #: audittrails/models.py:74
-msgid "Volledige JSON body van het object na de actie"
+msgid "Volledige JSON body van het object na de actie."
 msgstr ""
 
 #: audittrails/models.py:80
 msgid ""
 "Unieke identificatie van de gebruiker die binnen de organisatie herleid kan "
-"worden naar een persoon"
+"worden naar een persoon."
 msgstr ""
 
 #: audittrails/models.py:86
-msgid "Vriendelijke naam van de gebruiker"
+msgid "Vriendelijke naam van de gebruiker."
 msgstr ""
 
 #: audittrails/models.py:89
@@ -105,7 +105,7 @@ msgid "toelichting"
 msgstr ""
 
 #: audittrails/models.py:91
-msgid "Toelichting waarom de handeling is uitgevoerd"
+msgid "Toelichting waarom de handeling is uitgevoerd."
 msgstr ""
 
 #: authorizations/models.py:16 authorizations/models.py:63
@@ -184,22 +184,29 @@ msgstr ""
 msgid "Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief)."
 msgstr ""
 
-#: authorizations/serializers.py:46
+#: authorizations/serializers.py:47
 msgid ""
 "Lijst van scope labels. Elke scope geeft toegang tot een set van acties/"
 "operaties, zoals gedocumenteerd bij de betreffende component."
 msgstr ""
 
-#: authorizations/serializers.py:80
-msgid "Lijst van consumer identifiers (hun 'client_id')"
+#: authorizations/serializers.py:82
+msgid ""
+"Lijst van consumer identifiers (hun 'client_id'). Een `client_id` mag "
+"slechts bij één applicatie-object voorkomen."
 msgstr ""
 
-#: authorizations/serializers.py:100
+#: authorizations/serializers.py:103
 msgid "Either autorisaties or heeft_alle_autorisaties can be specified"
 msgstr ""
 
-#: authorizations/serializers.py:105
+#: authorizations/serializers.py:108
 msgid "Either autorisaties or heeft_alle_autorisaties should be specified"
+msgstr ""
+
+#: authorizations/validators.py:12
+#, python-brace-format
+msgid "The clientID(s) {client_id} are already used in application(s) {app_id}"
 msgstr ""
 
 #: constants.py:75
@@ -339,23 +346,27 @@ msgid ""
 msgstr ""
 
 #: constants.py:226
-msgid "aangemaakt"
+msgid "Object aangemaakt"
 msgstr ""
 
-#: constants.py:227 constants.py:228
-msgid "opgehaald"
+#: constants.py:227
+msgid "Lijst van objecten opgehaald"
+msgstr ""
+
+#: constants.py:228
+msgid "Object opgehaald"
 msgstr ""
 
 #: constants.py:229
-msgid "verwijderd"
+msgid "Object verwijderd"
 msgstr ""
 
 #: constants.py:230
-msgid "bijgewerkt"
+msgid "Object bijgewerkt"
 msgstr ""
 
 #: constants.py:231
-msgid "deels bijgewerkt"
+msgid "Object deels bijgewerkt"
 msgstr ""
 
 #: constants.py:235
@@ -399,11 +410,11 @@ msgstr "Invalide resourcetype opgegeven, verwachtte %r"
 msgid "Invalid resource URL supplied"
 msgstr "Ongeldige resource URL opgegeven"
 
-#: inspectors/files.py:36
+#: inspectors/files.py:38
 msgid "Base64 encoded binary content."
 msgstr "Binaire inhoud, in base64 geëncodeerd."
 
-#: inspectors/files.py:42
+#: inspectors/files.py:44
 msgid "Download URL of the binary content."
 msgstr "Download URL van de binaire inhoud."
 
@@ -412,37 +423,31 @@ msgstr "Download URL van de binaire inhoud."
 msgid "URL to the related {resource}"
 msgstr "URL naar de/het gerelateerde {resource}"
 
-#: inspectors/view.py:131
+#: inspectors/view.py:129
 msgid "Application that performs request"
 msgstr ""
 "Identificatie van de applicatie die het verzoek stuurt (indien NLX wordt "
 "gebruikt)."
 
-#: inspectors/view.py:138
+#: inspectors/view.py:136
 msgid "Identifier of the user that performs request"
 msgstr ""
 "Identificatie van de gebruiker die het verzoek stuurt (indien NLX wordt "
 "gebruikt)."
 
-#: inspectors/view.py:145
+#: inspectors/view.py:143
 msgid "Explanation why the request is done"
 msgstr "Toelichting waarom een bepaald verzoek wordt gedaan"
 
-#: inspectors/view.py:429
+#: inspectors/view.py:426
 msgid "A page number within the paginated result set."
 msgstr "Een pagina binnen de gepagineerde set resultaten."
 
-#: inspectors/view.py:430
+#: inspectors/view.py:427
 msgid "Number of results to return per page."
 msgstr "Het aantal resultaten terug te geven per pagina."
 
-#: middleware.py:59 middleware.py:189 middleware.py:202
-msgid "JWT could not be decoded. Possibly you made a copy-paste mistake."
-msgstr ""
-"Het JWT kon niet gedecodeerd worden. Mogelijks heb je een copy-paste fout "
-"gemaakt"
-
-#: middleware.py:151
+#: middleware.py:71
 msgid ""
 "Component could not authenticate against the AC - authorizations could not "
 "be retrieved"
@@ -450,7 +455,13 @@ msgstr ""
 "De component kon zich niet autoriseren met het AC - de autorisaties konden "
 "daardoor niet opgehaald worden."
 
-#: middleware.py:214
+#: middleware.py:109 middleware.py:122
+msgid "JWT could not be decoded. Possibly you made a copy-paste mistake."
+msgstr ""
+"Het JWT kon niet gedecodeerd worden. Mogelijks heb je een copy-paste fout "
+"gemaakt"
+
+#: middleware.py:134
 msgid ""
 "The support of authorization old format will be terminated soon. Please use "
 "a new format with the separate Authorization Component"

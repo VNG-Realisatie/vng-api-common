@@ -13,7 +13,7 @@ __all__ = [
     'NOTIFICATIONS_DISABLED',
 ]
 
-API_VERSION = '1.0.0-alpha'  # semantic version
+API_VERSION = '1.0.0-rc1'  # semantic version
 
 BASE_REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
