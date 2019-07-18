@@ -5,8 +5,13 @@ from vng_api_common.notifications.api.views import (
 )
 
 
+class Schema(swagger_settings.DEFAULT_AUTO_SCHEMA_CLASS):
+    def get_security(self):
+        return []
+
+
 class NotificationView(_NotificationView):
     """
     Ontvang notificaties via webhook
     """
-    swagger_schema = swagger_settings.DEFAULT_AUTO_SCHEMA_CLASS
+    swagger_schema = Schema

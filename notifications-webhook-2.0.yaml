@@ -14,7 +14,7 @@ securityDefinitions: {}
 paths:
   /{webhooks_path}:
     post:
-      operationId: notification_receive
+      operationId: create
       description: Ontvang notificaties via webhook
       parameters:
         - name: data
@@ -23,16 +23,23 @@ paths:
           schema:
             $ref: '#/definitions/Notificatie'
       responses:
-        '204':
-          description: ''
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/Notificatie'
           headers:
             API-version:
               schema:
                 type: string
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
         '400':
-          description: ''
+          description: Bad request
           schema:
             $ref: '#/definitions/ValidatieFout'
           headers:
@@ -42,7 +49,7 @@ paths:
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
         '401':
-          description: ''
+          description: Unauthorized
           schema:
             $ref: '#/definitions/Fout'
           headers:
@@ -52,7 +59,47 @@ paths:
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
         '403':
-          description: ''
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Fout'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '406':
+          description: Not acceptable
+          schema:
+            $ref: '#/definitions/Fout'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '409':
+          description: Conflict
+          schema:
+            $ref: '#/definitions/Fout'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '410':
+          description: Gone
+          schema:
+            $ref: '#/definitions/Fout'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '415':
+          description: Unsupported media type
           schema:
             $ref: '#/definitions/Fout'
           headers:
@@ -62,7 +109,7 @@ paths:
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
         '429':
-          description: ''
+          description: Too many requests
           schema:
             $ref: '#/definitions/Fout'
           headers:
@@ -72,27 +119,7 @@ paths:
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
         '500':
-          description: ''
-          schema:
-            $ref: '#/definitions/Fout'
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-        '502':
-          description: ''
-          schema:
-            $ref: '#/definitions/Fout'
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-        '503':
-          description: ''
+          description: Internal server error
           schema:
             $ref: '#/definitions/Fout'
           headers:
@@ -102,7 +129,8 @@ paths:
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
       tags:
-        - Notificaties
+        - create
+      security: []
     parameters:
       - name: webhooks_path
         in: path
@@ -155,71 +183,6 @@ definitions:
           type: string
           maxLength: 1000
           minLength: 1
-  FieldValidationError:
-    required:
-      - name
-      - code
-      - reason
-    type: object
-    properties:
-      name:
-        title: Name
-        description: Naam van het veld met ongeldige gegevens
-        type: string
-        minLength: 1
-      code:
-        title: Code
-        description: Systeemcode die het type fout aangeeft
-        type: string
-        minLength: 1
-      reason:
-        title: Reason
-        description: Uitleg wat er precies fout is met de gegevens
-        type: string
-        minLength: 1
-  ValidatieFout:
-    required:
-      - code
-      - title
-      - status
-      - detail
-      - instance
-      - invalid-params
-    type: object
-    properties:
-      type:
-        title: Type
-        description: URI referentie naar het type fout, bedoeld voor developers
-        type: string
-      code:
-        title: Code
-        description: Systeemcode die het type fout aangeeft
-        type: string
-        minLength: 1
-      title:
-        title: Title
-        description: Generieke titel voor het type fout
-        type: string
-        minLength: 1
-      status:
-        title: Status
-        description: De HTTP status code
-        type: integer
-      detail:
-        title: Detail
-        description: Extra informatie bij de fout, indien beschikbaar
-        type: string
-        minLength: 1
-      instance:
-        title: Instance
-        description: URI met referentie naar dit specifiek voorkomen van de fout.
-          Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
-        type: string
-        minLength: 1
-      invalid-params:
-        type: array
-        items:
-          $ref: '#/definitions/FieldValidationError'
   Fout:
     required:
       - code
@@ -258,3 +221,68 @@ definitions:
           Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
         type: string
         minLength: 1
+  FieldValidationError:
+    required:
+      - name
+      - code
+      - reason
+    type: object
+    properties:
+      name:
+        title: Name
+        description: Naam van het veld met ongeldige gegevens
+        type: string
+        minLength: 1
+      code:
+        title: Code
+        description: Systeemcode die het type fout aangeeft
+        type: string
+        minLength: 1
+      reason:
+        title: Reason
+        description: Uitleg wat er precies fout is met de gegevens
+        type: string
+        minLength: 1
+  ValidatieFout:
+    required:
+      - code
+      - title
+      - status
+      - detail
+      - instance
+      - invalidParams
+    type: object
+    properties:
+      type:
+        title: Type
+        description: URI referentie naar het type fout, bedoeld voor developers
+        type: string
+      code:
+        title: Code
+        description: Systeemcode die het type fout aangeeft
+        type: string
+        minLength: 1
+      title:
+        title: Title
+        description: Generieke titel voor het type fout
+        type: string
+        minLength: 1
+      status:
+        title: Status
+        description: De HTTP status code
+        type: integer
+      detail:
+        title: Detail
+        description: Extra informatie bij de fout, indien beschikbaar
+        type: string
+        minLength: 1
+      instance:
+        title: Instance
+        description: URI met referentie naar dit specifiek voorkomen van de fout.
+          Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
+        type: string
+        minLength: 1
+      invalidParams:
+        type: array
+        items:
+          $ref: '#/definitions/FieldValidationError'
