@@ -3,10 +3,13 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import ObjectDoesNotExist
+from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import permissions
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.request import Request
+from rest_framework.serializers import ValidationError
 
 from .scopes import Scope
 from .utils import get_resource_for_path
@@ -80,7 +83,15 @@ class BaseAuthRequired(permissions.BasePermission):
         scopes_required = get_required_scopes(view)
 
         if view.action == 'create':
-            main_obj = self._get_obj(view, request)
+            try:
+                main_obj = self._get_obj(view, request)
+            except ObjectDoesNotExist:
+                raise ValidationError({
+                    self.obj_path: ValidationError(
+                        _('The object does not exist in the database'),
+                        code='object-does-not-exist'
+                    ).detail
+                })
             fields = {k: self._extract_field_value(main_obj, k) for k in self.permission_fields}
             return request.jwt_auth.has_auth(scopes_required, **fields)
 
