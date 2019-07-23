@@ -68,16 +68,16 @@ def obj_has_shape(obj: Union[list, dict], schema: dict, resource: str) -> bool:
 
         value = obj[prop]
 
+        # TODO Handling references not yet implemented
+        if '$ref' in prop_schema:
+            continue
+
         # Allow None if property is nullable
         if value is None:
             if prop_schema.get('nullable', False):
                 continue
             else:
                 return False
-
-        # TODO Handling references not yet implemented
-        if '$ref' in prop_schema:
-            continue
 
         expected_type = TYPE_MAP[prop_schema['type']]
 
