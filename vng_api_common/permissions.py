@@ -87,6 +87,8 @@ class BaseAuthRequired(permissions.BasePermission):
                 main_obj = self._get_obj(view, request)
             except ObjectDoesNotExist:
                 raise ValidationError({
+                    # using self.obj_path here ASSUMES that the same serializer is used
+                    # for input as output
                     self.obj_path: ValidationError(
                         _('The object does not exist in the database'),
                         code='object-does-not-exist'
