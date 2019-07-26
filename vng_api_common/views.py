@@ -1,3 +1,4 @@
+import logging
 from collections import OrderedDict
 
 from django.apps import apps
@@ -7,7 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView
 
 import requests
-from rest_framework import exceptions as drf_exceptions
+from rest_framework import exceptions as drf_exceptions, status
+from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exception_handler
 from zds_client import ClientError
 
@@ -15,6 +17,9 @@ from . import exceptions
 from .constants import ComponentTypes
 from .exception_handling import HandledException
 from .scopes import SCOPE_REGISTRY
+
+logger = logging.getLogger(__name__)
+sentry_logger = logging.getLogger("sentry")
 
 ERROR_CONTENT_TYPE = 'application/problem+json'
 
@@ -25,7 +30,11 @@ def exception_handler(exc, context):
     """
     response = drf_exception_handler(exc, context)
     if response is None:
-        return
+        # unkown type, so we use the generic Internal Server Error
+        logger.exception(exc.args[0], exc_info=1)
+        sentry_logger.exception(exc.args[0], exc_info=1)
+        exc = drf_exceptions.APIException("Internal Server Error")
+        response = Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     request = context.get('request')
 
