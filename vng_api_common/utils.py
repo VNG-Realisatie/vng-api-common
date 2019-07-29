@@ -148,3 +148,18 @@ def get_help_text(model_string: str, field_name: str) -> str:
     ModelClass = apps.get_model(model_string, require_ready=False)
     field = ModelClass._meta.get_field(field_name)
     return field.help_text
+
+
+def notification_documentation(kanaal):
+    """
+    Generate notification documentation for an OpenAPI specification containing
+    the relevant resources and actions for a given KANAAL
+    """
+    doc = "### Notificaties\n\n"
+    doc += f"Deze API publiceert notificaties op het kanaal `{kanaal.label}`.\n\n"
+    doc += f"""{kanaal.description}"""
+    doc += """\n\n**Resources en acties**\n\n"""
+
+    for resource, actions in kanaal.get_usage():
+        doc += f"""- `{resource}`: {', '.join(actions)}\n"""
+    return doc
