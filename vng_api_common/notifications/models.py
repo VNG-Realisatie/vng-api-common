@@ -14,7 +14,7 @@ from .constants import (
 )
 
 
-@field_default('api_root', 'https://ref.tst.vng.cloud/nrc/api/v1')
+@field_default('api_root', 'https://notificaties-api.vng.cloud/api/v1/')
 class NotificationsConfig(ClientConfig):
     class Meta:
         verbose_name = _("Notificatiescomponentconfiguratie")

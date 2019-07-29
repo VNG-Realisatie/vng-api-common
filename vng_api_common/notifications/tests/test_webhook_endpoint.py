@@ -25,9 +25,9 @@ class WebhookTests(JWTAuthMixin, APITestCase):
     def test_receive_nofication(self):
         data = {
             "kanaal": "zaken",
-            "hoofdObject": "https://ref.tst.vng.cloud/zrc/api/v1/zaken/d7a22",
+            "hoofdObject": "https://zaken-api.vng.cloud/api/v1/zaken/d7a22",
             "resource": "status",
-            "resourceUrl": "https://ref.tst.vng.cloud/zrc/api/v1/statussen/d7a22/721c9",
+            "resourceUrl": "https://zaken-api.vng.cloud/api/v1/statussen/d7a22/721c9",
             "actie": "create",
             "aanmaakdatum": "2018-01-01T17:00:00Z",
             "kenmerken": {
