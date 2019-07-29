@@ -34,7 +34,7 @@ def check_lowercased_constants(app_configs, **kwargs):
             warnings.append(Warning(
                 'Choices %s.%s has at least one value that is not lowercased/underscore ascii only' % (
                     klass.__module__, klass.__name__),
-                hint='Use ModelForm.Meta.fields instead',
+                hint='Lower case the values and replace dashes/spaces with underscores',
                 obj=klass,
                 id='vng_api_common.enums.W001'
             ))
