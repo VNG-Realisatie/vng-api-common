@@ -2,6 +2,14 @@ from typing import Union
 
 from django.http import HttpRequest
 
+try:
+    from raven.contrib.django.raven_compat.models import client as sentry_client
+except ImportError:
+    class Client:
+        def captureException(self):
+            pass
+    sentry_client = Client()
+
 
 def get_header(request: HttpRequest, header: str) -> Union[None, str]:
     """
