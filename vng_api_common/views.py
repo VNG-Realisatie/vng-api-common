@@ -14,12 +14,12 @@ from rest_framework.views import exception_handler as drf_exception_handler
 from zds_client import ClientError
 
 from . import exceptions
+from .compat import sentry_client
 from .constants import ComponentTypes
 from .exception_handling import HandledException
 from .scopes import SCOPE_REGISTRY
 
 logger = logging.getLogger(__name__)
-sentry_logger = logging.getLogger("sentry")
 
 ERROR_CONTENT_TYPE = 'application/problem+json'
 
@@ -30,9 +30,11 @@ def exception_handler(exc, context):
     """
     response = drf_exception_handler(exc, context)
     if response is None:
-        # unkown type, so we use the generic Internal Server Error
         logger.exception(exc.args[0], exc_info=1)
-        sentry_logger.exception(exc.args[0], exc_info=1)
+        # make sure the exception still ends up in Sentry
+        sentry_client.captureException()
+
+        # unkown type, so we use the generic Internal Server Error
         exc = drf_exceptions.APIException("Internal Server Error")
         response = Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
