@@ -23,6 +23,12 @@ logger = logging.getLogger(__name__)
 RE_UNDERSCORE = re.compile(r"[a-z]_[a-z]")
 
 
+def get_subclasses(cls):
+    for subclass in cls.__subclasses__():
+        yield from get_subclasses(subclass)
+        yield subclass
+
+
 def lookup_kwargs_to_filters(lookup_kwargs: dict, kwargs: dict) -> dict:
     """
     Using the lookup_kwargs map and the view kwargs, construct the queryset

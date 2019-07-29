@@ -25,6 +25,7 @@ class ZDSSchemaConfig(AppConfig):
     name = 'vng_api_common'
 
     def ready(self):
+        from . import checks  # noqa
         patch_duration_type()
         register_serializer_field()
 
