@@ -19,7 +19,10 @@ class Command(BaseCommand):
 
     def handle(self, **options):
         source = options['api-spec']
-        with open(source, 'r') as infile:
+
+        # Enforce the file to be read as UTF-8 to prevent any platform
+        # dependent encoding.
+        with open(source, 'r', encoding='utf8') as infile:
             spec = yaml.safe_load(infile)
 
         for path, methods in spec['paths'].items():
@@ -39,5 +42,5 @@ class Command(BaseCommand):
 
                     response['content'] = content
 
-        with open(source, 'w') as outfile:
+        with open(source, 'w', encoding='utf8') as outfile:
             yaml.dump(spec, outfile, default_flow_style=False)
