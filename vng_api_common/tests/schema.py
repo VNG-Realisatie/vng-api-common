@@ -13,6 +13,7 @@ DEFAULT_PATH_PARAMETERS = {
 SPEC_PATH = os.path.join(settings.BASE_DIR, 'src', 'openapi.yaml')
 
 
+@lru_cache()
 def get_spec(path=None) -> dict:
     spec_path = path or SPEC_PATH
     with open(spec_path, 'r') as infile:
