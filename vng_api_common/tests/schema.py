@@ -14,14 +14,13 @@ SPEC_PATH = os.path.join(settings.BASE_DIR, 'src', 'openapi.yaml')
 
 
 @lru_cache()
-def get_spec(path=None) -> dict:
-    spec_path = path or SPEC_PATH
+def get_spec(path: str = SPEC_PATH) -> dict:
     with open(spec_path, 'r') as infile:
         spec = yaml.safe_load(infile)
     return spec
 
 
-def get_operation_url(operation, spec_path=None, **kwargs):
+def get_operation_url(operation: str, spec_path: str = SPEC_PATH, **kwargs):
     """
     Look up the url of an operation from the API spec.
     """
