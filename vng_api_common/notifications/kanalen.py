@@ -2,7 +2,7 @@
 Provide notifications kanaal/exchange classes.
 """
 from collections import defaultdict
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import FieldDoesNotExist, Model
