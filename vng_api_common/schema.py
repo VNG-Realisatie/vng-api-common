@@ -82,6 +82,8 @@ class SchemaView(DefaultSchemaView):
       the code. Unfortunately, that's the tradeoff we have. We could set up
       CI to check for outdated schemas.
     """
+    schema_path = None
+
     @property
     def _is_openapi_v2(self) -> bool:
         default = '3' if 'format' in self.kwargs else '2'
@@ -93,13 +95,16 @@ class SchemaView(DefaultSchemaView):
             return super().get_renderers()
         return [renderer() for renderer in SPEC_RENDERERS]
 
+    def get_schema_path(self) -> str:
+        return self.schema_path or os.path.join(settings.BASE_DIR, 'src', 'openapi.yaml')
+
     def get(self, request, *args, **kwargs):
         if self._is_openapi_v2:
             response = super().get(request, *args, **kwargs)
             return response
 
         # serve the staticically included V3 schema
-        SCHEMA_PATH = os.path.join(settings.BASE_DIR, 'src', 'openapi.yaml')
+        SCHEMA_PATH = self.get_schema_path()
         with open(SCHEMA_PATH, 'r') as infile:
             schema = yaml_sane_load(infile)
 
