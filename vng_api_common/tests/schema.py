@@ -15,7 +15,7 @@ SPEC_PATH = os.path.join(settings.BASE_DIR, 'src', 'openapi.yaml')
 
 @lru_cache()
 def get_spec(path: str = SPEC_PATH) -> dict:
-    with open(spec_path, 'r') as infile:
+    with open(path, 'r') as infile:
         spec = yaml.safe_load(infile)
     return spec
 
