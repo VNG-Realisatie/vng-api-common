@@ -1,12 +1,12 @@
 import logging
 import os
 
-from django.utils.module_loading import import_string
 from django.apps import apps
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.module_loading import import_string
 
 from drf_yasg import openapi
 from drf_yasg.app_settings import swagger_settings
