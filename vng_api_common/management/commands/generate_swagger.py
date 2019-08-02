@@ -1,6 +1,7 @@
 import logging
 import os
 
+from django.utils.module_loading import import_string
 from django.apps import apps
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
@@ -46,6 +47,18 @@ class Command(generate_swagger.Command):
         super().add_arguments(parser)
         parser.add_argument('--to-markdown-table', action='store_true')
 
+        parser.add_argument(
+            '--info', dest='info',
+            default=None,
+            help='Path to schema info object'
+        )
+
+        parser.add_argument(
+            '--urlconf', dest='urlconf',
+            default=None,
+            help='Urlconf for schema generator'
+        )
+
     def get_mock_request(self, *args, **kwargs):
         request = super().get_mock_request(*args, **kwargs)
         request.version = api_settings.DEFAULT_VERSION
@@ -57,11 +70,15 @@ class Command(generate_swagger.Command):
         super().write_schema(schema, stream, format)
 
     # need to overwrite the generator class...
-    def handle(self, output_file, overwrite, format, api_url, mock, user, private, *args, **options):
+    def handle(self, output_file, overwrite, format, api_url, mock, user, private, info=None, urlconf=None,
+               *args, **options):
         # disable logs of WARNING and below
         logging.disable(logging.WARNING)
 
-        info = getattr(swagger_settings, 'DEFAULT_INFO', None)
+        if info:
+            info = import_string(info)
+        else:
+            info = getattr(swagger_settings, 'DEFAULT_INFO', None)
         if not isinstance(info, openapi.Info):
             raise ImproperlyConfigured(
                 'settings.SWAGGER_SETTINGS["DEFAULT_INFO"] should be an '
@@ -92,7 +109,8 @@ class Command(generate_swagger.Command):
 
         generator = OpenAPISchemaGenerator(
             info=info,
-            url=api_url
+            url=api_url,
+            urlconf=urlconf
         )
         schema = generator.get_schema(request=request, public=not private)
 
