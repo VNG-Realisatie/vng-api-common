@@ -1,4 +1,5 @@
 import logging
+import os
 from collections import OrderedDict
 
 from django.apps import apps
@@ -30,6 +31,9 @@ def exception_handler(exc, context):
     """
     response = drf_exception_handler(exc, context)
     if response is None:
+        if os.getenv("DEBUG", "").lower() in ["yes", "1", "true"]:
+            return None
+
         logger.exception(exc.args[0], exc_info=1)
         # make sure the exception still ends up in Sentry
         sentry_client.captureException()
