@@ -115,7 +115,7 @@ class NotificationMixin(metaclass=NotificationMixinBase):
             'actie': self.action,
             'aanmaakdatum': timezone.now(),
             # each channel knows which kenmerken it has, so delegate this
-            'kenmerken': kanaal.get_kenmerken(main_object),
+            'kenmerken': kanaal.get_kenmerken(main_object, data),
         }
 
         # let the serializer & render machinery shape the data the way it
