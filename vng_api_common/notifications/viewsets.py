@@ -12,7 +12,7 @@ from rest_framework.permissions import SAFE_METHODS
 from rest_framework.routers import SimpleRouter
 from zds_client import ClientError
 
-from ..utils import get_resource_for_path
+from ..utils import get_resource_for_path, get_viewset_for_path
 from .api.serializers import NotificatieSerializer
 from .kanalen import Kanaal
 from .models import NotificationsConfig
@@ -101,11 +101,18 @@ class NotificationMixin(metaclass=NotificationMixinBase):
 
             main_object = resource
             main_object_url = data['url']
+            main_object_data = data
         else:
             # lookup the main object from the URL
             main_object_url = self.get_notification_main_object_url(data, kanaal)
             main_object_path = urlparse(main_object_url).path
             main_object = get_resource_for_path(main_object_path)
+
+            # get main_object data formatted by serializer
+            view = get_viewset_for_path(main_object_path)
+            serializer_class = view.serializer_class
+            serializer = serializer_class(main_object, context={'request': self.request})
+            main_object_data = serializer.data
 
         message_data = {
             'kanaal': kanaal.label,
@@ -115,7 +122,7 @@ class NotificationMixin(metaclass=NotificationMixinBase):
             'actie': self.action,
             'aanmaakdatum': timezone.now(),
             # each channel knows which kenmerken it has, so delegate this
-            'kenmerken': kanaal.get_kenmerken(main_object),
+            'kenmerken': kanaal.get_kenmerken(main_object, main_object_data),
         }
 
         # let the serializer & render machinery shape the data the way it
