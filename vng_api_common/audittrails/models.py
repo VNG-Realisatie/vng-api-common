@@ -15,10 +15,15 @@ class AuditTrail(models.Model):
         unique=True, default=uuid.uuid4,
         help_text=_("Unieke identificatie van de audit regel.")
     )
+    request_id = models.CharField(
+        max_length=255, blank=True,
+        help_text=_("Een globaal \"request\" ID om een verzoek door het "
+                    "netwerk heen te traceren.")
+    )
     bron = models.CharField(
         max_length=50,
         help_text=_("De naam van het component waar de wijziging in is gedaan."),
-        choices=ComponentTypes
+        choices=ComponentTypes.choices
     )
     actie = models.CharField(
         max_length=50,
@@ -94,3 +99,4 @@ class AuditTrail(models.Model):
         'oud': oud,
         'nieuw': nieuw,
     }, optional=['oud', 'nieuw'], none_for_empty=True)
+
