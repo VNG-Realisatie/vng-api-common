@@ -79,10 +79,14 @@ class AuditTrailMixin:
 
 
 class AuditTrailCreateMixin(AuditTrailMixin):
+    def get_audittrail_instance(self, response):
+        zaak_uuid = get_uuid_from_path(response.data['url'])
+        instance = self.get_queryset().get(uuid=zaak_uuid)
+        return instance
+
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
-        zaak_uuid = get_uuid_from_path(response.data['url'])
-        instance = self.queryset.get(uuid=zaak_uuid)
+        instance = self.get_audittrail_instance(response)
         self.create_audittrail(
             response.status_code,
             CommonResourceAction.create,
