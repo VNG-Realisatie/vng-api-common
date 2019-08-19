@@ -53,10 +53,13 @@ class AuditTrailMixin:
         if not user_id:
             user_id = get_header(self.request, 'X-NLX-Request-User-Id') or ""
 
+        request_id = get_header(self.request, 'X-NLX-Request-Id') or ""
+
         toelichting = get_header(self.request, 'X-Audit-Toelichting') or ""
 
         trail = AuditTrail(
             bron=self.audit.component_name,
+            request_id=request_id,
             applicatie_id=app_id,
             applicatie_weergave=app_presentation,
             actie=action,
