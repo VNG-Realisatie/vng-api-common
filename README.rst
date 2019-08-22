@@ -84,8 +84,7 @@ Features
 .. |pypi-version| image:: https://img.shields.io/pypi/v/vng-api-common.svg
     :target: https://pypi.org/project/vng-api-common/
 
-.. |black| image::https://img.shields.io/badge/code%20style-black-000000.svg
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
-    :alt: Code style: black
 
 .. _documentatie: https://vng-api-common.readthedocs.io/en/latest/?badge=latest
