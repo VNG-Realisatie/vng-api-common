@@ -5,14 +5,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('audittrails', '0009_auto_20190712_1643'),
-    ]
+    dependencies = [("audittrails", "0009_auto_20190712_1643")]
 
     operations = [
         migrations.AddField(
-            model_name='audittrail',
-            name='request_id',
-            field=models.CharField(blank=True, help_text='Een globaal "request" ID om een verzoek door het netwerk heen te traceren.', max_length=255),
-        ),
+            model_name="audittrail",
+            name="request_id",
+            field=models.CharField(
+                blank=True,
+                help_text='Een globaal "request" ID om een verzoek door het netwerk heen te traceren.',
+                max_length=255,
+            ),
+        )
     ]

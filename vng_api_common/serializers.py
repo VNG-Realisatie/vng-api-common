@@ -17,14 +17,13 @@ except ImportError:
 
 
 class DurationField(fields.DurationField):
-
     def to_internal_value(self, value):
         if isinstance(value, datetime.timedelta):
             return value
         try:
             parsed = isodate.parse_duration(str(value))
         except isodate.ISO8601Error:
-            self.fail('invalid', format='P(n)Y(n)M(n)D')
+            self.fail("invalid", format="P(n)Y(n)M(n)D")
         else:
             if isinstance(parsed, isodate.Duration):
                 # TODO: start should probably be a proper object, but we should
@@ -44,27 +43,34 @@ class FieldValidationErrorSerializer(serializers.Serializer):
     """
     Formaat van validatiefouten.
     """
+
     name = serializers.CharField(help_text="Naam van het veld met ongeldige gegevens")
     code = serializers.CharField(help_text="Systeemcode die het type fout aangeeft")
-    reason = serializers.CharField(help_text="Uitleg wat er precies fout is met de gegevens")
+    reason = serializers.CharField(
+        help_text="Uitleg wat er precies fout is met de gegevens"
+    )
 
 
 class FoutSerializer(serializers.Serializer):
     """
     Formaat van HTTP 4xx en 5xx fouten.
     """
+
     type = serializers.CharField(
         help_text="URI referentie naar het type fout, bedoeld voor developers",
-        required=False, allow_blank=True
+        required=False,
+        allow_blank=True,
     )
     # not according to DSO, but possible for programmatic checking
     code = serializers.CharField(help_text="Systeemcode die het type fout aangeeft")
     title = serializers.CharField(help_text="Generieke titel voor het type fout")
     status = serializers.IntegerField(help_text="De HTTP status code")
-    detail = serializers.CharField(help_text="Extra informatie bij de fout, indien beschikbaar")
+    detail = serializers.CharField(
+        help_text="Extra informatie bij de fout, indien beschikbaar"
+    )
     instance = serializers.CharField(
         help_text="URI met referentie naar dit specifiek voorkomen van de fout. Deze kan "
-                  "gebruikt worden in combinatie met server logs, bijvoorbeeld."
+        "gebruikt worden in combinatie met server logs, bijvoorbeeld."
     )
 
 
@@ -76,23 +82,26 @@ def add_choice_values_help_text(choices: DjangoChoices) -> str:
     items = []
 
     for key, value in choices.choices:
-        description = getattr(choices.get_choice(key), 'description', None)
+        description = getattr(choices.get_choice(key), "description", None)
         if description:
-            item = f'* `{key}` - ({value}) {description}'
+            item = f"* `{key}` - ({value}) {description}"
         else:
-            item = f'* `{key}` - {value}'
+            item = f"* `{key}` - {value}"
         items.append(item)
 
-    return 'Uitleg bij mogelijke waarden:\n\n' + '\n'.join(items)
+    return "Uitleg bij mogelijke waarden:\n\n" + "\n".join(items)
 
 
 class GegevensGroepSerializerMetaclass(serializers.SerializerMetaclass):
-
     def __new__(cls, name, bases, attrs):
-        Meta = attrs.get('Meta')
+        Meta = attrs.get("Meta")
         if Meta:
-            assert hasattr(Meta, 'model'), "The 'model' class must be defined on the Meta."
-            assert hasattr(Meta, 'gegevensgroep'), "The 'gegevensgroep' name must be defined on the Meta."
+            assert hasattr(
+                Meta, "model"
+            ), "The 'model' class must be defined on the Meta."
+            assert hasattr(
+                Meta, "gegevensgroep"
+            ), "The 'gegevensgroep' name must be defined on the Meta."
 
             gegevensgroep = getattr(Meta.model, Meta.gegevensgroep)
             Meta.fields = []
@@ -104,23 +113,25 @@ class GegevensGroepSerializerMetaclass(serializers.SerializerMetaclass):
 
                 # the field is always required and may not be empty in any form
                 default_extra_kwargs = {
-                    'required': field_name not in gegevensgroep.optional,
-                    'allow_null': False,
-                    'allow_blank': field_name in gegevensgroep.optional,
+                    "required": field_name not in gegevensgroep.optional,
+                    "allow_null": False,
+                    "allow_blank": field_name in gegevensgroep.optional,
                 }
 
                 if model_field.name != field_name:
-                    default_extra_kwargs['source'] = model_field.name
+                    default_extra_kwargs["source"] = model_field.name
 
                 internal_type = model_field.get_internal_type()
-                if internal_type not in ['CharField', 'TextField']:
-                    del default_extra_kwargs['allow_blank']
-                if internal_type == 'BooleanField':
-                    del default_extra_kwargs['allow_null']
+                if internal_type not in ["CharField", "TextField"]:
+                    del default_extra_kwargs["allow_blank"]
+                if internal_type == "BooleanField":
+                    del default_extra_kwargs["allow_null"]
 
                 extra_kwargs[field_name] = default_extra_kwargs
 
-                declared_extra_kwargs = getattr(Meta, 'extra_kwargs', {}).get(field_name)
+                declared_extra_kwargs = getattr(Meta, "extra_kwargs", {}).get(
+                    field_name
+                )
                 if declared_extra_kwargs:
                     extra_kwargs[field_name].update(declared_extra_kwargs)
 
@@ -129,7 +140,9 @@ class GegevensGroepSerializerMetaclass(serializers.SerializerMetaclass):
         return super().__new__(cls, name, bases, attrs)
 
 
-class GegevensGroepSerializer(serializers.ModelSerializer, metaclass=GegevensGroepSerializerMetaclass):
+class GegevensGroepSerializer(
+    serializers.ModelSerializer, metaclass=GegevensGroepSerializerMetaclass
+):
     """
     Generate a serializer out of a GegevensGroepType.
 
@@ -160,7 +173,7 @@ class GegevensGroepSerializer(serializers.ModelSerializer, metaclass=GegevensGro
             for field_name, field in self.fields.items():
                 if field.required and field_name not in data:
                     try:
-                        field.fail('required')
+                        field.fail("required")
                     except serializers.ValidationError as exc:
                         errors[field_name] = exc.detail
 

@@ -10,7 +10,7 @@ class ZDSNestedRegisteringMixin:
     _nested_router = None
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('trailing_slash', False)
+        kwargs.setdefault("trailing_slash", False)
         super().__init__(*args, **kwargs)
 
     def get_urls(self):
@@ -26,16 +26,14 @@ class ZDSNestedRegisteringMixin:
         if not nested:
             return
 
-        base_name = kwargs.get('base_name', self.get_default_base_name(viewset))
+        base_name = kwargs.get("base_name", self.get_default_base_name(viewset))
 
         self._nested_router = NestedSimpleRouter(
-            self, prefix,
-            lookup=base_name, trailing_slash=False
+            self, prefix, lookup=base_name, trailing_slash=False
         )
         for _nested in nested:
             self._nested_router.register(
-                _nested.prefix, _nested.viewset,
-                _nested.nested, **_nested.kwargs
+                _nested.prefix, _nested.viewset, _nested.nested, **_nested.kwargs
             )
 
 
@@ -55,6 +53,4 @@ class nested:
         self.kwargs = kwargs
 
     def __repr__(self):
-        return "nested(prefix={!r}, viewset={!r}".format(
-            self.prefix, self.viewset
-        )
+        return "nested(prefix={!r}, viewset={!r}".format(self.prefix, self.viewset)

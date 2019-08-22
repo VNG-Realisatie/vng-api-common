@@ -5,22 +5,18 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('notifications', '0005_fix_default_nrc'),
-    ]
+    dependencies = [("notifications", "0005_fix_default_nrc")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='notificationsconfig',
-            name='client_id',
-        ),
-        migrations.RemoveField(
-            model_name='notificationsconfig',
-            name='secret',
-        ),
+        migrations.RemoveField(model_name="notificationsconfig", name="client_id"),
+        migrations.RemoveField(model_name="notificationsconfig", name="secret"),
         migrations.AlterField(
-            model_name='notificationsconfig',
-            name='api_root',
-            field=models.URLField(default='https://ref.tst.vng.cloud/nrc/api/v1', unique=True, verbose_name='api root'),
+            model_name="notificationsconfig",
+            name="api_root",
+            field=models.URLField(
+                default="https://ref.tst.vng.cloud/nrc/api/v1",
+                unique=True,
+                verbose_name="api root",
+            ),
         ),
     ]

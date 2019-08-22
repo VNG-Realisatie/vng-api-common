@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('notifications', '0006_auto_20190417_1142'),
-    ]
+    dependencies = [("notifications", "0006_auto_20190417_1142")]
 
     operations = [
         migrations.AlterField(
-            model_name='notificationsconfig',
-            name='api_root',
-            field=models.URLField(unique=True, verbose_name='api root'),
-        ),
+            model_name="notificationsconfig",
+            name="api_root",
+            field=models.URLField(unique=True, verbose_name="api root"),
+        )
     ]

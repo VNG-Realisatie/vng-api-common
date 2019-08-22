@@ -3,7 +3,9 @@ from django.db import models
 
 from drf_yasg import openapi
 from drf_yasg.inspectors.field import (
-    basic_type_info, model_field_to_basic_type, serializer_field_to_basic_type
+    basic_type_info,
+    model_field_to_basic_type,
+    serializer_field_to_basic_type,
 )
 from rest_framework import serializers
 
@@ -18,20 +20,20 @@ except ImportError:
 # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#data-types
 # and https://github.com/OAI/OpenAPI-Specification/issues/845 - format: duration
 # is collected somewhere so there's precedent
-FORMAT_DURATION = 'duration'
+FORMAT_DURATION = "duration"
 
 
 class ZDSSchemaConfig(AppConfig):
-    name = 'vng_api_common'
+    name = "vng_api_common"
 
     def ready(self):
         from . import checks  # noqa
+
         patch_duration_type()
         register_serializer_field()
 
 
 def patch_duration_type():
-
     def _patch(basic_types, _field_cls, format=None):
         for index, (field_cls, basic_type) in enumerate(basic_types):
             if field_cls is _field_cls:

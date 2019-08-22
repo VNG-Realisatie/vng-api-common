@@ -47,10 +47,13 @@ logger = logging.getLogger(__name__)
 
 
 class Discriminator:
-    def __init__(self, discriminator_field: str,
-                 mapping: Dict[Any, Union[tuple, serializers.ModelSerializer]],
-                 group_field: Union[None, str] = None,
-                 same_model: bool = True):
+    def __init__(
+        self,
+        discriminator_field: str,
+        mapping: Dict[Any, Union[tuple, serializers.ModelSerializer]],
+        group_field: Union[None, str] = None,
+        same_model: bool = True,
+    ):
         self.discriminator_field = discriminator_field
         self.mapping = mapping
         self.group_field = group_field
@@ -74,7 +77,11 @@ class Discriminator:
         internal_value = serializer.to_internal_value(data)
         # if nested serializer was generated in _sanitize_discriminator name if group_field
         # was changed in the internal_value. We need to return it
-        if self.group_field and self.group_field not in internal_value and len(internal_value) == 1:
+        if (
+            self.group_field
+            and self.group_field not in internal_value
+            and len(internal_value) == 1
+        ):
             key, value = internal_value.popitem()
             internal_value = OrderedDict({self.group_field: value})
 
@@ -82,14 +89,13 @@ class Discriminator:
 
 
 class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
-
     @classmethod
     def _sanitize_discriminator(cls, name, attrs) -> Union[Discriminator, None]:
-        discriminator = attrs['discriminator']
+        discriminator = attrs["discriminator"]
         if discriminator is None:
             return None
 
-        model = attrs['Meta'].model
+        model = attrs["Meta"].model
 
         try:
             field = model._meta.get_field(discriminator.discriminator_field)
@@ -106,15 +112,10 @@ class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
             if isinstance(fields, (tuple, list)):
                 name = f"{value}{model._meta.object_name}Serializer"
 
-                Meta = type('Meta', (), {
-                    'model': model,
-                    'fields': tuple(fields),
-                })
+                Meta = type("Meta", (), {"model": model, "fields": tuple(fields)})
 
                 serializer_class = type(
-                    name,
-                    (serializers.ModelSerializer,),
-                    {'Meta': Meta}
+                    name, (serializers.ModelSerializer,), {"Meta": Meta}
                 )
 
                 discriminator.mapping[value] = serializer_class()
@@ -128,11 +129,12 @@ class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
 
             # rewrite it to nested serializer
             if discriminator.group_field:
-                group_name = f"{discriminator.group_field}_{serializer.__class__.__name__}"
-                group_meta = type('Meta', (), {
-                    'model': model,
-                    'fields': (discriminator.group_field, ),
-                })
+                group_name = (
+                    f"{discriminator.group_field}_{serializer.__class__.__name__}"
+                )
+                group_meta = type(
+                    "Meta", (), {"model": model, "fields": (discriminator.group_field,)}
+                )
 
                 # find source field for nested serializer
                 source = None
@@ -141,13 +143,14 @@ class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
                     if field_type.related_model == serializer.Meta.model:
                         source = field_name
 
-                group_field = serializer.__class__(source=source, required=False, label=discriminator.group_field)
+                group_field = serializer.__class__(
+                    source=source, required=False, label=discriminator.group_field
+                )
 
                 group_serializer_class = type(
                     group_name,
                     (serializers.ModelSerializer,),
-                    {'Meta': group_meta,
-                     discriminator.group_field: group_field}
+                    {"Meta": group_meta, discriminator.group_field: group_field},
                 )
                 discriminator.mapping[value] = group_serializer_class()
 
@@ -157,17 +160,20 @@ class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
             if difference:
                 logger.warn(
                     "'%s': not all possible values map to a serializer. Missing %s",
-                    name, difference
+                    name,
+                    difference,
                 )
 
         return discriminator
 
     def __new__(cls, name, bases, attrs):
-        attrs['discriminator'] = cls._sanitize_discriminator(name, attrs)
+        attrs["discriminator"] = cls._sanitize_discriminator(name, attrs)
         return super().__new__(cls, name, bases, attrs)
 
 
-class PolymorphicSerializer(serializers.HyperlinkedModelSerializer, metaclass=PolymorphicSerializerMetaclass):
+class PolymorphicSerializer(
+    serializers.HyperlinkedModelSerializer, metaclass=PolymorphicSerializerMetaclass
+):
     discriminator: Discriminator = None
 
     def to_representation(self, instance):

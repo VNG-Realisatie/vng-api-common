@@ -5,20 +5,20 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('vng_api_common', '0003_auto_20190417_1145'),
-    ]
+    dependencies = [("vng_api_common", "0003_auto_20190417_1145")]
 
     operations = [
         migrations.AddField(
-            model_name='apicredential',
-            name='user_id',
-            field=models.CharField(default='', max_length=255, verbose_name='user id'),
+            model_name="apicredential",
+            name="user_id",
+            field=models.CharField(default="", max_length=255, verbose_name="user id"),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='apicredential',
-            name='user_representation',
-            field=models.CharField(default='', max_length=255, verbose_name='user representation'),
+            model_name="apicredential",
+            name="user_representation",
+            field=models.CharField(
+                default="", max_length=255, verbose_name="user representation"
+            ),
         ),
     ]

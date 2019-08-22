@@ -6,19 +6,34 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('audittrails', '0004_auto_20190520_1238'),
-    ]
+    dependencies = [("audittrails", "0004_auto_20190520_1238")]
 
     operations = [
         migrations.AlterField(
-            model_name='audittrail',
-            name='bron',
-            field=models.CharField(choices=[('AC', 'Autorisatiecomponent'), ('NRC', 'Notificatierouteringcomponent'), ('ZRC', 'Zaakregistratiecomponent'), ('ZTC', 'Zaaktypecatalogus'), ('DRC', 'Documentregistratiecomponent'), ('BRC', 'Besluitregistratiecomponent')], help_text='De naam van het component waar de wijziging in is gedaan', max_length=50),
+            model_name="audittrail",
+            name="bron",
+            field=models.CharField(
+                choices=[
+                    ("AC", "Autorisatiecomponent"),
+                    ("NRC", "Notificatierouteringcomponent"),
+                    ("ZRC", "Zaakregistratiecomponent"),
+                    ("ZTC", "Zaaktypecatalogus"),
+                    ("DRC", "Documentregistratiecomponent"),
+                    ("BRC", "Besluitregistratiecomponent"),
+                ],
+                help_text="De naam van het component waar de wijziging in is gedaan",
+                max_length=50,
+            ),
         ),
         migrations.AlterField(
-            model_name='audittrail',
-            name='resultaat',
-            field=models.IntegerField(help_text='HTTP status code van de API response van de uitgevoerde handeling', validators=[django.core.validators.MinValueValidator(100), django.core.validators.MaxValueValidator(599)]),
+            model_name="audittrail",
+            name="resultaat",
+            field=models.IntegerField(
+                help_text="HTTP status code van de API response van de uitgevoerde handeling",
+                validators=[
+                    django.core.validators.MinValueValidator(100),
+                    django.core.validators.MaxValueValidator(599),
+                ],
+            ),
         ),
     ]

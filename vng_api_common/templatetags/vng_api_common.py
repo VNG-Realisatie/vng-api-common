@@ -11,12 +11,12 @@ def md_table_cell(value: str) -> str:
     """
     Escape pipe symbols to prevent accidental new-cell start.
     """
-    return value.replace('|', '\\|')
+    return value.replace("|", "\\|")
 
 
 @register.filter
 def crud(row):
-    attributes = ['create', 'read', 'update', 'delete']
+    attributes = ["create", "read", "update", "delete"]
     bits = []
     for attribute in attributes:
         allowed = getattr(row, attribute)
@@ -36,5 +36,5 @@ def gemmaonline_url(resource: str):
         informatiemodel=settings.GEMMA_URL_INFORMATIEMODEL,
         versie=settings.GEMMA_URL_INFORMATIEMODEL_VERSIE,
         componenttype=settings.GEMMA_URL_COMPONENTTYPE,
-        component=resource.lower()
+        component=resource.lower(),
     )

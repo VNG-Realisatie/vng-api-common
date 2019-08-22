@@ -14,8 +14,8 @@ from ..constants import SCOPE_NOTIFICATIES_CONSUMEREN_LABEL
 from ..models import NotificationsConfig, Subscription
 
 
-@skipUnless(apps.is_installed('notifications.api'), "NRC API not enabled")
-@override_settings(ROOT_URLCONF='vng_api_common.notifications.tests.urls')
+@skipUnless(apps.is_installed("notifications.api"), "NRC API not enabled")
+@override_settings(ROOT_URLCONF="vng_api_common.notifications.tests.urls")
 class SubscriptionTests(JWTAuthMixin, APITestCase):
 
     scopes = [SCOPE_NOTIFICATIES_CONSUMEREN_LABEL]
@@ -26,23 +26,28 @@ class SubscriptionTests(JWTAuthMixin, APITestCase):
 
         super().setUpTestData()
 
-        Kanaal.objects.create(naam='zaken')
-        cls.config = NotificationsConfig.objects.create(api_root='http://testserver/api/')
+        Kanaal.objects.create(naam="zaken")
+        cls.config = NotificationsConfig.objects.create(
+            api_root="http://testserver/api/"
+        )
 
-    @patch('vng_api_common.notifications.models.Client.create', return_value={'url': 'http://example.com/'})
+    @patch(
+        "vng_api_common.notifications.models.Client.create",
+        return_value={"url": "http://example.com/"},
+    )
     def test_register_subscription(self, mock_create):
-        url = reverse('abonnement-list', kwargs={'version': 1})
+        url = reverse("abonnement-list", kwargs={"version": 1})
         sub = Subscription.objects.create(
             config=self.config,
-            callback_url='http://testserver.com/api/callbacks',
-            client_id='test',
-            secret='test',
-            channels=['zaken'],
+            callback_url="http://testserver.com/api/callbacks",
+            client_id="test",
+            secret="test",
+            channels=["zaken"],
         )
 
         sub.register()
 
-        data = mock_create.call_args[1]['data']
+        data = mock_create.call_args[1]["data"]
 
         # assert that we send valid data to the api
 

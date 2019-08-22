@@ -5,14 +5,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('authorizations', '0009_update_enums'),
-    ]
+    dependencies = [("authorizations", "0009_update_enums")]
 
     operations = [
         migrations.AlterField(
-            model_name='authorizationsconfig',
-            name='api_root',
-            field=models.URLField(default='https://autorisaties-api.vng.cloud/api/v1', unique=True, verbose_name='api root'),
-        ),
+            model_name="authorizationsconfig",
+            name="api_root",
+            field=models.URLField(
+                default="https://autorisaties-api.vng.cloud/api/v1",
+                unique=True,
+                verbose_name="api root",
+            ),
+        )
     ]

@@ -5,43 +5,53 @@ from django.utils.translation import ugettext as _
 from drf_extra_fields.fields import Base64FieldMixin
 from drf_yasg import openapi
 from drf_yasg.inspectors import (
-    CamelCaseJSONFilter, FieldInspector, NotHandled, ViewInspector
+    CamelCaseJSONFilter,
+    FieldInspector,
+    NotHandled,
+    ViewInspector,
 )
 from drf_yasg.utils import filter_none, get_serializer_ref_name
 from rest_framework import serializers
 
 
 class FileFieldInspector(CamelCaseJSONFilter):
-
     def get_schema(self, serializer):
         if self.method not in ViewInspector.body_methods:
             return NotHandled
 
         # only do this if there are base64 mixin fields
-        if any(isinstance(field, Base64FieldMixin) for field in serializer.fields.values()):
+        if any(
+            isinstance(field, Base64FieldMixin) for field in serializer.fields.values()
+        ):
             return self.probe_field_inspectors(serializer, openapi.Schema, True)
 
         return NotHandled
 
-    def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):
+    def field_to_swagger_object(
+        self, field, swagger_object_type, use_references, **kwargs
+    ):
         if isinstance(field, serializers.Serializer):
-            return self._serializer_to_swagger_object(field, swagger_object_type, use_references, **kwargs)
+            return self._serializer_to_swagger_object(
+                field, swagger_object_type, use_references, **kwargs
+            )
 
         if not isinstance(field, Base64FieldMixin):
             return NotHandled
 
-        SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
+        SwaggerType, ChildSwaggerType = self._get_partial_types(
+            field, swagger_object_type, use_references, **kwargs
+        )
 
         type_b64 = SwaggerType(
             type=openapi.TYPE_STRING,
             format=openapi.FORMAT_BASE64,
-            description=_("Base64 encoded binary content.")
+            description=_("Base64 encoded binary content."),
         )
         type_uri = SwaggerType(
             type=openapi.TYPE_STRING,
             read_only=True,
             format=openapi.FORMAT_URI,
-            description=_("Download URL of the binary content.")
+            description=_("Download URL of the binary content."),
         )
 
         if swagger_object_type == openapi.Schema:
@@ -54,16 +64,19 @@ class FileFieldInspector(CamelCaseJSONFilter):
 
         return NotHandled
 
-    def _serializer_to_swagger_object(self, serializer, swagger_object_type, use_references, **kwargs):
+    def _serializer_to_swagger_object(
+        self, serializer, swagger_object_type, use_references, **kwargs
+    ):
         if self.method not in ViewInspector.body_methods:
             return NotHandled
 
-        if not any(isinstance(field, Base64FieldMixin) for field in serializer.fields.values()):
+        if not any(
+            isinstance(field, Base64FieldMixin) for field in serializer.fields.values()
+        ):
             return NotHandled
 
         SwaggerType, ChildSwaggerType = self._get_partial_types(
-            serializer, swagger_object_type,
-            use_references, **kwargs
+            serializer, swagger_object_type, use_references, **kwargs
         )
 
         ref_name = get_serializer_ref_name(serializer)
@@ -73,9 +86,7 @@ class FileFieldInspector(CamelCaseJSONFilter):
             properties = OrderedDict()
             required = []
             for property_name, child in serializer.fields.items():
-                prop_kwargs = {
-                    'read_only': bool(child.read_only) or None
-                }
+                prop_kwargs = {"read_only": bool(child.read_only) or None}
                 prop_kwargs = filter_none(prop_kwargs)
 
                 child_schema = self.probe_field_inspectors(
@@ -83,7 +94,7 @@ class FileFieldInspector(CamelCaseJSONFilter):
                 )
                 properties[property_name] = child_schema
 
-                if child.required and not getattr(child_schema, 'read_only', False):
+                if child.required and not getattr(child_schema, "read_only", False):
                     required.append(property_name)
 
             result = SwaggerType(
@@ -91,7 +102,7 @@ class FileFieldInspector(CamelCaseJSONFilter):
                 properties=properties,
                 required=required or None,
             )
-            if not ref_name and 'title' in result:
+            if not ref_name and "title" in result:
                 # on an inline model, the title is derived from the field name
                 # but is visually displayed like the model name, which is confusing
                 # it is better to just remove title from inline models

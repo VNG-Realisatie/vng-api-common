@@ -24,38 +24,50 @@ class AuditTrailMixin:
         """
         Retrieve the URL that points to the main resource
         """
-        if hasattr(self, 'audittrail_main_resource_key'):
+        if hasattr(self, "audittrail_main_resource_key"):
             return data[self.audittrail_main_resource_key]
         return data[main_resource]
 
-    def create_audittrail(self, status_code, action, version_before_edit, version_after_edit, unique_representation):
+    def create_audittrail(
+        self,
+        status_code,
+        action,
+        version_before_edit,
+        version_after_edit,
+        unique_representation,
+    ):
         """
         Create the audittrail for the action that has been carried out.
         """
         data = version_after_edit if version_after_edit else version_before_edit
         if self.basename == self.audit.main_resource:
-            main_object = data['url']
+            main_object = data["url"]
         else:
-            main_object = self.get_audittrail_main_object_url(data, self.audit.main_resource)
+            main_object = self.get_audittrail_main_object_url(
+                data, self.audit.main_resource
+            )
 
         applications = self.request.jwt_auth.applicaties
         if len(applications) > 1:
-            logger.warning("Unexpectedly found %d applications, expected at most one", len(applications))
+            logger.warning(
+                "Unexpectedly found %d applications, expected at most one",
+                len(applications),
+            )
 
         if applications:
             application = applications[0]
             app_id, app_presentation = str(application.uuid), application.label
         else:
-            app_id = get_header(self.request, 'X-NLX-Request-Application-Id')
+            app_id = get_header(self.request, "X-NLX-Request-Application-Id")
             app_presentation = app_id  # we don't have any extra information...
 
-        user_id = self.request.jwt_auth.payload.get('user_id', '')
+        user_id = self.request.jwt_auth.payload.get("user_id", "")
         if not user_id:
-            user_id = get_header(self.request, 'X-NLX-Request-User-Id') or ""
+            user_id = get_header(self.request, "X-NLX-Request-User-Id") or ""
 
-        request_id = get_header(self.request, 'X-NLX-Request-Id') or ""
+        request_id = get_header(self.request, "X-NLX-Request-Id") or ""
 
-        toelichting = get_header(self.request, 'X-Audit-Toelichting') or ""
+        toelichting = get_header(self.request, "X-Audit-Toelichting") or ""
 
         trail = AuditTrail(
             bron=self.audit.component_name,
@@ -63,13 +75,15 @@ class AuditTrailMixin:
             applicatie_id=app_id,
             applicatie_weergave=app_presentation,
             actie=action,
-            actie_weergave=CommonResourceAction.labels.get(action, ''),
+            actie_weergave=CommonResourceAction.labels.get(action, ""),
             gebruikers_id=user_id,
-            gebruikers_weergave=self.request.jwt_auth.payload.get('user_representation', ''),
+            gebruikers_weergave=self.request.jwt_auth.payload.get(
+                "user_representation", ""
+            ),
             resultaat=status_code,
             hoofd_object=main_object,
             resource=self.basename,
-            resource_url=data['url'],
+            resource_url=data["url"],
             toelichting=toelichting,
             resource_weergave=unique_representation,
             oud=version_before_edit,
@@ -80,7 +94,7 @@ class AuditTrailMixin:
 
 class AuditTrailCreateMixin(AuditTrailMixin):
     def get_audittrail_instance(self, response):
-        zaak_uuid = get_uuid_from_path(response.data['url'])
+        zaak_uuid = get_uuid_from_path(response.data["url"])
         instance = self.get_queryset().get(uuid=zaak_uuid)
         return instance
 
@@ -92,7 +106,7 @@ class AuditTrailCreateMixin(AuditTrailMixin):
             CommonResourceAction.create,
             version_before_edit=None,
             version_after_edit=response.data,
-            unique_representation=instance.unique_representation()
+            unique_representation=instance.unique_representation(),
         )
         return response
 
@@ -104,7 +118,11 @@ class AuditTrailUpdateMixin(AuditTrailMixin):
         serializer = self.get_serializer(instance)
         version_before_edit = serializer.data
 
-        action = CommonResourceAction.partial_update if kwargs.get('partial', False) else CommonResourceAction.update
+        action = (
+            CommonResourceAction.partial_update
+            if kwargs.get("partial", False)
+            else CommonResourceAction.update
+        )
 
         response = super().update(request, *args, **kwargs)
         self.create_audittrail(
@@ -112,7 +130,7 @@ class AuditTrailUpdateMixin(AuditTrailMixin):
             action,
             version_before_edit=version_before_edit,
             version_after_edit=response.data,
-            unique_representation=instance.unique_representation()
+            unique_representation=instance.unique_representation(),
         )
         return response
 
@@ -129,7 +147,7 @@ class AuditTrailDestroyMixin(AuditTrailMixin):
         if self.basename == self.audit.main_resource:
             with transaction.atomic():
                 response = super().destroy(request, *args, **kwargs)
-                self._destroy_related_audittrails(version_before_edit['url'])
+                self._destroy_related_audittrails(version_before_edit["url"])
                 return response
         else:
             response = super().destroy(request, *args, **kwargs)
@@ -138,7 +156,7 @@ class AuditTrailDestroyMixin(AuditTrailMixin):
                 CommonResourceAction.destroy,
                 version_before_edit=version_before_edit,
                 version_after_edit=None,
-                unique_representation=instance.unique_representation()
+                unique_representation=instance.unique_representation(),
             )
             return response
 
@@ -146,9 +164,9 @@ class AuditTrailDestroyMixin(AuditTrailMixin):
         AuditTrail.objects.filter(hoofd_object=main_object_url).delete()
 
 
-class AuditTrailViewsetMixin(AuditTrailCreateMixin,
-                             AuditTrailUpdateMixin,
-                             AuditTrailDestroyMixin):
+class AuditTrailViewsetMixin(
+    AuditTrailCreateMixin, AuditTrailUpdateMixin, AuditTrailDestroyMixin
+):
     pass
 
 
@@ -166,16 +184,17 @@ class AuditTrailViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
         class ZaakAuditTrailViewset(AuditTrailViewset):
             main_resource_lookup_field = 'zaak_uuid'
     """
-    queryset = AuditTrail.objects.all().order_by('aanmaakdatum')
+
+    queryset = AuditTrail.objects.all().order_by("aanmaakdatum")
     serializer_class = AuditTrailSerializer
-    lookup_field = 'uuid'
+    lookup_field = "uuid"
     permission_classes = (AuthScopesRequired,)
     required_scopes = {
-        'list': SCOPE_AUDITTRAILS_LEZEN,
-        'retrieve': SCOPE_AUDITTRAILS_LEZEN,
+        "list": SCOPE_AUDITTRAILS_LEZEN,
+        "retrieve": SCOPE_AUDITTRAILS_LEZEN,
     }
 
-    main_resource_lookup_field = None   # Must be overwritten by subclasses
+    main_resource_lookup_field = None  # Must be overwritten by subclasses
 
     def get_queryset(self):
         qs = super().get_queryset()

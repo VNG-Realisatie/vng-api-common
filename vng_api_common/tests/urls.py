@@ -12,7 +12,7 @@ def _magic_args(args, kwargs):
     """
     if args and isinstance(args[0], models.Model):
         url_name = f"{args[0]._meta.model_name}-detail"
-        kwargs['kwargs'].setdefault('uuid', args[0].uuid)
+        kwargs["kwargs"].setdefault("uuid", args[0].uuid)
         args = (url_name,) + args[1:]
     elif args and inspect.isclass(args[0]) and issubclass(args[0], models.Model):
         url_name = f"{args[0]._meta.model_name}-list"
@@ -33,8 +33,8 @@ def reverse(*args, **kwargs):
     ``uuid``. For nested routes, you need to provide the remaining parameters
     as kwargs. Other Django ``reverse`` params are passed down.
     """
-    kwargs.setdefault('kwargs', {})
-    kwargs['kwargs']['version'] = settings.REST_FRAMEWORK['DEFAULT_VERSION']
+    kwargs.setdefault("kwargs", {})
+    kwargs["kwargs"]["version"] = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
     args, kwargs = _magic_args(args, kwargs)
     return _reverse(*args, **kwargs)
 
@@ -52,7 +52,7 @@ def reverse_lazy(*args, **kwargs):
     ``uuid``. For nested routes, you need to provide the remaining parameters
     as kwargs. Other Django ``reverse_lazy`` params are passed down.
     """
-    kwargs.setdefault('kwargs', {})
-    kwargs['kwargs']['version'] = settings.REST_FRAMEWORK['DEFAULT_VERSION']
+    kwargs.setdefault("kwargs", {})
+    kwargs["kwargs"]["version"] = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
     args, kwargs = _magic_args(args, kwargs)
     return _reverse_lazy(*args, **kwargs)

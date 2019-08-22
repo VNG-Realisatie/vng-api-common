@@ -5,14 +5,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('notifications', '0007_auto_20190429_1442'),
-    ]
+    dependencies = [("notifications", "0007_auto_20190429_1442")]
 
     operations = [
         migrations.AlterField(
-            model_name='notificationsconfig',
-            name='api_root',
-            field=models.URLField(default='https://ref.tst.vng.cloud/nrc/api/v1', unique=True, verbose_name='api root'),
-        ),
+            model_name="notificationsconfig",
+            name="api_root",
+            field=models.URLField(
+                default="https://ref.tst.vng.cloud/nrc/api/v1",
+                unique=True,
+                verbose_name="api root",
+            ),
+        )
     ]

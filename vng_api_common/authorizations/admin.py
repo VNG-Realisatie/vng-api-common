@@ -7,12 +7,18 @@ from .models import Applicatie, AuthorizationsConfig, Autorisatie
 
 @admin.register(AuthorizationsConfig)
 class AuthorizationsConfigAdmin(SingletonModelAdmin):
-    list_display = ('api_root', 'component',)
+    list_display = ("api_root", "component")
 
 
 @admin.register(Autorisatie)
 class AutorisatieAdmin(admin.ModelAdmin):
-    list_display = ('applicatie', 'component', 'zaaktype', 'scopes', 'max_vertrouwelijkheidaanduiding')
+    list_display = (
+        "applicatie",
+        "component",
+        "zaaktype",
+        "scopes",
+        "max_vertrouwelijkheidaanduiding",
+    )
 
 
 class AutorisatieInline(admin.TabularInline):
@@ -21,6 +27,6 @@ class AutorisatieInline(admin.TabularInline):
 
 @admin.register(Applicatie)
 class ApplicatieAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'client_ids', 'label', 'heeft_alle_autorisaties', )
-    readonly_fields = ('uuid',)
+    list_display = ("uuid", "client_ids", "label", "heeft_alle_autorisaties")
+    readonly_fields = ("uuid",)
     inlines = (AutorisatieInline,)

@@ -9,11 +9,11 @@ from vng_api_common.tests import JWTAuthMixin
 from ..constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
 
 
-@override_settings(ROOT_URLCONF='vng_api_common.notifications.tests.urls')
+@override_settings(ROOT_URLCONF="vng_api_common.notifications.tests.urls")
 class WebhookTests(JWTAuthMixin, APITestCase):
 
     scopes = [SCOPE_NOTIFICATIES_PUBLICEREN_LABEL]
-    url = reverse_lazy('notificaties-webhook')
+    url = reverse_lazy("notificaties-webhook")
 
     def test_auth_required(self):
         self.client.credentials()  # clear any credentials
@@ -34,7 +34,7 @@ class WebhookTests(JWTAuthMixin, APITestCase):
                 "bron": "082096752011",
                 "zaaktype": "https://example.com/api/v1/zaaktypen/5aa5c",
                 "vertrouwelijkeidaanduiding": "openbaar",
-            }
+            },
         }
 
         response = self.client.post(self.url, data)

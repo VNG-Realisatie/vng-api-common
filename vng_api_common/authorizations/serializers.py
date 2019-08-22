@@ -16,38 +16,31 @@ logger = logging.getLogger(__name__)
 
 class AutorisatieBaseSerializer(PolymorphicSerializer):
     discriminator = Discriminator(
-        discriminator_field='component',
+        discriminator_field="component",
         mapping={
-            ComponentTypes.zrc: (
-                'zaaktype',
-                'max_vertrouwelijkheidaanduiding',
-            ),
+            ComponentTypes.zrc: ("zaaktype", "max_vertrouwelijkheidaanduiding"),
             ComponentTypes.drc: (
-                'informatieobjecttype',
-                'max_vertrouwelijkheidaanduiding',
+                "informatieobjecttype",
+                "max_vertrouwelijkheidaanduiding",
             ),
-            ComponentTypes.brc: (
-                'besluittype',
-            ),
-        }
+            ComponentTypes.brc: ("besluittype",),
+        },
     )
 
-    component_weergave = serializers.CharField(source='get_component_display', read_only=True)
+    component_weergave = serializers.CharField(
+        source="get_component_display", read_only=True
+    )
 
     class Meta:
         model = Autorisatie
-        fields = (
-            'component',
-            'component_weergave',
-            'scopes',
-        )
+        fields = ("component", "component_weergave", "scopes")
         extra_kwargs = {
-            'scopes': {
-                'help_text': _(
+            "scopes": {
+                "help_text": _(
                     "Lijst van scope labels. Elke scope geeft toegang tot een "
                     "set van acties/operaties, zoals gedocumenteerd bij de "
                     "betreffende component."
-                ),
+                )
             }
         }
 
@@ -55,7 +48,7 @@ class AutorisatieBaseSerializer(PolymorphicSerializer):
         super().__init__(*args, **kwargs)
 
         value_display_mapping = add_choice_values_help_text(ComponentTypes)
-        self.fields['component'].help_text += f"\n\n{value_display_mapping}"
+        self.fields["component"].help_text += f"\n\n{value_display_mapping}"
 
 
 class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
@@ -64,24 +57,22 @@ class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Applicatie
         fields = (
-            'url',
-            'client_ids',
-            'label',
-            'heeft_alle_autorisaties',
-            'autorisaties'
+            "url",
+            "client_ids",
+            "label",
+            "heeft_alle_autorisaties",
+            "autorisaties",
         )
         extra_kwargs = {
-            'url': {
-                'lookup_field': 'uuid',
+            "url": {"lookup_field": "uuid"},
+            "heeft_alle_autorisaties": {"required": False},
+            "client_ids": {
+                "validators": [UniqueClientIDValidator()],
+                "help_text": _(
+                    "Lijst van consumer identifiers (hun 'client_id'). Een "
+                    "`client_id` mag slechts bij één applicatie-object voorkomen."
+                ),
             },
-            'heeft_alle_autorisaties': {
-                'required': False,
-            },
-            'client_ids': {
-                'validators': [UniqueClientIDValidator()],
-                'help_text': _("Lijst van consumer identifiers (hun 'client_id'). Een "
-                               "`client_id` mag slechts bij één applicatie-object voorkomen."),
-            }
         }
 
     def validate(self, attrs):
@@ -95,24 +86,28 @@ class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
             autorisaties_obj = self.instance.autorisaties.all()
             heeft_alle_autorisaties_obj = self.instance.heeft_alle_autorisaties
 
-        autorisaties = validated_attrs.get('autorisaties', autorisaties_obj)
-        heeft_alle_autorisaties = validated_attrs.get('heeft_alle_autorisaties', heeft_alle_autorisaties_obj)
+        autorisaties = validated_attrs.get("autorisaties", autorisaties_obj)
+        heeft_alle_autorisaties = validated_attrs.get(
+            "heeft_alle_autorisaties", heeft_alle_autorisaties_obj
+        )
 
         if autorisaties and heeft_alle_autorisaties is True:
             raise serializers.ValidationError(
-                _('Either autorisaties or heeft_alle_autorisaties can be specified'),
-                code='ambiguous-authorizations-specified')
+                _("Either autorisaties or heeft_alle_autorisaties can be specified"),
+                code="ambiguous-authorizations-specified",
+            )
 
         if not autorisaties and heeft_alle_autorisaties is not True:
             raise serializers.ValidationError(
-                _('Either autorisaties or heeft_alle_autorisaties should be specified'),
-                code='missing-authorizations')
+                _("Either autorisaties or heeft_alle_autorisaties should be specified"),
+                code="missing-authorizations",
+            )
 
         return validated_attrs
 
     @transaction.atomic
     def create(self, validated_data):
-        autorisaties_data = validated_data.pop('autorisaties', None)
+        autorisaties_data = validated_data.pop("autorisaties", None)
         applicatie = super().create(validated_data)
 
         if autorisaties_data:
@@ -123,7 +118,7 @@ class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        autorisaties_data = validated_data.pop('autorisaties', None)
+        autorisaties_data = validated_data.pop("autorisaties", None)
         applicatie = super().update(instance, validated_data)
 
         # in case of update autorisaties - remove all related autorisaties
@@ -140,5 +135,6 @@ class ApplicatieUuidSerializer(ApplicatieSerializer):
     Serializer for saving data in local auth DB
     uuid is used for synchronizing identifiers with AC DB
     """
+
     class Meta(ApplicatieSerializer.Meta):
-        fields = ApplicatieSerializer.Meta.fields + ('uuid', )
+        fields = ApplicatieSerializer.Meta.fields + ("uuid",)

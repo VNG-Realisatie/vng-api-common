@@ -2,10 +2,10 @@ from django.db import models
 
 
 def is_search_view(view):
-    if not hasattr(view, 'action'):
+    if not hasattr(view, "action"):
         return
     action = getattr(view, view.action)
-    return getattr(action, 'is_search_action', False)
+    return getattr(action, "is_search_action", False)
 
 
 class SearchMixin:

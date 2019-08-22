@@ -7,17 +7,30 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Person',
+            name="Person",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, verbose_name='name')),
-                ('address_street', models.CharField(max_length=255, verbose_name='street name')),
-                ('address_number', models.CharField(max_length=10, verbose_name='house number')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50, verbose_name="name")),
+                (
+                    "address_street",
+                    models.CharField(max_length=255, verbose_name="street name"),
+                ),
+                (
+                    "address_number",
+                    models.CharField(max_length=10, verbose_name="house number"),
+                ),
             ],
-        ),
+        )
     ]

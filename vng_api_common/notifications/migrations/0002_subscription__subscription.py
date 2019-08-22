@@ -5,14 +5,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('notifications', '0001_initial'),
-    ]
+    dependencies = [("notifications", "0001_initial")]
 
     operations = [
         migrations.AddField(
-            model_name='subscription',
-            name='_subscription',
-            field=models.URLField(blank=True, editable=False, help_text='Subscription as it is known in the NC', verbose_name='NC subscription'),
-        ),
+            model_name="subscription",
+            name="_subscription",
+            field=models.URLField(
+                blank=True,
+                editable=False,
+                help_text="Subscription as it is known in the NC",
+                verbose_name="NC subscription",
+            ),
+        )
     ]

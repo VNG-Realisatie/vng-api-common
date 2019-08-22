@@ -12,7 +12,6 @@ KANAAL_REGISTRY = set()
 
 
 class Kanaal:
-
     def __init__(self, label: str, main_resource: ModelBase, kenmerken: Tuple = None):
         self.label = label
         self.main_resource = main_resource
@@ -33,7 +32,11 @@ class Kanaal:
 
     def __repr__(self):
         cls_name = self.__class__.__name__
-        return "%s(label=%r, main_resource=%r)" % (cls_name, self.label, self.main_resource)
+        return "%s(label=%r, main_resource=%r)" % (
+            cls_name,
+            self.label,
+            self.main_resource,
+        )
 
     def get_kenmerken(self, obj: Model, data: Dict = None) -> Dict:
         data = data or {}
@@ -51,8 +54,9 @@ class Kanaal:
         kenmerken = [
             kenmerk_template.format(
                 kenmerk=kenmerk,
-                help_text=self.main_resource._meta.get_field(kenmerk).help_text
-            ) for kenmerk in self.kenmerken
+                help_text=self.main_resource._meta.get_field(kenmerk).help_text,
+            )
+            for kenmerk in self.kenmerken
         ]
 
         description = (
@@ -60,9 +64,6 @@ class Kanaal:
             "`{options.model_name}`\n\n\n\n"
             "**Kenmerken**\n\n"
             "{kenmerken}"
-        ).format(
-            options=self.main_resource._meta,
-            kenmerken="\n".join(kenmerken)
-        )
+        ).format(options=self.main_resource._meta, kenmerken="\n".join(kenmerken))
 
         return description

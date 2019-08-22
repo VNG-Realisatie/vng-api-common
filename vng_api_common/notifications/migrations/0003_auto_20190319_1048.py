@@ -5,29 +5,27 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('notifications', '0002_subscription__subscription'),
-    ]
+    dependencies = [("notifications", "0002_subscription__subscription")]
 
     operations = [
         migrations.RenameField(
-            model_name='notificationsconfig',
-            old_name='location',
-            new_name='api_root',
+            model_name="notificationsconfig", old_name="location", new_name="api_root"
         ),
         migrations.AddField(
-            model_name='notificationsconfig',
-            name='client_id',
-            field=models.CharField(blank=True, max_length=255, verbose_name='client id'),
+            model_name="notificationsconfig",
+            name="client_id",
+            field=models.CharField(
+                blank=True, max_length=255, verbose_name="client id"
+            ),
         ),
         migrations.AddField(
-            model_name='notificationsconfig',
-            name='secret',
-            field=models.CharField(blank=True, max_length=255, verbose_name='secret'),
+            model_name="notificationsconfig",
+            name="secret",
+            field=models.CharField(blank=True, max_length=255, verbose_name="secret"),
         ),
         migrations.AlterField(
-            model_name='notificationsconfig',
-            name='api_root',
-            field=models.URLField(unique=True, verbose_name='api root'),
+            model_name="notificationsconfig",
+            name="api_root",
+            field=models.URLField(unique=True, verbose_name="api root"),
         ),
     ]
