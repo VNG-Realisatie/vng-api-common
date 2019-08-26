@@ -2,7 +2,7 @@ from django.db import models
 
 
 def is_search_view(view):
-    _action = getattr(view, 'action', None)
+    _action = getattr(view, "action", None)
     if _action is None:
         return
     action = getattr(view, view.action)

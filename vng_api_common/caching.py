@@ -21,11 +21,12 @@ class ETagMixin(models.Model):
     """
     Automatically calculate the (new) ETag value on save.
     """
+
     _etag = models.CharField(
         _("etag value"),
         max_length=32,
         help_text=_("MD5 hash of the resource representation in its current version."),
-        editable=False
+        editable=False,
     )
 
     class Meta:
@@ -37,7 +38,6 @@ class ETagMixin(models.Model):
 
 
 class APICache:
-
     def __init__(self, view: GenericAPIView, etag_field: str = "_etag"):
         """
         API Cache interface.
@@ -64,9 +64,7 @@ class APICache:
             return {}
 
         etag = getattr(obj, self.etag_field)
-        return {
-            "ETag": etag,
-        }
+        return {"ETag": etag}
 
 
 @functools.lru_cache(maxsize=None)
@@ -78,7 +76,7 @@ def _get_serializer_for_models():
     """
     model_serializers = {}
     for serializer_class in get_subclasses(serializers.ModelSerializer):
-        if not hasattr(serializer_class, 'Meta'):
+        if not hasattr(serializer_class, "Meta"):
             continue
 
         model = serializer_class.Meta.model
@@ -90,7 +88,6 @@ def _get_serializer_for_models():
 
 
 class StaticRequest(HttpRequest):
-
     def get_host(self) -> str:
         site = Site.objects.get_current()
         return site.domain
