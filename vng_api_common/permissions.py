@@ -21,7 +21,16 @@ def get_required_scopes(view) -> Union[Scope, None]:
             "The View(Set) must have a `required_scopes` attribute"
         )
 
-    scopes_required = view.required_scopes.get(view.action)
+    # viewsets mark detail routes by providing the initkwarg, see
+    # rest_framework.routers.SimpleRouter.get_urls
+    detail = getattr(view, "detail", False)
+    action = getattr(view, "action", None)
+
+    # auto-generated head method doesn't get an action assigned
+    if action is None and detail and view.request.method == "HEAD":
+        action = "retrieve"
+
+    scopes_required = view.required_scopes.get(action)
     return scopes_required
 
 
