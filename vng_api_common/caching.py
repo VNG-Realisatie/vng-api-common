@@ -16,6 +16,21 @@ from rest_framework.settings import api_settings
 
 from .utils import get_subclasses
 
+CACHE_HEADER = "ETag"
+
+
+def has_cache_header(view: GenericAPIView) -> bool:
+    if view.request.method not in ("GET", "HEAD"):
+        return False
+
+    if hasattr(view, "detail") and not view.detail:
+        return False
+
+    if not isinstance(view, mixins.RetrieveModelMixin):
+        return False
+
+    return True
+
 
 class ETagMixin(models.Model):
     """
@@ -49,13 +64,7 @@ class APICache:
 
     @property
     def headers(self) -> dict:
-        if self.view.request.method not in ("GET", "HEAD"):
-            return {}
-
-        if hasattr(self.view, "detail") and not self.view.detail:
-            return {}
-
-        if not isinstance(self.view, mixins.RetrieveModelMixin):
+        if not has_cache_header(self.view):
             return {}
 
         try:
@@ -64,7 +73,7 @@ class APICache:
             return {}
 
         etag = getattr(obj, self.etag_field)
-        return {"ETag": etag}
+        return {CACHE_HEADER: etag}
 
 
 @functools.lru_cache(maxsize=None)

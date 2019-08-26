@@ -16,6 +16,7 @@ from ..geo import GeoMixin
 from ..permissions import BaseAuthRequired, get_required_scopes
 from ..search import is_search_view
 from ..serializers import FoutSerializer, ValidatieFoutSerializer
+from .cache import get_cache_headers
 
 logger = logging.getLogger(__name__)
 
@@ -320,8 +321,12 @@ class AutoSchema(SwaggerAutoSchema):
                     {"field_inspectors": self.field_inspectors},
                     status=status_,
                 )
-                or None
+                or OrderedDict()
             )
+
+            # add the cache headers, if applicable
+            for header, header_schema in get_cache_headers(self.view).items():
+                custom_headers[header] = header_schema
 
             assert isinstance(schema, openapi.Schema.OR_REF) or schema == ""
             response = openapi.Response(
