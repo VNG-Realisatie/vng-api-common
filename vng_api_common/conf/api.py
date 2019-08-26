@@ -22,11 +22,11 @@ BASE_REST_FRAMEWORK = {
     "DEFAULT_PARSER_CLASSES": (
         "djangorestframework_camel_case.parser.CamelCaseJSONParser",
     ),
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-    #     # 'rest_framework.authentication.SessionAuthentication',
-    #     # 'rest_framework.authentication.BasicAuthentication'
-    # ),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        # 'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication'
+    ),
     # 'DEFAULT_PERMISSION_CLASSES': (
     #     'oauth2_provider.contrib.rest_framework.TokenHasReadWriteScope',
     #     # 'rest_framework.permissions.IsAuthenticated',
