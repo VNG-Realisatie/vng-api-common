@@ -1,6 +1,7 @@
 import inspect
 import logging
 from collections import OrderedDict
+from typing import Tuple
 
 from django.apps import apps
 from django.conf import settings
@@ -413,6 +414,27 @@ class AutoSchema(SwaggerAutoSchema):
 
         # operation level security
         return [{settings.SECURITY_DEFINITION_NAME: scopes}]
+
+    # all of these break if you accept method HEAD because the view.action is None
+    def is_list_view(self) -> bool:
+        if self.method == "HEAD":
+            return False
+        return super().is_list_view()
+
+    def get_summary_and_description(self) -> Tuple[str, str]:
+        if self.method != "HEAD":
+            return super().get_summary_and_description()
+
+        default_description = _(
+            "De headers voor een specifiek(e) {model_name} opvragen"
+        ).format(model_name=self.model._meta.model_name.upper())
+        default_summary = _(
+            "Vraag de headers op die je bij een GET request zou krijgen."
+        )
+
+        description = self.overrides.get("operation_description", default_description)
+        summary = self.overrides.get("operation_summary", default_summary)
+        return description, summary
 
     # patch around drf-yasg not taking overrides into account
     # TODO: contribute back in PR
