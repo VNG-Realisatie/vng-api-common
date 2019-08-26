@@ -337,8 +337,12 @@ class AutoSchema(SwaggerAutoSchema):
                     {"field_inspectors": self.field_inspectors},
                     status=status_,
                 )
-                or None
+                or OrderedDict()
             )
+
+            # add the cache headers, if applicable
+            for header, header_schema in get_cache_headers(self.view).items():
+                custom_headers[header] = header_schema
 
             assert isinstance(schema, openapi.Schema.OR_REF) or schema == ""
             response = openapi.Response(

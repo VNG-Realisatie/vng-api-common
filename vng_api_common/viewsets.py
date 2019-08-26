@@ -81,3 +81,9 @@ class CachingMixin:
         cache = APICache(self)
         headers.update(cache.headers)
         return headers
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        # for non-success responses, strip the cache headers
+        if not 200 <= response.status_code < 300 and "ETag" in self.headers:
+            del self.headers["ETag"]
+        return super().finalize_response(request, response, *args, **kwargs)
