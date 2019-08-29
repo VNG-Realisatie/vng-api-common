@@ -109,7 +109,7 @@ class NotificationMixin(metaclass=NotificationMixinBase):
 
             # get main_object data formatted by serializer
             view = get_viewset_for_path(main_object_path)
-            serializer_class = view.serializer_class
+            serializer_class = view.get_serializer_class()
             serializer = serializer_class(
                 main_object, context={"request": self.request}
             )
