@@ -5,14 +5,14 @@ from ...serializers import GegevensGroepSerializer, add_choice_values_help_text
 from ..models import AuditTrail
 
 
-class WijzgingenSerializer(GegevensGroepSerializer):
+class WijzigingenSerializer(GegevensGroepSerializer):
     class Meta:
         model = AuditTrail
         gegevensgroep = "wijzigingen"
 
 
 class AuditTrailSerializer(serializers.ModelSerializer):
-    wijzigingen = WijzgingenSerializer()
+    wijzigingen = WijzigingenSerializer()
 
     class Meta:
         model = AuditTrail
