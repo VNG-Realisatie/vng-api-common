@@ -18,7 +18,7 @@ class NotificatieSerializer(serializers.Serializer):
     )
     resource = serializers.CharField(
         label=_("resource"), max_length=100,
-        help_text=_("De resource naam waar de notificatie over gaat.")
+        help_text=_("De resourcenaam waar de notificatie over gaat.")
     )
     resource_url = serializers.URLField(
         label=_("resource URL"),
@@ -40,6 +40,6 @@ class NotificatieSerializer(serializers.Serializer):
             label=_("kenmerk"), max_length=1000,
             help_text=_("Een waarde behorende bij de sleutel.")
         ),
-        help_text=_("Map van kenmerken (sleutel/waarde) van de notificatie. De "
+        help_text=_("Mapping van kenmerken (sleutel/waarde) van de notificatie. De "
                     "publicerende API specificeert de toegestane kenmerken.")
     )
