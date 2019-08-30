@@ -24,11 +24,16 @@ class AutorisatieBaseSerializer(PolymorphicSerializer):
                 "max_vertrouwelijkheidaanduiding",
             ),
             ComponentTypes.brc: ("besluittype",),
+            ComponentTypes.nrc: (),
+            ComponentTypes.ztc: (),
+            ComponentTypes.ac: (),
         },
     )
 
     component_weergave = serializers.CharField(
-        source="get_component_display", read_only=True
+        source="get_component_display",
+        read_only=True,
+        help_text=_("Omschrijving van `component`."),
     )
 
     class Meta:
