@@ -29,10 +29,18 @@ class AutorisatieBaseSerializer(PolymorphicSerializer):
             ComponentTypes.brc: (
                 'besluittype',
             ),
-        }
+            ComponentTypes.brc: ("besluittype",),
+            ComponentTypes.nrc: (),
+            ComponentTypes.ztc: (),
+            ComponentTypes.ac: (),
+        },
     )
 
-    component_weergave = serializers.CharField(source='get_component_display', read_only=True)
+    component_weergave = serializers.CharField(
+        source="get_component_display",
+        read_only=True,
+        help_text=_("Omschrijving van `component`."),
+    )
 
     class Meta:
         model = Autorisatie
