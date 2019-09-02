@@ -2,6 +2,8 @@ import os
 
 from vng_api_common.conf.api import *  # noqa
 
+SITE_ID = 1
+
 DEBUG = os.getenv("DEBUG", "no").lower() in ["yes", "true", "1"]
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -24,6 +26,7 @@ INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.sessions",
     "django.contrib.admin",
+    "django.contrib.sites",
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "rest_framework",

@@ -5,6 +5,7 @@ from .auth import (
     generate_jwt,
     generate_jwt_auth,
 )
+from .caching import CacheMixin
 from .schema import TypeCheckMixin, get_operation_url, get_validation_errors
 from .urls import reverse, reverse_lazy
 
@@ -19,4 +20,5 @@ __all__ = [
     "reverse_lazy",
     "JWTAuthMixin",
     "generate_jwt_auth",
+    "CacheMixin",
 ]
