@@ -27,6 +27,9 @@ BASE_REST_FRAMEWORK = {
         # 'rest_framework.authentication.SessionAuthentication',
         # 'rest_framework.authentication.BasicAuthentication'
     ),
+    # there is no authentication of 'end-users', only authorization (via JWT)
+    # of applications
+    "DEFAULT_AUTHENTICATION_CLASSES": (),
     # 'DEFAULT_PERMISSION_CLASSES': (
     #     'oauth2_provider.contrib.rest_framework.TokenHasReadWriteScope',
     #     # 'rest_framework.permissions.IsAuthenticated',
