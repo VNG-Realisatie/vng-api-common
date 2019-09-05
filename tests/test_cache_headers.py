@@ -28,6 +28,7 @@ def test_304_on_cached_resource(api_client, person):
     response = api_client.get(path, HTTP_IF_NONE_MATCH=f'"{person._etag}"')
 
     assert response.status_code == status.HTTP_304_NOT_MODIFIED
+    assert "Etag" in response
 
 
 def test_200_on_stale_resource(api_client, person):
