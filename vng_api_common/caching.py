@@ -4,7 +4,7 @@ from functools import partial
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.db import models
+from django.db import models, transaction
 from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
 
@@ -16,7 +16,10 @@ from rest_framework.request import Request
 from rest_framework.settings import api_settings
 from rest_framework_condition.decorators import condition as drf_condition
 
+from .serializers import GegevensGroepSerializer
 from .utils import get_resource_for_path, get_subclasses
+
+__all__ = ["CACHE_HEADER", "ETagMixin", "conditional_retrieve"]
 
 CACHE_HEADER = "ETag"
 
@@ -69,7 +72,9 @@ class ETagMixin(models.Model):
     class Meta:
         abstract = True
 
+    @transaction.atomic()
     def save(self, *args, **kwargs):
+        # TODO: change into post-save to handle pk?
         self._etag = calculate_etag(self)
         super().save(*args, **kwargs)
 
@@ -108,6 +113,9 @@ def _get_serializer_for_models():
     model_serializers = {}
     for serializer_class in get_subclasses(serializers.ModelSerializer):
         if not hasattr(serializer_class, "Meta"):
+            continue
+
+        if issubclass(serializer_class, GegevensGroepSerializer):
             continue
 
         model = serializer_class.Meta.model
