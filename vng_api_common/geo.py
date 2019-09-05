@@ -43,6 +43,9 @@ class GeoMixin:
             if content_crs != DEFAULT_CRS:
                 raise NotAcceptable(detail=f"CRS '{content_crs}' is niet ondersteund")
 
+        if self.action == "destroy":
+            return
+
         # client must indicate which CRS they want in the response
         requested_crs = extract_header(request, HEADER_ACCEPT)
         if requested_crs is None:
