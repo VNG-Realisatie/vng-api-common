@@ -72,7 +72,7 @@ class CheckQueryParamsMixin:
 
 class CachingMixin:
     """
-    Enable headers that facilitate client-caching.
+    Enable headers that facilitates client-caching.
     """
 
     @property
