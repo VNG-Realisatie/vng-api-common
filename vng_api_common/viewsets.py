@@ -5,7 +5,6 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.settings import api_settings
 
-from .caching import APICache
 from .filters import Backend
 from .utils import lookup_kwargs_to_filters, underscore_to_camel
 
@@ -68,22 +67,3 @@ class CheckQueryParamsMixin:
     def list(self, request, *args, **kwargs):
         self._check_query_params(request)
         return super().list(request, *args, **kwargs)
-
-
-class CachingMixin:
-    """
-    Enable headers that facilitates client-caching.
-    """
-
-    @property
-    def default_response_headers(self):
-        headers = super().default_response_headers
-        cache = APICache(self)
-        headers.update(cache.headers)
-        return headers
-
-    def finalize_response(self, request, response, *args, **kwargs):
-        # for non-success responses, strip the cache headers
-        if not 200 <= response.status_code < 300 and "ETag" in self.headers:
-            del self.headers["ETag"]
-        return super().finalize_response(request, response, *args, **kwargs)
