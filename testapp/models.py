@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from vng_api_common.caching import ETagMixin
 from vng_api_common.descriptors import GegevensGroepType
 
 
@@ -14,7 +15,7 @@ class Group(models.Model):
     )
 
 
-class Person(models.Model):
+class Person(ETagMixin, models.Model):
     name = models.CharField(_("name"), max_length=50)
 
     address_street = models.CharField(_("street name"), max_length=255)
