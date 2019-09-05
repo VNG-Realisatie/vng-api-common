@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from drf_yasg import openapi
 from rest_framework.views import APIView
 
-from ..caching import CACHE_HEADER, has_cache_header
+from ..caching.introspection import has_cache_header
 
 
 def get_cache_headers(view: APIView) -> OrderedDict:
@@ -15,7 +15,7 @@ def get_cache_headers(view: APIView) -> OrderedDict:
     return OrderedDict(
         (
             (
-                CACHE_HEADER,
+                "ETag",
                 openapi.Schema(
                     type=openapi.TYPE_STRING,
                     description=_(
