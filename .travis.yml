@@ -1,7 +1,8 @@
 language: python
 cache: pip
 
-sudo: false
+services:
+  - postgresql
 
 python:
   - "3.6"
