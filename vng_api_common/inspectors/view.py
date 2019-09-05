@@ -388,6 +388,9 @@ class AutoSchema(SwaggerAutoSchema):
         )
         result = base + extra
 
+        if has_cache_header(self.view):
+            result += CACHE_REQUEST_HEADERS
+
         if _view_supports_audittrail(self.view):
             result += AUDIT_REQUEST_HEADERS
 
