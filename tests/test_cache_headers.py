@@ -12,7 +12,7 @@ def test_etag_header_present(api_client, person):
 
     assert response.status_code == status.HTTP_200_OK
     assert "ETag" in response
-    assert response["ETag"] == person._etag
+    assert response["ETag"] == f'"{person._etag}"'
 
 
 def test_304_on_cached_resource(api_client, person):
