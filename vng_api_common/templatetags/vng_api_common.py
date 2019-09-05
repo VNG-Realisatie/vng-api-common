@@ -38,3 +38,13 @@ def gemmaonline_url(resource: str):
         componenttype=settings.GEMMA_URL_COMPONENTTYPE,
         component=resource.lower(),
     )
+
+
+@register.filter
+@stringfilter
+def is_local(host: str):
+    local_hosts = ["localhost", "127.0.0.1"]
+    hostname = host.rsplit(":")[0]
+    if hostname in local_hosts:
+        return True
+    return False

@@ -1,4 +1,4 @@
-{% load static %}<!DOCTYPE html>
+{% load static vng_api_common %}<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -46,6 +46,12 @@
             </ul>
           </div>
           <div class="col-6 col-md">
+            {% if not request.get_host|is_local %}
+                <h5>Terms of use</h5>
+                <ul class="list-unstyled text-small">
+                  <li><a class="text-muted" href="https://zaakgerichtwerken.vng.cloud/beheer/gebruiksvoorwaarden">Terms</a></li>
+                </ul>
+            {% endif %}
           </div>
           <div class="col-6 col-md">
             <h5>Over Common Ground</h5>
