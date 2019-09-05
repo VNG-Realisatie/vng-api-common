@@ -4,6 +4,8 @@ from django.views.generic import RedirectView
 
 from rest_framework import routers
 
+from rest_framework import routers
+
 from .schema import SchemaView
 from .views import NotificationView
 from .viewsets import GroupViewSet
