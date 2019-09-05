@@ -10,7 +10,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 from rest_framework import mixins, serializers
-from rest_framework.exceptions import APIException
 from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
 from rest_framework.settings import api_settings
@@ -39,6 +38,9 @@ def conditional_retrieve(action="retrieve", etag_field="_etag"):
         original_handler = getattr(viewset, action)
         handler = condition(original_handler)
         setattr(viewset, action, handler)
+        if not hasattr(viewset, "_conditional_retrieves"):
+            viewset._conditional_retrieves = []
+        viewset._conditional_retrieves.append(action)
         return viewset
 
     return decorator
@@ -77,30 +79,6 @@ class ETagMixin(models.Model):
         # TODO: change into post-save to handle pk?
         self._etag = calculate_etag(self)
         super().save(*args, **kwargs)
-
-
-class APICache:
-    def __init__(self, view: GenericAPIView, etag_field: str = "_etag"):
-        """
-        API Cache interface.
-
-        :param view: the view or viewset instance currently used in the request
-        """
-        self.view = view
-        self.etag_field = etag_field
-
-    @property
-    def headers(self) -> dict:
-        if not has_cache_header(self.view):
-            return {}
-
-        try:
-            obj = self.view.get_object()
-        except APIException:
-            return {}
-
-        etag = getattr(obj, self.etag_field)
-        return {CACHE_HEADER: etag}
 
 
 @functools.lru_cache(maxsize=None)

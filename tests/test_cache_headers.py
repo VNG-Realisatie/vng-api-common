@@ -41,7 +41,7 @@ def test_200_on_stale_resource(api_client, person):
 def test_cache_headers_detected():
     request = APIRequestFactory().get("/api/persons/1")
     request = APIView().initialize_request(request)
-    callback = PersonViewSet.as_view({"get": "retrieve"})
+    callback = PersonViewSet.as_view({"get": "retrieve"}, detail=True)
     generator = SchemaGenerator()
 
     view = generator.create_view(callback, "GET", request=request)

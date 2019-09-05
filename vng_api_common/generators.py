@@ -7,17 +7,18 @@ from drf_yasg.generators import (
 )
 from rest_framework.schemas.utils import is_list_view
 
-from .viewsets import CachingMixin
-
 
 class EndpointEnumerator(_EndpointEnumerator):
     def get_allowed_methods(self, callback) -> list:
         methods = super().get_allowed_methods(callback)
 
         # head requests are explicitly supported for endpoint that provide caching
-        if issubclass(callback.cls, CachingMixin):
-            if "retrieve" in callback.actions.values():
-                methods.append("HEAD")
+        conditional_retrieves = getattr(callback.cls, "_conditional_retrieves", [])
+        if not conditional_retrieves:
+            return methods
+
+        if set(conditional_retrieves).intersection(callback.actions.values()):
+            methods.append("HEAD")
 
         return methods
 
