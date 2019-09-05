@@ -1,5 +1,6 @@
 import functools
 import hashlib
+from functools import partial
 
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -13,10 +14,31 @@ from rest_framework.exceptions import APIException
 from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
 from rest_framework.settings import api_settings
+from rest_framework_condition.decorators import condition as drf_condition
 
-from .utils import get_subclasses
+from .utils import get_resource_for_path, get_subclasses
 
 CACHE_HEADER = "ETag"
+
+
+def etag_func(request: HttpRequest, etag_field: str = "_etag", **view_kwargs):
+    obj = get_resource_for_path(request.path)
+    return getattr(obj, etag_field)
+
+
+def conditional_retrieve(action="retrieve", etag_field="_etag"):
+    """
+    Decorate a viewset to apply conditional GET requests.
+    """
+
+    def decorator(viewset: type):
+        condition = drf_condition(etag_func=partial(etag_func, etag_field=etag_field))
+        original_handler = getattr(viewset, action)
+        handler = condition(original_handler)
+        setattr(viewset, action, handler)
+        return viewset
+
+    return decorator
 
 
 def has_cache_header(view: GenericAPIView) -> bool:
