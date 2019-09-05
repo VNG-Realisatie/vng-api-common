@@ -46,7 +46,7 @@ class GeoMixin:
                     detail=f"CRS '{content_crs}' is niet ondersteund",
                 )
 
-        if self.action == "destroy":
+        if request.method.lower() == "delete":
             return
 
         # client must indicate which CRS they want in the response
