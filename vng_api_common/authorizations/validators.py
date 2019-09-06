@@ -2,8 +2,11 @@ from typing import List
 
 from django.utils.translation import ugettext_lazy as _
 
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.serializers import ValidationError
 
+from ..constants import ComponentTypes
+from ..utils import underscore_to_camel
 from .models import Applicatie
 
 
@@ -42,3 +45,36 @@ class UniqueClientIDValidator:
                 ),
                 code=self.code,
             )
+
+
+class AutorisatieValidator:
+    message = _("This field is required if `component` is {component}")
+    code = "required"
+
+    REQUIRED_FIELDS_PER_COMPONENT = {
+        ComponentTypes.zrc: ("max_vertrouwelijkheidaanduiding", "zaaktype"),
+        ComponentTypes.drc: ("max_vertrouwelijkheidaanduiding", "informatieobjecttype"),
+        ComponentTypes.brc: ("besluittype",),
+    }
+
+    def __call__(self, autorisatie: dict) -> None:
+        component = autorisatie["component"]
+
+        # TODO check if zaak/informatieobject/besluittype is needed for the given scopes
+        error_dict = {}
+        for field_name in self.REQUIRED_FIELDS_PER_COMPONENT[component]:
+            if not autorisatie[field_name]:
+                error_dict.update(
+                    {
+                        field_name: ErrorDetail(
+                            self.message.format(
+                                fields=underscore_to_camel(field_name),
+                                component=component,
+                            ),
+                            self.code,
+                        )
+                    }
+                )
+
+        if error_dict:
+            raise ValidationError(error_dict)
