@@ -8,9 +8,10 @@ import pytest
 from pytest_factoryboy import register
 from rest_framework.test import APIClient
 from testapp import urls  # noqa
-from testapp.factories import PersonFactory
+from testapp.factories import HobbyFactory, PersonFactory
 
 register(PersonFactory)
+register(HobbyFactory)
 
 
 @pytest.fixture

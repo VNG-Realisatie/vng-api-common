@@ -18,3 +18,9 @@ class Person(ETagMixin, models.Model):
     address = GegevensGroepType({"street": address_street, "number": address_number})
 
     group = models.ForeignKey("Group", null=True, on_delete=models.CASCADE)
+
+    hobbies = models.ManyToManyField("Hobby", related_name="people", blank=True)
+
+
+class Hobby(ETagMixin, models.Model):
+    name = models.CharField(_("name"), max_length=100)

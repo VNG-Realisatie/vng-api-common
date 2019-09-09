@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from testapp.models import Group, Person
+from testapp.models import Group, Hobby, Person
 
 from vng_api_common.serializers import GegevensGroepSerializer
 
@@ -24,3 +24,9 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ("person",)
+
+
+class HobbySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hobby
+        fields = ("name", "people")
