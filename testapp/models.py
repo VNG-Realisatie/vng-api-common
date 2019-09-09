@@ -6,7 +6,7 @@ from vng_api_common.descriptors import GegevensGroepType
 
 
 class Group(models.Model):
-    pass
+    name = models.CharField(_("name"), max_length=100)
 
 
 class Person(ETagMixin, models.Model):

@@ -12,10 +12,14 @@ class AddressSerializer(GegevensGroepSerializer):
 
 class PersonSerializer(serializers.ModelSerializer):
     address = AddressSerializer(allow_null=True)
+    group_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Person
-        fields = ("address", "name")
+        fields = ("address", "name", "group_name")
+
+    def get_group_name(self, obj) -> str:
+        return obj.group.name if obj.group_id else ""
 
 
 class GroupSerializer(serializers.ModelSerializer):

@@ -130,3 +130,26 @@ def test_remove_m2m_reverse(api_client, person, hobby):
     assert new_etag
     assert new_etag != '""'
     assert new_etag != etag
+
+
+def test_related_object_changes_etag(api_client, person, group):
+    path = reverse("person-detail", kwargs={"pk": person.pk})
+
+    # set up group object for person
+    person.group = group
+    person.save()
+
+    etag1 = api_client.get(path)["ETag"]
+    person.refresh_from_db()
+    assert etag1
+    assert etag1 != '""'
+
+    # change the group name, should change the ETag
+    group.name = "bar"
+    group.save()
+
+    etag2 = api_client.get(path)["ETag"]
+
+    assert etag2
+    assert etag2 != '""'
+    assert etag2 != etag1
