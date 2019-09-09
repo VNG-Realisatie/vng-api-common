@@ -55,14 +55,38 @@ def test_cache_headers_detected():
     assert isinstance(headers["ETag"], openapi.Schema)
 
 
-def test_etag_changes_m2m_changes(api_client, hobby, person):
+def test_etag_changes_m2m_changes_forward(api_client, hobby, person):
+    # ensure etags are calculted
+    person_path = reverse("person-detail", kwargs={"pk": person.pk})
+    hobby_path = reverse("hobby-detail", kwargs={"pk": hobby.pk})
+    person_response = api_client.get(person_path)
+    hobby_response = api_client.get(hobby_path)
+    person.refresh_from_db()
+    hobby.refresh_from_db()
+
+    # change the m2m, in the forward direction
+    person.hobbies.add(hobby)
+
+    # compare the new ETags
+    person_response2 = api_client.get(person_path)
+    hobby_response2 = api_client.get(hobby_path)
+    assert person_response["ETag"]
+    assert person_response["ETag"] != '""'
+    assert person_response["ETag"] == person_response2["ETag"]
+
+    assert hobby_response["ETag"]
+    assert hobby_response["ETag"] != '""'
+    assert hobby_response["ETag"] != hobby_response2["ETag"]
+
+
+def test_etag_changes_m2m_changes_reverse(api_client, hobby, person):
     path = reverse("hobby-detail", kwargs={"pk": hobby.pk})
     response = api_client.get(path)
     hobby.refresh_from_db()
     assert "ETag" in response
     etag = response["ETag"]
 
-    # change the m2m
+    # change the m2m - reverse direction
     hobby.people.add(person)
 
     response2 = api_client.get(path)
@@ -70,3 +94,39 @@ def test_etag_changes_m2m_changes(api_client, hobby, person):
     assert response2["ETag"]
     assert response2["ETag"] != '""'
     assert response2["ETag"] != etag
+
+
+def test_remove_m2m(api_client, person, hobby):
+    hobby_path = reverse("hobby-detail", kwargs={"pk": hobby.pk})
+    person.hobbies.add(hobby)
+
+    etag = api_client.get(hobby_path)["ETag"]
+    hobby.refresh_from_db()
+    assert etag
+    assert etag != '""'
+
+    # this changes the output of the hobby resource
+    person.hobbies.remove(hobby)
+
+    new_etag = api_client.get(hobby_path)["ETag"]
+    assert new_etag
+    assert new_etag != '""'
+    assert new_etag != etag
+
+
+def test_remove_m2m_reverse(api_client, person, hobby):
+    hobby_path = reverse("hobby-detail", kwargs={"pk": hobby.pk})
+    person.hobbies.add(hobby)
+
+    etag = api_client.get(hobby_path)["ETag"]
+    hobby.refresh_from_db()
+    assert etag
+    assert etag != '""'
+
+    # this changes the output of the hobby resource
+    hobby.people.remove(person)
+
+    new_etag = api_client.get(hobby_path)["ETag"]
+    assert new_etag
+    assert new_etag != '""'
+    assert new_etag != etag
