@@ -17,12 +17,14 @@ def test_etag_header_present(api_client, person):
 
     response = api_client.get(path)
 
+    person.refresh_from_db()
     assert response.status_code == status.HTTP_200_OK
     assert "ETag" in response
     assert response["ETag"] == f'"{person._etag}"'
 
 
 def test_304_on_cached_resource(api_client, person):
+    person.calculate_etag_value()
     path = reverse("person-detail", kwargs={"pk": person.pk})
 
     response = api_client.get(path, HTTP_IF_NONE_MATCH=f'"{person._etag}"')

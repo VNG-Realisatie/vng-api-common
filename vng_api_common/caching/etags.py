@@ -56,7 +56,10 @@ def calculate_etag(instance: models.Model) -> str:
 
 def etag_func(request: HttpRequest, etag_field: str = "_etag", **view_kwargs):
     obj = get_resource_for_path(request.path)
-    return getattr(obj, etag_field)
+    etag_value = getattr(obj, etag_field)
+    if not etag_value:  # calculate missing value and store it
+        etag_value = obj.calculate_etag_value()
+    return etag_value
 
 
 @functools.lru_cache(maxsize=None)

@@ -1,3 +1,5 @@
+import warnings
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -19,7 +21,14 @@ class ETagMixin(models.Model):
     class Meta:
         abstract = True
 
-    def save(self, *args, **kwargs):
-        # TODO: change into post-save to handle pk?
+    def calculate_etag_value(self) -> str:
+        """
+        Calculate and save the ETag value.
+        """
+        if not self.pk:
+            warnings.warn(
+                "You should not calculate ETags on unsaved objects", RuntimeWarning
+            )
         self._etag = calculate_etag(self)
-        super().save(*args, **kwargs)
+        self.save(update_fields=["_etag"])
+        return self._etag
