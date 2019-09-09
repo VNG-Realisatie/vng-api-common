@@ -8,3 +8,10 @@ class PersonFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "testapp.Person"
+
+
+class HobbyFactory(factory.django.DjangoModelFactory):
+    name = factory.Faker("bs")
+
+    class Meta:
+        model = "testapp.Hobby"

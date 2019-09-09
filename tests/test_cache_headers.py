@@ -51,3 +51,18 @@ def test_cache_headers_detected():
 
     assert "ETag" in headers
     assert isinstance(headers["ETag"], openapi.Schema)
+
+
+def test_etag_changes_m2m_changes(api_client, hobby, person):
+    path = reverse("hobby-detail", kwargs={"pk": hobby.pk})
+    response = api_client.get(path)
+    assert "ETag" in response
+    etag = response["ETag"]
+
+    hobby.people.add(person)
+    response2 = api_client.get(path)
+
+    assert "ETag" in response2
+    assert response2["ETag"]
+    assert response2["ETag"] != '""'
+    assert response2["ETag"] != etag
