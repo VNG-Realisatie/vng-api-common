@@ -9,7 +9,8 @@ re-calculated on the next fetch.
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models, transaction
 from django.db.models.base import ModelBase
-from django.db.models.signals import m2m_changed, post_save
+from django.db.models.fields.related import ManyToOneRel
+from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
 
 
@@ -35,12 +36,31 @@ def is_etag_model(model: ModelBase) -> bool:
     return True
 
 
-@receiver(post_save)
+def handle_related_etag_instances(instance: models.Model):
+    model = type(instance)
+    fields = [
+        field
+        for field in model._meta.get_fields()
+        if field.is_relation and isinstance(field, ManyToOneRel)
+    ]
+
+    for field in fields:
+        source_model = field.remote_field.model
+        if not is_etag_model(source_model):
+            continue  # TODO: what with more deeply nested objects?
+
+        related_instances = getattr(instance, field.get_accessor_name()).all()
+        for related_instance in related_instances:
+            _schedule_clear_etag(related_instance)
+
+
+@receiver([post_save, post_delete])
 def schedule_etag_clearing(sender: ModelBase, instance: models.Model, **kwargs):
     if kwargs["raw"]:
         return
 
     if not is_etag_model(sender):
+        handle_related_etag_instances(instance)
         return
 
     # no value set for the ETag, nothing to do
