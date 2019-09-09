@@ -9,7 +9,7 @@ from testapp.viewsets import PersonViewSet
 
 from vng_api_common.inspectors.cache import get_cache_headers
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def test_etag_header_present(api_client, person):
@@ -58,12 +58,14 @@ def test_cache_headers_detected():
 def test_etag_changes_m2m_changes(api_client, hobby, person):
     path = reverse("hobby-detail", kwargs={"pk": hobby.pk})
     response = api_client.get(path)
+    hobby.refresh_from_db()
     assert "ETag" in response
     etag = response["ETag"]
 
+    # change the m2m
     hobby.people.add(person)
-    response2 = api_client.get(path)
 
+    response2 = api_client.get(path)
     assert "ETag" in response2
     assert response2["ETag"]
     assert response2["ETag"] != '""'
