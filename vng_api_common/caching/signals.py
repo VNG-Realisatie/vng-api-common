@@ -56,7 +56,7 @@ def handle_related_etag_instances(instance: models.Model):
 
 @receiver([post_save, post_delete])
 def schedule_etag_clearing(sender: ModelBase, instance: models.Model, **kwargs):
-    if kwargs["raw"]:
+    if kwargs.get("raw"):
         return
 
     if not is_etag_model(sender):
