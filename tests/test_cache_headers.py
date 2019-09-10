@@ -153,3 +153,7 @@ def test_related_object_changes_etag(api_client, person, group):
     assert etag2
     assert etag2 != '""'
     assert etag2 != etag1
+
+
+def test_etag_clearing_without_raw_key_in_kwargs(person):
+    person.delete()
