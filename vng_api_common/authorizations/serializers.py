@@ -9,7 +9,7 @@ from ..constants import ComponentTypes
 from ..polymorphism import Discriminator, PolymorphicSerializer
 from ..serializers import add_choice_values_help_text
 from .models import Applicatie, Autorisatie
-from .validators import UniqueClientIDValidator
+from .validators import AutorisatieValidator, UniqueClientIDValidator
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +48,7 @@ class AutorisatieBaseSerializer(PolymorphicSerializer):
                 )
             }
         }
+        validators = [AutorisatieValidator()]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
