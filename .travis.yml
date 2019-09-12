@@ -1,16 +1,21 @@
 language: python
 cache: pip
 
-sudo: false
+services:
+  - postgresql
 
 python:
   - "3.6"
   - "3.7"
 
 env:
-  - DJANGO=2.0
-  - DJANGO=2.1
-  - DJANGO=2.2
+  global:
+    - PGUSER=postgres
+    - PGDATABASE=postgres
+    - PGPASSWORD=
+  matrix:
+    - DJANGO=2.1
+    - DJANGO=2.2
 
 matrix:
   fast_finish: true

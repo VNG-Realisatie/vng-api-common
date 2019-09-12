@@ -17,7 +17,7 @@ from ..geo import GeoMixin
 from ..permissions import BaseAuthRequired, get_required_scopes
 from ..search import is_search_view
 from ..serializers import FoutSerializer, ValidatieFoutSerializer
-from .cache import get_cache_headers
+from .cache import CACHE_REQUEST_HEADERS, get_cache_headers, has_cache_header
 
 logger = logging.getLogger(__name__)
 
@@ -371,6 +371,9 @@ class AutoSchema(SwaggerAutoSchema):
             or []
         )
         result = base + extra
+
+        if has_cache_header(self.view):
+            result += CACHE_REQUEST_HEADERS
 
         if _view_supports_audittrail(self.view):
             result += AUDIT_REQUEST_HEADERS

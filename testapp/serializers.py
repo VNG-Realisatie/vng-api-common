@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from testapp.models import Group, Person
+from testapp.models import Group, Hobby, Person
 
 from vng_api_common.serializers import GegevensGroepSerializer
 
@@ -12,10 +12,14 @@ class AddressSerializer(GegevensGroepSerializer):
 
 class PersonSerializer(serializers.ModelSerializer):
     address = AddressSerializer(allow_null=True)
+    group_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Person
-        fields = ("address", "name")
+        fields = ("address", "name", "group_name")
+
+    def get_group_name(self, obj) -> str:
+        return obj.group.name if obj.group_id else ""
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -24,3 +28,9 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ("person",)
+
+
+class HobbySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hobby
+        fields = ("name", "people")
