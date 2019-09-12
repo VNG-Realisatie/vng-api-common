@@ -1,4 +1,5 @@
 import time
+from typing import List, Optional
 
 import jwt
 from rest_framework import status
@@ -146,32 +147,60 @@ class JWTAuthMixin:
     besluittype = None
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
+    @staticmethod
+    def _create_credentials(
+        client_id: str,
+        secret: str,
+        heeft_alle_autorisaties: bool,
+        max_vertrouwelijkheidaanduiding: str,
+        scopes: Optional[List[str]] = None,
+        zaaktype: Optional[str] = None,
+        informatieobjecttype: Optional[str] = None,
+        besluittype: Optional[str] = None,
+    ):
         JWTSecret.objects.get_or_create(
-            identifier=cls.client_id, defaults={"secret": cls.secret}
+            identifier=client_id, defaults={"secret": secret}
         )
 
         config = AuthorizationsConfig.get_solo()
 
-        cls.applicatie = Applicatie.objects.create(
-            client_ids=[cls.client_id],
+        applicatie = Applicatie.objects.create(
+            client_ids=[client_id],
             label="for test",
-            heeft_alle_autorisaties=cls.heeft_alle_autorisaties,
+            heeft_alle_autorisaties=heeft_alle_autorisaties,
         )
 
-        if cls.heeft_alle_autorisaties is False:
-            cls.autorisatie = Autorisatie.objects.create(
-                applicatie=cls.applicatie,
+        if heeft_alle_autorisaties is False:
+            autorisatie = Autorisatie.objects.create(
+                applicatie=applicatie,
                 component=config.component,
-                scopes=cls.scopes or [],
-                zaaktype=cls.zaaktype or "",
-                informatieobjecttype=cls.informatieobjecttype or "",
-                besluittype=cls.besluittype or "",
-                max_vertrouwelijkheidaanduiding=cls.max_vertrouwelijkheidaanduiding,
+                scopes=scopes or [],
+                zaaktype=zaaktype or "",
+                informatieobjecttype=informatieobjecttype or "",
+                besluittype=besluittype or "",
+                max_vertrouwelijkheidaanduiding=max_vertrouwelijkheidaanduiding,
             )
+        else:
+            autorisatie = None
+
+        return applicatie, autorisatie
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        applicatie, autorisatie = cls._create_credentials(
+            cls.client_id,
+            cls.secret,
+            heeft_alle_autorisaties=cls.heeft_alle_autorisaties,
+            scopes=cls.scopes,
+            zaaktype=cls.zaaktype,
+            informatieobjecttype=cls.informatieobjecttype,
+            besluittype=cls.besluittype,
+            max_vertrouwelijkheidaanduiding=cls.max_vertrouwelijkheidaanduiding,
+        )
+        cls.applicatie = applicatie
+        cls.autorisatie = autorisatie
 
     def setUp(self):
         super().setUp()
