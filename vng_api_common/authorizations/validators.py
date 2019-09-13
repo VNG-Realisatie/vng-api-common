@@ -56,6 +56,9 @@ class AutorisatieValidator:
     def __call__(self, autorisatie: dict) -> None:
         component = autorisatie["component"]
 
+        if component not in self.REQUIRED_FIELDS_PER_COMPONENT:
+            return
+
         # TODO check if zaak/informatieobject/besluittype is needed for the given scopes
         error_dict = {}
         for field_name in self.REQUIRED_FIELDS_PER_COMPONENT[component]:
