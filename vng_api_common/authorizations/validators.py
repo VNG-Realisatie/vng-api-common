@@ -56,6 +56,11 @@ class AutorisatieValidator:
         ComponentTypes.drc: ("max_vertrouwelijkheidaanduiding", "informatieobjecttype"),
         ComponentTypes.brc: ("besluittype",),
     }
+    MAIN_RESOURCES_FOR_COMPONENTS = {
+        ComponentTypes.zrc: "zaken",
+        ComponentTypes.drc: "documenten",
+        ComponentTypes.brc: "besluiten",
+    }
 
     def __call__(self, autorisatie: dict) -> None:
         component = autorisatie["component"]
@@ -63,7 +68,10 @@ class AutorisatieValidator:
         if component not in self.REQUIRED_FIELDS_PER_COMPONENT:
             return
 
-        # TODO check if zaak/informatieobject/besluittype is needed for the given scopes
+        resource = self.MAIN_RESOURCES_FOR_COMPONENTS[component]
+        if not any(resource in scope for scope in autorisatie["scopes"]):
+            return
+
         error_dict = {}
         for field_name in self.REQUIRED_FIELDS_PER_COMPONENT[component]:
             if not autorisatie[field_name]:
