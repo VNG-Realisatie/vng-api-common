@@ -4,67 +4,87 @@ from rest_framework.serializers import ValidationError
 from vng_api_common.authorizations.validators import AutorisatieValidator
 
 
-def required_fields_test(required_field: str, autorisatie: dict):
-    with pytest.raises(ValidationError) as err:
-        AutorisatieValidator()(autorisatie)
-
-    error = err.value.detail
-
-    assert required_field in error
-    assert error[required_field].code == "required"
-
-
 def test_component_not_in_mapping_is_valid():
     AutorisatieValidator()({"component": "ac", "scopes": []})
     AutorisatieValidator()({"component": "ztc", "scopes": []})
     AutorisatieValidator()({"component": "nrc", "scopes": []})
 
 
-def test_zrc_required_fields():
-    required_fields_test(
-        "max_vertrouwelijkheidaanduiding",
-        {
-            "component": "zrc",
-            "scopes": [],
-            "max_vertrouwelijkheidaanduiding": "",
-            "zaaktype": "test",
-        },
-    )
+def test_zrc_fields_required_with_zaken_scopes():
+    with pytest.raises(ValidationError) as err:
+        AutorisatieValidator()(
+            {
+                "component": "zrc",
+                "scopes": ["zaken.lezen", "notificaties.publiceren"],
+                "max_vertrouwelijkheidaanduiding": "",
+                "zaaktype": "test",
+            }
+        )
 
-    required_fields_test(
-        "zaaktype",
-        {
-            "component": "zrc",
-            "scopes": [],
-            "max_vertrouwelijkheidaanduiding": "openbaar",
-            "zaaktype": "",
-        },
-    )
+    error = err.value.detail
 
+    assert "max_vertrouwelijkheidaanduiding" in error
+    assert error["max_vertrouwelijkheidaanduiding"].code == "required"
 
-def test_drc_required_fields():
-    required_fields_test(
-        "max_vertrouwelijkheidaanduiding",
-        {
-            "component": "drc",
-            "scopes": [],
-            "max_vertrouwelijkheidaanduiding": "",
-            "informatieobjecttype": "test",
-        },
-    )
+    with pytest.raises(ValidationError) as err:
+        AutorisatieValidator()(
+            {
+                "component": "zrc",
+                "scopes": ["zaken.lezen", "notificaties.publiceren"],
+                "max_vertrouwelijkheidaanduiding": "openbaar",
+                "zaaktype": "",
+            }
+        )
 
-    required_fields_test(
-        "informatieobjecttype",
-        {
-            "component": "drc",
-            "scopes": [],
-            "max_vertrouwelijkheidaanduiding": "openbaar",
-            "informatieobjecttype": "",
-        },
-    )
+    error = err.value.detail
+
+    assert "zaaktype" in error
+    assert error["zaaktype"].code == "required"
 
 
-def test_brc_required_fields():
-    required_fields_test(
-        "besluittype", {"component": "brc", "scopes": [], "besluittype": ""}
-    )
+def test_drc_fields_required_with_documenten_scopes():
+    with pytest.raises(ValidationError) as err:
+        AutorisatieValidator()(
+            {
+                "component": "drc",
+                "scopes": ["documenten.lezen", "notificaties.publiceren"],
+                "max_vertrouwelijkheidaanduiding": "",
+                "informatieobjecttype": "test",
+            }
+        )
+
+    error = err.value.detail
+
+    assert "max_vertrouwelijkheidaanduiding" in error
+    assert error["max_vertrouwelijkheidaanduiding"].code == "required"
+
+    with pytest.raises(ValidationError) as err:
+        AutorisatieValidator()(
+            {
+                "component": "drc",
+                "scopes": ["documenten.lezen", "notificaties.publiceren"],
+                "max_vertrouwelijkheidaanduiding": "openbaar",
+                "informatieobjecttype": "",
+            }
+        )
+
+    error = err.value.detail
+
+    assert "informatieobjecttype" in error
+    assert error["informatieobjecttype"].code == "required"
+
+
+def test_brc_field_required_with_besluiten_scopes():
+    with pytest.raises(ValidationError) as err:
+        AutorisatieValidator()(
+            {
+                "component": "brc",
+                "scopes": ["besluiten.lezen", "notificaties.publiceren"],
+                "besluittype": "",
+            }
+        )
+
+    error = err.value.detail
+
+    assert "besluittype" in error
+    assert error["besluittype"].code == "required"
