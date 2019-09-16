@@ -43,19 +43,23 @@ def test_zrc_fields_required_with_zaken_scopes():
 
 
 def test_zrc_fields_not_required_without_zaken_scopes():
-    AutorisatieValidator()({
-        "component": "zrc",
-        "scopes": ["notificaties.publiceren"],
-        "max_vertrouwelijkheidaanduiding": "",
-        "zaaktype": "test",
-    })
+    AutorisatieValidator()(
+        {
+            "component": "zrc",
+            "scopes": ["notificaties.publiceren"],
+            "max_vertrouwelijkheidaanduiding": "",
+            "zaaktype": "test",
+        }
+    )
 
-    AutorisatieValidator()({
-        "component": "zrc",
-        "scopes": ["notificaties.publiceren"],
-        "max_vertrouwelijkheidaanduiding": "openbaar",
-        "zaaktype": "",
-    })
+    AutorisatieValidator()(
+        {
+            "component": "zrc",
+            "scopes": ["notificaties.publiceren"],
+            "max_vertrouwelijkheidaanduiding": "openbaar",
+            "zaaktype": "",
+        }
+    )
 
 
 def test_drc_fields_required_with_documenten_scopes():
@@ -91,19 +95,23 @@ def test_drc_fields_required_with_documenten_scopes():
 
 
 def test_drc_fields_not_required_without_documenten_scopes():
-    AutorisatieValidator()({
-        "component": "drc",
-        "scopes": ["notificaties.publiceren"],
-        "max_vertrouwelijkheidaanduiding": "",
-        "informatieobjecttype": "test",
-    })
+    AutorisatieValidator()(
+        {
+            "component": "drc",
+            "scopes": ["notificaties.publiceren"],
+            "max_vertrouwelijkheidaanduiding": "",
+            "informatieobjecttype": "test",
+        }
+    )
 
-    AutorisatieValidator()({
-        "component": "drc",
-        "scopes": ["notificaties.publiceren"],
-        "max_vertrouwelijkheidaanduiding": "openbaar",
-        "informatieobjecttype": "",
-    })
+    AutorisatieValidator()(
+        {
+            "component": "drc",
+            "scopes": ["notificaties.publiceren"],
+            "max_vertrouwelijkheidaanduiding": "openbaar",
+            "informatieobjecttype": "",
+        }
+    )
 
 
 def test_brc_field_required_with_besluiten_scopes():
@@ -123,7 +131,6 @@ def test_brc_field_required_with_besluiten_scopes():
 
 
 def test_brc_field_not_required_without_besluiten_scopes():
-    AutorisatieValidator()({"component": "brc",
-        "scopes": ["notificaties.publiceren"],
-        "besluittype": ""
-    })
+    AutorisatieValidator()(
+        {"component": "brc", "scopes": ["notificaties.publiceren"], "besluittype": ""}
+    )
