@@ -68,8 +68,8 @@ class AutorisatieValidator:
         if component not in self.REQUIRED_FIELDS_PER_COMPONENT:
             return
 
-        resource = self.MAIN_RESOURCES_FOR_COMPONENTS[component]
-        if not any(resource in scope for scope in autorisatie["scopes"]):
+        prefix = self.MAIN_RESOURCES_FOR_COMPONENTS[component]
+        if not any(scope.startswith(f"{prefix}.") for scope in autorisatie["scopes"]):
             return
 
         error_dict = {}
