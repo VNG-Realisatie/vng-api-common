@@ -128,7 +128,7 @@ class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
         applicatie = super().update(instance, validated_data)
 
         # in case of update autorisaties - remove all related autorisaties
-        if autorisaties_data:
+        if autorisaties_data is not None:
             applicatie.autorisaties.all().delete()
             for auth in autorisaties_data:
                 Autorisatie.objects.create(**auth, applicatie=applicatie)
