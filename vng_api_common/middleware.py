@@ -55,7 +55,7 @@ class JWTAuth:
         client = AuthorizationsConfig.get_client()
         try:
             response = client.list(
-                "applicatie", query_params={"client_ids": self.client_id}
+                "applicatie", query_params={"clientIds": self.client_id}
             )
         except ClientError as exc:
             response = exc.args[0]
