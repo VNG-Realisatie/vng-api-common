@@ -67,6 +67,9 @@ def schedule_etag_clearing(sender: ModelBase, instance: models.Model, **kwargs):
     if not instance._etag:
         return
 
+    if "update_fields" not in kwargs:
+        return
+
     # only updating the _etag field - either to clear it, or to set the computed
     # value
     if kwargs["update_fields"] == {"_etag"}:
