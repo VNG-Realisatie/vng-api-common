@@ -10,7 +10,7 @@ from rest_framework.test import APIClient
 from testapp import urls  # noqa
 from testapp.factories import GroupFactory, HobbyFactory, PersonFactory
 
-register(PersonFactory)
+register(PersonFactory, "person")
 register(HobbyFactory)
 register(GroupFactory)
 
