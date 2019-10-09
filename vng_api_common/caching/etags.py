@@ -4,9 +4,9 @@ Calculate ETag values for API resources.
 import functools
 import hashlib
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.http import Http404, HttpRequest
 
