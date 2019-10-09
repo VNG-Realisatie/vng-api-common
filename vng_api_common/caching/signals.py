@@ -54,6 +54,27 @@ def handle_related_etag_instances(instance: models.Model):
             _schedule_clear_etag(related_instance)
 
 
+def handle_m2m_cleared(
+    sender: ModelBase, instance: models.Model, model: ModelBase
+) -> None:
+    """
+    Clear the etag on the remote side of a m2m_field.clear()
+    """
+    # figure out which field is involved
+    m2m_fields = [
+        field
+        for field in instance._meta.get_fields()
+        if getattr(field, "related_model") is model
+        and field.remote_field.through is sender
+    ]
+    assert len(m2m_fields) == 1, "This should resolve to a single m2m field"
+    m2m_field = m2m_fields[0]
+
+    qs = getattr(instance, m2m_field.name).all()
+    for instance in qs:
+        _schedule_clear_etag(instance)
+
+
 @receiver([post_save, post_delete])
 def schedule_etag_clearing(sender: ModelBase, instance: models.Model, **kwargs):
     if kwargs.get("raw"):
@@ -83,6 +104,10 @@ def schedule_etag_clearing(sender: ModelBase, instance: models.Model, **kwargs):
 def schedule_etag_clearing_m2m(
     sender: ModelBase, instance: models.Model, action: str, model: ModelBase, **kwargs
 ):
+    if action == "pre_clear":
+        handle_m2m_cleared(sender, instance, model)
+        return
+
     if action not in ["post_add", "post_clear", "post_remove"]:
         return
 
@@ -92,6 +117,7 @@ def schedule_etag_clearing_m2m(
     if is_etag_model(type(instance)):
         _schedule_clear_etag(instance)
 
-    instances = model.objects.filter(pk__in=kwargs["pk_set"])
+    pk_set = kwargs["pk_set"] or ()
+    instances = model.objects.filter(pk__in=pk_set)
     for instance in instances:
         _schedule_clear_etag(instance)

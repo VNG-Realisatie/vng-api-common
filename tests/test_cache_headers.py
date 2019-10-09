@@ -175,3 +175,23 @@ def test_fetching_cache_enabled_deleted_resource_404s(api_client, person):
     response = api_client.get(path)
 
     assert response.status_code == 404
+
+
+def test_m2m_clear_schedules_etag_clear(api_client, person, hobby):
+    person.hobbies.add(hobby)
+    person_path = reverse("person-detail", kwargs={"pk": person.pk})
+    person_etag = api_client.get(person_path)["ETag"]
+    assert person_etag
+    assert person_etag != '""'
+    hobby_path = reverse("hobby-detail", kwargs={"pk": hobby.pk})
+    hobby_etag = api_client.get(hobby_path)["ETag"]
+    assert hobby_etag
+    assert hobby_etag != '""'
+
+    person.hobbies.clear()
+
+    hobby.refresh_from_db()
+    person.refresh_from_db()
+
+    assert not hobby._etag
+    assert not person._etag
