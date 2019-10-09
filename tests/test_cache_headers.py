@@ -157,3 +157,12 @@ def test_related_object_changes_etag(api_client, person, group):
 
 def test_etag_clearing_without_raw_key_in_kwargs(person):
     person.delete()
+
+
+def test_delete_resource_after_get(api_client, person):
+    path = reverse("person-detail", kwargs={"pk": person.pk})
+
+    response = api_client.get(path)
+
+    person.refresh_from_db()
+    person.delete()
