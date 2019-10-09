@@ -162,7 +162,16 @@ def test_etag_clearing_without_raw_key_in_kwargs(person):
 def test_delete_resource_after_get(api_client, person):
     path = reverse("person-detail", kwargs={"pk": person.pk})
 
-    response = api_client.get(path)
+    api_client.get(path)
 
     person.refresh_from_db()
     person.delete()
+
+
+def test_fetching_cache_enabled_deleted_resource_404s(api_client, person):
+    path = reverse("person-detail", kwargs={"pk": person.pk})
+    person.delete()
+
+    response = api_client.get(path)
+
+    assert response.status_code == 404
