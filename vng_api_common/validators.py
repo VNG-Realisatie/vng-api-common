@@ -20,7 +20,7 @@ from .oas import fetcher, obj_has_shape
 logger = logging.getLogger(__name__)
 
 
-WORD_REGEX = re.compile(r'[\w\-]+$', re.ASCII)
+WORD_REGEX = re.compile(r"[\w\-]+$", re.ASCII)
 
 
 @deconstructible
@@ -36,17 +36,23 @@ class AlphanumericExcludingDiacritic:
         self.start = start
 
     def __call__(self, value):
-        stripped_value = value[self.start:]
+        stripped_value = value[self.start :]
         match = WORD_REGEX.match(stripped_value)
         if not match:
             raise ValidationError(
                 'Waarde "{0}" mag geen diakrieten of non-ascii tekens bevatten{1}'.format(
-                    value, ' na de eerste {0} karakters'.format(self.start) if self.start else ''
+                    value,
+                    " na de eerste {0} karakters".format(self.start)
+                    if self.start
+                    else "",
                 )
             )
 
     def __eq__(self, other):
-        return isinstance(other, AlphanumericExcludingDiacritic) and self.start == other.start
+        return (
+            isinstance(other, AlphanumericExcludingDiacritic)
+            and self.start == other.start
+        )
 
 
 # Default validator for entire string.
@@ -63,12 +69,11 @@ def validate_non_negative_string(value):
     except ValueError:
         error = True
     if error or n < 0:
-        raise ValidationError('De waarde moet een niet-negatief getal zijn.')
+        raise ValidationError("De waarde moet een niet-negatief getal zijn.")
 
 
 validate_digits = RegexValidator(
-    regex='^[0-9]+$', message='Waarde moet numeriek zijn.',
-    code='only-digits'
+    regex="^[0-9]+$", message="Waarde moet numeriek zijn.", code="only-digits"
 )
 
 
@@ -83,8 +88,7 @@ def validate_rsin(value):
     validate_digits(value)
     if len(value) != RSIN_LENGTH:
         raise ValidationError(
-            'RSIN moet %s tekens lang zijn.' % RSIN_LENGTH,
-            code='invalid-length'
+            "RSIN moet %s tekens lang zijn." % RSIN_LENGTH, code="invalid-length"
         )
 
     # 11-proef check.
@@ -96,7 +100,7 @@ def validate_rsin(value):
             total += multiplier * int(char)
 
     if total % 11 != 0:
-        raise ValidationError('Onjuist RSIN nummer.', code='invalid')
+        raise ValidationError("Onjuist RSIN nummer.", code="invalid")
 
 
 class URLValidator:
@@ -108,10 +112,13 @@ class URLValidator:
     :param get_auth: a callable returning appropriate headers to authenticate
       against the remote.
     """
-    message = _('The URL {url} responded with HTTP {status_code}. Please provide a valid URL.')
-    code = 'bad-url'
 
-    def __init__(self, get_auth: Callable=None, **extra):
+    message = _(
+        "The URL {url} responded with HTTP {status_code}. Please provide a valid URL."
+    )
+    code = "bad-url"
+
+    def __init__(self, get_auth: Callable = None, **extra):
         self.get_auth = get_auth
         self.extra = extra
 
@@ -123,15 +130,15 @@ class URLValidator:
         # Handle auth for the remote URL
         if self.get_auth:
             auth_headers = self.get_auth(value)
-            if 'headers' not in self.extra:
-                extra['headers'] = {}
-            extra['headers'].update(auth_headers)
+            if "headers" not in self.extra:
+                extra["headers"] = {}
+            extra["headers"].update(auth_headers)
 
         try:
             response = link_fetcher(value, **extra)
         except Exception as exc:
             raise serializers.ValidationError(
-                _('The URL {url} could not be fetched. Exception: {exc}').format(
+                _("The URL {url} could not be fetched. Exception: {exc}").format(
                     url=value, exc=exc
                 ),
                 code=self.code,
@@ -140,7 +147,7 @@ class URLValidator:
         if response.status_code != 200:
             raise serializers.ValidationError(
                 self.message.format(status_code=response.status_code, url=value),
-                code=self.code
+                code=self.code,
             )
 
         # return the response for post-processing
@@ -158,8 +165,10 @@ class ResourceValidator(URLValidator):
 
     # Name mangling is applied to these attributes to avoid formatting issues
     # that occur when overriding the superclass attributes
-    __message = _('The URL {url} resource did not look like a(n) `{resource}`. Please provide a valid URL.')
-    __code = 'invalid-resource'
+    __message = _(
+        "The URL {url} resource did not look like a(n) `{resource}`. Please provide a valid URL."
+    )
+    __code = "invalid-resource"
 
     def __init__(self, resource: str, oas_schema: str, *args, **kwargs):
         self.resource = resource
@@ -173,20 +182,24 @@ class ResourceValidator(URLValidator):
         try:
             obj = response.json()
         except json.JSONDecodeError as exc:
-            logger.info("URL %s doesn't seem to point to a JSON endpoint", url, exc_info=1)
+            logger.info(
+                "URL %s doesn't seem to point to a JSON endpoint", url, exc_info=1
+            )
             raise serializers.ValidationError(
-                self.__message.format(url=url, resource=self.resource),
-                code=self.__code
+                self.__message.format(url=url, resource=self.resource), code=self.__code
             )
 
         # check if the shape matches
         schema = fetcher.fetch(self.oas_schema)
         if not obj_has_shape(obj, schema, self.resource):
-            logger.info("URL %s doesn't seem to point to a valid shape", url, exc_info=1)
-            raise serializers.ValidationError(
-                self.__message.format(url=url, resource=self.resource),
-                code=self.__code
+            logger.info(
+                "URL %s doesn't seem to point to a valid shape", url, exc_info=1
             )
+            raise serializers.ValidationError(
+                self.__message.format(url=url, resource=self.resource), code=self.__code
+            )
+
+        return obj
 
 
 class InformatieObjectUniqueValidator(validators.UniqueTogetherValidator):
@@ -200,13 +213,10 @@ class InformatieObjectUniqueValidator(validators.UniqueTogetherValidator):
         super().set_context(serializer)
 
         self.queryset = serializer.Meta.model._default_manager.all()
-        self.parent_object = serializer.context['parent_object']
+        self.parent_object = serializer.context["parent_object"]
 
     def __call__(self, informatieobject: str):
-        attrs = {
-            self.parent_field: self.parent_object,
-            self.field: informatieobject,
-        }
+        attrs = {self.parent_field: self.parent_object, self.field: informatieobject}
         super().__call__(attrs)
 
 
@@ -214,16 +224,19 @@ class ObjectInformatieObjectValidator:
     """
     Validate that the INFORMATIEOBJECT is linked already in the DRC.
     """
-    message = _('Het informatieobject is in het DRC nog niet gerelateerd aan dit object.')
-    code = 'inconsistent-relation'
+
+    message = _(
+        "Het informatieobject is in het DRC nog niet gerelateerd aan dit object."
+    )
+    code = "inconsistent-relation"
 
     def set_context(self, serializer):
         """
         This hook is called by the serializer instance,
         prior to the validation call being made.
         """
-        self.parent_object = serializer.context['parent_object']
-        self.request = serializer.context['request']
+        self.parent_object = serializer.context["parent_object"]
+        self.request = serializer.context["request"]
 
     def __call__(self, informatieobject: str):
         from .models import APICredential
@@ -235,14 +248,16 @@ class ObjectInformatieObjectValidator:
         client = Client.from_url(informatieobject)
         client.auth = APICredential.get_auth(informatieobject)
         try:
-            oios = client.list('objectinformatieobject', query_params={
-                'informatieobject': informatieobject,
-                'object': object_url,
-            })
+            oios = client.list(
+                "objectinformatieobject",
+                query_params={
+                    "informatieobject": informatieobject,
+                    "object": object_url,
+                },
+            )
         except requests.HTTPError as exc:
             raise serializers.ValidationError(
-                exc.args[0],
-                code='relation-validation-error'
+                exc.args[0], code="relation-validation-error"
             ) from exc
 
         if len(oios) == 0:
@@ -256,8 +271,9 @@ class UntilNowValidator:
 
     This means that `now` is included.
     """
+
     message = _("Ensure this value is not in the future.")
-    code = 'future_not_allowed'
+    code = "future_not_allowed"
 
     @property
     def limit_value(self):
@@ -269,14 +285,13 @@ class UntilNowValidator:
 
     def __eq__(self, other):
         return (
-            isinstance(other, self.__class__) and
-            self.message == other.message and
-            self.code == other.code
+            isinstance(other, self.__class__)
+            and self.message == other.message
+            and self.code == other.code
         )
 
 
 class UntilTodayValidator(UntilNowValidator):
-
     @property
     def limit_value(self):
         limit_value = super().limit_value
@@ -293,10 +308,11 @@ class UniekeIdentificatieValidator:
     :param organisatie_field: naam van het veld dat de organisatie RSIN bevat
     :param identificatie_field: naam van het veld dat de identificatie bevat
     """
-    message = _('Deze identificatie bestaat al binnen de organisatie')
-    code = 'identificatie-niet-uniek'
 
-    def __init__(self, organisatie_field: str, identificatie_field='identificatie'):
+    message = _("Deze identificatie bestaat al binnen de organisatie")
+    code = "identificatie-niet-uniek"
+
+    def __init__(self, organisatie_field: str, identificatie_field="identificatie"):
         self.organisatie_field = organisatie_field
         self.identificatie_field = identificatie_field
 
@@ -306,7 +322,7 @@ class UniekeIdentificatieValidator:
         prior to the validation call being made.
         """
         # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, 'instance', None)
+        self.instance = getattr(serializer, "instance", None)
         self.model = serializer.Meta.model
 
     def __call__(self, attrs: dict):
@@ -328,17 +344,18 @@ class UniekeIdentificatieValidator:
             # in case of an update, exclude the current object. for a create, this
             # will be None
             .exclude(pk=pk)
-            .filter(**{
-                self.organisatie_field: organisatie,
-                self.identificatie_field: identificatie
-            })
+            .filter(
+                **{
+                    self.organisatie_field: organisatie,
+                    self.identificatie_field: identificatie,
+                }
+            )
             .exists()
         )
 
         if combination_exists:
             raise serializers.ValidationError(
-                {self.identificatie_field: self.message},
-                code=self.code
+                {self.identificatie_field: self.message}, code=self.code
             )
 
 
@@ -346,8 +363,9 @@ class IsImmutableValidator:
     """
     Valideer dat de waarde van het veld niet wijzigt bij een update actie.
     """
-    message = _('Dit veld mag niet gewijzigd worden.')
-    code = 'wijzigen-niet-toegelaten'
+
+    message = _("Dit veld mag niet gewijzigd worden.")
+    code = "wijzigen-niet-toegelaten"
 
     def set_context(self, serializer_field):
         """
@@ -356,7 +374,7 @@ class IsImmutableValidator:
         """
         # Determine the existing instance, if this is an update operation.
         self.serializer_field = serializer_field
-        self.instance = getattr(serializer_field.parent, 'instance', None)
+        self.instance = getattr(serializer_field.parent, "instance", None)
 
     def __call__(self, new_value):
         # no instance -> it's not an update
@@ -367,3 +385,20 @@ class IsImmutableValidator:
 
         if new_value != current_value:
             raise serializers.ValidationError(self.message, code=self.code)
+
+
+class PublishValidator(ResourceValidator):
+    """
+    Validate that the URL actually resolves to a published resource (concept=False)
+    """
+
+    publish_message = _("The resource {url} is not published.")
+    publish_code = "not-published"
+
+    def __call__(self, url: str):
+        response = super().__call__(url)
+
+        if response.get("concept"):
+            raise serializers.ValidationError(
+                self.publish_message.format(url=url), code=self.publish_code
+            )
