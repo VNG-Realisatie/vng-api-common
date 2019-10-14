@@ -18,6 +18,8 @@ DATABASES = {
         "NAME": os.getenv("PGDATABASE", "vng_api_common"),
         "USER": os.getenv("PGUSER", "vng_api_common"),
         "PASSWORD": os.getenv("PGPASSWORD", "vng_api_common"),
+        "HOST": os.getenv("DB_HOST", "localhost"),
+        "PORT": os.getenv("DB_PORT", 5432),
     }
 }
 
@@ -29,6 +31,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.staticfiles",
     "django.contrib.postgres",
+    "django.contrib.messages",
     "rest_framework",
     "drf_yasg",
     "vng_api_common",

@@ -199,6 +199,8 @@ class ResourceValidator(URLValidator):
                 self.__message.format(url=url, resource=self.resource), code=self.__code
             )
 
+        return obj
+
 
 class InformatieObjectUniqueValidator(validators.UniqueTogetherValidator):
     def __init__(self, parent_field, field: str):
@@ -383,3 +385,20 @@ class IsImmutableValidator:
 
         if new_value != current_value:
             raise serializers.ValidationError(self.message, code=self.code)
+
+
+class PublishValidator(ResourceValidator):
+    """
+    Validate that the URL actually resolves to a published resource (concept=False)
+    """
+
+    publish_message = _("The resource {url} is not published.")
+    publish_code = "not-published"
+
+    def __call__(self, url: str):
+        response = super().__call__(url)
+
+        if response.get("concept"):
+            raise serializers.ValidationError(
+                self.publish_message.format(url=url), code=self.publish_code
+            )
