@@ -6,8 +6,9 @@ import hashlib
 
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.http import HttpRequest
+from django.http import Http404, HttpRequest
 
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 from rest_framework import serializers
@@ -55,7 +56,10 @@ def calculate_etag(instance: models.Model) -> str:
 
 
 def etag_func(request: HttpRequest, etag_field: str = "_etag", **view_kwargs):
-    obj = get_resource_for_path(request.path)
+    try:
+        obj = get_resource_for_path(request.path)
+    except ObjectDoesNotExist:
+        raise Http404
     etag_value = getattr(obj, etag_field)
     if not etag_value:  # calculate missing value and store it
         etag_value = obj.calculate_etag_value()
