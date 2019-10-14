@@ -7,16 +7,28 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='JWTSecret',
+            name="JWTSecret",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('identifier', models.CharField(max_length=50, unique=True, verbose_name='identifier')),
-                ('secret', models.CharField(max_length=255, verbose_name='secret')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "identifier",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="identifier"
+                    ),
+                ),
+                ("secret", models.CharField(max_length=255, verbose_name="secret")),
             ],
-        ),
+        )
     ]

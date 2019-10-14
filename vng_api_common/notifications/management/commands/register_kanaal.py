@@ -24,53 +24,57 @@ def create_kanaal(api_root: str, kanaal: str) -> None:
     """
     Client = import_string(settings.ZDS_CLIENT_CLASS)
 
-    if not api_root.endswith('/'):
+    if not api_root.endswith("/"):
         api_root = f"{api_root}/"
 
     client = Client.from_url(api_root)
     client.base_url = api_root
     client.auth = APICredential.get_auth(
-        api_root,
-        scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL]
+        api_root, scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL]
     )
 
     # look up the exchange in the registry
     _kanaal = next(k for k in KANAAL_REGISTRY if k.label == kanaal)
 
-    kanalen = client.list('kanaal', query_params={'naam': kanaal})
+    kanalen = client.list("kanaal", query_params={"naam": kanaal})
     if kanalen:
         raise KanaalExists()
 
     # build up own documentation URL
     domain = Site.objects.get_current().domain
-    protocol = 'https' if settings.IS_HTTPS else 'http'
-    documentation_url = f"{protocol}://{domain}{reverse('notifications:kanalen')}#{kanaal}"
+    protocol = "https" if settings.IS_HTTPS else "http"
+    documentation_url = (
+        f"{protocol}://{domain}{reverse('notifications:kanalen')}#{kanaal}"
+    )
 
-    client.create('kanaal', {
-        'naam': kanaal,
-        'documentatieLink': documentation_url,
-        'filters': list(_kanaal.kenmerken)
-    })
+    client.create(
+        "kanaal",
+        {
+            "naam": kanaal,
+            "documentatieLink": documentation_url,
+            "filters": list(_kanaal.kenmerken),
+        },
+    )
 
 
 class Command(BaseCommand):
-    help = 'Create kanaal in notification component'
+    help = "Create kanaal in notification component"
 
     def add_arguments(self, parser):
-        parser.add_argument('kanaal', nargs='?', type=str, help='Name of kanaal')
+        parser.add_argument("kanaal", nargs="?", type=str, help="Name of kanaal")
         parser.add_argument(
-            '--nc-api-root',
-            help="API root of the NC, default value taken from notifications config"
+            "--nc-api-root",
+            help="API root of the NC, default value taken from notifications config",
         )
 
     def handle(self, **options):
         config = NotificationsConfig.get_solo()
 
         # use CLI arg or fall back to database config
-        api_root = options['nc_api_root'] or config.api_root
+        api_root = options["nc_api_root"] or config.api_root
 
         # use CLI arg or fall back to setting
-        kanaal = options['kanaal'] or settings.NOTIFICATIONS_KANAAL
+        kanaal = options["kanaal"] or settings.NOTIFICATIONS_KANAAL
 
         try:
             create_kanaal(api_root, kanaal)

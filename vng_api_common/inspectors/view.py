@@ -10,9 +10,7 @@ from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
 from rest_framework import exceptions, serializers, status, viewsets
 
-from ..constants import (
-    HEADER_APPLICATION, HEADER_AUDIT, HEADER_USER_ID, VERSION_HEADER
-)
+from ..constants import HEADER_APPLICATION, HEADER_AUDIT, HEADER_USER_ID, VERSION_HEADER
 from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
 from ..permissions import BaseAuthRequired, get_required_scopes
@@ -41,84 +39,71 @@ COMMON_ERRORS = [
 ]
 
 DEFAULT_ACTION_ERRORS = {
-    'create': COMMON_ERRORS + [
-        exceptions.ParseError,
-        exceptions.ValidationError,
-    ],
-    'list': COMMON_ERRORS,
-    'retrieve': COMMON_ERRORS + [
-        exceptions.NotFound,
-    ],
-    'update': COMMON_ERRORS + [
-        exceptions.ParseError,
-        exceptions.ValidationError,
-        exceptions.NotFound,
-    ],
-    'partial_update': COMMON_ERRORS + [
-        exceptions.ParseError,
-        exceptions.ValidationError,
-        exceptions.NotFound,
-    ],
-    'destroy': COMMON_ERRORS + [
-        exceptions.NotFound,
-    ],
+    "create": COMMON_ERRORS + [exceptions.ParseError, exceptions.ValidationError],
+    "list": COMMON_ERRORS,
+    "retrieve": COMMON_ERRORS + [exceptions.NotFound],
+    "update": COMMON_ERRORS
+    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+    "partial_update": COMMON_ERRORS
+    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+    "destroy": COMMON_ERRORS + [exceptions.NotFound],
 }
 
 HTTP_STATUS_CODE_TITLES = {
-    status.HTTP_100_CONTINUE: 'Continue',
-    status.HTTP_101_SWITCHING_PROTOCOLS: 'Switching protocols',
-    status.HTTP_200_OK: 'OK',
-    status.HTTP_201_CREATED: 'Created',
-    status.HTTP_202_ACCEPTED: 'Accepted',
-    status.HTTP_203_NON_AUTHORITATIVE_INFORMATION: 'Non authoritative information',
-    status.HTTP_204_NO_CONTENT: 'No content',
-    status.HTTP_205_RESET_CONTENT: 'Reset content',
-    status.HTTP_206_PARTIAL_CONTENT: 'Partial content',
-    status.HTTP_207_MULTI_STATUS: 'Multi status',
-    status.HTTP_300_MULTIPLE_CHOICES: 'Multiple choices',
-    status.HTTP_301_MOVED_PERMANENTLY: 'Moved permanently',
-    status.HTTP_302_FOUND: 'Found',
-    status.HTTP_303_SEE_OTHER: 'See other',
-    status.HTTP_304_NOT_MODIFIED: 'Not modified',
-    status.HTTP_305_USE_PROXY: 'Use proxy',
-    status.HTTP_306_RESERVED: 'Reserved',
-    status.HTTP_307_TEMPORARY_REDIRECT: 'Temporary redirect',
-    status.HTTP_400_BAD_REQUEST: 'Bad request',
-    status.HTTP_401_UNAUTHORIZED: 'Unauthorized',
-    status.HTTP_402_PAYMENT_REQUIRED: 'Payment required',
-    status.HTTP_403_FORBIDDEN: 'Forbidden',
-    status.HTTP_404_NOT_FOUND: 'Not found',
-    status.HTTP_405_METHOD_NOT_ALLOWED: 'Method not allowed',
-    status.HTTP_406_NOT_ACCEPTABLE: 'Not acceptable',
-    status.HTTP_407_PROXY_AUTHENTICATION_REQUIRED: 'Proxy authentication required',
-    status.HTTP_408_REQUEST_TIMEOUT: 'Request timeout',
-    status.HTTP_409_CONFLICT: 'Conflict',
-    status.HTTP_410_GONE: 'Gone',
-    status.HTTP_411_LENGTH_REQUIRED: 'Length required',
-    status.HTTP_412_PRECONDITION_FAILED: 'Precondition failed',
-    status.HTTP_413_REQUEST_ENTITY_TOO_LARGE: 'Request entity too large',
-    status.HTTP_414_REQUEST_URI_TOO_LONG: 'Request uri too long',
-    status.HTTP_415_UNSUPPORTED_MEDIA_TYPE: 'Unsupported media type',
-    status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: 'Requested range not satisfiable',
-    status.HTTP_417_EXPECTATION_FAILED: 'Expectation failed',
-    status.HTTP_422_UNPROCESSABLE_ENTITY: 'Unprocessable entity',
-    status.HTTP_423_LOCKED: 'Locked',
-    status.HTTP_424_FAILED_DEPENDENCY: 'Failed dependency',
-    status.HTTP_428_PRECONDITION_REQUIRED: 'Precondition required',
-    status.HTTP_429_TOO_MANY_REQUESTS: 'Too many requests',
-    status.HTTP_431_REQUEST_HEADER_FIELDS_TOO_LARGE: 'Request header fields too large',
-    status.HTTP_451_UNAVAILABLE_FOR_LEGAL_REASONS: 'Unavailable for legal reasons',
-    status.HTTP_500_INTERNAL_SERVER_ERROR: 'Internal server error',
-    status.HTTP_501_NOT_IMPLEMENTED: 'Not implemented',
-    status.HTTP_502_BAD_GATEWAY: 'Bad gateway',
-    status.HTTP_503_SERVICE_UNAVAILABLE: 'Service unavailable',
-    status.HTTP_504_GATEWAY_TIMEOUT: 'Gateway timeout',
-    status.HTTP_505_HTTP_VERSION_NOT_SUPPORTED: 'HTTP version not supported',
-    status.HTTP_507_INSUFFICIENT_STORAGE: 'Insufficient storage',
-    status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED: 'Network authentication required',
+    status.HTTP_100_CONTINUE: "Continue",
+    status.HTTP_101_SWITCHING_PROTOCOLS: "Switching protocols",
+    status.HTTP_200_OK: "OK",
+    status.HTTP_201_CREATED: "Created",
+    status.HTTP_202_ACCEPTED: "Accepted",
+    status.HTTP_203_NON_AUTHORITATIVE_INFORMATION: "Non authoritative information",
+    status.HTTP_204_NO_CONTENT: "No content",
+    status.HTTP_205_RESET_CONTENT: "Reset content",
+    status.HTTP_206_PARTIAL_CONTENT: "Partial content",
+    status.HTTP_207_MULTI_STATUS: "Multi status",
+    status.HTTP_300_MULTIPLE_CHOICES: "Multiple choices",
+    status.HTTP_301_MOVED_PERMANENTLY: "Moved permanently",
+    status.HTTP_302_FOUND: "Found",
+    status.HTTP_303_SEE_OTHER: "See other",
+    status.HTTP_304_NOT_MODIFIED: "Not modified",
+    status.HTTP_305_USE_PROXY: "Use proxy",
+    status.HTTP_306_RESERVED: "Reserved",
+    status.HTTP_307_TEMPORARY_REDIRECT: "Temporary redirect",
+    status.HTTP_400_BAD_REQUEST: "Bad request",
+    status.HTTP_401_UNAUTHORIZED: "Unauthorized",
+    status.HTTP_402_PAYMENT_REQUIRED: "Payment required",
+    status.HTTP_403_FORBIDDEN: "Forbidden",
+    status.HTTP_404_NOT_FOUND: "Not found",
+    status.HTTP_405_METHOD_NOT_ALLOWED: "Method not allowed",
+    status.HTTP_406_NOT_ACCEPTABLE: "Not acceptable",
+    status.HTTP_407_PROXY_AUTHENTICATION_REQUIRED: "Proxy authentication required",
+    status.HTTP_408_REQUEST_TIMEOUT: "Request timeout",
+    status.HTTP_409_CONFLICT: "Conflict",
+    status.HTTP_410_GONE: "Gone",
+    status.HTTP_411_LENGTH_REQUIRED: "Length required",
+    status.HTTP_412_PRECONDITION_FAILED: "Precondition failed",
+    status.HTTP_413_REQUEST_ENTITY_TOO_LARGE: "Request entity too large",
+    status.HTTP_414_REQUEST_URI_TOO_LONG: "Request uri too long",
+    status.HTTP_415_UNSUPPORTED_MEDIA_TYPE: "Unsupported media type",
+    status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: "Requested range not satisfiable",
+    status.HTTP_417_EXPECTATION_FAILED: "Expectation failed",
+    status.HTTP_422_UNPROCESSABLE_ENTITY: "Unprocessable entity",
+    status.HTTP_423_LOCKED: "Locked",
+    status.HTTP_424_FAILED_DEPENDENCY: "Failed dependency",
+    status.HTTP_428_PRECONDITION_REQUIRED: "Precondition required",
+    status.HTTP_429_TOO_MANY_REQUESTS: "Too many requests",
+    status.HTTP_431_REQUEST_HEADER_FIELDS_TOO_LARGE: "Request header fields too large",
+    status.HTTP_451_UNAVAILABLE_FOR_LEGAL_REASONS: "Unavailable for legal reasons",
+    status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal server error",
+    status.HTTP_501_NOT_IMPLEMENTED: "Not implemented",
+    status.HTTP_502_BAD_GATEWAY: "Bad gateway",
+    status.HTTP_503_SERVICE_UNAVAILABLE: "Service unavailable",
+    status.HTTP_504_GATEWAY_TIMEOUT: "Gateway timeout",
+    status.HTTP_505_HTTP_VERSION_NOT_SUPPORTED: "HTTP version not supported",
+    status.HTTP_507_INSUFFICIENT_STORAGE: "Insufficient storage",
+    status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED: "Network authentication required",
 }
 
-AUDIT_TRAIL_ENABLED = apps.is_installed('vng_api_common.audittrails')
+AUDIT_TRAIL_ENABLED = apps.is_installed("vng_api_common.audittrails")
 
 AUDIT_REQUEST_HEADERS = [
     openapi.Parameter(
@@ -126,46 +111,41 @@ AUDIT_REQUEST_HEADERS = [
         type=openapi.TYPE_STRING,
         in_=openapi.IN_HEADER,
         required=False,
-        description=ugettext("Application that performs request")
+        description=ugettext("Application that performs request"),
     ),
     openapi.Parameter(
         name=HEADER_USER_ID,
         type=openapi.TYPE_STRING,
         in_=openapi.IN_HEADER,
         required=False,
-        description=ugettext("Identifier of the user that performs request")
+        description=ugettext("Identifier of the user that performs request"),
     ),
     openapi.Parameter(
         name=HEADER_AUDIT,
         type=openapi.TYPE_STRING,
         in_=openapi.IN_HEADER,
         required=False,
-        description=ugettext("Explanation why the request is done")
-    )
+        description=ugettext("Explanation why the request is done"),
+    ),
 ]
 
 
 def response_header(description: str, type: str, format: str = None) -> OrderedDict:
-    header = OrderedDict((
-        ('schema', OrderedDict((
-            ('type', type),
-        ))),
-        ('description', description),
-    ))
+    header = OrderedDict(
+        (("schema", OrderedDict((("type", type),))), ("description", description))
+    )
     if format is not None:
-        header['schema']['format'] = format
+        header["schema"]["format"] = format
     return header
 
 
 version_header = response_header(
     "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1.",
-    type=openapi.TYPE_STRING
+    type=openapi.TYPE_STRING,
 )
 
 location_header = response_header(
-    "URL waar de resource leeft.",
-    type=openapi.TYPE_STRING,
-    format=openapi.FORMAT_URI
+    "URL waar de resource leeft.", type=openapi.TYPE_STRING, format=openapi.FORMAT_URI
 )
 
 
@@ -173,7 +153,7 @@ def _view_supports_audittrail(view: viewsets.ViewSet) -> bool:
     if not AUDIT_TRAIL_ENABLED:
         return False
 
-    if not hasattr(view, 'action'):
+    if not hasattr(view, "action"):
         logger.debug("Could not determine view action for view %r", view)
         return False
 
@@ -181,30 +161,30 @@ def _view_supports_audittrail(view: viewsets.ViewSet) -> bool:
     # models
     from ..audittrails.viewsets import AuditTrailMixin
 
-    relevant_bases = [base for base in view.__class__.__bases__ if issubclass(base, AuditTrailMixin)]
+    relevant_bases = [
+        base for base in view.__class__.__bases__ if issubclass(base, AuditTrailMixin)
+    ]
     if not relevant_bases:
         return False
 
     # check if the view action is listed in any of the audit trail mixins
     action = view.action
-    if action == 'partial_update':  # partial update is self.update(partial=True)
-        action = 'update'
+    if action == "partial_update":  # partial update is self.update(partial=True)
+        action = "update"
 
     # if the current view action is not provided by any of the audit trail
     # related bases, then it's not audit trail enabled
     action_in_audit_bases = any(
-        action in dict(inspect.getmembers(base))
-        for base in relevant_bases
+        action in dict(inspect.getmembers(base)) for base in relevant_bases
     )
 
     return action_in_audit_bases
 
 
 class AutoSchema(SwaggerAutoSchema):
-
     @property
     def model(self):
-        if hasattr(self.view, 'get_queryset'):
+        if hasattr(self.view, "get_queryset"):
             qs = self.view.get_queryset()
             return qs.model
         return None
@@ -219,7 +199,7 @@ class AutoSchema(SwaggerAutoSchema):
         """
         operation_keys = operation_keys or self.operation_keys
 
-        operation_id = self.overrides.get('operation_id', '')
+        operation_id = self.overrides.get("operation_id", "")
         if operation_id:
             return operation_id
 
@@ -228,12 +208,12 @@ class AutoSchema(SwaggerAutoSchema):
             model_name = self.model._meta.model_name
             return f"{model_name}_{action}"
         else:
-            operation_id = '_'.join(operation_keys)
+            operation_id = "_".join(operation_keys)
             return operation_id
 
     def should_page(self):
         if self._is_search_view:
-            return hasattr(self.view, 'paginator')
+            return hasattr(self.view, "paginator")
         return super().should_page()
 
     def get_request_serializer(self):
@@ -244,17 +224,18 @@ class AutoSchema(SwaggerAutoSchema):
 
         filter_fields = []
         for filter_backend in self.view.filter_backends:
-            filter_fields += self.probe_inspectors(
-                self.filter_inspectors,
-                'get_filter_parameters', filter_backend()
-            ) or []
+            filter_fields += (
+                self.probe_inspectors(
+                    self.filter_inspectors, "get_filter_parameters", filter_backend()
+                )
+                or []
+            )
 
         filters = {}
         for filter_field in filter_fields:
             FieldClass = TYPE_TO_FIELDMAPPING[filter_field.type]
             filters[filter_field.name] = FieldClass(
-                help_text=filter_field.description,
-                required=filter_field.required
+                help_text=filter_field.description, required=filter_field.required
             )
 
         SearchSerializer = type(Base.__name__, (Base,), filters)
@@ -279,8 +260,10 @@ class AutoSchema(SwaggerAutoSchema):
 
         action = self.view.action
 
-        if action not in DEFAULT_ACTION_ERRORS and self._is_search_view:  # similar to a CREATE
-            action = 'create'
+        if (
+            action not in DEFAULT_ACTION_ERRORS and self._is_search_view
+        ):  # similar to a CREATE
+            action = "create"
 
         exception_klasses = DEFAULT_ACTION_ERRORS.get(action)
         if exception_klasses is None:
@@ -293,8 +276,7 @@ class AutoSchema(SwaggerAutoSchema):
             responses[status_code] = fout_schema
 
         has_validation_errors = self.get_filter_parameters() or any(
-            issubclass(klass, exceptions.ValidationError)
-            for klass in exception_klasses
+            issubclass(klass, exceptions.ValidationError) for klass in exception_klasses
         )
         if has_validation_errors:
             schema = self.serializer_to_schema(ValidatieFoutSerializer())
@@ -306,17 +288,18 @@ class AutoSchema(SwaggerAutoSchema):
 
         # sort by status code
 
-        return OrderedDict([
-            (
-                status_code,
-                openapi.Response(
-                    description=HTTP_STATUS_CODE_TITLES.get(status_code, ''),
-                    schema=schema,
+        return OrderedDict(
+            [
+                (
+                    status_code,
+                    openapi.Response(
+                        description=HTTP_STATUS_CODE_TITLES.get(status_code, ""),
+                        schema=schema,
+                    ),
                 )
-            )
-            for status_code, schema
-            in sorted(responses.items())
-        ])
+                for status_code, schema in sorted(responses.items())
+            ]
+        )
 
     def get_default_responses(self) -> OrderedDict:
         if self._is_search_view:
@@ -329,17 +312,22 @@ class AutoSchema(SwaggerAutoSchema):
         # inject any headers
         _responses = OrderedDict()
         for status_, schema in responses.items():
-            custom_headers = self.probe_inspectors(
-                self.field_inspectors, 'get_response_headers',
-                serializer, {'field_inspectors': self.field_inspectors},
-                status=status_
-            ) or None
+            custom_headers = (
+                self.probe_inspectors(
+                    self.field_inspectors,
+                    "get_response_headers",
+                    serializer,
+                    {"field_inspectors": self.field_inspectors},
+                    status=status_,
+                )
+                or None
+            )
 
-            assert isinstance(schema, openapi.Schema.OR_REF) or schema == ''
+            assert isinstance(schema, openapi.Schema.OR_REF) or schema == ""
             response = openapi.Response(
-                description=HTTP_STATUS_CODE_TITLES.get(int(status_), ''),
+                description=HTTP_STATUS_CODE_TITLES.get(int(status_), ""),
                 schema=schema or None,
-                headers=custom_headers
+                headers=custom_headers,
             )
             _responses[status_] = response
 
@@ -353,11 +341,11 @@ class AutoSchema(SwaggerAutoSchema):
 
         # add the Api-Version headers
         for status_code, response in responses.items():
-            response.setdefault('headers', OrderedDict())
-            response['headers'][VERSION_HEADER] = version_header
+            response.setdefault("headers", OrderedDict())
+            response["headers"][VERSION_HEADER] = version_header
 
-            if status_code == '201':
-                response['headers']['Location'] = location_header
+            if status_code == "201":
+                response["headers"]["Location"] = location_header
 
         return responses
 
@@ -367,10 +355,15 @@ class AutoSchema(SwaggerAutoSchema):
             serializer = self.get_request_serializer()
         else:
             serializer = self.get_request_serializer() or self.get_view_serializer()
-        extra = self.probe_inspectors(
-            self.field_inspectors, 'get_request_header_parameters',
-            serializer, {'field_inspectors': self.field_inspectors}
-        ) or []
+        extra = (
+            self.probe_inspectors(
+                self.field_inspectors,
+                "get_request_header_parameters",
+                serializer,
+                {"field_inspectors": self.field_inspectors},
+            )
+            or []
+        )
         result = base + extra
 
         if _view_supports_audittrail(self.view):
@@ -387,7 +380,9 @@ class AutoSchema(SwaggerAutoSchema):
         :return: security requirements
         :rtype: list[dict[str,list[str]]]"""
         permissions = self.view.get_permissions()
-        scope_permissions = [perm for perm in permissions if isinstance(perm, BaseAuthRequired)]
+        scope_permissions = [
+            perm for perm in permissions if isinstance(perm, BaseAuthRequired)
+        ]
 
         if not scope_permissions:
             return super().get_security()
@@ -395,7 +390,8 @@ class AutoSchema(SwaggerAutoSchema):
         if len(permissions) != len(scope_permissions):
             logger.warning(
                 "Can't represent all permissions in OAS for path %s and method %s",
-                self.path, self.method
+                self.path,
+                self.method,
             )
 
         required_scopes = []
@@ -411,17 +407,15 @@ class AutoSchema(SwaggerAutoSchema):
         scopes = [str(scope) for scope in sorted(required_scopes)]
 
         # operation level security
-        return [{
-            settings.SECURITY_DEFINITION_NAME: scopes,
-        }]
+        return [{settings.SECURITY_DEFINITION_NAME: scopes}]
 
     # patch around drf-yasg not taking overrides into account
     # TODO: contribute back in PR
     def get_produces(self) -> list:
         produces = super().get_produces()
-        return self.overrides.get('produces', produces)
+        return self.overrides.get("produces", produces)
 
 
 # translations aren't picked up/defined in DRF, so we need to hook them up here
-_('A page number within the paginated result set.')
-_('Number of results to return per page.')
+_("A page number within the paginated result set.")
+_("Number of results to return per page.")

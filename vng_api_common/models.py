@@ -28,13 +28,10 @@ class APIMixin:
         # build the URL of the informatieobject
         resource_name = self._meta.model_name
 
-        reverse_kwargs = {'uuid': self.uuid}
+        reverse_kwargs = {"uuid": self.uuid}
         reverse_kwargs.update(**kwargs)
 
-        url = reverse(
-            f'{resource_name}-detail',
-            kwargs=reverse_kwargs, request=request
-        )
+        url = reverse(f"{resource_name}-detail", kwargs=reverse_kwargs, request=request)
         return url
 
 
@@ -44,13 +41,17 @@ class JWTSecret(models.Model):
 
     Only clients that are known can access the API (if so configured).
     """
+
     identifier = models.CharField(
-        _("client ID"), max_length=50, unique=True,
-        help_text=_("Client ID to identify external API's and applications that access this API.")
+        _("client ID"),
+        max_length=50,
+        unique=True,
+        help_text=_(
+            "Client ID to identify external API's and applications that access this API."
+        ),
     )
     secret = models.CharField(
-        _("secret"), max_length=255,
-        help_text=_("Secret belonging to the client ID.")
+        _("secret"), max_length=255, help_text=_("Secret belonging to the client ID.")
     )
 
     class Meta:
@@ -68,30 +69,41 @@ class APICredential(models.Model):
     When we need to authenticate against a remote API, we need to know which
     client ID and secret to use to sign the JWT.
     """
+
     api_root = models.URLField(
-        _("API-root"), unique=True,
-        help_text=_("URL of the external API, ending in a trailing slash. Example: https://example.com/api/v1/")
+        _("API-root"),
+        unique=True,
+        help_text=_(
+            "URL of the external API, ending in a trailing slash. Example: https://example.com/api/v1/"
+        ),
     )
     label = models.CharField(
-        _("label"), max_length=100, default='',
-        help_text=_("Human readable label of the external API.")
+        _("label"),
+        max_length=100,
+        default="",
+        help_text=_("Human readable label of the external API."),
     )
     client_id = models.CharField(
-        _("client ID"), max_length=255,
-        help_text=_("Client ID to identify this API at the external API.")
+        _("client ID"),
+        max_length=255,
+        help_text=_("Client ID to identify this API at the external API."),
     )
     secret = models.CharField(
-        _("secret"), max_length=255,
-        help_text=_("Secret belonging to the client ID.")
+        _("secret"), max_length=255, help_text=_("Secret belonging to the client ID.")
     )
     user_id = models.CharField(
-        _("user ID"), max_length=255,
-        help_text=_("User ID to use for the audit trail. Although these external API credentials are typically used by"
-                    "this API itself instead of a user, the user ID is required.")
+        _("user ID"),
+        max_length=255,
+        help_text=_(
+            "User ID to use for the audit trail. Although these external API credentials are typically used by"
+            "this API itself instead of a user, the user ID is required."
+        ),
     )
     user_representation = models.CharField(
-        _("user representation"), max_length=255, default='',
-        help_text=_("Human readable representation of the user.")
+        _("user representation"),
+        max_length=255,
+        default="",
+        help_text=_("Human readable representation of the user."),
     )
 
     class Meta:
@@ -104,13 +116,12 @@ class APICredential(models.Model):
     @classmethod
     def get_auth(cls, url: str, **kwargs) -> Union[ClientAuth, None]:
         split_url = urlsplit(url)
-        scheme_and_domain = urlunsplit(split_url[:2] + ('', '', ''))
+        scheme_and_domain = urlunsplit(split_url[:2] + ("", "", ""))
 
         candidates = (
-            cls.objects
-            .filter(api_root__startswith=scheme_and_domain)
-            .annotate(api_root_length=Length('api_root'))
-            .order_by('-api_root_length')
+            cls.objects.filter(api_root__startswith=scheme_and_domain)
+            .annotate(api_root_length=Length("api_root"))
+            .order_by("-api_root_length")
         )
 
         # select the one matching
@@ -126,7 +137,7 @@ class APICredential(models.Model):
             secret=credentials.secret,
             user_id=credentials.user_id,
             user_representation=credentials.user_representation,
-            **kwargs
+            **kwargs,
         )
         return auth
 
@@ -141,7 +152,7 @@ class ClientConfig(SingletonModel):
         return self.api_root
 
     def save(self, *args, **kwargs):
-        if not self.api_root.endswith('/'):
+        if not self.api_root.endswith("/"):
             self.api_root = f"{self.api_root}/"
         super().save(*args, **kwargs)
 
@@ -155,9 +166,11 @@ class ClientConfig(SingletonModel):
 
         api_root = config.api_root
         if not api_root:
-            raise ImproperlyConfigured(f"Configure the API root in '{cls._meta.verbose_name}'")
+            raise ImproperlyConfigured(
+                f"Configure the API root in '{cls._meta.verbose_name}'"
+            )
 
-        if not api_root.endswith('/'):
+        if not api_root.endswith("/"):
             api_root = f"{api_root}/"
 
         client = Client.from_url(api_root)

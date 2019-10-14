@@ -16,8 +16,10 @@ from .utils import get_resource_for_path
 
 
 def get_required_scopes(view) -> Union[Scope, None]:
-    if not hasattr(view, 'required_scopes'):
-        raise ImproperlyConfigured("The View(Set) must have a `required_scopes` attribute")
+    if not hasattr(view, "required_scopes"):
+        raise ImproperlyConfigured(
+            "The View(Set) must have a `required_scopes` attribute"
+        )
 
     scopes_required = view.required_scopes.get(view.action)
     return scopes_required
@@ -27,7 +29,9 @@ def bypass_permissions(request: Request) -> bool:
     """
     Bypass permission checks in DBEUG when using the browsable API renderer
     """
-    return settings.DEBUG and isinstance(request.accepted_renderer, BrowsableAPIRenderer)
+    return settings.DEBUG and isinstance(
+        request.accepted_renderer, BrowsableAPIRenderer
+    )
 
 
 class ClientIdRequired(permissions.BasePermission):
@@ -51,22 +55,27 @@ class BaseAuthRequired(permissions.BasePermission):
     Look at the scopes required for the current action
     and check that they are present in the AC for this client
     """
+
     permission_fields = ()
     get_obj = None
     obj_path = None
 
     def _get_obj(self, view, request):
         if not isinstance(self.get_obj, str):
-            raise TypeError("'get_obj' must be set to a string, representing a view method name")
+            raise TypeError(
+                "'get_obj' must be set to a string, representing a view method name"
+            )
 
         method = getattr(view, self.get_obj)
         return method()
 
     def _get_obj_from_path(self, obj):
         if not isinstance(self.obj_path, str):
-            raise TypeError("'obj_path' must be a python dotted path to the main object FK")
+            raise TypeError(
+                "'obj_path' must be a python dotted path to the main object FK"
+            )
 
-        bits = self.obj_path.split('.')
+        bits = self.obj_path.split(".")
         for bit in bits:
             obj = getattr(obj, bit)
         return obj
@@ -82,19 +91,24 @@ class BaseAuthRequired(permissions.BasePermission):
 
         scopes_required = get_required_scopes(view)
 
-        if view.action == 'create':
+        if view.action == "create":
             try:
                 main_obj = self._get_obj(view, request)
             except ObjectDoesNotExist:
-                raise ValidationError({
-                    # using self.obj_path here ASSUMES that the same serializer is used
-                    # for input as output
-                    self.obj_path: ValidationError(
-                        _('The object does not exist in the database'),
-                        code='object-does-not-exist'
-                    ).detail
-                })
-            fields = {k: self._extract_field_value(main_obj, k) for k in self.permission_fields}
+                raise ValidationError(
+                    {
+                        # using self.obj_path here ASSUMES that the same serializer is used
+                        # for input as output
+                        self.obj_path: ValidationError(
+                            _("The object does not exist in the database"),
+                            code="object-does-not-exist",
+                        ).detail
+                    }
+                )
+            fields = {
+                k: self._extract_field_value(main_obj, k)
+                for k in self.permission_fields
+            }
             return request.jwt_auth.has_auth(scopes_required, **fields)
 
         # detect if this is an unsupported method - if it's a viewset and the

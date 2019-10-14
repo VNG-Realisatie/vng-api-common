@@ -21,7 +21,6 @@ TYPE_MAP = {
 
 
 class SchemaFetcher:
-
     def __init__(self):
         self.cache = {}
 
@@ -36,8 +35,10 @@ class SchemaFetcher:
         response.raise_for_status()
 
         spec = yaml.safe_load(response.content)
-        spec_version = response.headers.get('X-OAS-Version', spec.get('openapi', spec.get('swagger', '')))
-        if not spec_version.startswith('3.0'):
+        spec_version = response.headers.get(
+            "X-OAS-Version", spec.get("openapi", spec.get("swagger", ""))
+        )
+        if not spec_version.startswith("3.0"):
             raise ValueError("Unsupported spec version: {}".format(spec_version))
 
         self.cache[url] = spec
@@ -54,10 +55,10 @@ def obj_has_shape(obj: Union[list, dict], schema: dict, resource: str) -> bool:
     :param schema: the OAS 3.0.x schema to test against, yaml-decoded to dict
     :param resource: the name of the resource to test the schape against
     """
-    obj_schema = schema['components']['schemas'][resource]
+    obj_schema = schema["components"]["schemas"][resource]
 
-    required = obj_schema.get('required', [])
-    for prop, prop_schema in obj_schema['properties'].items():
+    required = obj_schema.get("required", [])
+    for prop, prop_schema in obj_schema["properties"].items():
         if prop in required and prop not in obj:
             # missing required prop -> can't match the schema
             return False
@@ -69,17 +70,17 @@ def obj_has_shape(obj: Union[list, dict], schema: dict, resource: str) -> bool:
         value = obj[prop]
 
         # TODO Handling references not yet implemented
-        if '$ref' in prop_schema:
+        if "$ref" in prop_schema:
             continue
 
         # Allow None if property is nullable
         if value is None:
-            if prop_schema.get('nullable', False):
+            if prop_schema.get("nullable", False):
                 continue
             else:
                 return False
 
-        expected_type = TYPE_MAP[prop_schema['type']]
+        expected_type = TYPE_MAP[prop_schema["type"]]
 
         # type mismatch -> not what we're looking for
         if not isinstance(value, expected_type):

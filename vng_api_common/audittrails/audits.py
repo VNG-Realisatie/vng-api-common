@@ -5,4 +5,4 @@ class Audit:
 
     def __repr__(self):
         cls_name = self.__class__.__name__
-        return f'{cls_name}(component_name={self.component_name}, main_resource={self.main_resource})'
+        return f"{cls_name}(component_name={self.component_name}, main_resource={self.main_resource})"

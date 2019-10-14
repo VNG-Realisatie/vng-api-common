@@ -35,13 +35,15 @@ def get_validation_errors(validation_errors: dict):
             for i, nested_error_dict in enumerate(error_list):
                 if isinstance(nested_error_dict, dict):
                     for err in get_validation_errors(nested_error_dict):
-                        err['name'] = f"{underscore_to_camel(field_name)}.{i}.{err['name']}"
+                        err[
+                            "name"
+                        ] = f"{underscore_to_camel(field_name)}.{i}.{err['name']}"
                         yield err
 
         # nested validation - recursively call the function
         if isinstance(error_list, dict):
             for err in get_validation_errors(error_list):
-                err['name'] = f"{underscore_to_camel(field_name)}.{err['name']}"
+                err["name"] = f"{underscore_to_camel(field_name)}.{err['name']}"
                 yield err
             continue
 
@@ -51,17 +53,18 @@ def get_validation_errors(validation_errors: dict):
         for error in error_list:
             if isinstance(error, dict):
                 continue
-            yield OrderedDict([
-                # see https://tools.ietf.org/html/rfc7807#section-3.1
-                # ('type', 'about:blank'),
-                ('name', underscore_to_camel(field_name)),
-                ('code', error.code),
-                ('reason', str(error)),
-            ])
+            yield OrderedDict(
+                [
+                    # see https://tools.ietf.org/html/rfc7807#section-3.1
+                    # ('type', 'about:blank'),
+                    ("name", underscore_to_camel(field_name)),
+                    ("code", error.code),
+                    ("reason", str(error)),
+                ]
+            )
 
 
 class HandledException:
-
     def __init__(self, exc: exceptions.APIException, response, request=None):
         self.exc = exc
         assert 400 <= response.status_code < 600, "Unsupported status code"
@@ -74,14 +77,16 @@ class HandledException:
     def _error_detail(self) -> str:
         if isinstance(self.exc, exceptions.ValidationError):
             # ErrorDetail from DRF is a str subclass
-            data = getattr(self.response, 'data', {})
-            return data.get('detail', '')
+            data = getattr(self.response, "data", {})
+            return data.get("detail", "")
         # any other exception -> return the raw ErrorDetails object so we get
         # access to the code later
         return self.exc.detail
 
     @classmethod
-    def as_serializer(cls, exc: exceptions.APIException, response, request=None) -> ErrorSerializer:
+    def as_serializer(
+        cls, exc: exceptions.APIException, response, request=None
+    ) -> ErrorSerializer:
         """
         Return the appropriate serializer class instance.
         """
@@ -102,8 +107,8 @@ class HandledException:
     @property
     def type(self) -> str:
         exc_detail_url = reverse(
-            'vng_api_common:error-detail',
-            kwargs={'exception_class': self.exc.__class__.__name__}
+            "vng_api_common:error-detail",
+            kwargs={"exception_class": self.exc.__class__.__name__},
         )
         if self.request is not None:
             exc_detail_url = self.request.build_absolute_uri(exc_detail_url)
@@ -113,14 +118,14 @@ class HandledException:
     def code(self) -> str:
         if isinstance(self.exc, exceptions.ValidationError):
             return self.exc.default_code
-        return self._error_detail.code if self._error_detail else ''
+        return self._error_detail.code if self._error_detail else ""
 
     @property
     def title(self) -> str:
         """
         Return the generic message for this type of exception.
         """
-        default_title = getattr(self.exc, 'default_detail', str(self._error_detail))
+        default_title = getattr(self.exc, "default_detail", str(self._error_detail))
         title = STATUS_TO_TITLE.get(self.response.status_code, default_title)
         return title
 
@@ -138,7 +143,4 @@ class HandledException:
 
     @property
     def invalid_params(self) -> Union[None, List]:
-        return [
-            error for error in
-            get_validation_errors(self.exc.detail)
-        ]
+        return [error for error in get_validation_errors(self.exc.detail)]

@@ -17,14 +17,13 @@ class NestedViewSetMixin:
         queryset = super().get_queryset()
         serializer_class = self.get_serializer_class()
 
-        lookup_kwargs = getattr(serializer_class, 'parent_lookup_kwargs', {})
+        lookup_kwargs = getattr(serializer_class, "parent_lookup_kwargs", {})
         filters = lookup_kwargs_to_filters(lookup_kwargs, self.kwargs)
 
         return queryset.filter(**filters)
 
 
 class CheckQueryParamsMixin:
-
     def _check_query_params(self, request) -> None:
         """
         Validate that the query params in the request are known.
@@ -51,7 +50,9 @@ class CheckQueryParamsMixin:
                 if self.paginator.page_size_query_param:
                     known_params.add(self.paginator.page_size_query_param)
             else:
-                raise NotImplementedError("Unknown paginator class: %s" % type(self.paginator))
+                raise NotImplementedError(
+                    "Unknown paginator class: %s" % type(self.paginator)
+                )
 
         unknown_params = set(request.query_params.keys()) - known_params
         if OrderingFilter in self.filter_backends:
@@ -60,8 +61,7 @@ class CheckQueryParamsMixin:
         if unknown_params:
             msg = _("Onbekende query parameters: %s" % ", ".join(unknown_params))
             raise ValidationError(
-                {api_settings.NON_FIELD_ERRORS_KEY: msg},
-                code='unknown-parameters'
+                {api_settings.NON_FIELD_ERRORS_KEY: msg}, code="unknown-parameters"
             )
 
     def list(self, request, *args, **kwargs):

@@ -1,15 +1,14 @@
 from typing import List
 
-OPERATOR_OR = 'OR'
-OPERATOR_AND = 'AND'
+OPERATOR_OR = "OR"
+OPERATOR_AND = "AND"
 
 
 SCOPE_REGISTRY = set()
 
 
 class Scope:
-
-    def __init__(self, label: str, description: str=None):
+    def __init__(self, label: str, description: str = None):
         self.label = label
         self.description = description
 
@@ -44,8 +43,7 @@ class Scope:
             return self.label in scope_set
 
         children_contained = (
-            child.is_contained_in(scope_set)
-            for child in self.children
+            child.is_contained_in(scope_set) for child in self.children
         )
 
         if self.operator == OPERATOR_OR:

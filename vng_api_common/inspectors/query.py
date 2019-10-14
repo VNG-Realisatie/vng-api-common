@@ -30,16 +30,22 @@ class FilterInspector(CoreAPICompatInspector):
                 if parameter.name in filter_class.declared_filters:
                     continue
                 filter_field = filter_class.base_filters[parameter.name]
-                model_field = queryset.model._meta.get_field(parameter.name.split('__')[0])
+                model_field = queryset.model._meta.get_field(
+                    parameter.name.split("__")[0]
+                )
 
-                help_text = filter_field.extra.get('help_text', model_field.help_text)
+                help_text = filter_field.extra.get("help_text", model_field.help_text)
 
                 if isinstance(filter_field, URLModelChoiceFilter):
-                    description = _("URL to the related {resource}").format(resource=parameter.name)
+                    description = _("URL to the related {resource}").format(
+                        resource=parameter.name
+                    )
                     parameter.description = help_text or description
                     parameter.format = openapi.FORMAT_URI
                 elif isinstance(filter_field, ChoiceFilter):
-                    parameter.enum = [choice[0] for choice in filter_field.extra['choices']]
+                    parameter.enum = [
+                        choice[0] for choice in filter_field.extra["choices"]
+                    ]
                 elif isinstance(model_field, models.URLField):
                     parameter.format = openapi.FORMAT_URI
 

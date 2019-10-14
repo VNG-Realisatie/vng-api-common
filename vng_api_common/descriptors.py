@@ -14,25 +14,35 @@ class GegevensGroepType:
     :param none_for_empty: convert 'empty' values to None, such as empty
       strings. Booleans are left untouched
     """
+
     name = None
     model = None
 
-    def __init__(self, mapping: Dict[str, models.Field], optional: tuple=None, none_for_empty=False):
+    def __init__(
+        self,
+        mapping: Dict[str, models.Field],
+        optional: tuple = None,
+        none_for_empty=False,
+    ):
         self.mapping = mapping
         self.optional = optional or ()
         self.none_for_empty = none_for_empty
 
         all_fields_known = set(self.optional).issubset(set(mapping.keys()))
-        assert all_fields_known, "The fields in 'optional' must be a subset of the mapping keys"
+        assert (
+            all_fields_known
+        ), "The fields in 'optional' must be a subset of the mapping keys"
 
         # check if it's optional or not
         self.required = any(field.blank is False for field in self.mapping.values())
 
     def __repr__(self):
-        fields = ", ".join([
-            field if field not in self.optional else f"{field} (optional)"
-            for field in self.mapping.keys()
-        ])
+        fields = ", ".join(
+            [
+                field if field not in self.optional else f"{field} (optional)"
+                for field in self.mapping.keys()
+            ]
+        )
         return "<GegevensGroepType: fields=%r required=%r>" % (fields, self.required)
 
     def __get__(self, obj, type=None):
@@ -53,10 +63,7 @@ class GegevensGroepType:
 
             return val
 
-        return {
-            key: _value_getter(field.name)
-            for key, field in self.mapping.items()
-        }
+        return {key: _value_getter(field.name) for key, field in self.mapping.items()}
 
     def __set__(self, obj, value: Optional[dict]):
         # value can be empty, if that's the case, empty all model fields
@@ -65,8 +72,12 @@ class GegevensGroepType:
                 raise ValueError("A non-empty value is required")
 
             for field in self.mapping.values():
-                empty_value = None if field.null else ''
-                default_value = field.default if field.default != models.NOT_PROVIDED else empty_value
+                empty_value = None if field.null else ""
+                default_value = (
+                    field.default
+                    if field.default != models.NOT_PROVIDED
+                    else empty_value
+                )
                 setattr(obj, field.name, default_value)
             return
 

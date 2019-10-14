@@ -5,22 +5,31 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('vng_api_common', '0002_apicredential'),
-    ]
+    dependencies = [("vng_api_common", "0002_apicredential")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='apicredential',
-            options={'verbose_name': 'external API credential', 'verbose_name_plural': 'external API credentials'},
+            name="apicredential",
+            options={
+                "verbose_name": "external API credential",
+                "verbose_name_plural": "external API credentials",
+            },
         ),
         migrations.AlterModelOptions(
-            name='jwtsecret',
-            options={'verbose_name': 'client credential', 'verbose_name_plural': 'client credentials'},
+            name="jwtsecret",
+            options={
+                "verbose_name": "client credential",
+                "verbose_name_plural": "client credentials",
+            },
         ),
         migrations.AddField(
-            model_name='apicredential',
-            name='label',
-            field=models.CharField(default='', help_text='human readable label', max_length=100, verbose_name='label'),
+            model_name="apicredential",
+            name="label",
+            field=models.CharField(
+                default="",
+                help_text="human readable label",
+                max_length=100,
+                verbose_name="label",
+            ),
         ),
     ]

@@ -24,7 +24,9 @@ class View(APIView):
 
 def test_failed_db_lookup():
     factory = APIRequestFactory()
-    request = factory.post('/foo', {'someFk': 'https://example.com/api/v1/bar'}, format="json")
+    request = factory.post(
+        "/foo", {"someFk": "https://example.com/api/v1/bar"}, format="json"
+    )
 
     with patch("vng_api_common.permissions.BaseAuthRequired._get_obj") as m:
         m.side_effect = ObjectDoesNotExist("not found in DB")
@@ -36,5 +38,5 @@ def test_failed_db_lookup():
     assert invalid_params == {
         "name": "someFk",
         "code": "object-does-not-exist",
-        "reason": _("The object does not exist in the database")
+        "reason": _("The object does not exist in the database"),
     }

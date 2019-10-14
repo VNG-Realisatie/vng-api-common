@@ -21,11 +21,10 @@ logger = logging.getLogger(__name__)
 
 
 class NotificationMixinBase(type):
-
     def __new__(cls, name, bases, attrs):
         new_cls = super().__new__(cls, name, bases, attrs)
 
-        kanaal = attrs.get('notifications_kanaal')
+        kanaal = attrs.get("notifications_kanaal")
         if kanaal is None:
             return new_cls
 
@@ -96,11 +95,11 @@ class NotificationMixin(metaclass=NotificationMixinBase):
 
         if model is kanaal.main_resource:
             # look up the object in the database from its absolute URL
-            resource_path = urlparse(data['url']).path
+            resource_path = urlparse(data["url"]).path
             resource = instance or get_resource_for_path(resource_path)
 
             main_object = resource
-            main_object_url = data['url']
+            main_object_url = data["url"]
             main_object_data = data
         else:
             # lookup the main object from the URL
@@ -117,14 +116,14 @@ class NotificationMixin(metaclass=NotificationMixinBase):
             main_object_data = serializer.data
 
         message_data = {
-            'kanaal': kanaal.label,
-            'hoofd_object': main_object_url,
-            'resource': model._meta.model_name,
-            'resource_url': data['url'],
-            'actie': self.action,
-            'aanmaakdatum': timezone.now(),
+            "kanaal": kanaal.label,
+            "hoofd_object": main_object_url,
+            "resource": model._meta.model_name,
+            "resource_url": data["url"],
+            "actie": self.action,
+            "aanmaakdatum": timezone.now(),
             # each channel knows which kenmerken it has, so delegate this
-            'kenmerken': kanaal.get_kenmerken(main_object, main_object_data),
+            "kenmerken": kanaal.get_kenmerken(main_object, main_object_data),
         }
 
         # let the serializer & render machinery shape the data the way it
@@ -132,14 +131,18 @@ class NotificationMixin(metaclass=NotificationMixinBase):
         serializer = NotificatieSerializer(instance=message_data)
         return camelize(serializer.data)
 
-    def notify(self, status_code: int,
-               data: Union[List, Dict], instance: models.Model = None) -> None:
+    def notify(
+        self, status_code: int, data: Union[List, Dict], instance: models.Model = None
+    ) -> None:
         if settings.NOTIFICATIONS_DISABLED:
             return
 
         # do nothing unless we have a 'success' status code - early exit here
         if not 200 <= status_code < 300:
-            logger.info("Not notifying, status code '%s' does not represent success.", status_code)
+            logger.info(
+                "Not notifying, status code '%s' does not represent success.",
+                status_code,
+            )
             return
 
         # build the content of the notification
@@ -149,11 +152,13 @@ class NotificationMixin(metaclass=NotificationMixinBase):
         # exception if the config is not complete. We want this to hard-fail!
         client = NotificationsConfig.get_client()
         try:
-            client.create('notificaties', message)
+            client.create("notificaties", message)
         # any unexpected errors should show up in error-monitoring, so we only
         # catch ClientError exceptions
         except ClientError as exc:
-            logger.warning("Could not deliver message to %s", client.base_url, exc_info=True)
+            logger.warning(
+                "Could not deliver message to %s", client.base_url, exc_info=True
+            )
 
 
 class NotificationCreateMixin(NotificationMixin):
@@ -181,7 +186,7 @@ class NotificationDestroyMixin(NotificationMixin):
         return response
 
 
-class NotificationViewSetMixin(NotificationCreateMixin,
-                               NotificationUpdateMixin,
-                               NotificationDestroyMixin):
+class NotificationViewSetMixin(
+    NotificationCreateMixin, NotificationUpdateMixin, NotificationDestroyMixin
+):
     pass

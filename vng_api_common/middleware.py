@@ -14,9 +14,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from zds_client.client import ClientError
 
-from .authorizations.models import (
-    Applicatie, AuthorizationsConfig, Autorisatie
-)
+from .authorizations.models import Applicatie, AuthorizationsConfig, Autorisatie
 from .authorizations.serializers import ApplicatieUuidSerializer
 from .constants import VERSION_HEADER, VertrouwelijkheidsAanduiding
 from .models import JWTSecret

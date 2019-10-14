@@ -16,26 +16,26 @@ import sys
 import django
 from django.conf import settings
 
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath(".."))
 
 from vng_api_common import __version__  # noqa isort:skip
 from vng_api_common.conf import api as api_settings  # noqa isort:skip
 
 settings.configure(
     INSTALLED_APPS=[
-        'rest_framework',
-        'django_filters',
-        'vng_api_common',
-        'vng_api_common.notifications',
-        'drf_yasg',
-        'solo',
+        "rest_framework",
+        "django_filters",
+        "vng_api_common",
+        "vng_api_common.notifications",
+        "drf_yasg",
+        "solo",
     ],
     DATABASES={
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'docs',
-            'USER': 'docs',
-            'PASSWORD': 'docs',
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "docs",
+            "USER": "docs",
+            "PASSWORD": "docs",
         }
     },
     BASE_DIR=sys.path[0],
@@ -45,9 +45,9 @@ django.setup()
 
 # -- Project information -----------------------------------------------------
 
-project = 'VNG-API-common'
-copyright = '2019, VNG-Realisatie, Maykin Media'
-author = 'VNG-Realisatie, Maykin Media'
+project = "VNG-API-common"
+copyright = "2019, VNG-Realisatie, Maykin Media"
+author = "VNG-Realisatie, Maykin Media"
 
 # The full version, including alpha/beta/rc tags
 release = __version__
@@ -58,20 +58,18 @@ release = __version__
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [
-    'sphinx.ext.autodoc',
-]
+extensions = ["sphinx.ext.autodoc"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -79,14 +77,11 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []
 
-linkcheck_ignore = [
-    r'http://localhost:\d+/',
-    r'https://img.shields.io/.*',  # slow...
-]
+linkcheck_ignore = [r"http://localhost:\d+/", r"https://img.shields.io/.*"]  # slow...

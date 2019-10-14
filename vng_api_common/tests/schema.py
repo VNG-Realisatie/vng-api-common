@@ -6,16 +6,14 @@ from django.conf import settings
 
 import yaml
 
-DEFAULT_PATH_PARAMETERS = {
-    'version': '1',
-}
+DEFAULT_PATH_PARAMETERS = {"version": "1"}
 
-SPEC_PATH = os.path.join(settings.BASE_DIR, 'src', 'openapi.yaml')
+SPEC_PATH = os.path.join(settings.BASE_DIR, "src", "openapi.yaml")
 
 
 @lru_cache()
 def get_spec(path: str = SPEC_PATH) -> dict:
-    with open(path, 'r') as infile:
+    with open(path, "r") as infile:
         spec = yaml.safe_load(infile)
     return spec
 
@@ -25,15 +23,15 @@ def get_operation_url(operation: str, spec_path: str = SPEC_PATH, **kwargs):
     Look up the url of an operation from the API spec.
     """
     spec = get_spec(spec_path)
-    url = spec['servers'][0]['url']
+    url = spec["servers"][0]["url"]
     base_path = urlparse(url).path
 
-    for path, methods in spec['paths'].items():
+    for path, methods in spec["paths"].items():
         for name, method in methods.items():
-            if name == 'parameters':
+            if name == "parameters":
                 continue
 
-            if method['operationId'] == operation:
+            if method["operationId"] == operation:
                 format_kwargs = DEFAULT_PATH_PARAMETERS.copy()
                 format_kwargs.update(**kwargs)
                 path = path.format(**format_kwargs)
@@ -43,7 +41,6 @@ def get_operation_url(operation: str, spec_path: str = SPEC_PATH, **kwargs):
 
 
 class TypeCheckMixin:
-
     def assertResponseTypes(self, response_data: dict, types: tuple):
         """
         Do type checks on the response data.
@@ -64,8 +61,8 @@ def get_validation_errors(response, field, index=0):
     """
     assert response.status_code == 400
     i = 0
-    for error in response.data['invalid_params']:
-        if error['name'] != field:
+    for error in response.data["invalid_params"]:
+        if error["name"] != field:
             continue
 
         if i == index:

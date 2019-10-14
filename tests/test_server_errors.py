@@ -15,7 +15,7 @@ class View(APIView):
 
 def test_unexpected_exception():
     factory = APIRequestFactory()
-    request = factory.get('/foo', format="json")
+    request = factory.get("/foo", format="json")
 
     response = View.as_view()(request)
 

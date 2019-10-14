@@ -13,11 +13,13 @@ class SubscriptionInline(admin.TabularInline):
 
 @admin.register(NotificationsConfig)
 class NotificationsConfigAdmin(SingletonModelAdmin):
-    list_display = ('api_root', 'subscriptions')
+    list_display = ("api_root", "subscriptions")
     inlines = [SubscriptionInline]
 
     def subscriptions(self, obj):
-        urls = obj.exclude(subscription_set___subscription='').values_list('subscription_set___subscription')
+        urls = obj.exclude(subscription_set___subscription="").values_list(
+            "subscription_set___subscription"
+        )
         return ", ".join(urls)
 
 
@@ -26,10 +28,12 @@ def register_webhook(modeladmin, request, queryset):
         if sub._subscription:
             continue
         sub.register()
+
+
 register_webhook.short_description = _("Register the webhooks")  # noqa
 
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('callback_url', 'channels', '_subscription')
+    list_display = ("callback_url", "channels", "_subscription")
     actions = [register_webhook]

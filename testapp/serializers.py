@@ -7,7 +7,7 @@ from vng_api_common.serializers import GegevensGroepSerializer
 class AddressSerializer(GegevensGroepSerializer):
     class Meta:
         model = Person
-        gegevensgroep = 'address'
+        gegevensgroep = "address"
 
 
 class PersonSerializer(serializers.ModelSerializer):
@@ -23,4 +23,4 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
-        fields = ('person',)
+        fields = ("person",)

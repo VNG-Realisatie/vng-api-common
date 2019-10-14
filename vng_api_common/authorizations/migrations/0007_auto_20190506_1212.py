@@ -5,19 +5,27 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('authorizations', '0006_auto_20190506_0901'),
-    ]
+    dependencies = [("authorizations", "0006_auto_20190506_0901")]
 
     operations = [
         migrations.AddField(
-            model_name='autorisatie',
-            name='besluittype',
-            field=models.URLField(blank=True, help_text='URL naar het besluittype waarop de autorisatie van toepassing is.', max_length=1000, verbose_name='besluittype'),
+            model_name="autorisatie",
+            name="besluittype",
+            field=models.URLField(
+                blank=True,
+                help_text="URL naar het besluittype waarop de autorisatie van toepassing is.",
+                max_length=1000,
+                verbose_name="besluittype",
+            ),
         ),
         migrations.AddField(
-            model_name='autorisatie',
-            name='informatieobjecttype',
-            field=models.URLField(blank=True, help_text='URL naar het informatieobjecttype waarop de autorisatie van toepassing is.', max_length=1000, verbose_name='informatieobjecttype'),
+            model_name="autorisatie",
+            name="informatieobjecttype",
+            field=models.URLField(
+                blank=True,
+                help_text="URL naar het informatieobjecttype waarop de autorisatie van toepassing is.",
+                max_length=1000,
+                verbose_name="informatieobjecttype",
+            ),
         ),
     ]

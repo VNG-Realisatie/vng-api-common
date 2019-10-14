@@ -23,18 +23,28 @@ class ReadOnlyFieldInspector(FieldInspector):
     a model property.
     """
 
-    def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):
-        SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
+    def field_to_swagger_object(
+        self, field, swagger_object_type, use_references, **kwargs
+    ):
+        SwaggerType, ChildSwaggerType = self._get_partial_types(
+            field, swagger_object_type, use_references, **kwargs
+        )
 
-        if isinstance(field, serializers.ReadOnlyField) and swagger_object_type == openapi.Schema:
+        if (
+            isinstance(field, serializers.ReadOnlyField)
+            and swagger_object_type == openapi.Schema
+        ):
             prop = getattr(field.parent.Meta.model, field.source)
             if not isinstance(prop, property):
                 return NotHandled
 
-            return_type = prop.fget.__annotations__.get('return')
+            return_type = prop.fget.__annotations__.get("return")
             if return_type is None:  # no type annotation, too bad...
-                logger.debug("Missing return type annotation for prop %s on model %s",
-                             field.source, field.parent.Meta.model)
+                logger.debug(
+                    "Missing return type annotation for prop %s on model %s",
+                    field.source,
+                    field.parent.Meta.model,
+                )
                 return NotHandled
 
             type_ = TYPES_MAP.get(return_type)
@@ -47,27 +57,40 @@ class ReadOnlyFieldInspector(FieldInspector):
 
 
 class JSONFieldInspector(FieldInspector):
+    def field_to_swagger_object(
+        self, field, swagger_object_type, use_references, **kwargs
+    ):  # pragma: no cover
+        SwaggerType, ChildSwaggerType = self._get_partial_types(
+            field, swagger_object_type, use_references, **kwargs
+        )
 
-    def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):  # pragma: no cover
-        SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
-
-        if isinstance(field, serializers.JSONField) and swagger_object_type == openapi.Schema:
+        if (
+            isinstance(field, serializers.JSONField)
+            and swagger_object_type == openapi.Schema
+        ):
             return SwaggerType(type=openapi.TYPE_OBJECT)
 
         return NotHandled
 
 
 class HyperlinkedIdentityFieldInspector(FieldInspector):
-    def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):
-        SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
+    def field_to_swagger_object(
+        self, field, swagger_object_type, use_references, **kwargs
+    ):
+        SwaggerType, ChildSwaggerType = self._get_partial_types(
+            field, swagger_object_type, use_references, **kwargs
+        )
 
-        if isinstance(field, serializers.HyperlinkedIdentityField) and swagger_object_type == openapi.Schema:
+        if (
+            isinstance(field, serializers.HyperlinkedIdentityField)
+            and swagger_object_type == openapi.Schema
+        ):
             return SwaggerType(
                 type=openapi.TYPE_STRING,
                 format=openapi.FORMAT_URI,
                 min_length=1,
                 max_length=1000,
-                description='URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.'
+                description="URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.",
             )
 
         return NotHandled

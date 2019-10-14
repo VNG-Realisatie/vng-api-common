@@ -9,33 +9,85 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='NotificationsConfig',
+            name="NotificationsConfig",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('location', models.URLField(help_text='API Root of the NC to use', verbose_name='location')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "location",
+                    models.URLField(
+                        help_text="API Root of the NC to use", verbose_name="location"
+                    ),
+                ),
             ],
-            options={
-                'verbose_name': 'Notificatiescomponentconfiguratie',
-            },
+            options={"verbose_name": "Notificatiescomponentconfiguratie"},
         ),
         migrations.CreateModel(
-            name='Subscription',
+            name="Subscription",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('callback_url', models.URLField(help_text='Where to send the notifications (webhook url)', verbose_name='callback url')),
-                ('client_id', models.CharField(help_text='Client ID to construct the auth token', max_length=50, verbose_name='client ID')),
-                ('secret', models.CharField(help_text='Secret to construct the auth token', max_length=50, verbose_name='client secret')),
-                ('channels', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), help_text='Comma-separated list of channels to subscribe to', size=None, verbose_name='channels')),
-                ('config', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='notifications.NotificationsConfig')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "callback_url",
+                    models.URLField(
+                        help_text="Where to send the notifications (webhook url)",
+                        verbose_name="callback url",
+                    ),
+                ),
+                (
+                    "client_id",
+                    models.CharField(
+                        help_text="Client ID to construct the auth token",
+                        max_length=50,
+                        verbose_name="client ID",
+                    ),
+                ),
+                (
+                    "secret",
+                    models.CharField(
+                        help_text="Secret to construct the auth token",
+                        max_length=50,
+                        verbose_name="client secret",
+                    ),
+                ),
+                (
+                    "channels",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(max_length=100),
+                        help_text="Comma-separated list of channels to subscribe to",
+                        size=None,
+                        verbose_name="channels",
+                    ),
+                ),
+                (
+                    "config",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="notifications.NotificationsConfig",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Webhook subscription',
-                'verbose_name_plural': 'Webhook subscriptions',
+                "verbose_name": "Webhook subscription",
+                "verbose_name_plural": "Webhook subscriptions",
             },
         ),
     ]

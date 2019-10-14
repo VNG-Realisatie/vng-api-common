@@ -4,9 +4,7 @@ from typing import List, Optional
 import jwt
 from rest_framework import status
 
-from ..authorizations.models import (
-    Applicatie, AuthorizationsConfig, Autorisatie
-)
+from ..authorizations.models import Applicatie, AuthorizationsConfig, Autorisatie
 from ..constants import VertrouwelijkheidsAanduiding
 from ..models import JWTSecret
 

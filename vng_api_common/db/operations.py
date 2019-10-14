@@ -3,8 +3,11 @@ from typing import Callable
 from django.db import migrations
 
 from ..constants import (
-    ComponentTypes, RolOmschrijving, RolTypes, VertrouwelijkheidsAanduiding,
-    ZaakobjectTypes
+    ComponentTypes,
+    RolOmschrijving,
+    RolTypes,
+    VertrouwelijkheidsAanduiding,
+    ZaakobjectTypes,
 )
 
 VERTROUWELIJKHEIDSAANDUIDING_MAPPING = {
@@ -77,9 +80,7 @@ class UpdateChoiceValues(migrations.RunPython):
     def __init__(self, model: str, field: str, *args, **kwargs):
         forward = update_factory(model, field, self.mapping)
         backwards = update_factory(
-            model,
-            field,
-            {value: key for key, value in self.mapping.items()}
+            model, field, {value: key for key, value in self.mapping.items()}
         )
 
         super().__init__(forward, backwards, *args, **kwargs)

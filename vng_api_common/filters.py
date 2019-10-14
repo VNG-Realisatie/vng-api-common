@@ -24,9 +24,11 @@ class Backend(DjangoFilterBackend):
 
     # Taken from drf_yasg.inspectors.field.CamelCaseJSONFilter
     def _is_camel_case(self, view):
-        return (
-            any(issubclass(parser, CamelCaseJSONParser) for parser in view.parser_classes) or
-            any(issubclass(renderer, CamelCaseJSONRenderer) for renderer in view.renderer_classes)
+        return any(
+            issubclass(parser, CamelCaseJSONParser) for parser in view.parser_classes
+        ) or any(
+            issubclass(renderer, CamelCaseJSONRenderer)
+            for renderer in view.renderer_classes
         )
 
     def _transform_query_params(self, view, query_params: QueryDict) -> QueryDict:
@@ -34,7 +36,7 @@ class Backend(DjangoFilterBackend):
             return query_params
 
         # data can be a regular dict if it's coming from a serializer
-        if hasattr(query_params, 'lists'):
+        if hasattr(query_params, "lists"):
             data = dict(query_params.lists())
         else:
             data = query_params
@@ -43,7 +45,9 @@ class Backend(DjangoFilterBackend):
 
         return QueryDict(urlencode(transformed, doseq=True))
 
-    def get_filterset_kwargs(self, request: Request, queryset: models.QuerySet, view: APIView):
+    def get_filterset_kwargs(
+        self, request: Request, queryset: models.QuerySet, view: APIView
+    ):
         """
         Get the initialization parameters for the filterset.
 
@@ -51,9 +55,11 @@ class Backend(DjangoFilterBackend):
         * do the camelCase transformation of filter parameters
         """
         kwargs = super().get_filterset_kwargs(request, queryset, view)
-        filter_parameters = request.query_params if not is_search_view(view) else request.data
+        filter_parameters = (
+            request.query_params if not is_search_view(view) else request.data
+        )
         query_params = self._transform_query_params(view, filter_parameters)
-        kwargs['data'] = query_params
+        kwargs["data"] = query_params
         return kwargs
 
 
@@ -61,7 +67,7 @@ class URLModelChoiceField(fields.ModelChoiceField):
     widget = URLInput
 
     def __init__(self, *args, **kwargs):
-        self.instance_path = kwargs.pop('instance_path', None)
+        self.instance_path = kwargs.pop("instance_path", None)
         super().__init__(*args, **kwargs)
 
     def url_to_pk(self, url: str):
@@ -69,11 +75,14 @@ class URLModelChoiceField(fields.ModelChoiceField):
         path = parsed.path
         instance = get_resource_for_path(path)
         if self.instance_path:
-            for bit in self.instance_path.split('.'):
+            for bit in self.instance_path.split("."):
                 instance = getattr(instance, bit)
         model = self.queryset.model
         if not isinstance(instance, model):
-            raise ValidationError(_("Invalid resource type supplied, expected %r") % model, code='invalid-type')
+            raise ValidationError(
+                _("Invalid resource type supplied, expected %r") % model,
+                code="invalid-type",
+            )
         return instance.pk
 
     def to_python(self, value: str):
@@ -82,7 +91,9 @@ class URLModelChoiceField(fields.ModelChoiceField):
             try:
                 value = self.url_to_pk(value)
             except models.ObjectDoesNotExist:
-                raise ValidationError(_("Invalid resource URL supplied"), code='invalid')
+                raise ValidationError(
+                    _("Invalid resource URL supplied"), code="invalid"
+                )
         return super().to_python(value)
 
 
@@ -91,13 +102,13 @@ class URLModelChoiceFilter(filters.ModelChoiceFilter):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.instance_path = kwargs.get('instance_path', None)
-        self.queryset = kwargs.get('queryset')
+        self.instance_path = kwargs.get("instance_path", None)
+        self.queryset = kwargs.get("queryset")
 
 
 class RSINFilter(filters.CharFilter):
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('validators', [validate_rsin])
+        kwargs.setdefault("validators", [validate_rsin])
         super().__init__(*args, **kwargs)
 
 
@@ -106,16 +117,17 @@ class WildcardFilter(filters.CharFilter):
     Filters the queryset based on a string and optionally allows wildcards in
     the query parameter.
     """
-    wildcard = '*'
+
+    wildcard = "*"
 
     def __init__(self, *args, **kwargs):
-        kwargs['lookup_expr'] = 'iregex'
+        kwargs["lookup_expr"] = "iregex"
         super().__init__(*args, **kwargs)
 
     def filter(self, qs, value):
         if value in EMPTY_VALUES:
             return qs
 
-        value = r'^{}$'.format(value.replace(self.wildcard, '.*'))
+        value = r"^{}$".format(value.replace(self.wildcard, ".*"))
 
         return super().filter(qs, value)

@@ -7,7 +7,7 @@ from djchoices import DjangoChoices
 
 from .utils import get_subclasses
 
-ENUM_VALUE_PATTERN = re.compile(r'^[a-z_0-9]+$', re.ASCII)
+ENUM_VALUE_PATTERN = re.compile(r"^[a-z_0-9]+$", re.ASCII)
 
 
 def enum_value_ok(value: Any) -> bool:
@@ -31,12 +31,14 @@ def check_lowercased_constants(app_configs, **kwargs):
     for klass in get_subclasses(DjangoChoices):
         enum_values = klass.values.keys()
         if any((not enum_value_ok(value) for value in enum_values)):
-            warnings.append(Warning(
-                'Choices %s.%s has at least one value that is not lowercased/underscore ascii only' % (
-                    klass.__module__, klass.__name__),
-                hint='Lower case the values and replace dashes/spaces with underscores',
-                obj=klass,
-                id='vng_api_common.enums.W001'
-            ))
+            warnings.append(
+                Warning(
+                    "Choices %s.%s has at least one value that is not lowercased/underscore ascii only"
+                    % (klass.__module__, klass.__name__),
+                    hint="Lower case the values and replace dashes/spaces with underscores",
+                    obj=klass,
+                    id="vng_api_common.enums.W001",
+                )
+            )
 
     return warnings

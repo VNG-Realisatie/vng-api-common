@@ -10,17 +10,20 @@ from zds_client import Client, ClientAuth
 from ..decorators import field_default
 from ..models import APICredential, ClientConfig
 from .constants import (
-    SCOPE_NOTIFICATIES_CONSUMEREN_LABEL, SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
+    SCOPE_NOTIFICATIES_CONSUMEREN_LABEL,
+    SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
 )
 
 
-@field_default('api_root', 'https://notificaties-api.vng.cloud/api/v1/')
+@field_default("api_root", "https://notificaties-api.vng.cloud/api/v1/")
 class NotificationsConfig(ClientConfig):
     class Meta:
         verbose_name = _("Notificatiescomponentconfiguratie")
 
     def get_auth(self) -> ClientAuth:
-        auth = APICredential.get_auth(self.api_root, scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL])
+        auth = APICredential.get_auth(
+            self.api_root, scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL]
+        )
         return auth
 
 
@@ -30,29 +33,33 @@ class Subscription(models.Model):
 
     TODO: on change/update, update the subscription
     """
-    config = models.ForeignKey('NotificationsConfig', on_delete=models.CASCADE)
+
+    config = models.ForeignKey("NotificationsConfig", on_delete=models.CASCADE)
 
     callback_url = models.URLField(
-        _("callback url"),
-        help_text=_("Where to send the notifications (webhook url)")
+        _("callback url"), help_text=_("Where to send the notifications (webhook url)")
     )
     client_id = models.CharField(
-        _("client ID"), max_length=50,
-        help_text=_("Client ID to construct the auth token")
+        _("client ID"),
+        max_length=50,
+        help_text=_("Client ID to construct the auth token"),
     )
     secret = models.CharField(
-        _("client secret"), max_length=50,
-        help_text=_("Secret to construct the auth token")
+        _("client secret"),
+        max_length=50,
+        help_text=_("Secret to construct the auth token"),
     )
     channels = ArrayField(
         models.CharField(max_length=100),
         verbose_name=_("channels"),
-        help_text=_("Comma-separated list of channels to subscribe to")
+        help_text=_("Comma-separated list of channels to subscribe to"),
     )
 
     _subscription = models.URLField(
-        _("NC subscription"), blank=True, editable=False,
-        help_text=_("Subscription as it is known in the NC")
+        _("NC subscription"),
+        blank=True,
+        editable=False,
+        help_text=_("Subscription as it is known in the NC"),
     )
 
     class Meta:
@@ -66,13 +73,12 @@ class Subscription(models.Model):
         """
         Registers the webhook with the notification component.
         """
-        dummy_detail_url = urljoin(self.config.api_root, f'foo/{uuid.uuid4()}')
+        dummy_detail_url = urljoin(self.config.api_root, f"foo/{uuid.uuid4()}")
         client = Client.from_url(dummy_detail_url)
 
         # This authentication is to create a subscription at the NC.
         client.auth = APICredential.get_auth(
-            self.config.api_root,
-            scopes=[SCOPE_NOTIFICATIES_CONSUMEREN_LABEL]
+            self.config.api_root, scopes=[SCOPE_NOTIFICATIES_CONSUMEREN_LABEL]
         )
 
         # This authentication is for the NC to call us. Thus, it's *not* for
@@ -80,14 +86,12 @@ class Subscription(models.Model):
         self_auth = ClientAuth(
             client_id=self.client_id,
             secret=self.secret,
-            scopes=[
-                SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
-            ]
+            scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL],
         )
         data = {
-            'callbackUrl': self.callback_url,
-            'auth': self_auth.credentials()['Authorization'],
-            'kanalen': [
+            "callbackUrl": self.callback_url,
+            "auth": self_auth.credentials()["Authorization"],
+            "kanalen": [
                 {
                     "naam": channel,
                     # FIXME: You need to be able to configure these.
@@ -98,7 +102,7 @@ class Subscription(models.Model):
         }
 
         # register the subscriber
-        subscriber = client.create('abonnement', data=data)
+        subscriber = client.create("abonnement", data=data)
 
-        self._subscription = subscriber['url']
-        self.save(update_fields=['_subscription'])
+        self._subscription = subscriber["url"]
+        self.save(update_fields=["_subscription"])

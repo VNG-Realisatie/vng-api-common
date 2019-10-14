@@ -5,11 +5,7 @@ import pytest
 from vng_api_common.validators import AlphanumericExcludingDiacritic
 
 
-@pytest.mark.parametrize("value", [
-    "foo$",
-    "aëeeei",
-    "no spaces allowed",
-])
+@pytest.mark.parametrize("value", ["foo$", "aëeeei", "no spaces allowed"])
 def test_alphanumeric_validator_error_invalid_input(value):
     validator = AlphanumericExcludingDiacritic()
 
@@ -17,12 +13,15 @@ def test_alphanumeric_validator_error_invalid_input(value):
         validator(value)
 
 
-@pytest.mark.parametrize("value", [
-    "simple",
-    "dashes-are-ok",
-    "underscores_are_too",
-    "let_us_not_forget_about_numb3rs",
-])
+@pytest.mark.parametrize(
+    "value",
+    [
+        "simple",
+        "dashes-are-ok",
+        "underscores_are_too",
+        "let_us_not_forget_about_numb3rs",
+    ],
+)
 def test_alphanumeric_validator_error_valid_input(value):
     validator = AlphanumericExcludingDiacritic()
     try:
