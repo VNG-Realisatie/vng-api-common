@@ -74,6 +74,10 @@ class URLModelChoiceField(fields.ModelChoiceField):
     def url_to_pk(self, url: str):
         parsed = urlparse(url)
         path = parsed.path
+
+        if path == "/":
+            path = ""
+
         instance = get_resource_for_path(path)
         if self.instance_path:
             for bit in self.instance_path.split("."):
