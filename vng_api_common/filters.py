@@ -91,9 +91,7 @@ class URLModelChoiceField(fields.ModelChoiceField):
             try:
                 value = self.url_to_pk(value)
             except models.ObjectDoesNotExist:
-                raise ValidationError(
-                    _("Invalid resource URL supplied"), code="invalid"
-                )
+                return []
         return super().to_python(value)
 
 
