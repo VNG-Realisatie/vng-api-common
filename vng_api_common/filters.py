@@ -1,6 +1,7 @@
 from urllib.parse import urlencode, urlparse
 
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from django.db import models
 from django.forms.widgets import URLInput
 from django.http import QueryDict
@@ -86,7 +87,12 @@ class URLModelChoiceField(fields.ModelChoiceField):
         return instance.pk
 
     def to_python(self, value: str):
-        # TODO: validate that it's proper URL input
+        if value is not None:
+            try:
+                URLValidator()(value)
+            except ValidationError as exc:
+                raise exc
+
         if value:
             try:
                 value = self.url_to_pk(value)
