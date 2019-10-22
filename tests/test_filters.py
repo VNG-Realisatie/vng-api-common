@@ -1,8 +1,10 @@
-import pytest
 from django.core.exceptions import ObjectDoesNotExist
 
+import pytest
 from testapp.models import Person
+
 from vng_api_common.filters import URLModelChoiceField
+
 
 def test_filter_field_url_to_pk_trailing_slash():
     field = URLModelChoiceField(queryset=Person.objects.all())
