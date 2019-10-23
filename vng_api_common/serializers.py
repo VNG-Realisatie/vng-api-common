@@ -111,7 +111,6 @@ class GegevensGroepSerializerMetaclass(serializers.SerializerMetaclass):
             for field_name, model_field in gegevensgroep.mapping.items():
                 Meta.fields.append(field_name)
 
-                # the field is always required and may not be empty in any form
                 default_extra_kwargs = {
                     "required": field_name not in gegevensgroep.optional,
                     "allow_null": False,

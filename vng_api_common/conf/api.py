@@ -70,6 +70,7 @@ BASE_SWAGGER_SETTINGS = {
         "vng_api_common.inspectors.fields.ReadOnlyFieldInspector",
         "vng_api_common.inspectors.fields.JSONFieldInspector",
         "vng_api_common.inspectors.polymorphic.PolymorphicSerializerInspector",
+        "vng_api_common.inspectors.fields.GegevensGroepInspector",
         "drf_yasg.inspectors.CamelCaseJSONFilter",
         "drf_yasg.inspectors.RecursiveFieldInspector",
         "drf_yasg.inspectors.ReferencingSerializerInspector",

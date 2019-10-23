@@ -2,8 +2,10 @@ import logging
 
 from drf_yasg import openapi
 from drf_yasg.inspectors.base import NotHandled
-from drf_yasg.inspectors.field import FieldInspector
+from drf_yasg.inspectors.field import FieldInspector, InlineSerializerInspector
 from rest_framework import serializers
+
+from ..serializers import GegevensGroepSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -94,3 +96,23 @@ class HyperlinkedIdentityFieldInspector(FieldInspector):
             )
 
         return NotHandled
+
+
+class GegevensGroepInspector(FieldInspector):
+    def process_result(self, result, method_name, obj, **kwargs):
+        if not isinstance(result, openapi.Schema.OR_REF):
+            return result
+
+        if not isinstance(obj, GegevensGroepSerializer):
+            return result
+
+        if method_name != "field_to_swagger_object":
+            return result
+
+        if not obj.allow_null:
+            return result
+
+        schema = openapi.resolve_ref(result, self.components)
+        schema.x_nullable = True
+
+        return result
