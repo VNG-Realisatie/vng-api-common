@@ -46,7 +46,7 @@ def lookup_kwargs_to_filters(lookup_kwargs: dict, kwargs: dict) -> dict:
     return filters
 
 
-def get_viewset_for_path(path: str) -> "rest_framework.viewsets.ViewSet":
+def get_viewset_for_path(path: str, method="GET") -> "rest_framework.viewsets.ViewSet":
     """
     Look up which viewset matches a path.
     """
@@ -66,6 +66,8 @@ def get_viewset_for_path(path: str) -> "rest_framework.viewsets.ViewSet":
     viewset.args = callback_args
     viewset.kwargs = callback_kwargs
 
+    viewset.action = viewset.action_map.get(method.lower())
+
     return viewset
 
 
@@ -77,7 +79,6 @@ def get_resource_for_path(path: str) -> models.Model:
         path = path[len(settings.FORCE_SCRIPT_NAME) :]
 
     viewset = get_viewset_for_path(path)
-    viewset.action = viewset.action_map.get("get")
 
     # See rest_framework.mixins.RetieveModelMixin.get_object()
     lookup_url_kwarg = viewset.lookup_url_kwarg or viewset.lookup_field
