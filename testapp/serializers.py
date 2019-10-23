@@ -22,6 +22,14 @@ class PersonSerializer(serializers.ModelSerializer):
         return obj.group.name if obj.group_id else ""
 
 
+class PersonSerializer2(serializers.ModelSerializer):
+    address = AddressSerializer(allow_null=True, required=False)
+
+    class Meta:
+        model = Person
+        fields = ("address", "name")
+
+
 class GroupSerializer(serializers.ModelSerializer):
     person = PersonSerializer(many=True)
 

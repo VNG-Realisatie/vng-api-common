@@ -1,4 +1,4 @@
-from testapp.serializers import PersonSerializer
+from testapp.serializers import PersonSerializer, PersonSerializer2
 
 
 def test_partial_serializer_validation_gegevensgroep_invalid():
@@ -26,6 +26,14 @@ def test_partial_serializer_validation_gegevensgroep_valid2():
 def test_partial_serializer_validation_gegevensgroep_null():
     serializer = PersonSerializer(
         data={"name": "Willy De Kooning", "address": None}, partial=True
+    )
+
+    assert serializer.is_valid()
+
+
+def test_full_serializer_gegevensgroep_null():
+    serializer = PersonSerializer2(
+        data={"name": "Willy De Kooning", "address": None}, partial=False
     )
 
     assert serializer.is_valid()
