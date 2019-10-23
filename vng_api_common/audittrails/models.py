@@ -1,6 +1,7 @@
 import uuid
 
 from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.indexes import GinIndex
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -94,3 +95,12 @@ class AuditTrail(models.Model):
     wijzigingen = GegevensGroepType(
         {"oud": oud, "nieuw": nieuw}, optional=["oud", "nieuw"], none_for_empty=True
     )
+
+    class Meta:
+        indexes = [
+            GinIndex(
+                fields=["hoofd_object"],
+                name="audittrail_hoofdobject_trgm",
+                opclasses=["gin_trgm_ops"],
+            )
+        ]
