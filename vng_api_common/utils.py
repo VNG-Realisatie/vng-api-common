@@ -77,6 +77,7 @@ def get_resource_for_path(path: str) -> models.Model:
         path = path[len(settings.FORCE_SCRIPT_NAME) :]
 
     viewset = get_viewset_for_path(path)
+    viewset.action = viewset.action_map.get("get")
 
     # See rest_framework.mixins.RetieveModelMixin.get_object()
     lookup_url_kwarg = viewset.lookup_url_kwarg or viewset.lookup_field
