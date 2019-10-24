@@ -1,3 +1,4 @@
+import logging
 from urllib.parse import urlencode, urlparse
 
 from django.core.exceptions import ValidationError
@@ -19,6 +20,8 @@ from rest_framework.views import APIView
 from .search import is_search_view
 from .utils import get_resource_for_path
 from .validators import validate_rsin
+
+logger = logging.getLogger(__name__)
 
 
 class Backend(DjangoFilterBackend):
@@ -89,15 +92,13 @@ class URLModelChoiceField(fields.ModelChoiceField):
 
     def to_python(self, value: str):
         if value is not None:
-            try:
-                URLValidator()(value)
-            except ValidationError as exc:
-                raise exc
+            URLValidator()(value)
 
         if value:
             try:
                 value = self.url_to_pk(value)
             except models.ObjectDoesNotExist:
+                logger.info(f"No {self.label} found for URL {value}")
                 return []
         return super().to_python(value)
 
