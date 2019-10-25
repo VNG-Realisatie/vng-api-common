@@ -15,7 +15,7 @@ def test_filter_field_url_to_pk_trailing_slash():
 def test_filter_field_to_python_trailing_slash():
     field = URLModelChoiceField(queryset=Person.objects.all())
     value = field.to_python("https://google.com/")
-    assert value == []
+    assert value == None
 
 
 def test_filter_field_to_python_invalid_url_raises_error():
