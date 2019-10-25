@@ -99,7 +99,7 @@ class URLModelChoiceField(fields.ModelChoiceField):
                 value = self.url_to_pk(value)
             except models.ObjectDoesNotExist:
                 logger.info(f"No {self.label} found for URL {value}")
-                return []
+                return None
         return super().to_python(value)
 
 
@@ -110,6 +110,13 @@ class URLModelChoiceFilter(filters.ModelChoiceFilter):
         super().__init__(*args, **kwargs)
         self.instance_path = kwargs.get("instance_path", None)
         self.queryset = kwargs.get("queryset")
+
+    def filter(self, qs, value):
+        if self.distinct:
+            qs = qs.distinct()
+        lookup = "%s__%s" % (self.field_name, self.lookup_expr)
+        qs = self.get_method(qs)(**{lookup: value})
+        return qs
 
 
 class RSINFilter(filters.CharFilter):
