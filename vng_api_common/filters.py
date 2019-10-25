@@ -1,6 +1,8 @@
+import logging
 from urllib.parse import urlencode, urlparse
 
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from django.db import models
 from django.forms.widgets import URLInput
 from django.http import QueryDict
@@ -15,9 +17,12 @@ from djangorestframework_camel_case.util import underscoreize
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
+from .constants import FILTER_URL_DID_NOT_RESOLVE
 from .search import is_search_view
 from .utils import get_resource_for_path
 from .validators import validate_rsin
+
+logger = logging.getLogger(__name__)
 
 
 class Backend(DjangoFilterBackend):
@@ -73,6 +78,7 @@ class URLModelChoiceField(fields.ModelChoiceField):
     def url_to_pk(self, url: str):
         parsed = urlparse(url)
         path = parsed.path
+
         instance = get_resource_for_path(path)
         if self.instance_path:
             for bit in self.instance_path.split("."):
@@ -86,14 +92,15 @@ class URLModelChoiceField(fields.ModelChoiceField):
         return instance.pk
 
     def to_python(self, value: str):
-        # TODO: validate that it's proper URL input
+        if value is not None:
+            URLValidator()(value)
+
         if value:
             try:
                 value = self.url_to_pk(value)
             except models.ObjectDoesNotExist:
-                raise ValidationError(
-                    _("Invalid resource URL supplied"), code="invalid"
-                )
+                logger.info(f"No {self.label} found for URL {value}")
+                return FILTER_URL_DID_NOT_RESOLVE
         return super().to_python(value)
 
 
@@ -104,6 +111,12 @@ class URLModelChoiceFilter(filters.ModelChoiceFilter):
         super().__init__(*args, **kwargs)
         self.instance_path = kwargs.get("instance_path", None)
         self.queryset = kwargs.get("queryset")
+
+    def filter(self, qs, value):
+        # If the URL did not resolve to an instance, return no results
+        if value == FILTER_URL_DID_NOT_RESOLVE:
+            return qs.none()
+        return super().filter(qs, value)
 
 
 class RSINFilter(filters.CharFilter):

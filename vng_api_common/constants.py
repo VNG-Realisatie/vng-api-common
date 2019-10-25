@@ -14,6 +14,8 @@ HEADER_APPLICATION = "X-NLX-Request-Application-Id"
 HEADER_USER_ID = "X-NLX-Request-User-Id"
 HEADER_AUDIT = "X-Audit-Toelichting"
 
+FILTER_URL_DID_NOT_RESOLVE = "NO_MATCHING_OBJECT"
+
 
 class VertrouwelijkheidsAanduiding(DjangoChoices):
     openbaar = ChoiceItem("openbaar", "Openbaar")
