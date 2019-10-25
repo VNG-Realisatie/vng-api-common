@@ -17,6 +17,7 @@ from djangorestframework_camel_case.util import underscoreize
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
+from .constants import FILTER_URL_DID_NOT_RESOLVE
 from .search import is_search_view
 from .utils import get_resource_for_path
 from .validators import validate_rsin
@@ -99,7 +100,7 @@ class URLModelChoiceField(fields.ModelChoiceField):
                 value = self.url_to_pk(value)
             except models.ObjectDoesNotExist:
                 logger.info(f"No {self.label} found for URL {value}")
-                return None
+                return FILTER_URL_DID_NOT_RESOLVE
         return super().to_python(value)
 
 
@@ -112,11 +113,10 @@ class URLModelChoiceFilter(filters.ModelChoiceFilter):
         self.queryset = kwargs.get("queryset")
 
     def filter(self, qs, value):
-        if self.distinct:
-            qs = qs.distinct()
-        lookup = "%s__%s" % (self.field_name, self.lookup_expr)
-        qs = self.get_method(qs)(**{lookup: value})
-        return qs
+        # If the URL did not resolve to an instance, return no results
+        if value == FILTER_URL_DID_NOT_RESOLVE:
+            return qs.none()
+        return super().filter(qs, value)
 
 
 class RSINFilter(filters.CharFilter):
