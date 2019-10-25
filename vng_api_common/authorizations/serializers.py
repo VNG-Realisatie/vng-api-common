@@ -24,6 +24,7 @@ class AutorisatieBaseSerializer(PolymorphicSerializer):
                 "max_vertrouwelijkheidaanduiding",
             ),
             ComponentTypes.brc: ("besluittype",),
+            ComponentTypes.brc: ("besluittype",),
             ComponentTypes.nrc: (),
             ComponentTypes.ztc: (),
             ComponentTypes.ac: (),

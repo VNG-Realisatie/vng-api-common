@@ -78,6 +78,10 @@ def get_resource_for_path(path: str) -> models.Model:
     if settings.FORCE_SCRIPT_NAME and path.startswith(settings.FORCE_SCRIPT_NAME):
         path = path[len(settings.FORCE_SCRIPT_NAME) :]
 
+    # FIXME: should honor router configuration!
+    if path.endswith("/"):
+        path = path[:-1]
+
     viewset = get_viewset_for_path(path)
 
     # See rest_framework.mixins.RetieveModelMixin.get_object()
