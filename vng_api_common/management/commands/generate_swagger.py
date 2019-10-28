@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.module_loading import import_string
 
 from drf_yasg import openapi
 from drf_yasg.app_settings import swagger_settings
@@ -76,6 +77,7 @@ class Command(generate_swagger.Command):
         del schema.schemes
         super().write_schema(schema, stream, format)
 
+    # need to overwrite the generator class...
     def handle(
         self,
         output_file,
@@ -87,12 +89,18 @@ class Command(generate_swagger.Command):
         user,
         private,
         generator_class_name,
+        info=None,
+        urlconf=None,
         **options,
     ):
         # disable logs of WARNING and below
         logging.disable(logging.WARNING)
 
-        info = getattr(swagger_settings, "DEFAULT_INFO", None)
+        if info:
+            info = import_string(info)
+        else:
+            info = getattr(swagger_settings, "DEFAULT_INFO", None)
+
         if not isinstance(info, openapi.Info):
             raise ImproperlyConfigured(
                 'settings.SWAGGER_SETTINGS["DEFAULT_INFO"] should be an '
