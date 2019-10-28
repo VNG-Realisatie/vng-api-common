@@ -5,11 +5,12 @@ from testapp.models import Person
 
 from vng_api_common.constants import FILTER_URL_DID_NOT_RESOLVE
 from vng_api_common.filters import URLModelChoiceField
+from vng_api_common.utils import NotAViewSet
 
 
 def test_filter_field_url_to_pk_trailing_slash():
     field = URLModelChoiceField(queryset=Person.objects.all())
-    with pytest.raises(ObjectDoesNotExist):
+    with pytest.raises(NotAViewSet):
         field.url_to_pk("https://google.com/")
 
 

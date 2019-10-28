@@ -1,11 +1,13 @@
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 
 import pytest
-from testapp.models import Person
 
-from vng_api_common.utils import get_resource_for_path
+from vng_api_common.utils import NotAViewSet, get_resource_for_path
 
 
-def test_get_resource_for_path_with_trailing_slash():
-    with pytest.raises(ObjectDoesNotExist):
-        get_resource_for_path("https://example.com/")
+@pytest.mark.parametrize(
+    "path,exc", (("/", NotAViewSet), ("/foo/", ObjectDoesNotExist))
+)
+def test_get_resource_for_path_with_trailing_slash(path, exc):
+    with pytest.raises(exc):
+        get_resource_for_path(path)
