@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import include, path, re_path
+from django.views.generic import RedirectView
 
 from .schema import SchemaView
 from .views import NotificationView
@@ -28,4 +29,5 @@ urlpatterns = [
     # this is a hack to get the parameter to show up in the API spec
     # this effectively makes this a wildcard URL, so it should be LAST
     path("<webhooks_path>", NotificationView.as_view()),
+    path("", RedirectView.as_view(url="/api/")),
 ]
