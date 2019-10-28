@@ -19,7 +19,7 @@ from rest_framework.views import APIView
 
 from .constants import FILTER_URL_DID_NOT_RESOLVE
 from .search import is_search_view
-from .utils import get_resource_for_path
+from .utils import NotAViewSet, get_resource_for_path
 from .validators import validate_rsin
 
 logger = logging.getLogger(__name__)
@@ -75,9 +75,21 @@ class URLModelChoiceField(fields.ModelChoiceField):
         self.instance_path = kwargs.pop("instance_path", None)
         super().__init__(*args, **kwargs)
 
+    # Placeholder - gets replaced by URLModelChoiceFilter
+    def _get_request(self):
+        return None
+
     def url_to_pk(self, url: str):
         parsed = urlparse(url)
         path = parsed.path
+
+        # this field only supports local FKs - so if we see a domain that does
+        # not match the current host, this cannot possibly yield any results
+        request = self._get_request()
+        if request is not None:
+            host = request.get_host()
+            if parsed.netloc != host:
+                raise NotAViewSet("External URL cannot map to a local viewset")
 
         instance = get_resource_for_path(path)
         if self.instance_path:
@@ -98,8 +110,11 @@ class URLModelChoiceField(fields.ModelChoiceField):
         if value:
             try:
                 value = self.url_to_pk(value)
+            except NotAViewSet:
+                logger.info("No %s found for URL %s", self.label, value)
+                return FILTER_URL_DID_NOT_RESOLVE
             except models.ObjectDoesNotExist:
-                logger.info(f"No {self.label} found for URL {value}")
+                logger.info("No %s found for URL %s", self.label, value)
                 return FILTER_URL_DID_NOT_RESOLVE
         return super().to_python(value)
 
@@ -111,6 +126,13 @@ class URLModelChoiceFilter(filters.ModelChoiceFilter):
         super().__init__(*args, **kwargs)
         self.instance_path = kwargs.get("instance_path", None)
         self.queryset = kwargs.get("queryset")
+
+    @property
+    def field(self):
+        field = super().field
+        # we need access to the request in the backing field...
+        field._get_request = self.get_request
+        return field
 
     def filter(self, qs, value):
         # If the URL did not resolve to an instance, return no results

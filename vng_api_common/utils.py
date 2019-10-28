@@ -46,19 +46,25 @@ def lookup_kwargs_to_filters(lookup_kwargs: dict, kwargs: dict) -> dict:
     return filters
 
 
+class NotAViewSet(Exception):
+    pass
+
+
 def get_viewset_for_path(path: str, method="GET") -> "rest_framework.viewsets.ViewSet":
     """
     Look up which viewset matches a path.
     """
     # NOTE: this doesn't support setting a different urlconf on the request
     resolver = get_resolver()
+
     try:
         resolver_match = resolver.resolve(path)
     except Resolver404 as exc:
         raise models.ObjectDoesNotExist("URL did not resolve") from exc
     callback, callback_args, callback_kwargs = resolver_match
 
-    assert hasattr(callback, "cls"), "Callback doesn't appear to be from a viewset"
+    if not hasattr(callback, "cls"):
+        raise NotAViewSet(f"Callback for {path} does not look like a viewset")
 
     viewset = callback.cls(**callback.initkwargs)
     viewset.action_map = callback.actions
@@ -76,10 +82,8 @@ def get_resource_for_path(path: str) -> models.Model:
     Retrieve the API instance belonging to a (detail) path.
     """
     if settings.FORCE_SCRIPT_NAME and path.startswith(settings.FORCE_SCRIPT_NAME):
-        path = path[len(settings.FORCE_SCRIPT_NAME) :]
-
-    if path.endswith("/"):
-        path = path[:-1]
+        prefix_length = len(settings.FORCE_SCRIPT_NAME)
+        path = path[prefix_length:]
 
     viewset = get_viewset_for_path(path)
 
