@@ -32,16 +32,16 @@ class CheckQueryParamsMixin:
         if not request.query_params:
             return
 
-        # TODO: check for pagination params
         # NOTE: only works with django_filters based filter backends
         backend = Backend()
         queryset = self.get_queryset()
         filterset_class = backend.get_filterset_class(self, queryset)
 
-        # build a list of known params from the filters
-        filters = filterset_class().get_filters().keys()
-
-        known_params = {underscore_to_camel(param) for param in filters}
+        known_params = set()
+        if filterset_class:
+            # build a list of known params from the filters
+            filters = filterset_class().get_filters().keys()
+            known_params = {underscore_to_camel(param) for param in filters}
 
         # add the pagination params to the known params
         if self.paginator:
