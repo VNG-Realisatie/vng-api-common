@@ -1,7 +1,7 @@
 # https://pyjwt.readthedocs.io/en/latest/usage.html#reading-headers-without-validation
 # -> we can put the organization/service in the headers itself
 import logging
-from typing import List, Union
+from typing import List, Optional, Union
 
 from django.conf import settings
 from django.db import models, transaction
@@ -192,19 +192,23 @@ class JWTAuth:
 
         return base.filter(**{name: value})
 
-    def has_auth(self, scopes: List[str], **fields) -> bool:
+    def has_auth(
+        self, scopes: List[str], component: Optional[str] = None, **fields
+    ) -> bool:
         if scopes is None:
             return False
 
         scopes_provided = set()
         config = AuthorizationsConfig.get_solo()
+        if component is None:
+            component = config.component
 
         for applicatie in self.applicaties:
             # allow everything
             if applicatie.heeft_alle_autorisaties is True:
                 return True
 
-            autorisaties = applicatie.autorisaties.filter(component=config.component)
+            autorisaties = applicatie.autorisaties.filter(component=component)
 
             # filter on all additional components
             for field_name, field_value in fields.items():

@@ -33,6 +33,7 @@ urlpatterns = [
         ),
     ),
     path("api/", include(router.urls)),
+    path("api/", include("vng_api_common.api.urls")),
     path("ref/", include("vng_api_common.urls")),
     # this is a hack to get the parameter to show up in the API spec
     # this effectively makes this a wildcard URL, so it should be LAST

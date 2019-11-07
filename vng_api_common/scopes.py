@@ -8,7 +8,7 @@ SCOPE_REGISTRY = set()
 
 
 class Scope:
-    def __init__(self, label: str, description: str = None):
+    def __init__(self, label: str, description: str = None, private: bool = False):
         self.label = label
         self.description = description
 
@@ -17,7 +17,8 @@ class Scope:
         self.operator = None
 
         # add to registry
-        SCOPE_REGISTRY.add(self)
+        if not private:
+            SCOPE_REGISTRY.add(self)
 
     def __repr__(self) -> str:
         if self.children:

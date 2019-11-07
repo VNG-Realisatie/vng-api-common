@@ -4,7 +4,12 @@ from django.utils.translation import ugettext as _
 
 from drf_extra_fields.fields import Base64FieldMixin
 from drf_yasg import openapi
-from drf_yasg.inspectors import CamelCaseJSONFilter, NotHandled, ViewInspector
+from drf_yasg.inspectors import (
+    CamelCaseJSONFilter,
+    FieldInspector,
+    NotHandled,
+    ViewInspector,
+)
 from drf_yasg.utils import filter_none, get_serializer_ref_name
 from rest_framework import serializers
 
