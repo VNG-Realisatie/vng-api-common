@@ -141,7 +141,11 @@ def request_object_attribute(
     return result
 
 
-def generate_unique_identification(instance: models.Model, date_field_name: str):
+def generate_unique_identification(
+    instance: models.Model,
+    date_field_name: str,
+    identification_field: str = "identificatie",
+):
     model = type(instance)
     model_name = getattr(model, "IDENTIFICATIE_PREFIX", model._meta.model_name.upper())
 
@@ -150,11 +154,13 @@ def generate_unique_identification(instance: models.Model, date_field_name: str)
 
     pattern = prefix + r"-\d{10}"
 
-    issued_ids_for_year = model._default_manager.filter(identificatie__regex=pattern)
+    issued_ids_for_year = model._default_manager.filter(
+        **{f"{identification_field}__regex": pattern}
+    )
 
     if issued_ids_for_year.exists():
-        max_id = issued_ids_for_year.aggregate(models.Max("identificatie"))[
-            "identificatie__max"
+        max_id = issued_ids_for_year.aggregate(models.Max(identification_field))[
+            f"{identification_field}__max"
         ]
         number = int(max_id.split("-")[-1]) + 1
     else:
