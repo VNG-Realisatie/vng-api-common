@@ -26,10 +26,12 @@ class Renamer:
 
 class Migration(migrations.Migration):
 
-    dependencies = [("authorizations", "0010_auto_20190712_1643")]
+    dependencies = [
+        ("authorizations", "0010_auto_20190712_1643"),
+    ]
 
     operations = [
         migrations.RunPython(
-            Renamer("zaaktypes", "catalogi"), Renamer("catalogi", "zaaktypes")
+            Renamer("zaaktypes", "catalogi"), Renamer("catalogi", "zaaktypes"),
         )
     ]
