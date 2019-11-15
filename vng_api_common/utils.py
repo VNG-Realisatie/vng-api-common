@@ -10,6 +10,7 @@ from django.http import HttpRequest
 from django.urls import Resolver404, get_resolver, get_script_prefix
 from django.utils.module_loading import import_string
 
+from rest_framework.utils import formatting
 from zds_client.client import ClientError
 
 try:
@@ -174,3 +175,34 @@ def get_help_text(model_string: str, field_name: str) -> str:
     ModelClass = apps.get_model(model_string, require_ready=False)
     field = ModelClass._meta.get_field(field_name)
     return field.help_text
+
+
+def get_view_summary(view_cls):
+    """Return the viewset's general summary.
+
+    This will extract the paragraphs between the first line and the first
+    operation description.
+
+    Example docstring:
+
+        Some operation description here that will not be included.
+
+        This text will be included below the tag.
+
+        This text will also be included.
+
+        create:
+        First operation in the docstring which will not be included.
+
+
+    :param type view_cls: the view class to extra the docstring from.
+    """
+    try:
+        summary = view_cls.__doc__.split("\n\n", 1)[1].split(":", 1)[0]
+        if "\n\n" in summary:
+            summary = summary.rsplit("\n\n", 1)[0].strip().replace("\r", "")
+            return formatting.dedent(smart_text(summary))
+    except (AttributeError, IndexError) as e:
+        pass
+
+    return ""
