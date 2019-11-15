@@ -8,6 +8,17 @@ from .serializers import HobbySerializer, PersonSerializer
 
 @conditional_retrieve()
 class PersonViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Title
+
+    Summary
+
+    More summary
+
+    retrieve:
+    Some description
+    """
+
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
 
