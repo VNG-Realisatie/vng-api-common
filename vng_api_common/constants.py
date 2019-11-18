@@ -275,6 +275,7 @@ class ComponentTypes(DjangoChoices):
     ztc = ChoiceItem("ztc", "Zaaktypecatalogus")
     drc = ChoiceItem("drc", "Documentregistratiecomponent")
     brc = ChoiceItem("brc", "Besluitregistratiecomponent")
+    cmc = ChoiceItem("cmc", "Contactmomentencomponent")
 
 
 class CommonResourceAction(DjangoChoices):
