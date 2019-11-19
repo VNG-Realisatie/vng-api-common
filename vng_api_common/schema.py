@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from collections import OrderedDict
 from urllib.parse import urlsplit
 
 from django.conf import settings
@@ -13,10 +14,47 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework.response import Response
 
+from vng_api_common.utils import get_view_summary
+
 logger = logging.getLogger(__name__)
 
 
 class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
+
+    def get_tags(self, request=None, public=False):
+        """Retrieve the tags for the root schema.
+
+        :param request: the request used for filtering accessible endpoints and finding the spec URI
+        :param bool public: if True, all endpoints are included regardless of access through `request`
+
+        :return: List of tags containing the tag name and a description.
+        """
+        tags = {}
+
+        endpoints = self.get_endpoints(request)
+        for path, (view_cls, methods) in sorted(endpoints.items()):
+            if "{" in path:
+                continue
+
+            tag = path.rsplit("/", 1)[-1]
+            if tag in tags:
+                continue
+
+            tags[tag] = get_view_summary(view_cls)
+
+        return [
+            OrderedDict([("name", operation), ("description", desc)])
+            for operation, desc in sorted(tags.items())
+        ]
+
+    def get_schema(self, request=None, public=False):
+        result = super().get_schema(request, public)
+
+        # Add the tags on the root schema.
+        result.tags = self.get_tags(request, public)
+
+        return result
+
     def get_path_parameters(self, path, view_cls):
         """Return a list of Parameter instances corresponding to any templated path variables.
 
