@@ -29,9 +29,6 @@ class EndpointEnumerator(_EndpointEnumerator):
 class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
     endpoint_enumerator_class = EndpointEnumerator
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def get_tags(self, request=None, public=False):
         """Retrieve the tags for the root schema.
 
