@@ -60,12 +60,17 @@ def handle_m2m_cleared(
     """
     Clear the etag on the remote side of a m2m_field.clear()
     """
+
+    def _get_through(field):
+        if hasattr(field, "through"):
+            return field.through
+        return field.remote_field.through
+
     # figure out which field is involved
     m2m_fields = [
         field
         for field in instance._meta.get_fields()
-        if getattr(field, "related_model") is model
-        and field.remote_field.through is sender
+        if getattr(field, "related_model") is model and _get_through(field) is sender
     ]
     assert len(m2m_fields) == 1, "This should resolve to a single m2m field"
     m2m_field = m2m_fields[0]
