@@ -172,7 +172,7 @@ class BrondatumArchiefprocedureAfleidingswijze(DjangoChoices):
     )
     hoofdzaak = ChoiceItem(
         "hoofdzaak",
-        _("Hoofzaak"),
+        _("Hoofdzaak"),
         description=_(
             "De termijn start op de datum waarop de gerelateerde "
             "zaak is afgehandeld, waarvan de zaak een deelzaak is "
