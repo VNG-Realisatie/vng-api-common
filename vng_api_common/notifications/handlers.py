@@ -7,6 +7,7 @@ from djangorestframework_camel_case.util import underscoreize
 
 from ..authorizations.models import Applicatie
 from ..authorizations.serializers import ApplicatieUuidSerializer
+from ..constants import CommonResourceAction
 from ..models import APICredential
 from ..utils import get_uuid_from_path
 
@@ -28,7 +29,7 @@ class AuthHandler:
     def handle(self, message: dict) -> None:
         uuid = get_uuid_from_path(message["resource_url"])
 
-        if message["actie"] == "delete":
+        if message["actie"] == CommonResourceAction.destroy:
             Applicatie.objects.filter(uuid=uuid).delete()
             return
 
