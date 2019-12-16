@@ -48,6 +48,9 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
             if tag in tags:
                 continue
 
+            # exclude special non-rest actions
+            if tag.startswith("_"):
+                continue
             tags[tag] = get_view_summary(view_cls)
 
         return [
