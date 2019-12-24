@@ -77,6 +77,11 @@ def obj_has_shape(obj: Union[list, dict], schema: dict, resource: str) -> bool:
         if value is None:
             if prop_schema.get("nullable", False):
                 continue
+            if (
+                prop_schema.get("format") == "uri"
+                and prop_schema.get("minLength", 0) == 0
+            ):
+                continue
             else:
                 return False
 
