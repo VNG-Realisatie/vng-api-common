@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Dict, List, Union
 from urllib.parse import urlparse
@@ -157,7 +158,11 @@ class NotificationMixin(metaclass=NotificationMixinBase):
         # catch ClientError exceptions
         except ClientError as exc:
             logger.warning(
-                "Could not deliver message to %s", client.base_url, exc_info=True
+                json.dumps({
+                    "message": "Could not deliver message to %s" % client.base_url,
+                    "status_code": status_code,
+                    "notification_data": message
+                }), exc_info=True, extra={"notification_msg": message}
             )
 
 
