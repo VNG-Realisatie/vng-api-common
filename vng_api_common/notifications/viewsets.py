@@ -155,9 +155,12 @@ class NotificationMixin(metaclass=NotificationMixinBase):
             client.create("notificaties", message)
         # any unexpected errors should show up in error-monitoring, so we only
         # catch ClientError exceptions
-        except ClientError as exc:
+        except ClientError:
             logger.warning(
-                "Could not deliver message to %s", client.base_url, exc_info=True
+                "Could not deliver message to %s",
+                client.base_url,
+                exc_info=True,
+                extra={"notification_msg": message, "status_code": status_code,},
             )
 
 
