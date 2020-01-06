@@ -44,7 +44,7 @@ def get_required_scopes(
 
 def bypass_permissions(request: Request) -> bool:
     """
-    Bypass permission checks in DBEUG when using the browsable API renderer
+    Bypass permission checks in DEBUG when using the browsable API renderer
     """
     return settings.DEBUG and isinstance(
         request.accepted_renderer, BrowsableAPIRenderer
@@ -69,8 +69,36 @@ class ClientIdRequired(permissions.BasePermission):
 
 class BaseAuthRequired(permissions.BasePermission):
     """
-    Look at the scopes required for the current action
-    and check that they are present in the AC for this client
+    Perform a permission check based on required scopes.
+
+    An :class:`APIView` or :class:`rest_framework.viewsets.ViewSet` needs to
+    define the ``required_scopes`` attribute, mapping ``action`` to which
+    scope is required. For :class:`APIView` you can specify which HTTP method
+    they apply to. Viewset example:
+
+        >>> class SomeViewSet(viewsets.ModelViewSet):
+        ...     queryset = Some.objects.all()
+        ...     permission_classes = (MainObjAuthScopesRequired,)
+        ...     required_scopes = {
+        ...         "retrieve": Scope("some.scope"),
+        ...         "list": Scope("some.scope"),
+        ...         "create": Scope("some.scope"),
+        ...         "update": Scope("some.scope"),
+        ...         "partial_update": Scope("some.scope"),
+        ...         "destroy": Scope("some.scope"),
+        ...     }
+
+    Or for APIView:
+
+        >>> class SomeView(APIView):
+        ...     permission_classes = (BaseAuthRequiredSubclass,)
+        ...     required_scopes = {"get": Scope("some.scope")}
+        ...
+        ...     def get(self, request):
+        ...         ...
+
+    Note that you need a subclass setting :attr:`get_obj` or implementing
+    :meth:`_get_object`.
     """
 
     permission_fields = ()
@@ -160,6 +188,10 @@ class AuthScopesRequired(BaseAuthRequired):
 
 
 class MainObjAuthScopesRequired(BaseAuthRequired):
+    """
+    Perform permission checks based on the main resource of the endpoint.
+    """
+
     def _get_obj(self, view, request):
         return request.data
 
@@ -171,6 +203,10 @@ class MainObjAuthScopesRequired(BaseAuthRequired):
 
 
 class RelatedObjAuthScopesRequired(BaseAuthRequired):
+    """
+    Perform permission checks based on an object related to the endpoint resource.
+    """
+
     def _get_obj(self, view, request):
         main_obj_str = request.data.get(self.obj_path, None)
         main_obj_url = urlparse(main_obj_str).path

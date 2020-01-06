@@ -1,3 +1,11 @@
+"""
+Define scopes to manage authorizations on API resources.
+
+Scope objects hold their own definition and documentation. Public scopes get
+added to the scope registry, which can be introspected for automatic
+documentation.
+"""
+
 from typing import List
 
 OPERATOR_OR = "OR"
@@ -8,6 +16,23 @@ SCOPE_REGISTRY = set()
 
 
 class Scope:
+    """
+    Define a single scope object.
+
+    A scope is characterized by a label, whereas the actual permissions related
+    to it are implemented in the view(set)s. Scopes can be OR-ed together:
+
+        >>> Scope("foo") | Scope("bar")
+        Scope("foo | bar")
+
+    this is interpreted as: you have permission if you have one of either
+    scopes in your authorization configuration.
+
+    :arg label: A label identifying the scope. Labels must be unique.
+    :arg description: An optional description of what the scope allows/means.
+    :arg private: Private scopes are not added to the registry.
+    """
+
     def __init__(self, label: str, description: str = None, private: bool = False):
         self.label = label
         self.description = description
