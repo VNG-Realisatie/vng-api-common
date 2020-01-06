@@ -274,8 +274,11 @@ class AutoSchema(SwaggerAutoSchema):
         E.g. - we know that HTTP 400 on a POST/PATCH/PUT leads to validation
         errors, 403 to Permission Denied etc.
         """
-        responses = {}
+        # only supports viewsets
+        if not hasattr(self.view, "action"):
+            return OrderedDict()
 
+        responses = {}
         action = self.view.action
 
         if (
@@ -329,17 +332,19 @@ class AutoSchema(SwaggerAutoSchema):
 
         # inject any headers
         _responses = OrderedDict()
+        custom_headers = OrderedDict()
         for status_, schema in responses.items():
-            custom_headers = (
-                self.probe_inspectors(
-                    self.field_inspectors,
-                    "get_response_headers",
-                    serializer,
-                    {"field_inspectors": self.field_inspectors},
-                    status=status_,
+            if serializer is not None:
+                custom_headers = (
+                    self.probe_inspectors(
+                        self.field_inspectors,
+                        "get_response_headers",
+                        serializer,
+                        {"field_inspectors": self.field_inspectors},
+                        status=status_,
+                    )
+                    or OrderedDict()
                 )
-                or OrderedDict()
-            )
 
             # add the cache headers, if applicable
             for header, header_schema in get_cache_headers(self.view).items():
@@ -373,19 +378,23 @@ class AutoSchema(SwaggerAutoSchema):
 
     def add_manual_parameters(self, parameters):
         base = super().add_manual_parameters(parameters)
+
         if self._is_search_view:
             serializer = self.get_request_serializer()
         else:
             serializer = self.get_request_serializer() or self.get_view_serializer()
-        extra = (
-            self.probe_inspectors(
-                self.field_inspectors,
-                "get_request_header_parameters",
-                serializer,
-                {"field_inspectors": self.field_inspectors},
+
+        extra = []
+        if serializer is not None:
+            extra = (
+                self.probe_inspectors(
+                    self.field_inspectors,
+                    "get_request_header_parameters",
+                    serializer,
+                    {"field_inspectors": self.field_inspectors},
+                )
+                or []
             )
-            or []
-        )
         result = base + extra
 
         if has_cache_header(self.view):
