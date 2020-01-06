@@ -10,12 +10,16 @@ from rest_framework import permissions
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.request import Request
 from rest_framework.serializers import ValidationError
+from rest_framework.views import APIView
+from rest_framework.viewsets import ViewSetMixin
 
 from .scopes import Scope
 from .utils import get_resource_for_path
 
 
-def get_required_scopes(view) -> Union[Scope, None]:
+def get_required_scopes(
+    request: Request, view: Union[APIView, ViewSetMixin]
+) -> Union[Scope, None]:
     if not hasattr(view, "required_scopes"):
         raise ImproperlyConfigured(
             "The View(Set) must have a `required_scopes` attribute"
@@ -29,6 +33,10 @@ def get_required_scopes(view) -> Union[Scope, None]:
     # auto-generated head method doesn't get an action assigned
     if action is None and detail and view.request.method == "HEAD":
         action = "retrieve"
+
+    # if action is not set, fall back to the request method
+    if action is None and not isinstance(view, ViewSetMixin):
+        action = request.method.lower()
 
     scopes_required = view.required_scopes.get(action)
     return scopes_required
@@ -92,33 +100,37 @@ class BaseAuthRequired(permissions.BasePermission):
     def _extract_field_value(self, main_obj, field):
         return getattr(main_obj, field)
 
+    def _has_create_permission(
+        self, request: Request, view: APIView, scopes_required: Scope
+    ) -> bool:
+        try:
+            main_obj = self._get_obj(view, request)
+        except ObjectDoesNotExist:
+            raise ValidationError(
+                {
+                    # using self.obj_path here ASSUMES that the same serializer is used
+                    # for input as output
+                    self.obj_path: ValidationError(
+                        _("The object does not exist in the database"),
+                        code="object-does-not-exist",
+                    ).detail
+                }
+            )
+        fields = {
+            k: self._extract_field_value(main_obj, k) for k in self.permission_fields
+        }
+        return request.jwt_auth.has_auth(scopes_required, **fields)
+
     def has_permission(self, request: Request, view) -> bool:
         from rest_framework.viewsets import ViewSetMixin
 
         if bypass_permissions(request):
             return True
 
-        scopes_required = get_required_scopes(view)
+        scopes_required = get_required_scopes(request, view)
 
-        if view.action == "create":
-            try:
-                main_obj = self._get_obj(view, request)
-            except ObjectDoesNotExist:
-                raise ValidationError(
-                    {
-                        # using self.obj_path here ASSUMES that the same serializer is used
-                        # for input as output
-                        self.obj_path: ValidationError(
-                            _("The object does not exist in the database"),
-                            code="object-does-not-exist",
-                        ).detail
-                    }
-                )
-            fields = {
-                k: self._extract_field_value(main_obj, k)
-                for k in self.permission_fields
-            }
-            return request.jwt_auth.has_auth(scopes_required, **fields)
+        if getattr(view, "action", None) == "create":
+            return self._has_create_permission(request, view, scopes_required)
 
         # detect if this is an unsupported method - if it's a viewset and the
         # action was not mapped, it's not supported and DRF will catch it
@@ -132,7 +144,7 @@ class BaseAuthRequired(permissions.BasePermission):
         if bypass_permissions(request):
             return True
 
-        scopes_required = get_required_scopes(view)
+        scopes_required = get_required_scopes(request, view)
         main_obj = self._get_obj_from_path(obj)
         fields = {k: getattr(main_obj, k) for k in self.permission_fields}
 

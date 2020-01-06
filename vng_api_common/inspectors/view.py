@@ -433,7 +433,7 @@ class AutoSchema(SwaggerAutoSchema):
 
         required_scopes = []
         for perm in scope_permissions:
-            scopes = get_required_scopes(self.view)
+            scopes = get_required_scopes(self.request, self.view)
             if scopes is None:
                 continue
             required_scopes.append(scopes)
