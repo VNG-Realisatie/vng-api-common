@@ -1,7 +1,7 @@
 import inspect
 import logging
 from collections import OrderedDict
-from typing import Tuple
+from typing import Optional, Tuple
 
 from django.apps import apps
 from django.conf import settings
@@ -9,6 +9,7 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 
 from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
+from drf_yasg.utils import get_consumes
 from rest_framework import exceptions, serializers, status, viewsets
 
 from ..constants import HEADER_APPLICATION, HEADER_AUDIT, HEADER_USER_ID, VERSION_HEADER
@@ -376,8 +377,26 @@ class AutoSchema(SwaggerAutoSchema):
 
         return responses
 
+    def get_request_content_type_header(self) -> Optional[openapi.Parameter]:
+        if self.method not in ["POST", "PUT", "PATCH"]:
+            return None
+
+        consumes = get_consumes(self.get_parser_classes())
+        return openapi.Parameter(
+            name="Content-Type",
+            in_=openapi.IN_HEADER,
+            type=openapi.TYPE_STRING,
+            required=True,
+            enum=consumes,
+            description=_("Content type of the request body."),
+        )
+
     def add_manual_parameters(self, parameters):
         base = super().add_manual_parameters(parameters)
+
+        content_type = self.get_request_content_type_header()
+        if content_type is not None:
+            base = [content_type] + base
 
         if self._is_search_view:
             serializer = self.get_request_serializer()
