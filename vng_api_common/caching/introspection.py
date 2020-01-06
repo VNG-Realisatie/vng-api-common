@@ -3,6 +3,9 @@ from rest_framework.generics import GenericAPIView
 
 
 def has_cache_header(view: GenericAPIView) -> bool:
+    if view.request is None:
+        return False
+
     if view.request.method not in ("GET", "HEAD"):
         return False
 
