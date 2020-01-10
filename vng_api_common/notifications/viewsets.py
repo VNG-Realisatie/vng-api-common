@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 
 from djangorestframework_camel_case.util import camelize
@@ -165,6 +165,7 @@ class NotificationMixin(metaclass=NotificationMixinBase):
 
 
 class NotificationCreateMixin(NotificationMixin):
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         self.notify(response.status_code, response.data)
@@ -172,6 +173,7 @@ class NotificationCreateMixin(NotificationMixin):
 
 
 class NotificationUpdateMixin(NotificationMixin):
+    @transaction.atomic
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
         self.notify(response.status_code, response.data)
@@ -179,6 +181,7 @@ class NotificationUpdateMixin(NotificationMixin):
 
 
 class NotificationDestroyMixin(NotificationMixin):
+    @transaction.atomic
     def destroy(self, request, *args, **kwargs):
         # get data via serializer
         instance = self.get_object()
