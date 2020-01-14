@@ -32,7 +32,7 @@ msgid ""
 "the external API."
 msgstr ""
 "Authenticatiegegevens die aangeven hoe deze API of applicatie zichzelf "
-"identifieert bij de externe API."
+"identificeert bij de externe API."
 
 #: audittrails/models.py:18
 msgid "Unieke identificatie van de audit regel."
@@ -445,7 +445,7 @@ msgstr ""
 "Voer een voorwaardelijk verzoek uit. Deze header moet één of meerdere ETag-"
 "waardes bevatten van resources die de consumer gecached heeft. Indien de "
 "waarde van de ETag van de huidige resource voorkomt in deze set, dan "
-"antwoord de provider met een lege HTTP 304 request. Zie [MDN](https://"
+"antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://"
 "developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match) voor meer "
 "informatie."
 
@@ -572,7 +572,7 @@ msgid ""
 "URL of the external API, ending in a trailing slash. Example: https://"
 "example.com/api/v1/"
 msgstr ""
-"URL van de externa API, eindigend met een slash (/). Bijvoorbeeld: "
+"URL van de externe API, eindigend met een slash (/). Bijvoorbeeld: "
 "https://example.com/api/v1/"
 
 #: models.py:81
