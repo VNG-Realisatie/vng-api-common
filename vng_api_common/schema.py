@@ -63,7 +63,7 @@ SPEC_RENDERERS = (
 )
 
 
-class SchemaView(DefaultSchemaView):
+class SchemaMixin:
     """
     Always serve the v3 version, which is kept in version control.
 
@@ -113,3 +113,7 @@ class SchemaView(DefaultSchemaView):
             server["url"] = request.build_absolute_uri(server_path)
 
         return Response(data=schema, headers={"X-OAS-Version": schema["openapi"]})
+
+
+class SchemaView(SchemaMixin, DefaultSchemaView):
+    pass

@@ -1,7 +1,7 @@
 import inspect
 import logging
 from collections import OrderedDict
-from typing import Tuple
+from typing import Optional, Tuple
 
 from django.apps import apps
 from django.conf import settings
@@ -9,6 +9,7 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 
 from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
+from drf_yasg.utils import get_consumes
 from rest_framework import exceptions, serializers, status, viewsets
 
 from ..constants import HEADER_APPLICATION, HEADER_AUDIT, HEADER_USER_ID, VERSION_HEADER
@@ -258,8 +259,11 @@ class AutoSchema(SwaggerAutoSchema):
         E.g. - we know that HTTP 400 on a POST/PATCH/PUT leads to validation
         errors, 403 to Permission Denied etc.
         """
-        responses = {}
+        # only supports viewsets
+        if not hasattr(self.view, "action"):
+            return OrderedDict()
 
+        responses = {}
         action = self.view.action
 
         if (
@@ -313,17 +317,19 @@ class AutoSchema(SwaggerAutoSchema):
 
         # inject any headers
         _responses = OrderedDict()
+        custom_headers = OrderedDict()
         for status_, schema in responses.items():
-            custom_headers = (
-                self.probe_inspectors(
-                    self.field_inspectors,
-                    "get_response_headers",
-                    serializer,
-                    {"field_inspectors": self.field_inspectors},
-                    status=status_,
+            if serializer is not None:
+                custom_headers = (
+                    self.probe_inspectors(
+                        self.field_inspectors,
+                        "get_response_headers",
+                        serializer,
+                        {"field_inspectors": self.field_inspectors},
+                        status=status_,
+                    )
+                    or OrderedDict()
                 )
-                or OrderedDict()
-            )
 
             # add the cache headers, if applicable
             for header, header_schema in get_cache_headers(self.view).items():
@@ -355,21 +361,43 @@ class AutoSchema(SwaggerAutoSchema):
 
         return responses
 
+    def get_request_content_type_header(self) -> Optional[openapi.Parameter]:
+        if self.method not in ["POST", "PUT", "PATCH"]:
+            return None
+
+        consumes = get_consumes(self.get_parser_classes())
+        return openapi.Parameter(
+            name="Content-Type",
+            in_=openapi.IN_HEADER,
+            type=openapi.TYPE_STRING,
+            required=True,
+            enum=consumes,
+            description=_("Content type of the request body."),
+        )
+
     def add_manual_parameters(self, parameters):
         base = super().add_manual_parameters(parameters)
+
+        content_type = self.get_request_content_type_header()
+        if content_type is not None:
+            base = [content_type] + base
+
         if self._is_search_view:
             serializer = self.get_request_serializer()
         else:
             serializer = self.get_request_serializer() or self.get_view_serializer()
-        extra = (
-            self.probe_inspectors(
-                self.field_inspectors,
-                "get_request_header_parameters",
-                serializer,
-                {"field_inspectors": self.field_inspectors},
+
+        extra = []
+        if serializer is not None:
+            extra = (
+                self.probe_inspectors(
+                    self.field_inspectors,
+                    "get_request_header_parameters",
+                    serializer,
+                    {"field_inspectors": self.field_inspectors},
+                )
+                or []
             )
-            or []
-        )
         result = base + extra
 
         if has_cache_header(self.view):
@@ -405,7 +433,7 @@ class AutoSchema(SwaggerAutoSchema):
 
         required_scopes = []
         for perm in scope_permissions:
-            scopes = get_required_scopes(self.view)
+            scopes = get_required_scopes(self.request, self.view)
             if scopes is None:
                 continue
             required_scopes.append(scopes)
