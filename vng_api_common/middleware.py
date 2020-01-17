@@ -118,7 +118,9 @@ class JWTAuth:
 
             # find client_id in DB and retrieve its secret
             try:
-                jwt_secret = JWTSecret.objects.get(identifier=client_id)
+                jwt_secret = JWTSecret.objects.exclude(secret="").get(
+                    identifier=client_id
+                )
             except JWTSecret.DoesNotExist:
                 raise PermissionDenied(
                     "Client identifier bestaat niet", code="invalid-client-identifier"
