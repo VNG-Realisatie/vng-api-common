@@ -6,9 +6,10 @@ from urllib.parse import urlsplit
 from django.conf import settings
 
 from drf_yasg import openapi
+from drf_yasg.app_settings import swagger_settings
 from drf_yasg.codecs import yaml_sane_dump, yaml_sane_load
 from drf_yasg.generators import OpenAPISchemaGenerator as _OpenAPISchemaGenerator
-from drf_yasg.renderers import SwaggerJSONRenderer, SwaggerYAMLRenderer
+from drf_yasg.renderers import SwaggerJSONRenderer, SwaggerYAMLRenderer, _SpecRenderer
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -90,10 +91,29 @@ class SchemaMixin:
             settings.BASE_DIR, "src", "openapi.yaml"
         )
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, version="", *args, **kwargs):
         if self._is_openapi_v2:
-            response = super().get(request, *args, **kwargs)
-            return response
+            version = request.version or version or ""
+            if isinstance(request.accepted_renderer, _SpecRenderer):
+                generator = self.generator_class(
+                    getattr(self, "info", swagger_settings.DEFAULT_INFO),
+                    version,
+                    None,
+                    patterns,
+                    urlconf,
+                )
+            else:
+                generator = self.generator_class(
+                    getattr(self, "info", swagger_settings.DEFAULT_INFO),
+                    version,
+                    None,
+                    patterns=[],
+                )
+
+            schema = generator.get_schema(request, self.public)
+            if schema is None:
+                raise exceptions.PermissionDenied()  # pragma: no cover
+            return Response(schema)
 
         # serve the staticically included V3 schema
         SCHEMA_PATH = self.get_schema_path()
