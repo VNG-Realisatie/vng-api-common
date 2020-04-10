@@ -8,6 +8,14 @@ from vng_api_common.descriptors import GegevensGroepType
 class Group(models.Model):
     name = models.CharField(_("name"), max_length=100)
 
+    subgroup_field_1 = models.CharField(max_length=50, blank=True)
+    subgroup_field_2 = models.CharField(max_length=50, blank=True, default="baz")
+
+    subgroup = GegevensGroepType(
+        {"field_1": subgroup_field_1, "field_2": subgroup_field_2},
+        optional=("field_2",),
+    )
+
 
 class Person(ETagMixin, models.Model):
     name = models.CharField(_("name"), max_length=50)

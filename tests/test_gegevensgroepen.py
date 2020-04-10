@@ -1,3 +1,4 @@
+from testapp.models import Group
 from testapp.serializers import PersonSerializer, PersonSerializer2
 
 
@@ -80,3 +81,11 @@ def test_gegevensgroep_serializer_nested_error_message():
     assert "address" in errors
     assert "number" in errors["address"]
     assert errors["address"]["number"][0].code == "required"
+
+
+def test_assignment_missing_optional_key():
+    group = Group(subgroup_field_2="")
+    group.subgroup = {"field_1": "foo"}
+
+    assert group.subgroup_field_1 == "foo"
+    assert group.subgroup_field_2 == "baz"
