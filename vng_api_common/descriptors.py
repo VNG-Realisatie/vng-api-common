@@ -71,20 +71,25 @@ class GegevensGroepType:
             if self.required:
                 raise ValueError("A non-empty value is required")
 
-            for field in self.mapping.values():
-                empty_value = None if field.null else ""
-                default_value = (
-                    field.default
-                    if field.default != models.NOT_PROVIDED
-                    else empty_value
-                )
+            for key, field in self.mapping.items():
+                default_value = self.get_default(key)
                 setattr(obj, field.name, default_value)
             return
 
         # map the values
         for key, field in self.mapping.items():
-            setattr(obj, field.name, value[key])
+            default_value = self.get_default(key)
+            new_value = value.get(key, default_value)
+            setattr(obj, field.name, new_value)
 
             if key not in self.optional:
                 attr_value = getattr(obj, field.name, None)
                 assert attr_value is not None, f"Empty '{key}' not allowed"
+
+    def get_default(self, prop: str):
+        field = self.mapping[prop]
+        empty_value = None if field.null else ""
+        default_value = (
+            field.default if field.default != models.NOT_PROVIDED else empty_value
+        )
+        return default_value
