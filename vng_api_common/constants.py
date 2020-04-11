@@ -300,7 +300,7 @@ class ComponentTypes(DjangoChoices):
     uc = ChoiceItem("uc", "UserCmponent")
     cc = ChoiceItem("cc", "ContactenComponent")
     irc = ChoiceItem("irc", "InstemmingenRegistratiecomponent")
-    evc = ChoiceItem("evc", "Klantinteractiescomponent")
+    evc = ChoiceItem("evc", "OmgevingenComponent")
     ac = ChoiceItem("ac", "AgendaComponent")
     mrc = ChoiceItem("mrc", "MedewerkersRegistratieComponent")
     pdc = ChoiceItem("pdc", "ProductenenDienstenComponent")
