@@ -6,11 +6,12 @@ from rest_framework import routers
 
 from .schema import SchemaView
 from .views import NotificationView
-from .viewsets import HobbyViewSet, PersonViewSet
+from .viewsets import GroupViewSet, HobbyViewSet, PersonViewSet
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register("persons", PersonViewSet)
 router.register("hobbies", HobbyViewSet)
+router.register("groups", GroupViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
