@@ -7,7 +7,7 @@ from django.apps import apps
 from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
-from django.urls import Resolver404, get_resolver
+from django.urls import Resolver404, get_resolver, get_script_prefix
 from django.utils.module_loading import import_string
 
 from zds_client.client import ClientError
@@ -56,6 +56,8 @@ def get_viewset_for_path(path: str, method="GET") -> "rest_framework.viewsets.Vi
     """
     # NOTE: this doesn't support setting a different urlconf on the request
     resolver = get_resolver()
+    prefix = get_script_prefix()
+    path = path.replace(prefix, "/", 1)
 
     try:
         resolver_match = resolver.resolve(path)
