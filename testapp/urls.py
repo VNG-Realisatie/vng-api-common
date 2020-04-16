@@ -2,8 +2,15 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.generic import RedirectView
 
+from rest_framework import routers
+
 from .schema import SchemaView
 from .views import NotificationView
+from .viewsets import GroupViewSet
+
+router = routers.DefaultRouter()
+router.register("groups", GroupViewSet)
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -23,6 +30,7 @@ urlpatterns = [
                     name="schema-redoc",
                 ),
             ]
+            + router.urls
         ),
     ),
     path("api/", include("vng_api_common.api.urls")),
