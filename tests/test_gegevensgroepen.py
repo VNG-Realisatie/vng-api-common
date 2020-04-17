@@ -1,4 +1,4 @@
-from testapp.models import Group
+from testapp.models import Group, Person
 from testapp.serializers import PersonSerializer, PersonSerializer2
 
 
@@ -89,3 +89,12 @@ def test_assignment_missing_optional_key():
 
     assert group.subgroup_field_1 == "foo"
     assert group.subgroup_field_2 == "baz"
+
+
+def test_nullable_gegevensgroep():
+    person = Person(name="bla", address_street="", address_number="")
+    output = PersonSerializer().to_representation(instance=person)
+    assert output["address"] == {
+        "street": "",
+        "number": "",
+    }
