@@ -22,6 +22,7 @@ class GegevensGroepType:
         self,
         mapping: Dict[str, models.Field],
         optional: tuple = None,
+        required=None,
         none_for_empty=False,
     ):
         self.mapping = mapping
@@ -34,7 +35,11 @@ class GegevensGroepType:
         ), "The fields in 'optional' must be a subset of the mapping keys"
 
         # check if it's optional or not
-        self.required = any(field.blank is False for field in self.mapping.values())
+        self.required = (
+            required
+            if required is not None
+            else any(field.blank is False for field in self.mapping.values())
+        )
 
     def __repr__(self):
         fields = ", ".join(
