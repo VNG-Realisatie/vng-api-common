@@ -194,6 +194,7 @@ class GegevensGroepSerializer(
                 ret[field.field_name] = None
             else:
                 ret[field.field_name] = field.to_representation(attribute)
+
         return ret
 
     def to_internal_value(self, data):
