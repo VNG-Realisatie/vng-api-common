@@ -249,6 +249,34 @@ class AutoSchema(SwaggerAutoSchema):
             schema = self.get_paginated_response(schema) or schema
         return OrderedDict({str(response_status): schema})
 
+    def register_error_responses(self):
+        ref_responses = self.components.with_scope("response")
+
+        if not ref_responses:
+            # general errors
+            exception_classes = set(chain(*DEFAULT_ACTION_ERRORS.values()))
+            # add geo and validation errors
+            exception_classes = (
+                exception_classes | PreconditionFailed | exceptions.ValidationError
+            )
+            status_codes = sorted([e.status_code for e in exception_classes])
+
+            fout_schema = self.serializer_to_schema(FoutSerializer())
+            validation_fout_schema = self.serializer_to_schema(
+                ValidatieFoutSerializer()
+            )
+            for status_code in status_codes:
+                schema = (
+                    validation_fout_schema
+                    if status_code == exceptions.ValidationError.status_code
+                    else fout_schema
+                )
+                response = openapi.Response(
+                    description=HTTP_STATUS_CODE_TITLES.get(status_code, ""),
+                    schema=schema,
+                )
+                ref_responses.set(str(status_code), response)
+
     def _get_error_responses(self) -> OrderedDict:
         """
         Add the appropriate possible error responses to the schema.
