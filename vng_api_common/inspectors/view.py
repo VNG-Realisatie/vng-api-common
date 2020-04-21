@@ -1,6 +1,7 @@
 import inspect
 import logging
 from collections import OrderedDict
+from itertools import chain
 
 from django.apps import apps
 from django.conf import settings
@@ -250,16 +251,17 @@ class AutoSchema(SwaggerAutoSchema):
         return OrderedDict({str(response_status): schema})
 
     def register_error_responses(self):
-        ref_responses = self.components.with_scope("response")
+        ref_responses = self.components.with_scope("responses")
 
-        if not ref_responses:
+        if not ref_responses.keys():
             # general errors
-            exception_classes = set(chain(*DEFAULT_ACTION_ERRORS.values()))
+            general_classes = list(chain(*DEFAULT_ACTION_ERRORS.values()))
             # add geo and validation errors
-            exception_classes = (
-                exception_classes | PreconditionFailed | exceptions.ValidationError
-            )
-            status_codes = sorted([e.status_code for e in exception_classes])
+            exception_classes = general_classes + [
+                PreconditionFailed,
+                exceptions.ValidationError,
+            ]
+            status_codes = sorted({e.status_code for e in exception_classes})
 
             fout_schema = self.serializer_to_schema(FoutSerializer())
             validation_fout_schema = self.serializer_to_schema(
@@ -284,48 +286,39 @@ class AutoSchema(SwaggerAutoSchema):
         E.g. - we know that HTTP 400 on a POST/PATCH/PUT leads to validation
         errors, 403 to Permission Denied etc.
         """
-        responses = {}
+
+        self.register_error_responses()
+        ref_responses = self.components.with_scope("responses")
 
         action = self.view.action
-
         if (
             action not in DEFAULT_ACTION_ERRORS and self._is_search_view
         ):  # similar to a CREATE
             action = "create"
 
-        exception_klasses = DEFAULT_ACTION_ERRORS.get(action)
-        if exception_klasses is None:
+        # general errors
+        general_klasses = DEFAULT_ACTION_ERRORS.get(action)
+        if general_klasses is None:
             logger.debug("Unknown action %s, no default error responses added")
-            return responses
+            return OrderedDict()
 
-        fout_schema = self.serializer_to_schema(FoutSerializer())
-        for exception_klass in exception_klasses:
-            status_code = exception_klass.status_code
-            responses[status_code] = fout_schema
-
+        exception_klasses = general_klasses[:]
+        # add geo and validation errors
         has_validation_errors = self.get_filter_parameters() or any(
             issubclass(klass, exceptions.ValidationError) for klass in exception_klasses
         )
         if has_validation_errors:
-            schema = self.serializer_to_schema(ValidatieFoutSerializer())
-            responses[exceptions.ValidationError.status_code] = schema
+            exception_klasses.append(exceptions.ValidationError)
 
         if isinstance(self.view, GeoMixin):
-            status_code = PreconditionFailed.status_code
-            responses[status_code] = fout_schema
+            exception_klasses.append(PreconditionFailed)
 
-        # sort by status code
+        status_codes = sorted({e.status_code for e in exception_klasses})
 
         return OrderedDict(
             [
-                (
-                    status_code,
-                    openapi.Response(
-                        description=HTTP_STATUS_CODE_TITLES.get(status_code, ""),
-                        schema=schema,
-                    ),
-                )
-                for status_code, schema in sorted(responses.items())
+                (status_code, ref_responses[str(status_code)])
+                for status_code in status_codes
             ]
         )
 
