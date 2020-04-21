@@ -2,6 +2,7 @@ import inspect
 import logging
 from collections import OrderedDict
 from itertools import chain
+from typing import Union
 
 from django.apps import apps
 from django.conf import settings
@@ -182,6 +183,17 @@ def _view_supports_audittrail(view: viewsets.ViewSet) -> bool:
     return action_in_audit_bases
 
 
+class ResponseRef(openapi._Ref):
+    def __init__(self, resolver, response_name, ignore_unresolved=False):
+        """
+        Adds a reference to a named Response defined in the ``#/responses/`` object.
+        """
+        assert "responses" in resolver.scopes
+        super().__init__(
+            resolver, response_name, "responses", openapi.Response, ignore_unresolved
+        )
+
+
 class AutoSchema(SwaggerAutoSchema):
     @property
     def model(self):
@@ -277,6 +289,7 @@ class AutoSchema(SwaggerAutoSchema):
                     description=HTTP_STATUS_CODE_TITLES.get(status_code, ""),
                     schema=schema,
                 )
+                self.set_response_headers(str(status_code), response)
                 ref_responses.set(str(status_code), response)
 
     def _get_error_responses(self) -> OrderedDict:
@@ -288,7 +301,6 @@ class AutoSchema(SwaggerAutoSchema):
         """
 
         self.register_error_responses()
-        ref_responses = self.components.with_scope("responses")
 
         action = self.view.action
         if (
@@ -317,7 +329,7 @@ class AutoSchema(SwaggerAutoSchema):
 
         return OrderedDict(
             [
-                (status_code, ref_responses[str(status_code)])
+                (status_code, ResponseRef(self.components, str(status_code)))
                 for status_code in status_codes
             ]
         )
@@ -357,16 +369,36 @@ class AutoSchema(SwaggerAutoSchema):
 
         return _responses
 
+    @staticmethod
+    def set_response_headers(
+        status_code: str, response: Union[openapi.Response, ResponseRef]
+    ):
+        if not isinstance(response, openapi.Response):
+            return
+
+        response.setdefault("headers", OrderedDict())
+        response["headers"][VERSION_HEADER] = version_header
+
+        if status_code == "201":
+            response["headers"]["Location"] = location_header
+
     def get_response_schemas(self, response_serializers):
+        # parent class doesn't support responses as ref objects,
+        # so we temporary remove them
+        ref_responses = OrderedDict()
+        for status_code, serializer in response_serializers.copy().items():
+            if isinstance(serializer, ResponseRef):
+                ref_responses[str(status_code)] = response_serializers.pop(status_code)
+
         responses = super().get_response_schemas(response_serializers)
+
+        # and add them again
+        responses.update(ref_responses)
+        responses = OrderedDict(sorted(responses.items()))
 
         # add the Api-Version headers
         for status_code, response in responses.items():
-            response.setdefault("headers", OrderedDict())
-            response["headers"][VERSION_HEADER] = version_header
-
-            if status_code == "201":
-                response["headers"]["Location"] = location_header
+            self.set_response_headers(status_code, response)
 
         return responses
 
