@@ -4,9 +4,9 @@ from collections import OrderedDict
 
 from django.apps import apps
 from django.conf import settings
-from django.http import Http404, HttpRequest
+from django.http import Http404, HttpRequest, HttpResponse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 
 import requests
 from rest_framework import exceptions as drf_exceptions, status
@@ -226,3 +226,13 @@ def _test_nrc_config() -> list:
     )
 
     return checks
+
+
+class YamlView(View):
+    yaml_file = "common.yaml"
+
+    def get(self, request, *args, **kwargs):
+        with open(self.yaml_file) as infile:
+            content = infile.read()
+
+        return HttpResponse(content, content_type="application/yaml; charset=utf-8")
