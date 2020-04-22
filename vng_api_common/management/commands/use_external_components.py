@@ -3,6 +3,8 @@ Replace internal references to external for reusable components
 
 Due to the limitations of drf_yasg we cannot handle this at the Python level
 """
+import os.path
+
 from django.core.management import BaseCommand
 
 import oyaml as yaml
@@ -43,6 +45,10 @@ class Command(BaseCommand):
     def handle(self, **options):
         source = options["api-spec"]
         common_source = options["common-spec"]
+        rel_path = os.path.relpath(common_source, os.path.dirname(source))
+
+        if not os.path.exists(common_source):
+            return
 
         with open(common_source, "r", encoding="utf8") as f:
             common_spec = yaml.safe_load(f)
@@ -61,17 +67,19 @@ class Command(BaseCommand):
                     if item not in common_components[scope]:
                         continue
 
-                    print("item=", item)
                     common_item_spec = common_components[scope][item]
                     if item_spec == common_item_spec:
                         # add ref to replace
                         ref = f"#/components/{scope}/{item}"
-                        refs[ref] = f"{common_source}{ref}"
+                        refs[ref] = f"{rel_path}{ref}"
 
                         # remove item from internal components
                         del components[scope][item]
 
-            # todo remove empty components
+            # remove empty components
+            for scope, scope_items in components.copy().items():
+                if not scope_items:
+                    del components[scope]
 
             # replace all refs
             replace_refs(spec, refs)
