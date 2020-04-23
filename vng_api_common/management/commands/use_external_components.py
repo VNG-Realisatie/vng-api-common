@@ -5,9 +5,11 @@ Due to the limitations of drf_yasg we cannot handle this at the Python level
 """
 import os.path
 
+from django.conf import settings
 from django.core.management import BaseCommand
 
 import oyaml as yaml
+import requests
 
 
 class QuotedString(str):
@@ -39,20 +41,21 @@ class Command(BaseCommand):
             "api-spec", help="Path to the openapi spec. Will be overwritten!"
         )
         parser.add_argument(
-            "common-spec", help="Path to the yaml file with reusable components"
+            "output", help="Path to the yaml file with external components"
         )
 
     def handle(self, **options):
         source = options["api-spec"]
-        common_source = options["common-spec"]
-        rel_path = os.path.relpath(common_source, os.path.dirname(source))
-
-        if not os.path.exists(common_source):
+        output = options["output"]
+        common_url = settings.COMMON_SPEC
+        try:
+            response = requests.get(common_url)
+            common_yaml = response.text
+        except requests.exceptions.RequestException:
             return
 
-        with open(common_source, "r", encoding="utf8") as f:
-            common_spec = yaml.safe_load(f)
-            common_components = common_spec["components"]
+        common_spec = yaml.safe_load(common_yaml)
+        common_components = common_spec["components"]
 
         with open(source, "r", encoding="utf8") as infile:
             spec = yaml.safe_load(infile)
@@ -71,7 +74,7 @@ class Command(BaseCommand):
                     if item_spec == common_item_spec:
                         # add ref to replace
                         ref = f"#/components/{scope}/{item}"
-                        refs[ref] = f"{rel_path}{ref}"
+                        refs[ref] = f"{common_url}{ref}"
 
                         # remove item from internal components
                         del components[scope][item]
@@ -84,6 +87,6 @@ class Command(BaseCommand):
             # replace all refs
             replace_refs(spec, refs)
 
-        with open(source, "w", encoding="utf8") as outfile:
+        with open(output, "w", encoding="utf8") as outfile:
             yaml.add_representer(QuotedString, quoted_scalar)
             yaml.dump(spec, outfile, default_flow_style=False)

@@ -7,4 +7,4 @@ if "%VIRTUAL_ENV%"=="" (
     goto :eof
 )
 
-python src\manage.py use_external_components ./src/openapi.yaml ./src/common.yaml
+python src\manage.py use_external_components ./src/openapi.yaml ./src/openapi_unresolved.yaml

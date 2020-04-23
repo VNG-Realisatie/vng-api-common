@@ -20,6 +20,8 @@ src/manage.py generate_swagger \
 echo "Converting Swagger to OpenAPI 3.0..."
 npm run convert
 patch_content_types
+
+echo "Generating unresolved OpenAPI 3.0 schema"
 use_external_components
 
 echo "Generating resources document"

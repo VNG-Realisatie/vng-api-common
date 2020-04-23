@@ -4,9 +4,7 @@ import os
 from urllib.parse import urlsplit
 
 from django.conf import settings
-from django.http import HttpResponse
 from django.urls import get_script_prefix
-from django.views import View
 
 from drf_yasg import openapi
 from drf_yasg.app_settings import swagger_settings
@@ -174,16 +172,3 @@ class SchemaView(DefaultSchemaView):
             server["url"] = request.build_absolute_uri(server_path)
 
         return Response(data=schema, headers={"X-OAS-Version": schema["openapi"]})
-
-
-class YamlView(View):
-    """Add view to fix redoc errors when using common.yaml file"""
-
-    yaml_file = "src/common.yaml"
-
-    def get(self, request, *args, **kwargs):
-        path = os.path.join(settings.BASE_DIR, self.yaml_file)
-        with open(path) as infile:
-            content = infile.read()
-
-        return HttpResponse(content, content_type="application/yaml; charset=utf-8")

@@ -10,7 +10,7 @@ if [[ -z "$VIRTUAL_ENV" ]]; then
 fi
 
 source_file=${1:-./src/openapi.yaml}
-common_file=${2:-./src/common.yaml}
+output=${2:-./src/openapi_unresolved.yaml}
 manage=${MANAGE:-src/manage.py}
 
-python $manage use_external_components $source_file $common_file
+python $manage use_external_components $source_file $output
