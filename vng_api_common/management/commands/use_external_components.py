@@ -50,6 +50,7 @@ class Command(BaseCommand):
         common_url = settings.COMMON_SPEC
         try:
             response = requests.get(common_url)
+            response.raise_for_status()
             common_yaml = response.text
         except requests.exceptions.RequestException:
             return
