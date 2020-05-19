@@ -1,3 +1,4 @@
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
@@ -27,14 +28,18 @@ class FilterInspector(CoreAPICompatInspector):
             filter_class = filter_backend.get_filter_class(self.view, queryset)
 
             for parameter in fields:
-                if parameter.name in filter_class.declared_filters:
-                    continue
                 filter_field = filter_class.base_filters[parameter.name]
-                model_field = queryset.model._meta.get_field(
-                    parameter.name.split("__")[0]
-                )
 
-                help_text = filter_field.extra.get("help_text", model_field.help_text)
+                try:
+                    model_field = queryset.model._meta.get_field(
+                        parameter.name.split("__")[0]
+                    )
+                except FieldDoesNotExist:
+                    model_field = None
+
+                help_text = filter_field.extra.get(
+                    "help_text", model_field.help_text if model_field else ""
+                )
 
                 if isinstance(filter_field, URLModelChoiceFilter):
                     description = _("URL to the related {resource}").format(
@@ -46,11 +51,11 @@ class FilterInspector(CoreAPICompatInspector):
                     parameter.enum = [
                         choice[0] for choice in filter_field.extra["choices"]
                     ]
-                elif isinstance(model_field, models.URLField):
+                elif model_field and isinstance(model_field, models.URLField):
                     parameter.format = openapi.FORMAT_URI
 
                 if not parameter.description and help_text:
-                    parameter.description = force_text(model_field.help_text)
+                    parameter.description = force_text(help_text)
 
         return fields
 
