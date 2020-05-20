@@ -1,4 +1,3 @@
-from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
@@ -10,6 +9,7 @@ from rest_framework.filters import OrderingFilter
 
 from ..filters import URLModelChoiceFilter
 from ..utils import underscore_to_camel
+from .utils import get_target_field
 
 
 class FilterInspector(CoreAPICompatInspector):
@@ -29,13 +29,7 @@ class FilterInspector(CoreAPICompatInspector):
 
             for parameter in fields:
                 filter_field = filter_class.base_filters[parameter.name]
-
-                try:
-                    model_field = queryset.model._meta.get_field(
-                        parameter.name.split("__")[0]
-                    )
-                except FieldDoesNotExist:
-                    model_field = None
+                model_field = get_target_field(queryset.model, parameter.name)
 
                 help_text = filter_field.extra.get(
                     "help_text", model_field.help_text if model_field else ""
