@@ -30,6 +30,7 @@ class FilterInspector(CoreAPICompatInspector):
             for parameter in fields:
                 filter_field = filter_class.base_filters[parameter.name]
                 model_field = get_target_field(queryset.model, parameter.name)
+                parameter._filter_field = filter_field
 
                 help_text = filter_field.extra.get(
                     "help_text", model_field.help_text if model_field else ""

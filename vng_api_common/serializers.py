@@ -1,5 +1,6 @@
 import datetime
 from collections import OrderedDict
+from typing import Tuple, Union
 
 from django.db import transaction
 
@@ -78,10 +79,12 @@ class ValidatieFoutSerializer(FoutSerializer):
     invalid_params = FieldValidationErrorSerializer(many=True)
 
 
-def add_choice_values_help_text(choices: DjangoChoices) -> str:
+def add_choice_values_help_text(choices: Union[DjangoChoices, Tuple[str, str]]) -> str:
     items = []
 
-    for key, value in choices.choices:
+    _choices = choices.choices if issubclass(choices, DjangoChoices) else choices
+
+    for key, value in _choices:
         description = getattr(choices.get_choice(key), "description", None)
         if description:
             item = f"* `{key}` - ({value}) {description}"

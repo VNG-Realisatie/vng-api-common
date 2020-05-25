@@ -15,7 +15,11 @@ from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
 from ..permissions import BaseAuthRequired, get_required_scopes
 from ..search import is_search_view
-from ..serializers import FoutSerializer, ValidatieFoutSerializer
+from ..serializers import (
+    FoutSerializer,
+    ValidatieFoutSerializer,
+    add_choice_values_help_text,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -232,10 +236,23 @@ class AutoSchema(SwaggerAutoSchema):
             )
 
         filters = {}
-        for filter_field in filter_fields:
-            FieldClass = TYPE_TO_FIELDMAPPING[filter_field.type]
-            filters[filter_field.name] = FieldClass(
-                help_text=filter_field.description, required=filter_field.required
+        for parameter in filter_fields:
+            help_text = parameter.description
+            # we can't get the verbose_label back from the enum, so the inspector
+            # in vng_api_common.inspectors.fields leaves a filter field reference behind
+            _filter_field = getattr(parameter, "_filter_field", None)
+            choices = getattr(_filter_field, "extra", {}).get("choices", [])
+            if choices:
+                FieldClass = serializers.ChoiceField
+                extra = {"choices": choices}
+                value_display_mapping = add_choice_values_help_text(choices)
+                help_text += f"\n\n{value_display_mapping}"
+            else:
+                FieldClass = TYPE_TO_FIELDMAPPING[parameter.type]
+                extra = {}
+
+            filters[parameter.name] = FieldClass(
+                help_text=help_text, required=parameter.required, **extra
             )
 
         SearchSerializer = type(Base.__name__, (Base,), filters)
