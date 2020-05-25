@@ -1,4 +1,5 @@
 import datetime
+import inspect
 from collections import OrderedDict
 from typing import Tuple, Union
 
@@ -82,7 +83,8 @@ class ValidatieFoutSerializer(FoutSerializer):
 def add_choice_values_help_text(choices: Union[DjangoChoices, Tuple[str, str]]) -> str:
     items = []
 
-    _choices = choices.choices if issubclass(choices, DjangoChoices) else choices
+    is_dj_choices = inspect.isclass(choices) and issubclass(choices, DjangoChoices)
+    _choices = choices.choices if is_dj_choices else choices
 
     for key, value in _choices:
         description = getattr(choices.get_choice(key), "description", None)
