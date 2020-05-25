@@ -87,7 +87,11 @@ def add_choice_values_help_text(choices: Union[DjangoChoices, Tuple[str, str]]) 
     _choices = choices.choices if is_dj_choices else choices
 
     for key, value in _choices:
-        description = getattr(choices.get_choice(key), "description", None)
+        description = (
+            getattr(choices.get_choice(key), "description", None)
+            if is_dj_choices
+            else None
+        )
         if description:
             item = f"* `{key}` - ({value}) {description}"
         else:
