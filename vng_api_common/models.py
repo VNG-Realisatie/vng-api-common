@@ -162,19 +162,24 @@ class ClientConfig(SingletonModel):
         Construct a client, prepared with the required auth.
         """
         config = cls.get_solo()
-        Client = import_string(settings.ZDS_CLIENT_CLASS)
 
-        api_root = config.api_root
-        if not api_root:
-            raise ImproperlyConfigured(
-                f"Configure the API root in '{cls._meta.verbose_name}'"
-            )
+        if getattr(settings, "CUSTOM_CLIENT_FETCHER", None):
+            client = import_string(settings.CUSTOM_CLIENT_FETCHER)(config.api_root)
+            return client
+        else:
+            Client = import_string(settings.ZDS_CLIENT_CLASS)
 
-        if not api_root.endswith("/"):
-            api_root = f"{api_root}/"
+            api_root = config.api_root
+            if not api_root:
+                raise ImproperlyConfigured(
+                    f"Configure the API root in '{cls._meta.verbose_name}'"
+                )
 
-        client = Client.from_url(api_root)
-        client.base_url = api_root
-        client.auth = APICredential.get_auth(api_root)
+            if not api_root.endswith("/"):
+                api_root = f"{api_root}/"
 
-        return client
+            client = Client.from_url(api_root)
+            client.base_url = api_root
+            client.auth = APICredential.get_auth(api_root)
+
+            return client
