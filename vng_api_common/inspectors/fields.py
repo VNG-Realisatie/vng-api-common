@@ -98,6 +98,29 @@ class HyperlinkedIdentityFieldInspector(FieldInspector):
         return NotHandled
 
 
+class HyperlinkedRelatedFieldInspector(FieldInspector):
+    def field_to_swagger_object(
+        self, field, swagger_object_type, use_references, **kwargs
+    ):
+        SwaggerType, ChildSwaggerType = self._get_partial_types(
+            field, swagger_object_type, use_references, **kwargs
+        )
+
+        if (
+            isinstance(field, serializers.HyperlinkedRelatedField)
+            and swagger_object_type == openapi.Schema
+        ):
+            return SwaggerType(
+                type=openapi.TYPE_STRING,
+                format=openapi.FORMAT_URI,
+                min_length=1,
+                max_length=1000,
+                description=field.help_text,
+            )
+
+        return NotHandled
+
+
 class GegevensGroepInspector(FieldInspector):
     def process_result(self, result, method_name, obj, **kwargs):
         if not isinstance(result, openapi.Schema.OR_REF):
