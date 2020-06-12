@@ -33,8 +33,9 @@ class FilterInspector(CoreAPICompatInspector):
                 parameter._filter_field = filter_field
 
                 help_text = filter_field.extra.get(
-                    "help_text", None
-                ) or model_field.help_text if model_field else ""
+                    "help_text",
+                    getattr(model_field, "help_text", "") if model_field else ""
+                )
 
                 if isinstance(filter_field, URLModelChoiceFilter):
                     description = _("URL to the related {resource}").format(
