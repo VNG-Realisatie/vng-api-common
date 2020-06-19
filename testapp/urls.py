@@ -31,6 +31,7 @@ urlpatterns = [
                     name="schema-redoc",
                 ),
             ]
+            + router.urls
         ),
     ),
     path("api/", include(router.urls)),

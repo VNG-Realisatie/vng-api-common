@@ -199,7 +199,7 @@ def get_view_summary(view_cls):
         if "\n\n" in summary:
             summary = summary.rsplit("\n\n", 1)[0].strip().replace("\r", "")
             return formatting.dedent(smart_text(summary))
-    except (AttributeError, IndexError) as e:
+    except (AttributeError, IndexError):
         pass
 
     return ""

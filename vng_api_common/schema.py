@@ -4,6 +4,7 @@ import os
 from urllib.parse import urlsplit
 
 from django.conf import settings
+from django.urls import get_script_prefix
 
 from drf_yasg import openapi
 from drf_yasg.app_settings import swagger_settings
@@ -11,7 +12,7 @@ from drf_yasg.codecs import yaml_sane_dump, yaml_sane_load
 from drf_yasg.generators import OpenAPISchemaGenerator as _OpenAPISchemaGenerator
 from drf_yasg.renderers import SwaggerJSONRenderer, SwaggerYAMLRenderer, _SpecRenderer
 from drf_yasg.views import get_schema_view
-from rest_framework import permissions
+from rest_framework import exceptions, permissions
 from rest_framework.response import Response
 
 logger = logging.getLogger(__name__)
@@ -99,8 +100,8 @@ class SchemaMixin:
                     getattr(self, "info", swagger_settings.DEFAULT_INFO),
                     version,
                     None,
-                    patterns,
-                    urlconf,
+                    None,
+                    None,
                 )
             else:
                 generator = self.generator_class(
@@ -126,7 +127,7 @@ class SchemaMixin:
             if split_url.netloc:
                 continue
 
-            prefix = settings.FORCE_SCRIPT_NAME or ""
+            prefix = get_script_prefix()
             if prefix.endswith("/"):
                 prefix = prefix[:-1]
             server_path = f"{prefix}{server['url']}"

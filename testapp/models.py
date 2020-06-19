@@ -23,7 +23,9 @@ class Person(ETagMixin, models.Model):
     address_street = models.CharField(_("street name"), max_length=255)
     address_number = models.CharField(_("house number"), max_length=10)
 
-    address = GegevensGroepType({"street": address_street, "number": address_number}, required=False)
+    address = GegevensGroepType(
+        {"street": address_street, "number": address_number}, required=False
+    )
 
     group = models.ForeignKey("Group", null=True, on_delete=models.CASCADE)
 
