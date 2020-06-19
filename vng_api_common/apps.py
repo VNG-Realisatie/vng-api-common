@@ -10,7 +10,7 @@ from drf_yasg.inspectors.field import (
 from rest_framework import serializers
 
 from . import fields
-from .serializers import DurationField
+from .serializers import DurationField, LengthHyperlinkedRelatedField
 
 try:
     from relativedeltafield import RelativeDeltaField
@@ -32,6 +32,7 @@ class ZDSSchemaConfig(AppConfig):
 
         patch_duration_type()
         register_serializer_field()
+        set_custom_hyperlinkedmodelserializer_field()
 
 
 def patch_duration_type():
@@ -59,3 +60,9 @@ def register_serializer_field():
 
     if RelativeDeltaField is not None:
         mapping[RelativeDeltaField] = DurationField
+
+
+def set_custom_hyperlinkedmodelserializer_field():
+    serializers.HyperlinkedModelSerializer.serializer_related_field = (
+        LengthHyperlinkedRelatedField
+    )
