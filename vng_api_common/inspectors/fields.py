@@ -110,8 +110,8 @@ class HyperlinkedRelatedFieldInspector(FieldInspector):
             isinstance(field, LengthHyperlinkedRelatedField)
             and swagger_object_type == openapi.Schema
         ):
-            max_length = getattr(field, "max_length", None)
-            min_length = getattr(field, "min_length", None)
+            max_length = field.max_length
+            min_length = field.min_length
             return SwaggerType(
                 type=openapi.TYPE_STRING,
                 format=openapi.FORMAT_URI,

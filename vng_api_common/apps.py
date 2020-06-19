@@ -62,6 +62,10 @@ def register_serializer_field():
 
 
 def set_custom_hyperlinkedmodelserializer_field():
+    """
+    Monkey-patches Django Rest Framework to avoid having to set the
+    `serializer_related_field` manually for all the base classes in the code
+    """
     serializers.HyperlinkedModelSerializer.serializer_related_field = (
         LengthHyperlinkedRelatedField
     )

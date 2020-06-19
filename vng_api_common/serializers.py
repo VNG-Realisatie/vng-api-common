@@ -4,6 +4,7 @@ from collections import OrderedDict
 from typing import Tuple, Union
 
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
 import isodate
 from djchoices import DjangoChoices
@@ -267,10 +268,15 @@ class NestedGegevensGroepMixin:
 
 
 class LengthHyperlinkedRelatedField(serializers.HyperlinkedRelatedField):
+    default_error_messages = {
+        "max_length": _("Ensure this field has no more than {max_length} characters."),
+        "min_length": _("Ensure this field has at least {min_length} characters."),
+    }
+
     def __init__(self, *args, **kwargs):
-        self.min_length = kwargs.pop("min_length", None)
-        self.max_length = kwargs.pop("max_length", None)
-        kwargs.setdefault("allow_null", True)
+        self.min_length = kwargs.pop("min_length", 1)
+        self.max_length = kwargs.pop("max_length", 1000)
+        kwargs.setdefault("allow_null", not kwargs.get("required", True))
 
         super().__init__(*args, **kwargs)
 
@@ -281,17 +287,4 @@ class LengthHyperlinkedRelatedField(serializers.HyperlinkedRelatedField):
         if self.min_length and len(data) < self.min_length:
             self.fail("min_length", max_length=self.min_length, length=len(data))
 
-        # check if url is valid
-        try:
-            value = super().to_internal_value(data)
-        except ValidationError as field_exc:
-            # rewrite validation code to make it fit reference implementation
-            # if url is not valid
-            try:
-                URLValidator()(data)
-            except ValidationError as exc:
-                self.fail("bad-url", url=data, exc=exc)
-
-            # if the url is not bad -> then the problem is that it doesn't fit resource
-            self.fail("invalid-resource", exc=field_exc)
-        return value
+        return super().to_internal_value(data)
