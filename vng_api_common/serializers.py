@@ -1,7 +1,10 @@
 import datetime
+import inspect
 from collections import OrderedDict
+from typing import Tuple, Union
 
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
 import isodate
 from djchoices import DjangoChoices
@@ -78,11 +81,18 @@ class ValidatieFoutSerializer(FoutSerializer):
     invalid_params = FieldValidationErrorSerializer(many=True)
 
 
-def add_choice_values_help_text(choices: DjangoChoices) -> str:
+def add_choice_values_help_text(choices: Union[DjangoChoices, Tuple[str, str]]) -> str:
     items = []
 
-    for key, value in choices.choices:
-        description = getattr(choices.get_choice(key), "description", None)
+    is_dj_choices = inspect.isclass(choices) and issubclass(choices, DjangoChoices)
+    _choices = choices.choices if is_dj_choices else choices
+
+    for key, value in _choices:
+        description = (
+            getattr(choices.get_choice(key), "description", None)
+            if is_dj_choices
+            else None
+        )
         if description:
             item = f"* `{key}` - ({value}) {description}"
         else:
@@ -255,3 +265,26 @@ class NestedGegevensGroepMixin:
                 continue
             setattr(instance, name, validated_data.pop(name))
         return super().update(instance, validated_data)
+
+
+class LengthHyperlinkedRelatedField(serializers.HyperlinkedRelatedField):
+    default_error_messages = {
+        "max_length": _("Ensure this field has no more than {max_length} characters."),
+        "min_length": _("Ensure this field has at least {min_length} characters."),
+    }
+
+    def __init__(self, *args, **kwargs):
+        self.min_length = kwargs.pop("min_length", 1)
+        self.max_length = kwargs.pop("max_length", 1000)
+        kwargs.setdefault("allow_null", not kwargs.get("required", True))
+
+        super().__init__(*args, **kwargs)
+
+    def to_internal_value(self, data):
+        if self.max_length and len(data) > self.max_length:
+            self.fail("max_length", max_length=self.max_length, length=len(data))
+
+        if self.min_length and len(data) < self.min_length:
+            self.fail("min_length", max_length=self.min_length, length=len(data))
+
+        return super().to_internal_value(data)
