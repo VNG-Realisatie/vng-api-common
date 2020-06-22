@@ -203,3 +203,9 @@ def get_view_summary(view_cls):
         pass
 
     return ""
+
+
+def get_field_attribute(model_string: str, field_name: str, attr_name: str) -> str:
+    ModelClass = apps.get_model(model_string, require_ready=False)
+    field = ModelClass._meta.get_field(field_name)
+    return getattr(field, attr_name, None)
