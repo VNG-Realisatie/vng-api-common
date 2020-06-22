@@ -1,7 +1,7 @@
 import logging
 import re
 import uuid
-from typing import Union
+from typing import Optional, Union
 
 from django.apps import apps
 from django.conf import settings
@@ -205,7 +205,9 @@ def get_view_summary(view_cls):
     return ""
 
 
-def get_field_attribute(model_string: str, field_name: str, attr_name: str) -> str:
+def get_field_attribute(
+    model_string: str, field_name: str, attr_name: str
+) -> Optional[str]:
     ModelClass = apps.get_model(model_string, require_ready=False)
     field = ModelClass._meta.get_field(field_name)
     return getattr(field, attr_name, None)
