@@ -3,8 +3,8 @@ from unittest import mock
 import pytest
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
-from testapp.viewsets import PersonViewSet
 
+from testapp.viewsets import PersonViewSet
 from vng_api_common.generators import OpenAPISchemaGenerator
 from vng_api_common.utils import get_view_summary
 

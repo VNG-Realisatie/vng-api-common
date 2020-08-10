@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from testapp.models import Group, Hobby, Person
 
+from testapp.models import Group, Hobby, Person
 from vng_api_common.serializers import GegevensGroepSerializer
 
 

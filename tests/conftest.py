@@ -9,6 +9,7 @@ from django.urls import clear_script_prefix, set_script_prefix
 import pytest
 from pytest_factoryboy import register
 from rest_framework.test import APIClient
+
 from testapp import urls  # noqa
 from testapp.factories import GroupFactory, HobbyFactory, PersonFactory
 

@@ -1,5 +1,4 @@
 from testapp.serializers import GroupSerializer
-
 from vng_api_common.exception_handling import get_validation_errors
 
 
