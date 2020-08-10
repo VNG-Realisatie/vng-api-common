@@ -1,7 +1,6 @@
 from django.urls import reverse
 
 from testapp.viewsets import GroupViewSet
-
 from vng_api_common.utils import get_viewset_for_path
 
 

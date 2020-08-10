@@ -1,8 +1,8 @@
 from django.core.exceptions import ValidationError
 
 import pytest
-from testapp.models import Person
 
+from testapp.models import Person
 from vng_api_common.constants import FILTER_URL_DID_NOT_RESOLVE
 from vng_api_common.filters import URLModelChoiceField
 from vng_api_common.utils import NotAViewSet
