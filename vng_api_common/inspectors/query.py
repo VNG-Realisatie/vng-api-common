@@ -53,6 +53,11 @@ class FilterInspector(CoreAPICompatInspector):
                 if not parameter.description and help_text:
                     parameter.description = force_text(help_text)
 
+                if "max_length" in filter_field.extra:
+                    parameter.max_length = filter_field.extra["max_length"]
+                if "min_length" in filter_field.extra:
+                    parameter.min_length = filter_field.extra["min_length"]
+
         return fields
 
     def process_result(self, result, method_name, obj, **kwargs):
