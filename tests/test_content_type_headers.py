@@ -39,7 +39,8 @@ urlpatterns = [
 
 def _generate_schema():
     generator = OpenAPISchemaGenerator(
-        info=openapi.Info("dummy", ""), patterns=urlpatterns,
+        info=openapi.Info("dummy", ""),
+        patterns=urlpatterns,
     )
     return generator.get_schema()
 
