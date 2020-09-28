@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import render_to_string
-from django.urls import reverse
+from django.urls import reverse, NoReverseMatch
 from django.utils.module_loading import import_string
 
 from drf_yasg import openapi
@@ -112,7 +112,11 @@ class Command(generate_swagger.Command):
                 format = "yaml"
         format = format or "json"
 
-        api_root = reverse("api-root", kwargs={"version": get_major_version()})
+        try:
+            api_root = reverse("api-root", kwargs={"version": get_major_version()})
+        except NoReverseMatch:
+            api_root = reverse("api-root")
+
         api_url = (
             api_url
             or swagger_settings.DEFAULT_API_URL  # noqa
