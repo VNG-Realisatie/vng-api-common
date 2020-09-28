@@ -33,7 +33,7 @@ class Command(BaseCommand):
                     continue
 
                 for status, response in method["responses"].items():
-                    if not (400 <= int(status) < 600):
+                    if status.isdigit() and not (400 <= int(status) < 600):
                         continue
 
                     content = {}
