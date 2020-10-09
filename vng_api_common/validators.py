@@ -328,9 +328,13 @@ class UniekeIdentificatieValidator:
     def __call__(self, attrs: dict):
         identificatie = attrs.get(self.identificatie_field)
         if not identificatie:
-            # identification is being generated, and the generation checks for
-            # uniqueness
-            return
+            if self.instance:
+                # In case of a partial update
+                identificatie = self.instance.identificatie
+            else:
+                # identification is being generated, and the generation checks for
+                # uniqueness
+                return
 
         organisatie = attrs.get(self.organisatie_field)
         pk = self.instance.pk if self.instance else None
