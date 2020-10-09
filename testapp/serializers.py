@@ -30,14 +30,6 @@ class PersonSerializer2(serializers.ModelSerializer):
         fields = ("address", "name")
 
 
-class PersonSerializer2(serializers.ModelSerializer):
-    address = AddressSerializer(allow_null=True, required=False)
-
-    class Meta:
-        model = Person
-        fields = ("address", "name")
-
-
 class GroupSerializer(serializers.ModelSerializer):
     person = PersonSerializer(many=True)
 
