@@ -15,6 +15,7 @@ SCOPE_NOTIFICATIES_PUBLICEREN_LABEL = "notificaties.scopes.publiceren"
 HEADER_APPLICATION = "X-NLX-Request-Application-Id"
 HEADER_USER_ID = "X-NLX-Request-User-Id"
 HEADER_AUDIT = "X-Audit-Toelichting"
+HEADER_LOGRECORD_ID = "X-NLX-Logrecord-ID"
 
 FILTER_URL_DID_NOT_RESOLVE = "NO_MATCHING_OBJECT"
 
