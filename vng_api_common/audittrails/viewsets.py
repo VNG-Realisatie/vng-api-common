@@ -65,9 +65,12 @@ class AuditTrailMixin:
 
         toelichting = get_header(self.request, "X-Audit-Toelichting") or ""
 
+        logrecord_id = get_header(self.request, "X-NLX-Logrecord-ID") or ""
+
         trail = AuditTrail(
             bron=self.audit.component_name,
             request_id=request_id,
+            logrecord_id=logrecord_id,
             applicatie_id=app_id,
             applicatie_weergave=app_presentation,
             actie=action,
