@@ -3,15 +3,14 @@ Interface to get a zds_client object for a given URL.
 """
 from typing import Optional
 
+from django.apps import apps
 from django.conf import settings
 from django.utils.module_loading import import_string
 
 from zds_client import Client
 
-from .models import APICredential
 
-
-def get_client(api_root_url: str) -> Optional[Client]:
+def get_client(url: str, url_is_api_root=False) -> Optional[Client]:
     """
     Get a client instance for the given URL.
 
@@ -23,18 +22,22 @@ def get_client(api_root_url: str) -> Optional[Client]:
     custom_client_fetcher = getattr(settings, "CUSTOM_CLIENT_FETCHER", None)
     if custom_client_fetcher:
         client_getter = import_string(custom_client_fetcher)
-        return client_getter(api_root_url)
+        return client_getter(url)
 
     # default implementation
     Client = import_string(settings.ZDS_CLIENT_CLASS)
 
-    if not api_root_url.endswith("/"):
-        api_root_url = f"{api_root_url}/"
+    if url_is_api_root and not url.endswith("/"):
+        url = f"{url}/"
 
-    client = Client.from_url(api_root_url)
+    client = Client.from_url(url)
     if client is None:
         return None
 
-    client.base_url = api_root_url
-    client.auth = APICredential.get_auth(api_root_url)
+    APICredential = apps.get_model("vng_api_common", "APICredential")
+
+    if url_is_api_root:
+        client.base_url = url
+
+    client.auth = APICredential.get_auth(url)
     return client

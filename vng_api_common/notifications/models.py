@@ -5,14 +5,12 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from zds_client import Client, ClientAuth
+from zds_client import ClientAuth
 
+from ..client import get_client
 from ..decorators import field_default
 from ..models import APICredential, ClientConfig
-from .constants import (
-    SCOPE_NOTIFICATIES_CONSUMEREN_LABEL,
-    SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
-)
+from .constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
 
 
 @field_default("api_root", "https://notificaties-api.vng.cloud/api/v1/")
@@ -74,19 +72,13 @@ class Subscription(models.Model):
         Registers the webhook with the notification component.
         """
         dummy_detail_url = urljoin(self.config.api_root, f"foo/{uuid.uuid4()}")
-        client = Client.from_url(dummy_detail_url)
-
-        # This authentication is to create a subscription at the NC.
-        client.auth = APICredential.get_auth(
-            self.config.api_root, scopes=[SCOPE_NOTIFICATIES_CONSUMEREN_LABEL]
-        )
+        client = get_client(dummy_detail_url)
 
         # This authentication is for the NC to call us. Thus, it's *not* for
         # calling the NC to create a subscription.
         self_auth = ClientAuth(
             client_id=self.client_id,
             secret=self.secret,
-            scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL],
         )
         data = {
             "callbackUrl": self.callback_url,

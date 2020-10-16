@@ -1,16 +1,15 @@
-from typing import Union
+from typing import Optional, Union
 from urllib.parse import urlsplit, urlunsplit
 
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.functions import Length
-from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.reverse import reverse
 from solo.models import SingletonModel
 from zds_client import Client, ClientAuth
+
+from .client import get_client as _get_client
 
 
 class APIMixin:
@@ -157,29 +156,9 @@ class ClientConfig(SingletonModel):
         super().save(*args, **kwargs)
 
     @classmethod
-    def get_client(cls) -> Client:
+    def get_client(cls) -> Optional[Client]:
         """
         Construct a client, prepared with the required auth.
         """
         config = cls.get_solo()
-
-        if getattr(settings, "CUSTOM_CLIENT_FETCHER", None):
-            client = import_string(settings.CUSTOM_CLIENT_FETCHER)(config.api_root)
-            return client
-        else:
-            Client = import_string(settings.ZDS_CLIENT_CLASS)
-
-            api_root = config.api_root
-            if not api_root:
-                raise ImproperlyConfigured(
-                    f"Configure the API root in '{cls._meta.verbose_name}'"
-                )
-
-            if not api_root.endswith("/"):
-                api_root = f"{api_root}/"
-
-            client = Client.from_url(api_root)
-            client.base_url = api_root
-            client.auth = APICredential.get_auth(api_root)
-
-            return client
+        return _get_client(config.api_root, url_is_api_root=True)
