@@ -8,9 +8,10 @@ from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
 from django.urls import Resolver404, get_resolver, get_script_prefix
-from django.utils.module_loading import import_string
 
 from zds_client.client import ClientError
+
+from .client import get_client
 
 try:
     from djangorestframework_camel_case.util import (
@@ -124,11 +125,8 @@ def get_uuid_from_path(path: str) -> str:
 def request_object_attribute(
     url: str, attribute: str, resource: Union[str, None] = None
 ) -> str:
-    from .models import APICredential
+    client = get_client(url)
 
-    Client = import_string(settings.ZDS_CLIENT_CLASS)
-    client = Client.from_url(url)
-    client.auth = APICredential.get_auth(url)
     try:
         result = client.retrieve(resource, url=url)[attribute]
     except (ClientError, KeyError) as exc:

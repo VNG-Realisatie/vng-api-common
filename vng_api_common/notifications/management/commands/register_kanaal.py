@@ -4,10 +4,8 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
 from django.urls import reverse
-from django.utils.module_loading import import_string
 
-from ....models import APICredential
-from ...constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
+from ....client import get_client
 from ...kanalen import KANAAL_REGISTRY
 from ...models import NotificationsConfig
 
@@ -22,16 +20,7 @@ def create_kanaal(api_root: str, kanaal: str) -> None:
     """
     Create a kanaal, if it doesn't exist yet.
     """
-    Client = import_string(settings.ZDS_CLIENT_CLASS)
-
-    if not api_root.endswith("/"):
-        api_root = f"{api_root}/"
-
-    client = Client.from_url(api_root)
-    client.base_url = api_root
-    client.auth = APICredential.get_auth(
-        api_root, scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL]
-    )
+    client = get_client(api_root, url_is_api_root=True)
 
     # look up the exchange in the registry
     _kanaal = next(k for k in KANAAL_REGISTRY if k.label == kanaal)

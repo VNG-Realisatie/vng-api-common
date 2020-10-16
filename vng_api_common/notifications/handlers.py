@@ -1,14 +1,11 @@
 import logging
 
-from django.conf import settings
-from django.utils.module_loading import import_string
-
 from djangorestframework_camel_case.util import underscoreize
 
 from ..authorizations.models import Applicatie
 from ..authorizations.serializers import ApplicatieUuidSerializer
+from ..client import get_client
 from ..constants import CommonResourceAction
-from ..models import APICredential
 from ..utils import get_uuid_from_path
 
 
@@ -20,9 +17,7 @@ class LoggingHandler:
 
 class AuthHandler:
     def _request_auth(self, url: str) -> dict:
-        Client = import_string(settings.ZDS_CLIENT_CLASS)
-        client = Client.from_url(url)
-        client.auth = APICredential.get_auth(url)
+        client = get_client(url)
         response = client.retrieve("applicatie", url)
         return underscoreize(response)
 
