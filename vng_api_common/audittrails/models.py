@@ -17,14 +17,6 @@ class AuditTrail(models.Model):
         default=uuid.uuid4,
         help_text=_("Unieke identificatie van de audit regel."),
     )
-    request_id = models.CharField(
-        max_length=255,
-        blank=True,
-        help_text=_(
-            'Een globaal "request" ID om een verzoek door het '
-            "netwerk heen te traceren."
-        ),
-    )
     bron = models.CharField(
         max_length=50,
         help_text=_("De naam van het component waar de wijziging in is gedaan."),
@@ -75,7 +67,6 @@ class AuditTrail(models.Model):
         encoder=DjangoJSONEncoder,
         help_text=_("Volledige JSON body van het object na de actie."),
     )
-
     gebruikers_id = models.CharField(
         max_length=255,
         blank=True,

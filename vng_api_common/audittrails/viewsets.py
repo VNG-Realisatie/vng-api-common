@@ -62,10 +62,6 @@ class AuditTrailMixin:
             app_presentation = app_id  # we don't have any extra information...
 
         user_id = self.request.jwt_auth.payload.get("user_id", "")
-        if not user_id:
-            user_id = get_header(self.request, "X-NLX-Request-User-Id") or ""
-
-        request_id = get_header(self.request, "X-NLX-Request-Id") or ""
 
         toelichting = get_header(self.request, "X-Audit-Toelichting") or ""
 
