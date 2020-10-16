@@ -16,6 +16,7 @@ Modules reference
    database
    geo
    polymorphism
+   client
    oas
    utils
    testing
