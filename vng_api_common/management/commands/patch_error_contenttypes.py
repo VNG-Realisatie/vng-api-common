@@ -27,22 +27,17 @@ class Command(BaseCommand):
         with open(source, "r", encoding="utf8") as infile:
             spec = yaml.safe_load(infile)
 
-        for path, methods in spec["paths"].items():
-            for method in methods.values():
-                if "responses" not in method:
+            for status, response in spec["components"]["responses"].items():
+                if not (400 <= int(status) < 600):
                     continue
 
-                for status, response in method["responses"].items():
-                    if not (400 <= int(status) < 600):
-                        continue
+                content = {}
+                for contenttype, _response in response["content"].items():
+                    if contenttype == "application/json":
+                        contenttype = ERROR_CONTENT_TYPE
+                    content[contenttype] = _response
 
-                    content = {}
-                    for contenttype, _response in response["content"].items():
-                        if contenttype == "application/json":
-                            contenttype = ERROR_CONTENT_TYPE
-                        content[contenttype] = _response
-
-                    response["content"] = content
+                response["content"] = content
 
         with open(source, "w", encoding="utf8") as outfile:
             yaml.dump(spec, outfile, default_flow_style=False)

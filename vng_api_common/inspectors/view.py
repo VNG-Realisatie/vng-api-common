@@ -1,6 +1,8 @@
 import inspect
 import logging
 from collections import OrderedDict
+from itertools import chain
+from typing import Union
 
 from django.apps import apps
 from django.conf import settings
@@ -185,6 +187,17 @@ def _view_supports_audittrail(view: viewsets.ViewSet) -> bool:
     return action_in_audit_bases
 
 
+class ResponseRef(openapi._Ref):
+    def __init__(self, resolver, response_name, ignore_unresolved=False):
+        """
+        Adds a reference to a named Response defined in the ``#/responses/`` object.
+        """
+        assert "responses" in resolver.scopes
+        super().__init__(
+            resolver, response_name, "responses", openapi.Response, ignore_unresolved
+        )
+
+
 class AutoSchema(SwaggerAutoSchema):
     @property
     def model(self):
@@ -266,6 +279,36 @@ class AutoSchema(SwaggerAutoSchema):
             schema = self.get_paginated_response(schema) or schema
         return OrderedDict({str(response_status): schema})
 
+    def register_error_responses(self):
+        ref_responses = self.components.with_scope("responses")
+
+        if not ref_responses.keys():
+            # general errors
+            general_classes = list(chain(*DEFAULT_ACTION_ERRORS.values()))
+            # add geo and validation errors
+            exception_classes = general_classes + [
+                PreconditionFailed,
+                exceptions.ValidationError,
+            ]
+            status_codes = sorted({e.status_code for e in exception_classes})
+
+            fout_schema = self.serializer_to_schema(FoutSerializer())
+            validation_fout_schema = self.serializer_to_schema(
+                ValidatieFoutSerializer()
+            )
+            for status_code in status_codes:
+                schema = (
+                    validation_fout_schema
+                    if status_code == exceptions.ValidationError.status_code
+                    else fout_schema
+                )
+                response = openapi.Response(
+                    description=HTTP_STATUS_CODE_TITLES.get(status_code, ""),
+                    schema=schema,
+                )
+                self.set_response_headers(str(status_code), response)
+                ref_responses.set(str(status_code), response)
+
     def _get_error_responses(self) -> OrderedDict:
         """
         Add the appropriate possible error responses to the schema.
@@ -273,48 +316,38 @@ class AutoSchema(SwaggerAutoSchema):
         E.g. - we know that HTTP 400 on a POST/PATCH/PUT leads to validation
         errors, 403 to Permission Denied etc.
         """
-        responses = {}
+
+        self.register_error_responses()
 
         action = self.view.action
-
         if (
             action not in DEFAULT_ACTION_ERRORS and self._is_search_view
         ):  # similar to a CREATE
             action = "create"
 
-        exception_klasses = DEFAULT_ACTION_ERRORS.get(action)
-        if exception_klasses is None:
+        # general errors
+        general_klasses = DEFAULT_ACTION_ERRORS.get(action)
+        if general_klasses is None:
             logger.debug("Unknown action %s, no default error responses added")
-            return responses
+            return OrderedDict()
 
-        fout_schema = self.serializer_to_schema(FoutSerializer())
-        for exception_klass in exception_klasses:
-            status_code = exception_klass.status_code
-            responses[status_code] = fout_schema
-
+        exception_klasses = general_klasses[:]
+        # add geo and validation errors
         has_validation_errors = self.get_filter_parameters() or any(
             issubclass(klass, exceptions.ValidationError) for klass in exception_klasses
         )
         if has_validation_errors:
-            schema = self.serializer_to_schema(ValidatieFoutSerializer())
-            responses[exceptions.ValidationError.status_code] = schema
+            exception_klasses.append(exceptions.ValidationError)
 
         if isinstance(self.view, GeoMixin):
-            status_code = PreconditionFailed.status_code
-            responses[status_code] = fout_schema
+            exception_klasses.append(PreconditionFailed)
 
-        # sort by status code
+        status_codes = sorted({e.status_code for e in exception_klasses})
 
         return OrderedDict(
             [
-                (
-                    status_code,
-                    openapi.Response(
-                        description=HTTP_STATUS_CODE_TITLES.get(status_code, ""),
-                        schema=schema,
-                    ),
-                )
-                for status_code, schema in sorted(responses.items())
+                (status_code, ResponseRef(self.components, str(status_code)))
+                for status_code in status_codes
             ]
         )
 
@@ -353,16 +386,36 @@ class AutoSchema(SwaggerAutoSchema):
 
         return _responses
 
+    @staticmethod
+    def set_response_headers(
+        status_code: str, response: Union[openapi.Response, ResponseRef]
+    ):
+        if not isinstance(response, openapi.Response):
+            return
+
+        response.setdefault("headers", OrderedDict())
+        response["headers"][VERSION_HEADER] = version_header
+
+        if status_code == "201":
+            response["headers"]["Location"] = location_header
+
     def get_response_schemas(self, response_serializers):
+        # parent class doesn't support responses as ref objects,
+        # so we temporary remove them
+        ref_responses = OrderedDict()
+        for status_code, serializer in response_serializers.copy().items():
+            if isinstance(serializer, ResponseRef):
+                ref_responses[str(status_code)] = response_serializers.pop(status_code)
+
         responses = super().get_response_schemas(response_serializers)
+
+        # and add them again
+        responses.update(ref_responses)
+        responses = OrderedDict(sorted(responses.items()))
 
         # add the Api-Version headers
         for status_code, response in responses.items():
-            response.setdefault("headers", OrderedDict())
-            response["headers"][VERSION_HEADER] = version_header
-
-            if status_code == "201":
-                response["headers"]["Location"] = location_header
+            self.set_response_headers(status_code, response)
 
         return responses
 
