@@ -13,7 +13,6 @@ Modules reference
    exceptions
    middleware
    viewset-mixins
-   http_caching
    database
    geo
    polymorphism

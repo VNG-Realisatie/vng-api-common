@@ -1,7 +1,7 @@
 # https://pyjwt.readthedocs.io/en/latest/usage.html#reading-headers-without-validation
 # -> we can put the organization/service in the headers itself
 import logging
-from typing import Any, Dict, List, Optional
+from typing import List, Optional, Union
 
 from django.conf import settings
 from django.db import models, transaction
@@ -28,7 +28,7 @@ class JWTAuth:
         self.encoded = encoded
 
     @property
-    def applicaties(self) -> Optional[list]:
+    def applicaties(self) -> Union[list, None]:
         if self.client_id is None:
             return []
 
@@ -88,7 +88,7 @@ class JWTAuth:
         return applicaties
 
     @property
-    def payload(self) -> Optional[Dict[str, Any]]:
+    def payload(self):
         if self.encoded is None:
             return None
 
@@ -111,16 +111,35 @@ class JWTAuth:
             try:
                 client_id = payload["client_id"]
             except KeyError:
-                raise PermissionDenied(
-                    "Client identifier is niet aanwezig in JWT",
-                    code="missing-client-identifier",
-                )
+                try:
+                    header = jwt.get_unverified_header(self.encoded)
+                except jwt.DecodeError:
+                    logger.info("Invalid JWT encountered")
+                    raise PermissionDenied(
+                        _(
+                            "JWT could not be decoded. Possibly you made a copy-paste mistake."
+                        ),
+                        code="jwt-decode-error",
+                    )
+                else:
+                    try:
+                        client_id = header["client_identifier"]
+                    except KeyError:
+                        raise PermissionDenied(
+                            "Client identifier is niet aanwezig in JWT",
+                            code="missing-client-identifier",
+                        )
+                    else:
+                        logger.warning(
+                            _(
+                                "The support of authorization old format will be terminated soon. "
+                                "Please use a new format with the separate Authorization Component"
+                            )
+                        )
 
-            # find client_id in DB and retrieve its secret
+            # find client_id in DB and retrieve it's secret
             try:
-                jwt_secret = JWTSecret.objects.exclude(secret="").get(
-                    identifier=client_id
-                )
+                jwt_secret = JWTSecret.objects.get(identifier=client_id)
             except JWTSecret.DoesNotExist:
                 raise PermissionDenied(
                     "Client identifier bestaat niet", code="invalid-client-identifier"
@@ -137,14 +156,18 @@ class JWTAuth:
                     "Client credentials zijn niet geldig", code="invalid-jwt-signature"
                 )
 
+            if "client_id" not in payload:
+                payload["client_id"] = client_id
+
             self._payload = payload
 
         return self._payload
 
     @property
-    def client_id(self) -> str:
+    def client_id(self):
         if not self.payload:
             return None
+
         return self.payload["client_id"]
 
     def filter_vertrouwelijkheidaanduiding(self, base: QuerySet, value) -> QuerySet:

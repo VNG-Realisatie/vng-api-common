@@ -17,5 +17,5 @@ class JWTCreatePermission(BaseAuthRequired):
         if not hasattr(view, "action"):
             view.action = "create"
 
-        scopes_required = get_required_scopes(request, view)
+        scopes_required = get_required_scopes(view)
         return request.jwt_auth.has_auth(scopes_required, component=ComponentTypes.ac)

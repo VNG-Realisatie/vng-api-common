@@ -28,9 +28,6 @@ BASE_REST_FRAMEWORK = {
         # 'rest_framework.authentication.SessionAuthentication',
         # 'rest_framework.authentication.BasicAuthentication'
     ),
-    # there is no authentication of 'end-users', only authorization (via JWT)
-    # of applications
-    "DEFAULT_AUTHENTICATION_CLASSES": (),
     # 'DEFAULT_PERMISSION_CLASSES': (
     #     'oauth2_provider.contrib.rest_framework.TokenHasReadWriteScope',
     #     # 'rest_framework.permissions.IsAuthenticated',
@@ -61,7 +58,22 @@ BASE_REST_FRAMEWORK = {
 }
 
 BASE_SWAGGER_SETTINGS = {
-    "DEFAULT_GENERATOR_CLASS": "vng_api_common.generators.OpenAPISchemaGenerator",
+    # 'SECURITY_DEFINITIONS': {
+    #     'OAuth2': {
+    #         'type': 'oauth2',
+    #         'flow': 'application',
+    #         'tokenUrl': '/oauth2/token/',
+    #         'scopes': {
+    #             'write': 'Schrijftoegang tot de catalogus en gerelateerde objecten.',
+    #             'read': 'Leestoegang tot de catalogus en gerelateerde objecten.'
+    #         }
+    #     },
+    #     'Bearer': {
+    #         'type': 'apiKey',
+    #         'name': 'Authorization',
+    #         'in': 'header'
+    #     },
+    # },
     "DEFAULT_AUTO_SCHEMA_CLASS": "vng_api_common.inspectors.view.AutoSchema",
     "DEFAULT_INFO": "must.be.overridden",
     "DEFAULT_FIELD_INSPECTORS": (

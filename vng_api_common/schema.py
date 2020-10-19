@@ -78,6 +78,7 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
 
 DefaultSchemaView = get_schema_view(
     # validators=['flex', 'ssv'],
+    generator_class=OpenAPISchemaGenerator,
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
@@ -102,7 +103,7 @@ SPEC_RENDERERS = (
 )
 
 
-class SchemaMixin:
+class SchemaView(DefaultSchemaView):
     """
     Always serve the v3 version, which is kept in version control.
 
@@ -171,7 +172,3 @@ class SchemaMixin:
             server["url"] = request.build_absolute_uri(server_path)
 
         return Response(data=schema, headers={"X-OAS-Version": schema["openapi"]})
-
-
-class SchemaView(SchemaMixin, DefaultSchemaView):
-    pass

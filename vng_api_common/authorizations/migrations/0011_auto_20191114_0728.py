@@ -32,7 +32,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            Renamer("zaaktypes", "catalogi"),
-            Renamer("catalogi", "zaaktypes"),
+            Renamer("zaaktypes", "catalogi"), Renamer("catalogi", "zaaktypes"),
         )
     ]

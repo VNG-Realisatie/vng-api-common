@@ -160,10 +160,7 @@ class NotificationMixin(metaclass=NotificationMixinBase):
                 "Could not deliver message to %s",
                 client.base_url,
                 exc_info=True,
-                extra={
-                    "notification_msg": message,
-                    "status_code": status_code,
-                },
+                extra={"notification_msg": message, "status_code": status_code,},
             )
 
 
