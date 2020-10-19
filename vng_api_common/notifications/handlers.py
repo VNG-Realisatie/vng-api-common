@@ -7,6 +7,7 @@ from ..authorizations.serializers import ApplicatieUuidSerializer
 from ..client import get_client
 from ..constants import CommonResourceAction
 from ..utils import get_uuid_from_path
+from .constants import KANAAL_AUTORISATIES
 
 
 class LoggingHandler:
@@ -61,4 +62,4 @@ class RoutingHandler:
 log = LoggingHandler()
 auth = AuthHandler()
 
-default = RoutingHandler({"autorisaties": auth}, default=log)
+default = RoutingHandler({KANAAL_AUTORISATIES: auth}, default=log)

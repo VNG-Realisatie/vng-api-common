@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-18 07:04-0500\n"
+"POT-Creation-Date: 2020-01-06 04:04-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,59 +20,66 @@ msgstr ""
 
 #: admin.py:18
 msgid "external API"
-msgstr ""
+msgstr "externe API"
 
-#: admin.py:24
+#: admin.py:20
 msgid "credentials"
-msgstr ""
+msgstr "authenticatiegegevens"
 
-#: admin.py:25
+#: admin.py:23
 msgid ""
 "Credentials that indicate how this API or application identifies itself at "
 "the external API."
 msgstr ""
+"Authenticatiegegevens die aangeven hoe deze API of applicatie zichzelf "
+"identificeert bij de externe API."
 
-#: audittrails/models.py:16
+#: audittrails/models.py:18
 msgid "Unieke identificatie van de audit regel."
 msgstr ""
 
-#: audittrails/models.py:20
-msgid "De naam van het component waar de wijziging in is gedaan."
-msgstr ""
-
-#: audittrails/models.py:25
-msgid "De uitgevoerde handeling."
+#: audittrails/models.py:24
+msgid ""
+"Een globaal \"request\" ID om een verzoek door het netwerk heen te traceren."
 msgstr ""
 
 #: audittrails/models.py:30
-msgid "Vriendelijke naam van de actie."
+msgid "De naam van het component waar de wijziging in is gedaan."
 msgstr ""
 
 #: audittrails/models.py:33
+msgid "De uitgevoerde handeling."
+msgstr ""
+
+#: audittrails/models.py:35
+msgid "Vriendelijke naam van de actie."
+msgstr ""
+
+#: audittrails/models.py:39
 msgid "HTTP status code van de API response van de uitgevoerde handeling."
 msgstr ""
 
-#: audittrails/models.py:38
+#: audittrails/models.py:44
 msgid "De URL naar het hoofdobject van een component."
 msgstr ""
 
-#: audittrails/models.py:42
+#: audittrails/models.py:47
 msgid "Het type resource waarop de actie gebeurde."
 msgstr ""
 
-#: audittrails/models.py:46
+#: audittrails/models.py:50
 msgid "De URL naar het object."
 msgstr ""
 
-#: audittrails/models.py:50
+#: audittrails/models.py:53
 msgid "De datum waarop de handeling is gedaan."
 msgstr ""
 
-#: audittrails/models.py:54
+#: audittrails/models.py:56
 msgid "Vriendelijke identificatie van het object."
 msgstr ""
 
-#: audittrails/models.py:59
+#: audittrails/models.py:61
 msgid "Unieke identificatie van de applicatie, binnen de organisatie."
 msgstr ""
 
@@ -80,35 +87,35 @@ msgstr ""
 msgid "Vriendelijke naam van de applicatie."
 msgstr ""
 
-#: audittrails/models.py:69
+#: audittrails/models.py:70
 msgid ""
 "Volledige JSON body van het object zoals dat bestond voordat de actie heeft "
 "plaatsgevonden."
 msgstr ""
 
-#: audittrails/models.py:74
+#: audittrails/models.py:76
 msgid "Volledige JSON body van het object na de actie."
 msgstr ""
 
-#: audittrails/models.py:80
+#: audittrails/models.py:83
 msgid ""
 "Unieke identificatie van de gebruiker die binnen de organisatie herleid kan "
 "worden naar een persoon."
 msgstr ""
 
-#: audittrails/models.py:86
+#: audittrails/models.py:88
 msgid "Vriendelijke naam van de gebruiker."
 msgstr ""
 
-#: audittrails/models.py:89
+#: audittrails/models.py:91
 msgid "toelichting"
 msgstr ""
 
-#: audittrails/models.py:91
+#: audittrails/models.py:93
 msgid "Toelichting waarom de handeling is uitgevoerd."
 msgstr ""
 
-#: authorizations/models.py:16 authorizations/models.py:63
+#: authorizations/models.py:16 authorizations/models.py:67
 msgid "component"
 msgstr ""
 
@@ -124,73 +131,77 @@ msgstr ""
 msgid "Komma-gescheiden lijst van consumer identifiers (hun client_id)."
 msgstr ""
 
-#: authorizations/models.py:41
+#: authorizations/models.py:42
 msgid "Een leesbare representatie van de applicatie, voor eindgebruikers."
 msgstr ""
 
-#: authorizations/models.py:44
+#: authorizations/models.py:46
 msgid "heeft alle autorisaties"
 msgstr ""
 
-#: authorizations/models.py:46
+#: authorizations/models.py:49
 msgid ""
 "Indien alle autorisaties gegeven zijn, dan hoeven deze niet individueel "
 "opgegeven te worden. Gebruik dit alleen als je de consumer helemaal "
 "vertrouwt."
 msgstr ""
 
-#: authorizations/models.py:60
+#: authorizations/models.py:64
 msgid "applicatie"
 msgstr ""
 
-#: authorizations/models.py:64
+#: authorizations/models.py:70
 msgid "Component waarop autorisatie van toepassing is."
 msgstr ""
 
-#: authorizations/models.py:68
+#: authorizations/models.py:74
 msgid "scopes"
 msgstr ""
 
-#: authorizations/models.py:69
+#: authorizations/models.py:75
 msgid "Komma-gescheiden lijst van scope labels."
 msgstr ""
 
-#: authorizations/models.py:74
+#: authorizations/models.py:80
 msgid "zaaktype"
 msgstr ""
 
-#: authorizations/models.py:75
+#: authorizations/models.py:81
 msgid "URL naar het zaaktype waarop de autorisatie van toepassing is."
 msgstr ""
 
-#: authorizations/models.py:81
+#: authorizations/models.py:88
 msgid "informatieobjecttype"
 msgstr ""
 
-#: authorizations/models.py:82
+#: authorizations/models.py:90
 msgid ""
 "URL naar het informatieobjecttype waarop de autorisatie van toepassing is."
 msgstr ""
 
-#: authorizations/models.py:88
+#: authorizations/models.py:98
 msgid "besluittype"
 msgstr ""
 
-#: authorizations/models.py:89
+#: authorizations/models.py:100
 msgid "URL naar het besluittype waarop de autorisatie van toepassing is."
 msgstr ""
 
-#: authorizations/models.py:95
+#: authorizations/models.py:108
 msgid "Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief)."
 msgstr ""
 
-#: authorizations/serializers.py:47
+#: authorizations/serializers.py:37
+msgid "Omschrijving van `component`."
+msgstr ""
+
+#: authorizations/serializers.py:46
 msgid ""
 "Lijst van scope labels. Elke scope geeft toegang tot een set van acties/"
 "operaties, zoals gedocumenteerd bij de betreffende component."
 msgstr ""
 
-#: authorizations/serializers.py:82
+#: authorizations/serializers.py:79
 msgid ""
 "Lijst van consumer identifiers (hun 'client_id'). Een `client_id` mag "
 "slechts bij één applicatie-object voorkomen."
@@ -198,145 +209,162 @@ msgstr ""
 
 #: authorizations/serializers.py:103
 msgid "Either autorisaties or heeft_alle_autorisaties can be specified"
-msgstr ""
+msgstr "Specifieer of autorisaties, of heeft_alle_autorisaties"
 
-#: authorizations/serializers.py:108
+#: authorizations/serializers.py:109
 msgid "Either autorisaties or heeft_alle_autorisaties should be specified"
-msgstr ""
+msgstr "Je moet of autorisaties, of heeft_alle_autorisaties specifiëren"
 
-#: authorizations/validators.py:12
+#: authorizations/validators.py:16
 #, python-brace-format
 msgid "The clientID(s) {client_id} are already used in application(s) {app_id}"
-msgstr ""
+msgstr "De client ID(s) {client_id} wordt al gebruikt in applicatie(s) {app_id}"
 
-#: constants.py:75
+#: authorizations/validators.py:51
+#, python-brace-format
+msgid "This field is required if `component` is {component}"
+msgstr "Dit veld is verplicht als de `component` {component} is"
+
+#: caching/models.py:15
+msgid "etag value"
+msgstr "waarde etag"
+
+#: caching/models.py:17
+msgid "MD5 hash of the resource representation in its current version."
+msgstr "MD5-hash van de resourceweergave in de huidige versie."
+
+#: constants.py:87
 msgid "Besluit"
 msgstr ""
 
-#: constants.py:76
+#: constants.py:90
 msgid "Zaak"
 msgstr ""
 
-#: constants.py:82
+#: constants.py:93
+msgid "Verzoek"
+msgstr ""
+
+#: constants.py:113
 msgid ""
 "Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen "
 "worden naar een archiefbewaarplaats."
 msgstr ""
 
-#: constants.py:87
+#: constants.py:119
 msgid "Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden."
 msgstr ""
 
-#: constants.py:94
+#: constants.py:126
 msgid "De zaak cq. het zaakdossier is nog niet als geheel gearchiveerd."
 msgstr ""
 
-#: constants.py:98
+#: constants.py:131
 msgid ""
 "De zaak cq. het zaakdossier is als geheel niet-wijzigbaar bewaarbaar gemaakt."
 msgstr ""
 
-#: constants.py:102
+#: constants.py:137
 msgid ""
 "De zaak cq. het zaakdossier is als geheel niet-wijzigbaar bewaarbaar gemaakt "
 "maar de vernietigingsdatum kan nog niet bepaald worden."
 msgstr ""
 
-#: constants.py:113
+#: constants.py:149
 msgid ""
 "De zaak cq. het zaakdossier is overgebracht naar een archiefbewaarplaats."
 msgstr ""
 
-#: constants.py:119
+#: constants.py:156
 msgid "Afgehandeld"
 msgstr ""
 
-#: constants.py:120
+#: constants.py:158
 msgid ""
 "De termijn start op de datum waarop de zaak is afgehandeld (ZAAK.Einddatum "
 "in het RGBZ)."
 msgstr ""
 
-#: constants.py:124
+#: constants.py:164
 msgid "Ander datumkenmerk"
 msgstr ""
 
-#: constants.py:125
+#: constants.py:166
 msgid ""
 "De termijn start op de datum die is vastgelegd in een ander datumveld dan de "
 "datumvelden waarop de overige waarden (van deze attribuutsoort) betrekking "
 "hebben. `Objecttype`, `Registratie` en `Datumkenmerk` zijn niet leeg."
 msgstr ""
 
-#: constants.py:132
+#: constants.py:175
 msgid "Eigenschap"
 msgstr ""
 
-#: constants.py:133
+#: constants.py:177
 msgid ""
 "De termijn start op de datum die vermeld is in een zaaktype-specifieke "
 "eigenschap (zijnde een `datumveld`). `ResultaatType.ZaakType` heeft een "
 "`Eigenschap`; `Objecttype`, en `Datumkenmerk` zijn niet leeg."
 msgstr ""
 
-#: constants.py:139
+#: constants.py:185
 msgid "Gerelateerde zaak"
 msgstr ""
 
-#: constants.py:140
+#: constants.py:187
 msgid ""
 "De termijn start op de datum waarop de gerelateerde zaak is afgehandeld "
 "(`ZAAK.Einddatum` of `ZAAK.Gerelateerde_zaak.Einddatum` in het RGBZ). "
 "`ResultaatType.ZaakType` heeft gerelateerd `ZaakType`"
 msgstr ""
 
-#: constants.py:146
-msgid "Hoofzaak"
+#: constants.py:195
+msgid "Hoofdzaak"
 msgstr ""
 
-#: constants.py:147
+#: constants.py:197
 msgid ""
 "De termijn start op de datum waarop de gerelateerde zaak is afgehandeld, "
 "waarvan de zaak een deelzaak is (`ZAAK.Einddatum` van de hoofdzaak in het "
 "RGBZ). ResultaatType.ZaakType is deelzaaktype van ZaakType."
 msgstr ""
 
-#: constants.py:153
+#: constants.py:205
 msgid "Ingangsdatum besluit"
 msgstr ""
 
-#: constants.py:154
+#: constants.py:207
 msgid ""
 "De termijn start op de datum waarop het besluit van kracht wordt (`BESLUIT."
 "Ingangsdatum` in het RGBZ).\tResultaatType.ZaakType heeft relevant "
 "BesluitType"
 msgstr ""
 
-#: constants.py:159
+#: constants.py:214
 msgid "Termijn"
 msgstr ""
 
-#: constants.py:160
+#: constants.py:216
 msgid ""
 "De termijn start een vast aantal jaren na de datum waarop de zaak is "
 "afgehandeld (`ZAAK.Einddatum` in het RGBZ)."
 msgstr ""
 
-#: constants.py:165
+#: constants.py:223
 msgid "Vervaldatum besluit"
 msgstr ""
 
-#: constants.py:166
+#: constants.py:225
 msgid ""
 "De termijn start op de dag na de datum waarop het besluit vervalt (`BESLUIT."
 "Vervaldatum` in het RGBZ). ResultaatType.ZaakType heeft relevant BesluitType"
 msgstr ""
 
-#: constants.py:171
+#: constants.py:232
 msgid "Zaakobject"
 msgstr ""
 
-#: constants.py:172
+#: constants.py:234
 msgid ""
 "De termijn start op de einddatum geldigheid van het zaakobject waarop de "
 "zaak betrekking heeft (bijvoorbeeld de overlijdendatum van een Persoon). M.b."
@@ -345,41 +373,41 @@ msgid ""
 "datum-attribuutsoort van het zaakobjecttype het betreft."
 msgstr ""
 
-#: constants.py:226
+#: constants.py:302
 msgid "Object aangemaakt"
 msgstr ""
 
-#: constants.py:227
+#: constants.py:303
 msgid "Lijst van objecten opgehaald"
 msgstr ""
 
-#: constants.py:228
+#: constants.py:304
 msgid "Object opgehaald"
 msgstr ""
 
-#: constants.py:229
+#: constants.py:305
 msgid "Object verwijderd"
 msgstr ""
 
-#: constants.py:230
+#: constants.py:306
 msgid "Object bijgewerkt"
 msgstr ""
 
-#: constants.py:231
+#: constants.py:307
 msgid "Object deels bijgewerkt"
 msgstr ""
 
-#: constants.py:235
+#: constants.py:311
 msgid "Hoort bij, omgekeerd: kent"
 msgstr ""
 
-#: constants.py:236
+#: constants.py:313
 msgid "Legt vast, omgekeerd: kan vastgelegd zijn als"
 msgstr ""
 
 #: exceptions.py:9
 msgid "A conflict occurred"
-msgstr ""
+msgstr "Er is een conflict"
 
 #: exceptions.py:15
 msgid "The resource is gone"
@@ -397,57 +425,96 @@ msgstr ""
 msgid "BSN"
 msgstr ""
 
-#: fields.py:187
+#: fields.py:190
 msgid "Specifieer de duur als 'DD 00:00'"
 msgstr ""
 
-#: filters.py:76
+#: filters.py:101
 #, python-format
 msgid "Invalid resource type supplied, expected %r"
 msgstr "Invalide resourcetype opgegeven, verwachtte %r"
 
-#: filters.py:85
-msgid "Invalid resource URL supplied"
-msgstr "Ongeldige resource URL opgegeven"
+#: inspectors/cache.py:17
+msgid ""
+"Perform conditional requests. This header should contain one or multiple "
+"ETag values of resources the client has cached. If the current resource ETag "
+"value is in this set, then an HTTP 304 empty body will be returned. See [MDN]"
+"(https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match) "
+"for details."
+msgstr ""
+"Voer een voorwaardelijk verzoek uit. Deze header moet één of meerdere ETag-"
+"waardes bevatten van resources die de consumer gecached heeft. Indien de "
+"waarde van de ETag van de huidige resource voorkomt in deze set, dan "
+"antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://"
+"developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match) voor meer "
+"informatie."
 
-#: inspectors/files.py:38
+#: inspectors/cache.py:26
+msgid "One ETag value"
+msgstr "Eén ETag-waarde"
+
+#: inspectors/cache.py:30
+msgid "Multiple ETag values"
+msgstr "Meerdere ETag-waardes"
+
+#: inspectors/cache.py:49
+msgid ""
+"De ETag berekend op de response body JSON. Indien twee resources exact "
+"dezelfde ETag hebben, dan zijn deze resources identiek aan elkaar. Je kan de "
+"ETag gebruiken om caching te implementeren."
+msgstr ""
+
+#: inspectors/files.py:48
 msgid "Base64 encoded binary content."
 msgstr "Binaire inhoud, in base64 geëncodeerd."
 
-#: inspectors/files.py:44
+#: inspectors/files.py:54
 msgid "Download URL of the binary content."
 msgstr "Download URL van de binaire inhoud."
 
-#: inspectors/query.py:36
+#: inspectors/query.py:40
 #, python-brace-format
 msgid "URL to the related {resource}"
 msgstr "URL naar de/het gerelateerde {resource}"
 
-#: inspectors/view.py:129
+#: inspectors/view.py:117
 msgid "Application that performs request"
 msgstr ""
 "Identificatie van de applicatie die het verzoek stuurt (indien NLX wordt "
 "gebruikt)."
 
-#: inspectors/view.py:136
+#: inspectors/view.py:124
 msgid "Identifier of the user that performs request"
 msgstr ""
 "Identificatie van de gebruiker die het verzoek stuurt (indien NLX wordt "
 "gebruikt)."
 
-#: inspectors/view.py:143
+#: inspectors/view.py:131
 msgid "Explanation why the request is done"
 msgstr "Toelichting waarom een bepaald verzoek wordt gedaan"
 
-#: inspectors/view.py:426
+#: inspectors/view.py:375
+msgid "Content type of the request body."
+msgstr "Content type van de verzoekinhoud."
+
+#: inspectors/view.py:460
+#, python-brace-format
+msgid "De headers voor een specifiek(e) {model_name} opvragen"
+msgstr ""
+
+#: inspectors/view.py:463
+msgid "Vraag de headers op die je bij een GET request zou krijgen."
+msgstr ""
+
+#: inspectors/view.py:478
 msgid "A page number within the paginated result set."
 msgstr "Een pagina binnen de gepagineerde set resultaten."
 
-#: inspectors/view.py:427
+#: inspectors/view.py:479
 msgid "Number of results to return per page."
 msgstr "Het aantal resultaten terug te geven per pagina."
 
-#: middleware.py:71
+#: middleware.py:65
 msgid ""
 "Component could not authenticate against the AC - authorizations could not "
 "be retrieved"
@@ -455,191 +522,250 @@ msgstr ""
 "De component kon zich niet autoriseren met het AC - de autorisaties konden "
 "daardoor niet opgehaald worden."
 
-#: middleware.py:109 middleware.py:122
+#: middleware.py:105 middleware.py:120
 msgid "JWT could not be decoded. Possibly you made a copy-paste mistake."
 msgstr ""
 "Het JWT kon niet gedecodeerd worden. Mogelijks heb je een copy-paste fout "
 "gemaakt"
 
-#: middleware.py:134
+#: middleware.py:135
 msgid ""
 "The support of authorization old format will be terminated soon. Please use "
 "a new format with the separate Authorization Component"
 msgstr ""
+"De ondersteuning van het oude autorisatiesformaat wordt binnenkort gestopt. "
+"Gelieve het nieuwe formaat met de Autorisaties API te gebruiken."
 
-#: models.py:48 models.py:80 notifications/models.py:40
+#: models.py:46 models.py:87 notifications/models.py:43
 msgid "client ID"
 msgstr ""
 
-#: models.py:49
+#: models.py:50
 msgid ""
 "Client ID to identify external API's and applications that access this API."
 msgstr ""
 "Client ID om externe APIs and applicaties te identificeren die toegang "
 "hebben tot deze API."
 
-#: models.py:52 models.py:84
+#: models.py:54 models.py:92
 msgid "secret"
-msgstr ""
+msgstr "geheime sleutel"
 
-#: models.py:53 models.py:85
+#: models.py:54 models.py:92
 msgid "Secret belonging to the client ID."
-msgstr ""
-
-#: models.py:57
-msgid "client credential"
-msgstr ""
+msgstr "Geheime sleutel die bij de client ID hoort."
 
 #: models.py:58
-msgid "client credentials"
-msgstr ""
+msgid "client credential"
+msgstr "Autorisatiegegeven"
 
-#: models.py:72
+#: models.py:59
+msgid "client credentials"
+msgstr "Autorisatiegegevens"
+
+#: models.py:74
 msgid "API-root"
 msgstr ""
 
-#: models.py:73
+#: models.py:77
 msgid ""
 "URL of the external API, ending in a trailing slash. Example: https://"
 "example.com/api/v1/"
 msgstr ""
+"URL van de externe API, eindigend met een slash (/). Bijvoorbeeld: "
+"https://example.com/api/v1/"
 
-#: models.py:76
+#: models.py:81
 msgid "label"
 msgstr ""
 
-#: models.py:77
+#: models.py:84
 msgid "Human readable label of the external API."
-msgstr ""
-
-#: models.py:81
-msgid "Client ID to identify this API at the external API."
-msgstr ""
-
-#: models.py:88
-msgid "user ID"
-msgstr ""
+msgstr "Vriendelijke weergave van de externe API."
 
 #: models.py:89
+msgid "Client ID to identify this API at the external API."
+msgstr "Client ID om deze API te identificeren bij de externe API."
+
+#: models.py:95
+msgid "user ID"
+msgstr "gebruikers ID"
+
+#: models.py:98
 msgid ""
 "User ID to use for the audit trail. Although these external API credentials "
 "are typically used bythis API itself instead of a user, the user ID is "
 "required."
 msgstr ""
+"Gebruikers ID om in de audittrail te gebruiken. Ondanks dat deze externe "
+"API-autorisatiegegevens typisch gebruikt worden door deze API zelf en niet "
+"een eindgebruiker, is het gebruikers ID verplicht."
 
-#: models.py:93
+#: models.py:103
 msgid "user representation"
-msgstr ""
+msgstr "gebruikersweergave"
 
-#: models.py:94
+#: models.py:106
 msgid "Human readable representation of the user."
-msgstr ""
+msgstr "Vriendelijke weergave van de eindgebruiker."
 
-#: models.py:98
+#: models.py:110
 msgid "external API credential"
 msgstr "externe API credential"
 
-#: models.py:99
+#: models.py:111
 msgid "external API credentials"
 msgstr "externe API credentials"
 
-#: models.py:135
+#: models.py:146
 msgid "api root"
 msgstr ""
 
-#: notifications/admin.py:29
+#: notifications/admin.py:33
 msgid "Register the webhooks"
-msgstr ""
+msgstr "Registreer de webhooks"
 
-#: notifications/api/serializers.py:7
+#: notifications/api/serializers.py:10
 msgid "kanaal"
 msgstr ""
 
-#: notifications/api/serializers.py:8
-msgid "URL naar het hoofdobject"
+#: notifications/api/serializers.py:13
+msgid ""
+"De naam van het kanaal (`KANAAL.naam`) waar het bericht op moet worden "
+"gepubliceerd."
 msgstr ""
 
-#: notifications/api/serializers.py:9
+#: notifications/api/serializers.py:18
+msgid "hoofd object"
+msgstr ""
+
+#: notifications/api/serializers.py:20
+msgid ""
+"URL-referentie naar het hoofd object van de publicerende API die betrekking "
+"heeft op de `resource`."
+msgstr ""
+
+#: notifications/api/serializers.py:25
 msgid "resource"
 msgstr ""
 
-#: notifications/api/serializers.py:10
-msgid "URL naar de resource waarover de notificatie gaat"
+#: notifications/api/serializers.py:27
+msgid "De resourcenaam waar de notificatie over gaat."
 msgstr ""
 
-#: notifications/api/serializers.py:11
+#: notifications/api/serializers.py:30
+msgid "resource URL"
+msgstr ""
+
+#: notifications/api/serializers.py:31
+msgid "URL-referentie naar de `resource` van de publicerende API."
+msgstr ""
+
+#: notifications/api/serializers.py:34
 msgid "actie"
 msgstr ""
 
-#: notifications/api/serializers.py:12
+#: notifications/api/serializers.py:37
+msgid ""
+"De actie die door de publicerende API is gedaan. De publicerende API "
+"specificeert de toegestane acties."
+msgstr ""
+
+#: notifications/api/serializers.py:42
 msgid "aanmaakdatum"
+msgstr ""
+
+#: notifications/api/serializers.py:44
+msgid "Datum en tijd waarop de actie heeft plaatsgevonden."
+msgstr ""
+
+#: notifications/api/serializers.py:47
+msgid "kenmerken"
+msgstr ""
+
+#: notifications/api/serializers.py:50
+msgid "kenmerk"
+msgstr ""
+
+#: notifications/api/serializers.py:52
+msgid "Een waarde behorende bij de sleutel."
+msgstr ""
+
+#: notifications/api/serializers.py:55
+msgid ""
+"Mapping van kenmerken (sleutel/waarde) van de notificatie. De publicerende "
+"API specificeert de toegestane kenmerken."
 msgstr ""
 
 #: notifications/apps.py:7
 msgid "Notificaties"
 msgstr ""
 
-#: notifications/models.py:20
+#: notifications/models.py:21
 msgid "Notificatiescomponentconfiguratie"
 msgstr ""
 
-#: notifications/models.py:36
+#: notifications/models.py:40
 msgid "callback url"
 msgstr ""
 
-#: notifications/models.py:37
+#: notifications/models.py:40
 msgid "Where to send the notifications (webhook url)"
 msgstr ""
 
-#: notifications/models.py:41
+#: notifications/models.py:45
 msgid "Client ID to construct the auth token"
 msgstr ""
 
-#: notifications/models.py:44
+#: notifications/models.py:48
 msgid "client secret"
 msgstr ""
 
-#: notifications/models.py:45
+#: notifications/models.py:50
 msgid "Secret to construct the auth token"
 msgstr ""
 
-#: notifications/models.py:49
+#: notifications/models.py:54
 msgid "channels"
 msgstr ""
 
-#: notifications/models.py:50
+#: notifications/models.py:55
 msgid "Comma-separated list of channels to subscribe to"
 msgstr ""
 
-#: notifications/models.py:54
+#: notifications/models.py:59
 msgid "NC subscription"
 msgstr ""
 
-#: notifications/models.py:55
+#: notifications/models.py:62
 msgid "Subscription as it is known in the NC"
 msgstr ""
 
-#: notifications/models.py:59
+#: notifications/models.py:66
 msgid "Webhook subscription"
 msgstr ""
 
-#: notifications/models.py:60
+#: notifications/models.py:67
 msgid "Webhook subscriptions"
 msgstr ""
 
-#: validators.py:111
+#: permissions.py:112
+msgid "The object does not exist in the database"
+msgstr ""
+
+#: validators.py:117
 #, python-brace-format
 msgid ""
 "The URL {url} responded with HTTP {status_code}. Please provide a valid URL."
 msgstr ""
 "De URL {url} gaf als antwoord HTTP {status_code}. Geef een geldige URL op."
 
-#: validators.py:134
+#: validators.py:141
 #, python-brace-format
 msgid "The URL {url} could not be fetched. Exception: {exc}"
 msgstr "De URL {url} kon niet opgehaald worden. Foutmelding: {exc}"
 
-#: validators.py:161
+#: validators.py:169
 #, python-brace-format
 msgid ""
 "The URL {url} resource did not look like a(n) `{resource}`. Please provide a "
@@ -648,105 +774,109 @@ msgstr ""
 "De URL {url} resource lijkt niet op een `{resource}`. Geef een validate URL "
 "op."
 
-#: validators.py:217
+#: validators.py:229
 msgid "Het informatieobject is in het DRC nog niet gerelateerd aan dit object."
 msgstr ""
 
-#: validators.py:259
+#: validators.py:275
 msgid "Ensure this value is not in the future."
 msgstr "Deze waarde mag niet in de toekomst liggen."
 
-#: validators.py:296
+#: validators.py:312
 msgid "Deze identificatie bestaat al binnen de organisatie"
 msgstr ""
 
-#: validators.py:349
+#: validators.py:367
 msgid "Dit veld mag niet gewijzigd worden."
 msgstr ""
 
-#: views.py:101
+#: validators.py:395
+msgid "The resource {url} is not published."
+msgstr "De resource {url} is (nog) niet gepubliceerd."
+
+#: views.py:118
 msgid "Site domain"
 msgstr ""
 
-#: views.py:102
+#: views.py:119
 msgid "HTTPS"
 msgstr ""
 
-#: views.py:119
+#: views.py:136
 msgid "Type of component"
 msgstr ""
 
-#: views.py:120
+#: views.py:137
 msgid "AC"
 msgstr ""
 
-#: views.py:122
+#: views.py:139
 msgid "Credentials for AC"
 msgstr ""
 
-#: views.py:123 views.py:174
+#: views.py:140 views.py:185
 msgid "Configured"
 msgstr ""
 
-#: views.py:123 views.py:174
+#: views.py:140 views.py:185
 msgid "Missing"
 msgstr ""
 
-#: views.py:139
+#: views.py:155
 msgid "Could not connect with AC"
 msgstr ""
 
-#: views.py:142
+#: views.py:159
 #, python-brace-format
 msgid "Cannot retrieve authorizations: HTTP {status_code} - {error_code}"
 msgstr ""
 
-#: views.py:147
+#: views.py:162
 msgid "Can retrieve authorizations"
 msgstr ""
 
-#: views.py:150
+#: views.py:164
 msgid "AC connection and authorizations"
 msgstr ""
 
-#: views.py:171
+#: views.py:182
 msgid "NRC"
 msgstr ""
 
-#: views.py:173
+#: views.py:184
 msgid "Credentials for NRC"
 msgstr ""
 
-#: views.py:187
+#: views.py:198
 msgid "Could not connect with NRC"
 msgstr ""
 
-#: views.py:190
+#: views.py:202
 #, python-brace-format
 msgid "Cannot retrieve kanalen: HTTP {status_code} - {error_code}"
 msgstr ""
 
-#: views.py:195
+#: views.py:205
 msgid "Can retrieve kanalen"
 msgstr ""
 
-#: views.py:198
+#: views.py:207
 msgid "NRC connection and authorizations"
 msgstr ""
 
-#: views.py:219
+#: views.py:225
 msgid "Listens to AC notifications?"
 msgstr ""
 
-#: views.py:220
+#: views.py:225
 msgid "Yes"
 msgstr ""
 
-#: views.py:220
+#: views.py:225
 msgid "No"
 msgstr ""
 
-#: viewsets.py:61
+#: viewsets.py:62
 #, python-format
 msgid "Onbekende query parameters: %s"
 msgstr ""

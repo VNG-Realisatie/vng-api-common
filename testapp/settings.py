@@ -2,6 +2,8 @@ import os
 
 from vng_api_common.conf.api import *  # noqa
 
+SITE_ID = 1
+
 DEBUG = os.getenv("DEBUG", "no").lower() in ["yes", "true", "1"]
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -72,6 +74,8 @@ STATIC_URL = "/static/"
 
 REST_FRAMEWORK = BASE_REST_FRAMEWORK.copy()
 
+SECURITY_DEFINITION_NAME = "JWT-Claims"
+
 SWAGGER_SETTINGS = BASE_SWAGGER_SETTINGS.copy()
 
 SWAGGER_SETTINGS["DEFAULT_FIELD_INSPECTORS"] = SWAGGER_SETTINGS[
@@ -79,5 +83,8 @@ SWAGGER_SETTINGS["DEFAULT_FIELD_INSPECTORS"] = SWAGGER_SETTINGS[
 ][1:]
 
 SWAGGER_SETTINGS.update(
-    {"DEFAULT_INFO": "testapp.schema.info", "SECURITY_DEFINITIONS": {}}
+    {
+        "DEFAULT_INFO": "testapp.schema.info",
+        "SECURITY_DEFINITIONS": {SECURITY_DEFINITION_NAME: {}},
+    }
 )

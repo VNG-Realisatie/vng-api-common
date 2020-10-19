@@ -34,7 +34,7 @@ class FilterInspector(CoreAPICompatInspector):
 
                 help_text = filter_field.extra.get(
                     "help_text",
-                    getattr(model_field, "help_text", "") if model_field else ""
+                    getattr(model_field, "help_text", "") if model_field else "",
                 )
 
                 if isinstance(filter_field, URLModelChoiceFilter):
