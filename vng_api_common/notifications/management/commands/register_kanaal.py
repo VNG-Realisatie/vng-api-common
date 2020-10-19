@@ -52,7 +52,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("kanaal", nargs="?", type=str, help="Name of kanaal")
         parser.add_argument(
-            "--notificaties-api-root",
+            "--nc-api-root",
             help="API root of the NC, default value taken from notifications config",
         )
 
@@ -60,7 +60,7 @@ class Command(BaseCommand):
         config = NotificationsConfig.get_solo()
 
         # use CLI arg or fall back to database config
-        api_root = options["notificaties_api_root"] or config.api_root
+        api_root = options["nc_api_root"] or config.api_root
 
         # use CLI arg or fall back to setting
         kanaal = options["kanaal"] or settings.NOTIFICATIONS_KANAAL

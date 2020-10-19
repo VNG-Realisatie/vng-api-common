@@ -1,11 +1,8 @@
 from django.db import models
 
-from rest_framework.response import Response
-
 
 def is_search_view(view):
-    _action = getattr(view, "action", None)
-    if _action is None:
+    if not hasattr(view, "action"):
         return
     action = getattr(view, view.action)
     return getattr(action, "is_search_action", False)
@@ -29,4 +26,4 @@ class SearchMixin:
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return serializer.data

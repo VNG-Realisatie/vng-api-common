@@ -158,7 +158,7 @@ class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
             values = {choice[0] for choice in field.choices}
             difference = values - values_seen
             if difference:
-                logger.warning(
+                logger.warn(
                     "'%s': not all possible values map to a serializer. Missing %s",
                     name,
                     difference,

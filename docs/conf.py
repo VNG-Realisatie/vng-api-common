@@ -23,7 +23,6 @@ from vng_api_common.conf import api as api_settings  # noqa isort:skip
 
 settings.configure(
     INSTALLED_APPS=[
-        "django.contrib.sites",
         "rest_framework",
         "django_filters",
         "vng_api_common",

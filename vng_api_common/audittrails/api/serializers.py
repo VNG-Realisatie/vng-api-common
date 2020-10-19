@@ -19,7 +19,6 @@ class AuditTrailSerializer(serializers.ModelSerializer):
         fields = (
             "uuid",
             "bron",
-            "request_id",
             "applicatie_id",
             "applicatie_weergave",
             "gebruikers_id",
