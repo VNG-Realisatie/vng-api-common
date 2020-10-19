@@ -8,7 +8,10 @@ from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
 from django.urls import Resolver404, get_resolver, get_script_prefix
+from django.utils.encoding import smart_text
+from django.utils.module_loading import import_string
 
+from rest_framework.utils import formatting
 from zds_client.client import ClientError
 
 from .client import get_client

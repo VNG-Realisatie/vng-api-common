@@ -2,10 +2,11 @@ import logging
 import os
 
 from django.apps import apps
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import render_to_string
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from django.utils.module_loading import import_string
 
 from drf_yasg import openapi
@@ -13,7 +14,6 @@ from drf_yasg.app_settings import swagger_settings
 from drf_yasg.management.commands import generate_swagger
 from rest_framework.settings import api_settings
 
-from ...schema import OpenAPISchemaGenerator
 from ...version import get_major_version
 
 
@@ -85,11 +85,12 @@ class Command(generate_swagger.Command):
         format,
         api_url,
         mock,
+        api_version,
         user,
         private,
+        generator_class_name,
         info=None,
         urlconf=None,
-        *args,
         **options,
     ):
         # disable logs of WARNING and below
@@ -99,6 +100,7 @@ class Command(generate_swagger.Command):
             info = import_string(info)
         else:
             info = getattr(swagger_settings, "DEFAULT_INFO", None)
+
         if not isinstance(info, openapi.Info):
             raise ImproperlyConfigured(
                 'settings.SWAGGER_SETTINGS["DEFAULT_INFO"] should be an '
@@ -110,25 +112,41 @@ class Command(generate_swagger.Command):
                 format = "yaml"
         format = format or "json"
 
-        api_root = reverse("api-root", kwargs={"version": get_major_version()})
+        try:
+            api_root = reverse("api-root", kwargs={"version": get_major_version()})
+        except NoReverseMatch:
+            api_root = reverse("api-root")
+
         api_url = (
             api_url
             or swagger_settings.DEFAULT_API_URL  # noqa
             or f"http://example.com{api_root}"  # noqa
         )
 
-        user = User.objects.get(username=user) if user else None
-        mock = mock or private or (user is not None)
+        if user:
+            # Only call get_user_model if --user was passed in order to
+            # avoid crashing if auth is not configured in the project
+            user = get_user_model().objects.get(username=user)
+
+        mock = mock or private or (user is not None) or (api_version is not None)
         if mock and not api_url:
             raise ImproperlyConfigured(
                 "--mock-request requires an API url; either provide "
                 "the --url argument or set the DEFAULT_API_URL setting"
             )
 
-        request = self.get_mock_request(api_url, format, user) if mock else None
+        request = None
+        if mock:
+            request = self.get_mock_request(api_url, format, user)
 
-        generator = OpenAPISchemaGenerator(info=info, url=api_url, urlconf=urlconf)
-        schema = generator.get_schema(request=request, public=not private)
+        api_version = api_version or api_settings.DEFAULT_VERSION
+        if request and api_version:
+            request.version = api_version
+
+        generator = self.get_schema_generator(
+            generator_class_name, info, settings.API_VERSION, api_url
+        )
+        schema = self.get_schema(generator, request, not private)
 
         if output_file == "-":
             self.write_schema(schema, self.stdout, format)
