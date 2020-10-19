@@ -318,7 +318,10 @@ class AutoSchema(SwaggerAutoSchema):
         E.g. - we know that HTTP 400 on a POST/PATCH/PUT leads to validation
         errors, 403 to Permission Denied etc.
         """
-        
+        # only supports viewsets
+        if not hasattr(self.view, "action"):
+            return OrderedDict()
+
         self.register_error_responses()
 
         action = self.view.action

@@ -6,7 +6,9 @@ from drf_yasg.generators import (
     EndpointEnumerator as _EndpointEnumerator,
     OpenAPISchemaGenerator as _OpenAPISchemaGenerator,
 )
+from drf_yasg.utils import get_consumes, get_produces
 from rest_framework.schemas.utils import is_list_view
+from rest_framework.settings import api_settings
 
 from vng_api_common.utils import get_view_summary
 
@@ -59,12 +61,40 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
         ]
 
     def get_schema(self, request=None, public=False):
-        result = super().get_schema(request, public)
+        """
+        Rewrite parent class to add 'responses' in components
+        """
+        endpoints = self.get_endpoints(request)
+        components = self.reference_resolver_class(
+            openapi.SCHEMA_DEFINITIONS, "responses", force_init=True
+        )
+        self.consumes = get_consumes(api_settings.DEFAULT_PARSER_CLASSES)
+        self.produces = get_produces(api_settings.DEFAULT_RENDERER_CLASSES)
+        paths, prefix = self.get_paths(endpoints, components, request, public)
 
-        # Add the tags on the root schema.
-        result.tags = self.get_tags(request, public)
+        security_definitions = self.get_security_definitions()
+        if security_definitions:
+            security_requirements = self.get_security_requirements(security_definitions)
+        else:
+            security_requirements = None
 
-        return result
+        url = self.url
+        if url is None and request is not None:
+            url = request.build_absolute_uri()
+
+        return openapi.Swagger(
+            info=self.info,
+            paths=paths,
+            consumes=self.consumes or None,
+            produces=self.produces or None,
+            tags=self.get_tags(request, public),
+            security_definitions=security_definitions,
+            security=security_requirements,
+            _url=url,
+            _prefix=prefix,
+            _version=self.version,
+            **dict(components),
+        )
 
     def get_path_parameters(self, path, view_cls):
         """Return a list of Parameter instances corresponding to any templated path variables.
