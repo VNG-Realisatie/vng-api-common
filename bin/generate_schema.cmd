@@ -29,3 +29,9 @@ python src\manage.py generate_swagger^
     --mock-request^
     --url https://example.com/api/v1^
     --to-markdown-table
+
+echo "Generating scopes.md"
+src\manage.py generate_scopes --output-file ./src/scopes.md
+
+echo "Generating kanalen.md"
+src\manage.py generate_kanalen --output-file ./src/kanalen.md
