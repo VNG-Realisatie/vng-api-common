@@ -22,7 +22,7 @@
               <div class="card-body">
                 <h5 class="card-title"><i class="fas fa-wifi"></i> API specificatie</h5>
                 <p class="card-text">Technische API documentatie in de vorm van een Open API Specificatie (OAS).</p>
-                <a href="{% url 'schema-redoc' version=1 %}" class="btn btn-primary">API specificaties</a>
+                <a href="https://redocly.github.io/redoc/?url={{ settings.GITHUB_API_SPEC }}" class="btn btn-primary">API specificaties</a>
               </div>
             </div>
 
@@ -36,7 +36,7 @@
               <div class="card-body">
                 <h5 class="card-title"><i class="fas fa-shield-alt"></i> API scopes</h5>
                 <p class="card-text">Alle scopes binnen deze API voor gebruik in JWT's t.b.v. autorisaties.</p>
-                <a href="{% url 'vng_api_common:scopes' %}" class="btn btn-primary">API scopes</a>
+                <a href="https://github.com/{{ settings.SELF_REPO }}/blob/{{ settings.API_VERSION }}/src/scopes.md" class="btn btn-primary">API scopes</a>
               </div>
             </div>
 
