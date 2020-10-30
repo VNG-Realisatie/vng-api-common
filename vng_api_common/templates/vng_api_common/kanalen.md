@@ -1,5 +1,5 @@
-# {{ project_name }}
-## {{ site_title }}
+## Notificaties
+## Berichtkenmerken voor {{ project_name }} API
 
 Kanalen worden typisch per component gedefinieerd. Producers versturen berichten op bepaalde kanalen,
 consumers ontvangen deze. Consumers abonneren zich via een notificatiecomponent (zoals {{ 'https://notificaties-api.vng.cloud/api/v1/schema/'|urlize }}) op berichten.
