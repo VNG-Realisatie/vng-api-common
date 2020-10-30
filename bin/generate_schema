@@ -32,8 +32,8 @@ src/manage.py generate_swagger \
     --url https://example.com/api/v1 \
     --to-markdown-table
 
-echo "Generating scopes.md"
-src/manage.py generate_scopes --output-file ./src/scopes.md
+echo "Generating autorisaties.md"
+src/manage.py generate_autorisaties --output-file ./src/autorisaties.md
 
-echo "Generating kanalen.md"
-src/manage.py generate_kanalen --output-file ./src/kanalen.md
+echo "Generating notificaties.md"
+src/manage.py generate_notificaties --output-file ./src/notificaties.md
