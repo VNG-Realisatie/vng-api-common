@@ -5,12 +5,12 @@ from django.conf import settings
 from django.core.management import BaseCommand
 from django.template.loader import render_to_string
 
-from ...scopes import SCOPE_REGISTRY
+from ...notifications.kanalen import KANAAL_REGISTRY
 
 
 class Command(BaseCommand):
     """
-    Generate a markdown file documenting the auth scopes of the component
+    Generate a markdown file documenting the notification channels of the component
     """
 
     def add_arguments(self, parser):
@@ -24,16 +24,13 @@ class Command(BaseCommand):
         )
 
     def handle(self, output_file, *args, **options):
-        scopes = sorted(
-            (scope for scope in SCOPE_REGISTRY if not scope.children),
-            key=lambda s: s.label,
-        )
+        kanalen = sorted(KANAAL_REGISTRY, key=lambda s: s.label)
 
-        template = "vng_api_common/scopes.md"
+        template = "vng_api_common/notificaties.md"
         markdown = render_to_string(
             template,
             context={
-                "scopes": scopes,
+                "kanalen": kanalen,
                 "project_name": settings.PROJECT_NAME,
                 "site_title": settings.SITE_TITLE,
             },

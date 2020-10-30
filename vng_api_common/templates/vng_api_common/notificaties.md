@@ -6,7 +6,7 @@ consumers ontvangen deze. Consumers abonneren zich via een notificatiecomponent 
 
 Hieronder staan de kanalen beschreven die door deze component gebruikt worden, met de kenmerken bij elk bericht.
 
-De architectuur van de notificaties staat beschreven op {{ 'https://zaakgerichtwerken.vng.cloud/themas/achtergronddocumentatie/notificaties'|urlize }}.
+De architectuur van de notificaties staat beschreven op {{ 'https://github.com/VNG-Realisatie/notificaties-api'|urlize }}.
 
 {% for kanaal in kanalen %}
 ### {{ kanaal.label }}

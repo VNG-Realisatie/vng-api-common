@@ -3,7 +3,7 @@
 ## Scopes voor {{ project_name }} API
 
 Scopes worden typisch per component gedefinieerd en geven aan welke rechten er zijn.
-Het JWT van de aanroepende component geeft aan welke rechten deze component heeft of wil verkrijgen.
+Zie de repository van de [Autorisaties API](https://github.com/VNG-Realisatie/gemma-autorisatiecomponent)
 
 {% for scope in scopes %}
 ### {{ scope.label }}
