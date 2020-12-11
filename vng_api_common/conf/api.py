@@ -2,6 +2,7 @@ __all__ = [
     "API_VERSION",
     "BASE_REST_FRAMEWORK",
     "BASE_SWAGGER_SETTINGS",
+    "COMMON_SPEC",
     "LINK_FETCHER",
     "ZDS_CLIENT_CLASS",
     "GEMMA_URL_TEMPLATE",
@@ -101,3 +102,7 @@ GEMMA_URL_INFORMATIEMODEL_VERSIE = "2.0"
 
 NOTIFICATIONS_KANAAL = None
 NOTIFICATIONS_DISABLED = False
+
+vng_repo = "VNG-Realisatie/vng-api-common"
+vng_branch = "ref-responses"
+COMMON_SPEC = f"https://raw.githubusercontent.com/{vng_repo}/feature/{vng_branch}/vng_api_common/schemas/common.yaml"

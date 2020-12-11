@@ -19,6 +19,9 @@ echo Converting Swagger to OpenAPI 3.0...
 call npm run convert
 call patch_content_types
 
+echo Generating unresolved OpenAPI 3.0 schema
+call use_external_components
+
 echo Generating resources document
 python src\manage.py generate_swagger^
     ./src/resources.md^
@@ -26,3 +29,9 @@ python src\manage.py generate_swagger^
     --mock-request^
     --url https://example.com/api/v1^
     --to-markdown-table
+
+echo "Generating autorisaties.md"
+src\manage.py generate_autorisaties --output-file ./src/autorisaties.md
+
+echo "Generating notificaties.md"
+src\manage.py generate_notificaties --output-file ./src/notificaties.md

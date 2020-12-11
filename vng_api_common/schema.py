@@ -11,14 +11,51 @@ from drf_yasg.app_settings import swagger_settings
 from drf_yasg.codecs import yaml_sane_dump, yaml_sane_load
 from drf_yasg.generators import OpenAPISchemaGenerator as _OpenAPISchemaGenerator
 from drf_yasg.renderers import SwaggerJSONRenderer, SwaggerYAMLRenderer, _SpecRenderer
+from drf_yasg.utils import get_consumes, get_produces
 from drf_yasg.views import get_schema_view
 from rest_framework import exceptions, permissions
 from rest_framework.response import Response
+from rest_framework.settings import api_settings
 
 logger = logging.getLogger(__name__)
 
 
 class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
+    def get_schema(self, request=None, public=False):
+        """
+        Rewrite parent class to add 'responses' in components
+        """
+        endpoints = self.get_endpoints(request)
+        components = self.reference_resolver_class(
+            openapi.SCHEMA_DEFINITIONS, "responses", force_init=True
+        )
+        self.consumes = get_consumes(api_settings.DEFAULT_PARSER_CLASSES)
+        self.produces = get_produces(api_settings.DEFAULT_RENDERER_CLASSES)
+        paths, prefix = self.get_paths(endpoints, components, request, public)
+
+        security_definitions = self.get_security_definitions()
+        if security_definitions:
+            security_requirements = self.get_security_requirements(security_definitions)
+        else:
+            security_requirements = None
+
+        url = self.url
+        if url is None and request is not None:
+            url = request.build_absolute_uri()
+
+        return openapi.Swagger(
+            info=self.info,
+            paths=paths,
+            consumes=self.consumes or None,
+            produces=self.produces or None,
+            security_definitions=security_definitions,
+            security=security_requirements,
+            _url=url,
+            _prefix=prefix,
+            _version=self.version,
+            **dict(components),
+        )
+
     def get_path_parameters(self, path, view_cls):
         """Return a list of Parameter instances corresponding to any templated path variables.
 
