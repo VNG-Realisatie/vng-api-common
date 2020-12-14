@@ -1,3 +1,5 @@
+import warnings
+
 from django.utils.translation import ugettext_lazy as _
 
 from djchoices import ChoiceItem, DjangoChoices
@@ -81,9 +83,27 @@ class RolTypes(DjangoChoices):
     medewerker = ChoiceItem("medewerker", "Medewerker")
 
 
+BESLUIT_CONST = "besluit"
+BESLUIT_CHOICE = ChoiceItem(BESLUIT_CONST, _("Besluit"))
+
+ZAAK_CONST = "zaak"
+ZAAK_CHOICE = ChoiceItem(ZAAK_CONST, _("Zaak"))
+
+VERZOEK_CONST = "verzoek"
+VERZOEK_CHOICE = ChoiceItem(VERZOEK_CONST, _("Verzoek"))
+
+
 class ObjectTypes(DjangoChoices):
-    besluit = ChoiceItem("besluit", _("Besluit"))
-    zaak = ChoiceItem("zaak", _("Zaak"))
+    besluit = BESLUIT_CHOICE
+    zaak = ZAAK_CHOICE
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "The use of ObjectTypes is deprecated. Create your own "
+            "enumeration based on the relevant objects you need to support.",
+            DeprecationWarning,
+        )
+        super().__init__(*args, **kwargs)
 
 
 class Archiefnominatie(DjangoChoices):
@@ -275,6 +295,7 @@ class ComponentTypes(DjangoChoices):
     ztc = ChoiceItem("ztc", "Catalogi API")
     drc = ChoiceItem("drc", "Documenten API")
     brc = ChoiceItem("brc", "Besluiten API")
+    kic = ChoiceItem("kic", "Klantinteracties API")
 
 
 class CommonResourceAction(DjangoChoices):

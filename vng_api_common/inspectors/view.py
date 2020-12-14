@@ -2,7 +2,7 @@ import inspect
 import logging
 from collections import OrderedDict
 from itertools import chain
-from typing import Union
+from typing import Optional, Tuple, Union
 
 from django.apps import apps
 from django.conf import settings
@@ -10,6 +10,7 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 
 from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
+from drf_yasg.utils import get_consumes
 from rest_framework import exceptions, serializers, status, viewsets
 
 from ..constants import HEADER_APPLICATION, HEADER_AUDIT, HEADER_USER_ID, VERSION_HEADER
@@ -22,6 +23,7 @@ from ..serializers import (
     ValidatieFoutSerializer,
     add_choice_values_help_text,
 )
+from .cache import CACHE_REQUEST_HEADERS, get_cache_headers, has_cache_header
 
 logger = logging.getLogger(__name__)
 
@@ -316,6 +318,9 @@ class AutoSchema(SwaggerAutoSchema):
         E.g. - we know that HTTP 400 on a POST/PATCH/PUT leads to validation
         errors, 403 to Permission Denied etc.
         """
+        # only supports viewsets
+        if not hasattr(self.view, "action"):
+            return OrderedDict()
 
         self.register_error_responses()
 
@@ -361,17 +366,23 @@ class AutoSchema(SwaggerAutoSchema):
 
         # inject any headers
         _responses = OrderedDict()
+        custom_headers = OrderedDict()
         for status_, schema in responses.items():
-            custom_headers = (
-                self.probe_inspectors(
-                    self.field_inspectors,
-                    "get_response_headers",
-                    serializer,
-                    {"field_inspectors": self.field_inspectors},
-                    status=status_,
+            if serializer is not None:
+                custom_headers = (
+                    self.probe_inspectors(
+                        self.field_inspectors,
+                        "get_response_headers",
+                        serializer,
+                        {"field_inspectors": self.field_inspectors},
+                        status=status_,
+                    )
+                    or OrderedDict()
                 )
-                or None
-            )
+
+            # add the cache headers, if applicable
+            for header, header_schema in get_cache_headers(self.view).items():
+                custom_headers[header] = header_schema
 
             assert isinstance(schema, openapi.Schema.OR_REF) or schema == ""
             response = openapi.Response(
@@ -419,22 +430,47 @@ class AutoSchema(SwaggerAutoSchema):
 
         return responses
 
+    def get_request_content_type_header(self) -> Optional[openapi.Parameter]:
+        if self.method not in ["POST", "PUT", "PATCH"]:
+            return None
+
+        consumes = get_consumes(self.get_parser_classes())
+        return openapi.Parameter(
+            name="Content-Type",
+            in_=openapi.IN_HEADER,
+            type=openapi.TYPE_STRING,
+            required=True,
+            enum=consumes,
+            description=_("Content type of the request body."),
+        )
+
     def add_manual_parameters(self, parameters):
         base = super().add_manual_parameters(parameters)
+
+        content_type = self.get_request_content_type_header()
+        if content_type is not None:
+            base = [content_type] + base
+
         if self._is_search_view:
             serializer = self.get_request_serializer()
         else:
             serializer = self.get_request_serializer() or self.get_view_serializer()
-        extra = (
-            self.probe_inspectors(
-                self.field_inspectors,
-                "get_request_header_parameters",
-                serializer,
-                {"field_inspectors": self.field_inspectors},
+
+        extra = []
+        if serializer is not None:
+            extra = (
+                self.probe_inspectors(
+                    self.field_inspectors,
+                    "get_request_header_parameters",
+                    serializer,
+                    {"field_inspectors": self.field_inspectors},
+                )
+                or []
             )
-            or []
-        )
         result = base + extra
+
+        if has_cache_header(self.view):
+            result += CACHE_REQUEST_HEADERS
 
         if _view_supports_audittrail(self.view):
             result += AUDIT_REQUEST_HEADERS
@@ -466,7 +502,7 @@ class AutoSchema(SwaggerAutoSchema):
 
         required_scopes = []
         for perm in scope_permissions:
-            scopes = get_required_scopes(self.view)
+            scopes = get_required_scopes(self.request, self.view)
             if scopes is None:
                 continue
             required_scopes.append(scopes)
@@ -478,6 +514,27 @@ class AutoSchema(SwaggerAutoSchema):
 
         # operation level security
         return [{settings.SECURITY_DEFINITION_NAME: scopes}]
+
+    # all of these break if you accept method HEAD because the view.action is None
+    def is_list_view(self) -> bool:
+        if self.method == "HEAD":
+            return False
+        return super().is_list_view()
+
+    def get_summary_and_description(self) -> Tuple[str, str]:
+        if self.method != "HEAD":
+            return super().get_summary_and_description()
+
+        default_description = _(
+            "De headers voor een specifiek(e) {model_name} opvragen"
+        ).format(model_name=self.model._meta.model_name.upper())
+        default_summary = _(
+            "Vraag de headers op die je bij een GET request zou krijgen."
+        )
+
+        description = self.overrides.get("operation_description", default_description)
+        summary = self.overrides.get("operation_summary", default_summary)
+        return description, summary
 
     # patch around drf-yasg not taking overrides into account
     # TODO: contribute back in PR

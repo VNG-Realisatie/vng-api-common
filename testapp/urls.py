@@ -6,11 +6,12 @@ from rest_framework import routers
 
 from .schema import SchemaView
 from .views import NotificationView
-from .viewsets import GroupViewSet
+from .viewsets import GroupViewSet, HobbyViewSet, PersonViewSet
 
-router = routers.DefaultRouter()
+router = routers.DefaultRouter(trailing_slash=False)
+router.register("persons", PersonViewSet)
+router.register("hobbies", HobbyViewSet)
 router.register("groups", GroupViewSet)
-
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -33,6 +34,7 @@ urlpatterns = [
             + router.urls
         ),
     ),
+    path("api/", include(router.urls)),
     path("api/", include("vng_api_common.api.urls")),
     path("ref/", include("vng_api_common.urls")),
     # this is a hack to get the parameter to show up in the API spec

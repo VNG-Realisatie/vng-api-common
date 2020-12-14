@@ -2,7 +2,7 @@
 VNG-API-common - Tooling voor RESTful APIs
 ==========================================
 
-|build-status| |coverage| |docs|
+|build-status| |coverage| |docs| |black|
 
 |python-versions| |django-versions| |pypi-version|
 
@@ -83,5 +83,8 @@ Features
 
 .. |pypi-version| image:: https://img.shields.io/pypi/v/vng-api-common.svg
     :target: https://pypi.org/project/vng-api-common/
+
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
 
 .. _documentatie: https://vng-api-common.readthedocs.io/en/latest/?badge=latest

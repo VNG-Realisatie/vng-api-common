@@ -30,6 +30,7 @@ class ZDSSchemaConfig(AppConfig):
 
     def ready(self):
         from . import checks  # noqa
+        from .caching import signals  # noqa
 
         patch_duration_type()
         register_serializer_field()
