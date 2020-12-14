@@ -119,7 +119,7 @@ Run-time functionality
 
 See the rest of the documentation for the available modules and packages.
 
-.. _ZRC: https://github.com/VNG-Realisatie/gemma-zaakregistratiecomponent
-.. _DRC: https://github.com/VNG-Realisatie/gemma-documentregistratiecomponent
-.. _ZTC: https://github.com/VNG-Realisatie/gemma-zaaktypecatalogus
-.. _BRC: https://github.com/VNG-Realisatie/gemma-besluitregistratiecomponent
+.. _ZRC: https://github.com/VNG-Realisatie/zaken-api
+.. _DRC: https://github.com/VNG-Realisatie/documenten-api
+.. _ZTC: https://github.com/VNG-Realisatie/catalogi-api
+.. _BRC: https://github.com/VNG-Realisatie/besluiten-api
