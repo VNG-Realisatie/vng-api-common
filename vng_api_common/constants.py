@@ -289,13 +289,13 @@ class ZaakobjectTypes(DjangoChoices):
 
 
 class ComponentTypes(DjangoChoices):
-    ac = ChoiceItem("ac", "Autorisatiecomponent")
-    nrc = ChoiceItem("nrc", "Notificatierouteringcomponent")
-    zrc = ChoiceItem("zrc", "Zaakregistratiecomponent")
-    ztc = ChoiceItem("ztc", "Zaaktypecatalogus")
-    drc = ChoiceItem("drc", "Documentregistratiecomponent")
-    brc = ChoiceItem("brc", "Besluitregistratiecomponent")
-    kic = ChoiceItem("kic", "Klantinteractiescomponent")
+    ac = ChoiceItem("ac", "Autorisaties API")
+    nrc = ChoiceItem("nrc", "Notificaties API")
+    zrc = ChoiceItem("zrc", "Zaken API")
+    ztc = ChoiceItem("ztc", "Catalogi API")
+    drc = ChoiceItem("drc", "Documenten API")
+    brc = ChoiceItem("brc", "Besluiten API")
+    kic = ChoiceItem("kic", "Klantinteracties API")
 
 
 class CommonResourceAction(DjangoChoices):
