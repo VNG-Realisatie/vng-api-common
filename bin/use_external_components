@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Run this script from the root of the repository
+
+set -e
+
+if [[ -z "$VIRTUAL_ENV" ]]; then
+    echo "You need to activate your virtual env before running this script"
+    exit 1
+fi
+
+source_file=${1:-./src/openapi.yaml}
+output=${2:-./src/openapi_unresolved.yaml}
+manage=${MANAGE:-src/manage.py}
+
+python $manage use_external_components $source_file $output

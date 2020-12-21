@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 import requests
 from rest_framework import serializers, validators
 
+from .client import get_client
 from .constants import RSIN_LENGTH
 from .oas import fetcher, obj_has_shape
 
@@ -239,14 +240,11 @@ class ObjectInformatieObjectValidator:
         self.request = serializer.context["request"]
 
     def __call__(self, informatieobject: str):
-        from .models import APICredential
-
         object_url = self.parent_object.get_absolute_api_url(self.request)
 
         # dynamic so that it can be mocked in tests easily
-        Client = import_string(settings.ZDS_CLIENT_CLASS)
-        client = Client.from_url(informatieobject)
-        client.auth = APICredential.get_auth(informatieobject)
+        client = get_client(informatieobject)
+
         try:
             oios = client.list(
                 "objectinformatieobject",
