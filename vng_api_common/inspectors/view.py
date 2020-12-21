@@ -13,7 +13,7 @@ from drf_yasg.inspectors import SwaggerAutoSchema
 from drf_yasg.utils import get_consumes
 from rest_framework import exceptions, serializers, status, viewsets
 
-from ..constants import HEADER_APPLICATION, HEADER_AUDIT, HEADER_USER_ID, VERSION_HEADER
+from ..constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
 from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
 from ..permissions import BaseAuthRequired, get_required_scopes
@@ -115,18 +115,13 @@ AUDIT_TRAIL_ENABLED = apps.is_installed("vng_api_common.audittrails")
 
 AUDIT_REQUEST_HEADERS = [
     openapi.Parameter(
-        name=HEADER_APPLICATION,
+        name=HEADER_LOGRECORD_ID,
         type=openapi.TYPE_STRING,
         in_=openapi.IN_HEADER,
         required=False,
-        description=ugettext("Application that performs request"),
-    ),
-    openapi.Parameter(
-        name=HEADER_USER_ID,
-        type=openapi.TYPE_STRING,
-        in_=openapi.IN_HEADER,
-        required=False,
-        description=ugettext("Identifier of the user that performs request"),
+        description=ugettext(
+            "Identifier of the request, traceable throughout the network"
+        ),
     ),
     openapi.Parameter(
         name=HEADER_AUDIT,
