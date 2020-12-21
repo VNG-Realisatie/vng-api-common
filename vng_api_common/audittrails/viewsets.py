@@ -69,7 +69,6 @@ class AuditTrailMixin:
 
         trail = AuditTrail(
             bron=self.audit.component_name,
-            request_id=request_id,
             logrecord_id=logrecord_id,
             applicatie_id=app_id,
             applicatie_weergave=app_presentation,
