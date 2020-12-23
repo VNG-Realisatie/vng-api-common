@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, TYPE_CHECKING
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -10,15 +10,17 @@ from rest_framework import permissions
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.request import Request
 from rest_framework.serializers import ValidationError
-from rest_framework.views import APIView
-from rest_framework.viewsets import ViewSetMixin
 
 from .scopes import Scope
 from .utils import get_resource_for_path
 
+if TYPE_CHECKING:
+    from rest_framework.views import APIView # noqa
+    from rest_framework.viewsets import ViewSetMixin # noqa
+
 
 def get_required_scopes(
-    request: Request, view: Union[APIView, ViewSetMixin]
+    request: Request, view: Union["APIView", "ViewSetMixin"]
 ) -> Union[Scope, None]:
     if not hasattr(view, "required_scopes"):
         raise ImproperlyConfigured(
@@ -33,6 +35,8 @@ def get_required_scopes(
     # auto-generated head method doesn't get an action assigned
     if action is None and detail and view.request.method == "HEAD":
         action = "retrieve"
+
+    from rest_framework.viewsets import ViewSetMixin
 
     # if action is not set, fall back to the request method
     if action is None and not isinstance(view, ViewSetMixin):
@@ -129,7 +133,7 @@ class BaseAuthRequired(permissions.BasePermission):
         return getattr(main_obj, field)
 
     def _has_create_permission(
-        self, request: Request, view: APIView, scopes_required: Scope
+        self, request: Request, view: "APIView", scopes_required: Scope
     ) -> bool:
         try:
             main_obj = self._get_obj(view, request)
