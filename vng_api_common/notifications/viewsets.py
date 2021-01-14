@@ -165,6 +165,8 @@ class NotificationMixin(metaclass=NotificationMixinBase):
         # build the client from the singleton config. This will raise an
         # exception if the config is not complete. We want this to hard-fail!
         client = NotificationsConfig.get_client()
+        if client is None:
+            raise RuntimeError("Could not build a client for Notifications API")
 
         # We've performed all the work that can raise uncaught exceptions that we can
         # still put inside an atomic transaction block. Next, we schedule the actual
@@ -185,10 +187,7 @@ class NotificationMixin(metaclass=NotificationMixinBase):
                     "Could not deliver message to %s",
                     client.base_url,
                     exc_info=True,
-                    extra={
-                        "notification_msg": message,
-                        "status_code": status_code,
-                    },
+                    extra={"notification_msg": message, "status_code": status_code,},
                 )
 
         self.schedule_notification(_send)
