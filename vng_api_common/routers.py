@@ -26,7 +26,7 @@ class ZDSNestedRegisteringMixin:
         if not nested:
             return
 
-        base_name = kwargs.get("base_name", self.get_default_base_name(viewset))
+        base_name = kwargs.get("base_name", self.get_default_basename(viewset))
 
         self._nested_router = NestedSimpleRouter(
             self, prefix, lookup=base_name, trailing_slash=False
