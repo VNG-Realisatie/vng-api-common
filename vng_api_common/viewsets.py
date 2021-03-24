@@ -4,23 +4,10 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.settings import api_settings
+from rest_framework_nested.viewsets import NestedViewSetMixin  # noqa
 
 from .filters import Backend
-from .utils import lookup_kwargs_to_filters, underscore_to_camel
-
-
-class NestedViewSetMixin:
-    def get_queryset(self):
-        """
-        Filter the ``QuerySet`` based on its parents.
-        """
-        queryset = super().get_queryset()
-        serializer_class = self.get_serializer_class()
-
-        lookup_kwargs = getattr(serializer_class, "parent_lookup_kwargs", {})
-        filters = lookup_kwargs_to_filters(lookup_kwargs, self.kwargs)
-
-        return queryset.filter(**filters)
+from .utils import underscore_to_camel
 
 
 class CheckQueryParamsMixin:
