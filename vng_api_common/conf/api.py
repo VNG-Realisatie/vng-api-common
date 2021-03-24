@@ -92,6 +92,7 @@ BASE_SWAGGER_SETTINGS = {
         "drf_yasg.inspectors.JSONFieldInspector",
         "drf_yasg.inspectors.HiddenFieldInspector",
         "drf_yasg.inspectors.RelatedFieldInspector",
+        "drf_yasg.inspectors.SerializerMethodFieldInspector",
         "drf_yasg.inspectors.SimpleFieldInspector",
         "drf_yasg.inspectors.StringDefaultFieldInspector",
     ),

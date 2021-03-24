@@ -2,7 +2,7 @@ import logging
 
 from drf_yasg import openapi
 from drf_yasg.inspectors.base import NotHandled
-from drf_yasg.inspectors.field import FieldInspector
+from drf_yasg.inspectors.field import FieldInspector, InlineSerializerInspector
 from rest_framework import serializers
 
 from ..serializers import GegevensGroepSerializer, LengthHyperlinkedRelatedField
@@ -106,7 +106,7 @@ class HyperlinkedRelatedFieldInspector(FieldInspector):
         return NotHandled
 
 
-class GegevensGroepInspector(FieldInspector):
+class GegevensGroepInspector(InlineSerializerInspector):
     def process_result(self, result, method_name, obj, **kwargs):
         if not isinstance(result, openapi.Schema.OR_REF):
             return result
