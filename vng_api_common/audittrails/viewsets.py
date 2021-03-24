@@ -205,6 +205,7 @@ class AuditTrailViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
                 raise Http404
         return qs
 
+    @property
     def parent_lookup_kwargs(self):
         return {
             self.main_resource_lookup_field: "hoofd_object__contains",
