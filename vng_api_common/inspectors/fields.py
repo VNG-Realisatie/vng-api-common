@@ -2,7 +2,7 @@ import logging
 
 from drf_yasg import openapi
 from drf_yasg.inspectors.base import NotHandled
-from drf_yasg.inspectors.field import FieldInspector, InlineSerializerInspector
+from drf_yasg.inspectors.field import FieldInspector
 from rest_framework import serializers
 
 from ..serializers import GegevensGroepSerializer, LengthHyperlinkedRelatedField
@@ -54,23 +54,6 @@ class ReadOnlyFieldInspector(FieldInspector):
                 logger.debug("Missing type mapping for %r", return_type)
 
             return SwaggerType(type=type_ or openapi.TYPE_STRING)
-
-        return NotHandled
-
-
-class JSONFieldInspector(FieldInspector):
-    def field_to_swagger_object(
-        self, field, swagger_object_type, use_references, **kwargs
-    ):  # pragma: no cover
-        SwaggerType, ChildSwaggerType = self._get_partial_types(
-            field, swagger_object_type, use_references, **kwargs
-        )
-
-        if (
-            isinstance(field, serializers.JSONField)
-            and swagger_object_type == openapi.Schema
-        ):
-            return SwaggerType(type=openapi.TYPE_OBJECT)
 
         return NotHandled
 
