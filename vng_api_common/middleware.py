@@ -97,7 +97,11 @@ class JWTAuth:
 
             # jwt check
             try:
-                payload = jwt.decode(self.encoded, verify=False)
+                payload = jwt.decode(
+                    self.encoded,
+                    algorithms=["HS256"],
+                    options={"verify_signature": False},
+                )
             except jwt.DecodeError:
                 logger.info("Invalid JWT encountered")
                 raise PermissionDenied(
