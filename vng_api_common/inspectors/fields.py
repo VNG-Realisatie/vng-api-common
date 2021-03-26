@@ -58,23 +58,6 @@ class ReadOnlyFieldInspector(FieldInspector):
         return NotHandled
 
 
-class JSONFieldInspector(FieldInspector):
-    def field_to_swagger_object(
-        self, field, swagger_object_type, use_references, **kwargs
-    ):  # pragma: no cover
-        SwaggerType, ChildSwaggerType = self._get_partial_types(
-            field, swagger_object_type, use_references, **kwargs
-        )
-
-        if (
-            isinstance(field, serializers.JSONField)
-            and swagger_object_type == openapi.Schema
-        ):
-            return SwaggerType(type=openapi.TYPE_OBJECT)
-
-        return NotHandled
-
-
 class HyperlinkedIdentityFieldInspector(FieldInspector):
     def field_to_swagger_object(
         self, field, swagger_object_type, use_references, **kwargs
@@ -123,7 +106,7 @@ class HyperlinkedRelatedFieldInspector(FieldInspector):
         return NotHandled
 
 
-class GegevensGroepInspector(FieldInspector):
+class GegevensGroepInspector(InlineSerializerInspector):
     def process_result(self, result, method_name, obj, **kwargs):
         if not isinstance(result, openapi.Schema.OR_REF):
             return result

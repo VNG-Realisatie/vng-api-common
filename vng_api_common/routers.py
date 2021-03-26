@@ -1,3 +1,5 @@
+import warnings
+
 from rest_framework.routers import APIRootView as _APIRootView
 from rest_framework_nested import routers
 
@@ -26,7 +28,15 @@ class ZDSNestedRegisteringMixin:
         if not nested:
             return
 
-        base_name = kwargs.get("base_name") or self.get_default_base_name(viewset)
+        if "base_name" in kwargs:
+            warnings.warn(
+                "base_name kwarg is deprecated, use basename instead",
+                DeprecationWarning,
+            )
+            kwargs["basename"] = kwargs["base_name"]
+            del kwargs["base_name"]
+
+        base_name = kwargs.get("basename") or self.get_default_basename(viewset)
 
         self._nested_router = NestedSimpleRouter(
             self, prefix, lookup=base_name, trailing_slash=False

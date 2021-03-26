@@ -1,4 +1,5 @@
 import logging
+from contextlib import contextmanager
 from typing import Dict, List, Union
 from urllib.parse import urlparse
 
@@ -18,6 +19,18 @@ from .kanalen import Kanaal
 from .models import NotificationsConfig
 
 logger = logging.getLogger(__name__)
+
+
+@contextmanager
+def _fake_atomic():
+    yield
+
+
+def conditional_atomic(wrap: bool = True):
+    """
+    Wrap either a fake or real atomic transaction context manager.
+    """
+    return transaction.atomic if wrap else _fake_atomic
 
 
 class NotificationMixinBase(type):
@@ -50,6 +63,7 @@ class NotificationMixinBase(type):
 class NotificationMixin(metaclass=NotificationMixinBase):
     notifications_kanaal = None  # must be set be subclasses
     notifications_main_resource_key = None
+    notifications_wrap_in_atomic_block = True
 
     def get_kanaal(self):
         if not self.notifications_kanaal:
@@ -151,48 +165,70 @@ class NotificationMixin(metaclass=NotificationMixinBase):
         # build the client from the singleton config. This will raise an
         # exception if the config is not complete. We want this to hard-fail!
         client = NotificationsConfig.get_client()
-        try:
-            client.create("notificaties", message)
-        # any unexpected errors should show up in error-monitoring, so we only
-        # catch ClientError exceptions
-        except ClientError:
-            logger.warning(
-                "Could not deliver message to %s",
-                client.base_url,
-                exc_info=True,
-                extra={
-                    "notification_msg": message,
-                    "status_code": status_code,
-                },
-            )
+        if client is None:
+            raise RuntimeError("Could not build a client for Notifications API")
+
+        # We've performed all the work that can raise uncaught exceptions that we can
+        # still put inside an atomic transaction block. Next, we schedule the actual
+        # sending block, which allows failures that are logged. Any unexpected errors
+        # here will still cause the transaction to be comitted (in the default behaviour),
+        # but the exception will be visible in the error monitoring (such as Sentry).
+        #
+        # The _send function is passed down to the scheduler, which is by default to
+        # execute it on transaction commit.
+
+        def _send():
+            try:
+                client.create("notificaties", message)
+            # any unexpected errors should show up in error-monitoring, so we only
+            # catch ClientError exceptions
+            except ClientError:
+                logger.warning(
+                    "Could not deliver message to %s",
+                    client.base_url,
+                    exc_info=True,
+                    extra={
+                        "notification_msg": message,
+                        "status_code": status_code,
+                    },
+                )
+
+        self.schedule_notification(_send)
+
+    @staticmethod
+    def schedule_notification(send_function: callable):
+        """
+        Ensure that a notification is scheduled to be sent.
+        """
+        transaction.on_commit(send_function)
 
 
 class NotificationCreateMixin(NotificationMixin):
-    @transaction.atomic
     def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
-        self.notify(response.status_code, response.data)
-        return response
+        with conditional_atomic(self.notifications_wrap_in_atomic_block)():
+            response = super().create(request, *args, **kwargs)
+            self.notify(response.status_code, response.data)
+            return response
 
 
 class NotificationUpdateMixin(NotificationMixin):
-    @transaction.atomic
     def update(self, request, *args, **kwargs):
-        response = super().update(request, *args, **kwargs)
-        self.notify(response.status_code, response.data)
-        return response
+        with conditional_atomic(self.notifications_wrap_in_atomic_block)():
+            response = super().update(request, *args, **kwargs)
+            self.notify(response.status_code, response.data)
+            return response
 
 
 class NotificationDestroyMixin(NotificationMixin):
-    @transaction.atomic
     def destroy(self, request, *args, **kwargs):
-        # get data via serializer
-        instance = self.get_object()
-        data = self.get_serializer(instance).data
+        with conditional_atomic(self.notifications_wrap_in_atomic_block)():
+            # get data via serializer
+            instance = self.get_object()
+            data = self.get_serializer(instance).data
 
-        response = super().destroy(request, *args, **kwargs)
-        self.notify(response.status_code, data, instance=instance)
-        return response
+            response = super().destroy(request, *args, **kwargs)
+            self.notify(response.status_code, data, instance=instance)
+            return response
 
 
 class NotificationViewSetMixin(
