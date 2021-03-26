@@ -196,6 +196,9 @@ class ResponseRef(openapi._Ref):
 class AutoSchema(SwaggerAutoSchema):
     @property
     def model(self):
+        if hasattr(self.view, "queryset") and self.view.queryset is not None:
+            return self.view.queryset.model
+
         if hasattr(self.view, "get_queryset"):
             qs = self.view.get_queryset()
             return qs.model

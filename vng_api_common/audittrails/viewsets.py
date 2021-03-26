@@ -195,7 +195,11 @@ class AuditTrailViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     main_resource_lookup_field = None  # Must be overwritten by subclasses
 
     def get_queryset(self):
+        if not self.kwargs:  # this happens during schema generation, and causes crashes
+            return self.queryset.all()
+
         qs = super().get_queryset()
+
         identifier = self.kwargs.get(self.main_resource_lookup_field)
         if identifier:
             filtered = qs.filter(hoofd_object__contains=identifier)
