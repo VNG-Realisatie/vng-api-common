@@ -1,4 +1,4 @@
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -15,8 +15,8 @@ from .scopes import Scope
 from .utils import get_resource_for_path
 
 if TYPE_CHECKING:
-    from rest_framework.views import APIView # noqa
-    from rest_framework.viewsets import ViewSetMixin # noqa
+    from rest_framework.views import APIView  # noqa
+    from rest_framework.viewsets import ViewSetMixin  # noqa
 
 
 def get_required_scopes(

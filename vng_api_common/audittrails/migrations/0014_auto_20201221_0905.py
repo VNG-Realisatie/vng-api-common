@@ -6,22 +6,39 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('audittrails', '0013_auto_20201207_0846'),
+        ("audittrails", "0013_auto_20201207_0846"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='audittrail',
-            name='request_id',
+            model_name="audittrail",
+            name="request_id",
         ),
         migrations.AddField(
-            model_name='audittrail',
-            name='logrecord_id',
-            field=models.CharField(blank=True, help_text='Een globaal "request" ID om een verzoek door het netwerk heen te traceren.', max_length=255),
+            model_name="audittrail",
+            name="logrecord_id",
+            field=models.CharField(
+                blank=True,
+                help_text='Een globaal "request" ID om een verzoek door het netwerk heen te traceren.',
+                max_length=255,
+            ),
         ),
         migrations.AlterField(
-            model_name='audittrail',
-            name='bron',
-            field=models.CharField(choices=[('ac', 'Autorisaties API'), ('nrc', 'Notificaties API'), ('zrc', 'Zaken API'), ('ztc', 'Catalogi API'), ('drc', 'Documenten API'), ('brc', 'Besluiten API'), ('cmc', 'Contactmomenten API'), ('kc', 'Klanten API')], help_text='De naam van het component waar de wijziging in is gedaan.', max_length=50),
+            model_name="audittrail",
+            name="bron",
+            field=models.CharField(
+                choices=[
+                    ("ac", "Autorisaties API"),
+                    ("nrc", "Notificaties API"),
+                    ("zrc", "Zaken API"),
+                    ("ztc", "Catalogi API"),
+                    ("drc", "Documenten API"),
+                    ("brc", "Besluiten API"),
+                    ("cmc", "Contactmomenten API"),
+                    ("kc", "Klanten API"),
+                ],
+                help_text="De naam van het component waar de wijziging in is gedaan.",
+                max_length=50,
+            ),
         ),
     ]
