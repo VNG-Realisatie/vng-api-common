@@ -42,11 +42,12 @@ class AutorisatieBaseSerializer(PolymorphicSerializer):
         fields = ("component", "component_weergave", "scopes")
         extra_kwargs = {
             "scopes": {
+                "allow_empty": True,
                 "help_text": _(
                     "Lijst van scope labels. Elke scope geeft toegang tot een "
                     "set van acties/operaties, zoals gedocumenteerd bij de "
                     "betreffende component."
-                )
+                ),
             }
         }
         validators = [AutorisatieValidator()]
