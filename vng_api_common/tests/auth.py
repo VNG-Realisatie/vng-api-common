@@ -1,12 +1,12 @@
 import time
 from typing import List, Optional
 
-import jwt
 from rest_framework import status
 
 from ..authorizations.models import Applicatie, AuthorizationsConfig, Autorisatie
 from ..constants import VertrouwelijkheidsAanduiding
 from ..models import JWTSecret
+from .compat import jwt_encode
 
 
 class AuthCheckMixin:
@@ -58,8 +58,7 @@ def generate_jwt_auth(
         "user_id": user_id,
         "user_representation": user_representation,
     }
-    encoded = jwt.encode(payload, secret, algorithm="HS256")
-    encoded = encoded.decode("ascii")
+    encoded = jwt_encode(payload, secret, algorithm="HS256")
     return f"Bearer {encoded}"
 
 
