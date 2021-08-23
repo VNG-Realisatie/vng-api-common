@@ -12,6 +12,7 @@ __all__ = [
     "REDOC_SETTINGS",
     "NOTIFICATIONS_KANAAL",
     "NOTIFICATIONS_DISABLED",
+    "JWT_LEEWAY",
 ]
 
 API_VERSION = "1.0.0-rc1"  # semantic version
@@ -107,3 +108,5 @@ NOTIFICATIONS_DISABLED = False
 vng_repo = "VNG-Realisatie/vng-api-common"
 vng_branch = "ref-responses"
 COMMON_SPEC = f"https://raw.githubusercontent.com/{vng_repo}/feature/{vng_branch}/vng_api_common/schemas/common.yaml"
+
+JWT_LEEWAY = 0  # default in PyJWT
