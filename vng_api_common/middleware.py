@@ -101,6 +101,7 @@ class JWTAuth:
                     self.encoded,
                     algorithms=["HS256"],
                     options={"verify_signature": False},
+                    leeway=settings.JWT_LEEWAY,
                 )
             except jwt.DecodeError:
                 logger.info("Invalid JWT encountered")
@@ -153,7 +154,12 @@ class JWTAuth:
 
             # check signature of the token
             try:
-                payload = jwt.decode(self.encoded, key, algorithms="HS256")
+                payload = jwt.decode(
+                    self.encoded,
+                    key,
+                    algorithms="HS256",
+                    leeway=settings.JWT_LEEWAY,
+                )
             except jwt.InvalidSignatureError:
                 logger.exception("Invalid signature - possible payload tampering?")
                 raise PermissionDenied(
