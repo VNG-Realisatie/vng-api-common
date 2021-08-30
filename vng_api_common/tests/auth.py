@@ -1,8 +1,8 @@
 import time
 from typing import List, Optional
 
-import jwt
 from rest_framework import status
+from zds_client.compat import jwt_encode
 
 from ..authorizations.models import Applicatie, AuthorizationsConfig, Autorisatie
 from ..constants import VertrouwelijkheidsAanduiding
@@ -19,8 +19,7 @@ def generate_jwt(scopes: list, secret: str = "letmein", zaaktypes: list = None) 
         "zds": {"scopes": scope_labels, "zaaktypes": zaaktypes or []},
     }
     headers = {"client_identifier": "testsuite"}
-    encoded = jwt.encode(payload, secret, headers=headers, algorithm="HS256")
-    encoded = encoded.decode("ascii")
+    encoded = jwt_encode(payload, secret, headers=headers, algorithm="HS256")
     return f"Bearer {encoded}"
 
 
@@ -121,8 +120,7 @@ def generate_jwt_auth(
         "user_id": user_id,
         "user_representation": user_representation,
     }
-    encoded = jwt.encode(payload, secret, algorithm="HS256")
-    encoded = encoded.decode("ascii")
+    encoded = jwt_encode(payload, secret, algorithm="HS256")
     return f"Bearer {encoded}"
 
 
