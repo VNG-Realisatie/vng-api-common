@@ -2,11 +2,11 @@ import time
 from typing import List, Optional
 
 from rest_framework import status
+from zds_client.compat import jwt_encode
 
 from ..authorizations.models import Applicatie, AuthorizationsConfig, Autorisatie
 from ..constants import VertrouwelijkheidsAanduiding
 from ..models import JWTSecret
-from .compat import jwt_encode
 
 
 class AuthCheckMixin:
