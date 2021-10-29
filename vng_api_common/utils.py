@@ -1,7 +1,7 @@
 import logging
 import re
 import uuid
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from django.apps import apps
 from django.conf import settings
@@ -21,6 +21,9 @@ except ImportError:
     from djangorestframework_camel_case.util import (
         underscoreToCamel as _underscore_to_camel,
     )
+
+if TYPE_CHECKING:
+    from rest_framework.viewsets import ViewSet
 
 
 logger = logging.getLogger(__name__)
@@ -51,7 +54,7 @@ class NotAViewSet(Exception):
     pass
 
 
-def get_viewset_for_path(path: str, method="GET") -> "rest_framework.viewsets.ViewSet":
+def get_viewset_for_path(path: str, method="GET") -> "ViewSet":
     """
     Look up which viewset matches a path.
     """
