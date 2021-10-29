@@ -1,13 +1,13 @@
 import logging
 import re
 import uuid
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from django.apps import apps
 from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
-from django.urls import Resolver404, get_resolver, get_script_prefix
+from django.urls import Resolver404, ResolverMatch, get_resolver, get_script_prefix
 
 from zds_client.client import ClientError
 
@@ -54,20 +54,22 @@ class NotAViewSet(Exception):
     pass
 
 
+def resolve_path(path: str, resolver=None, script_prefix=None) -> ResolverMatch:
+    resolver = resolver or get_resolver()
+    prefix = script_prefix or get_script_prefix()
+    path = path.replace(prefix, "/", 1)
+    try:
+        return resolver.resolve(path)
+    except Resolver404 as exc:
+        raise models.ObjectDoesNotExist("URL did not resolve") from exc
+
+
 def get_viewset_for_path(path: str, method="GET") -> "ViewSet":
     """
     Look up which viewset matches a path.
     """
     # NOTE: this doesn't support setting a different urlconf on the request
-    resolver = get_resolver()
-    prefix = get_script_prefix()
-    path = path.replace(prefix, "/", 1)
-
-    try:
-        resolver_match = resolver.resolve(path)
-    except Resolver404 as exc:
-        raise models.ObjectDoesNotExist("URL did not resolve") from exc
-    callback, callback_args, callback_kwargs = resolver_match
+    callback, callback_args, callback_kwargs = resolve_path(path)
 
     if not hasattr(callback, "cls"):
         raise NotAViewSet(f"Callback for {path} does not look like a viewset")
@@ -98,6 +100,61 @@ def get_resource_for_path(path: str) -> models.Model:
     filter_kwargs = {viewset.lookup_field: viewset.kwargs[lookup_url_kwarg]}
 
     return viewset.get_queryset().get(**filter_kwargs)
+
+
+def get_resources_for_paths(paths: List[str]) -> Optional[models.QuerySet]:
+    """
+    Retrieve API instances belonging to a list of (detail) paths.
+
+    This is the bulk version of :func:`vng_api_common.utils.get_resource_for_path`,
+    which doesn't scale well when a lot of paths are involved. This replaces many
+    queries with a single bulk query.
+
+    .. warning::
+
+        This means that all the resource paths must point to the same resource, as the
+        viewset will only be fetched once from the first item and used to retrieve
+        all the resources.
+
+        This function compares the number of resolved instances vs the number of input
+        paths, and if that is not equal, there's something off and a :class:`RuntimeError`
+        is raised.
+    """
+    if not paths:
+        return None
+
+    # NOTE: this doesn't support setting a different urlconf on the request
+    resolver = get_resolver()
+    prefix = get_script_prefix()
+    lookup_kwarg_values = []
+
+    for path in paths:
+        callback, callback_args, callback_kwargs = resolve_path(
+            path,
+            resolver=resolver,
+            script_prefix=prefix,
+        )
+
+        if not hasattr(callback, "cls"):
+            raise NotAViewSet(f"Callback for {path} does not look like a viewset")
+
+        viewset_cls = callback.cls
+        lookup_url_kwarg = viewset_cls.lookup_url_kwarg or viewset_cls.lookup_field
+        lookup_kwarg_values.append(callback_kwargs[lookup_url_kwarg])
+
+    queryset = viewset_cls().get_queryset()
+    # drop any joins or prefetch_related to speed things up even more
+    queryset = queryset.select_related(None).prefetch_related(None)
+
+    filtered_queryset = queryset.filter(
+        **{f"{viewset_cls.lookup_field}__in": lookup_kwarg_values}
+    )
+    if not len(filtered_queryset) == len(paths):
+        raise RuntimeError(
+            f"Some paths could not be resolved with viewset {viewset_cls} - are you sure "
+            "that all paths point to the same resource?"
+        )
+    return filtered_queryset
 
 
 def underscore_to_camel(input_: Union[str, int]) -> str:
