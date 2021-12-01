@@ -40,3 +40,23 @@ class WebhookTests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_receive_nofication_empty_value_kenmerk(self):
+        data = {
+            "kanaal": "zaken",
+            "hoofdObject": "https://zaken-api.vng.cloud/api/v1/zaken/d7a22",
+            "resource": "status",
+            "resourceUrl": "https://zaken-api.vng.cloud/api/v1/statussen/d7a22/721c9",
+            "actie": "create",
+            "aanmaakdatum": "2018-01-01T17:00:00Z",
+            "kenmerken": {
+                "bron": "082096752011",
+                "zaaktype": "https://example.com/api/v1/zaaktypen/5aa5c",
+                "vertrouwelijkeidaanduiding": "openbaar",
+                "omschrijving": "",
+            },
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
