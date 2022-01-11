@@ -64,6 +64,10 @@ class AuditTrailMixin:
 
         user_id = jwt_auth.payload.get("user_id") or ""
         user_representation = jwt_auth.payload.get("user_representation") or ""
+        roles = jwt_auth.payload.get("roles") or []
+        department = jwt_auth.payload.get("department") or ""
+        company = jwt_auth.payload.get("company") or ""
+        kvk = jwt_auth.payload.get("kvk") or ""
 
         toelichting = get_header(self.request, "X-Audit-Toelichting") or ""
 
@@ -78,6 +82,10 @@ class AuditTrailMixin:
             actie_weergave=CommonResourceAction.labels.get(action, ""),
             gebruikers_id=user_id,
             gebruikers_weergave=user_representation,
+            rollen=roles,
+            afdeling=department,
+            bedrijf=company,
+            kvk=kvk,
             resultaat=status_code,
             hoofd_object=main_object,
             resource=self.basename,

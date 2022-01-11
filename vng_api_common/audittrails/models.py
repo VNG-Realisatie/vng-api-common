@@ -1,11 +1,13 @@
 import uuid
 
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.contrib.postgres.indexes import GinIndex
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+
+from vng_api_common.fields import RSINField
 
 from ..constants import ComponentTypes
 from ..descriptors import GegevensGroepType
@@ -90,6 +92,29 @@ class AuditTrail(models.Model):
         _("toelichting"),
         blank=True,
         help_text=_("Toelichting waarom de handeling is uitgevoerd."),
+    )
+    rollen = ArrayField(
+        models.CharField(max_length=255),
+        default=list,
+        verbose_name=_("rollen"),
+        help_text=_("Komma-gescheiden lijst van rollen van de gebruiker."),
+    )
+    afdeling = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_("afdeling"),
+        help_text=_("De afdeling waartoe de gebruiker behoort."),
+    )
+    bedrijf = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_("bedrijf"),
+        help_text=_("Bedrijf waartoe de gebruiker behoort."),
+    )
+    kvk = RSINField(
+        blank=True,
+        verbose_name=_("kvk nummer"),
+        help_text=_("KVK nummer van het bedrijf waartoe de gebruiker behoort."),
     )
     wijzigingen = GegevensGroepType(
         {"oud": oud, "nieuw": nieuw}, optional=["oud", "nieuw"], none_for_empty=True
