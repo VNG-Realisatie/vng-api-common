@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.encoding import force_text
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from django_filters.filters import ChoiceFilter
 from drf_yasg import openapi
@@ -34,7 +34,7 @@ class FilterInspector(CoreAPICompatInspector):
 
                 help_text = filter_field.extra.get(
                     "help_text",
-                    getattr(model_field, "help_text", "") if model_field else ""
+                    getattr(model_field, "help_text", "") if model_field else "",
                 )
 
                 if isinstance(filter_field, URLModelChoiceFilter):

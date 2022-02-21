@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import ObjectDoesNotExist
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework import permissions
 from rest_framework.renderers import BrowsableAPIRenderer

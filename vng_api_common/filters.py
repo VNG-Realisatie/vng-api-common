@@ -6,7 +6,7 @@ from django.core.validators import URLValidator
 from django.db import models
 from django.forms.widgets import URLInput
 from django.http import QueryDict
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_filters import fields, filters
 from django_filters.constants import EMPTY_VALUES

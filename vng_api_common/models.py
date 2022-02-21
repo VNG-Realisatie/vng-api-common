@@ -3,7 +3,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 from django.db import models
 from django.db.models.functions import Length
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework.reverse import reverse
 from solo.models import SingletonModel
