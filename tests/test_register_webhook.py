@@ -4,7 +4,7 @@ from django.contrib.messages import get_messages
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 import pytest
 from requests.exceptions import RequestException
