@@ -20,7 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        env: ["isort", "docs", "py36-django22"]
+        python: ['3.6', '3.7', '3.8' ]
+        django: [ '2.2', '3.2' ]
 
     services:
       postgres:
@@ -44,11 +45,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install tox tox-gh-actions
 
-      - name: Run tox
+      - name: Run tests
+        run: |
+          export TOXENV=py${PYTHON_VERSION/./}-django${DJANGO/./}
+          tox
+          codecov -e TOXENV,DJANGO --file reports/coverage-${TOXENV}.xml
         env:
-          DJANGO: 2.2
-          TOXENV: ${{ matrix.env }}
-        run: tox
+          PYTHON_VERSION: ${{ matrix.python }}
+          DJANGO: ${{ matrix.django }}
 
       - name: Publish coverage report
         env:
