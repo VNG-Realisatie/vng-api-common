@@ -2,7 +2,7 @@
 Test that the required content type headers are present.
 """
 from django.urls import path
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from drf_yasg import openapi
 from rest_framework.parsers import JSONParser, MultiPartParser
