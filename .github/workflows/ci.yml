@@ -75,4 +75,4 @@ jobs:
           python -m pip install -U pip
           pip install tox
       - name: test docs
-        run: tox docs
+        run: tox -e docs
