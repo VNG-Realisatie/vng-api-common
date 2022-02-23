@@ -1,4 +1,4 @@
-name: Code quality checks
+name: code-quality-checks
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
           python -m pip install -U pip
           pip install tox
       - name: Run isort
-        run: tox isort
+        run: tox -e isort
 
   flake8:
     name: Code style
@@ -67,4 +67,4 @@ jobs:
           python -m pip install -U pip
           pip install tox
       - name: Run black
-        run: tox black
+        run: tox -e black
