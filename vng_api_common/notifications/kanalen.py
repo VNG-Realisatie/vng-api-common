@@ -4,8 +4,8 @@ Provide notifications kanaal/exchange classes.
 from collections import defaultdict
 from typing import Dict, Tuple
 
-from django.core.exceptions import ImproperlyConfigured
-from django.db.models import FieldDoesNotExist, Model
+from django.core.exceptions import ImproperlyConfigured, FieldDoesNotExist
+from django.db.models import Model
 from django.db.models.base import ModelBase
 
 KANAAL_REGISTRY = set()
