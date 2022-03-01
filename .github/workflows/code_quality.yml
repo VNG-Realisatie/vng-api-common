@@ -35,22 +35,6 @@ jobs:
       - name: Run isort
         run: tox -e isort
 
-  flake8:
-    name: Code style
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python: [ '3.7', ]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Install dependencies
-        run: pip install flake8
-      - name: Run flake8
-        run: flake8 . --exclude=*/migrations/* -v
-
   black:
     name: Code format
     runs-on: ubuntu-latest
