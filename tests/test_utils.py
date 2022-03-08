@@ -40,8 +40,8 @@ def test_get_resources_for_paths(django_assert_num_queries):
     ]
 
     paths = [
-        f"/api/groups/{group2.pk}/",
-        f"/api/groups/{group1.pk}/",
+        f"/api/groups/{group2.pk}",
+        f"/api/groups/{group1.pk}",
     ]
 
     with django_assert_num_queries(1):
@@ -63,8 +63,8 @@ def test_no_resolution():
     group = Group.objects.create()
 
     paths = [
-        f"/api/groups/{group.pk}/",
-        f"/api/groups/-3/",
+        f"/api/groups/{group.pk}",
+        f"/api/groups/-3",
     ]
 
     with pytest.raises(RuntimeError):
