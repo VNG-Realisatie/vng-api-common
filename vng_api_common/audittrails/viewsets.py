@@ -47,7 +47,8 @@ class AuditTrailMixin:
                 data, self.audit.main_resource
             )
 
-        applications = self.request.jwt_auth.applicaties
+        jwt_auth = self.request.jwt_auth
+        applications = jwt_auth.applicaties
         if len(applications) > 1:
             logger.warning(
                 "Unexpectedly found %d applications, expected at most one",
@@ -61,7 +62,8 @@ class AuditTrailMixin:
             app_id = get_header(self.request, "X-NLX-Request-Application-Id")
             app_presentation = app_id  # we don't have any extra information...
 
-        user_id = self.request.jwt_auth.payload.get("user_id", "")
+        user_id = jwt_auth.payload.get("user_id") or ""
+        user_representation = jwt_auth.payload.get("user_representation") or ""
 
         toelichting = get_header(self.request, "X-Audit-Toelichting") or ""
 
@@ -75,9 +77,7 @@ class AuditTrailMixin:
             actie=action,
             actie_weergave=CommonResourceAction.labels.get(action, ""),
             gebruikers_id=user_id,
-            gebruikers_weergave=self.request.jwt_auth.payload.get(
-                "user_representation", ""
-            ),
+            gebruikers_weergave=user_representation,
             resultaat=status_code,
             hoofd_object=main_object,
             resource=self.basename,

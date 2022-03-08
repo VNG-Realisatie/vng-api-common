@@ -42,8 +42,10 @@ class CheckQueryParamsMixin:
                 )
 
         unknown_params = set(request.query_params.keys()) - known_params
-        if OrderingFilter in self.filter_backends:
-            unknown_params.discard(api_settings.ORDERING_PARAM)
+
+        for backend in self.filter_backends:
+            if issubclass(backend, OrderingFilter):
+                unknown_params.discard(backend.ordering_param)
 
         if unknown_params:
             msg = _("Onbekende query parameters: %s" % ", ".join(unknown_params))
