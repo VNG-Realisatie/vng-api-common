@@ -1,7 +1,9 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.utils.translation import ugettext_lazy as _
 
+from requests.exceptions import RequestException
 from solo.admin import SingletonModelAdmin
+from zds_client.client import ClientError
 
 from .models import NotificationsConfig, Subscription
 
@@ -27,7 +29,16 @@ def register_webhook(modeladmin, request, queryset):
     for sub in queryset:
         if sub._subscription:
             continue
-        sub.register()
+
+        try:
+            sub.register()
+        except (ClientError, RequestException) as e:
+            messages.error(
+                request,
+                _(
+                    "Something went wrong while registering subscription for {callback}: {exception}"
+                ).format(callback=sub.callback_url, exception=e),
+            )
 
 
 register_webhook.short_description = _("Register the webhooks")  # noqa
