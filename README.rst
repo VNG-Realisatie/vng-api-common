@@ -66,9 +66,9 @@ Features
     * ontvangen van webhook events
     * configureren en registreren van notificatiecomponent/webhooks
 
-.. |build-status| image:: https://github.com/VNG-Realisatie/vng-api-common/workflows/ci-run/badge.svg
+.. |build-status| image:: https://github.com/VNG-Realisatie/vng-api-common/workflows/ci-build/badge.svg
     :alt: Build status
-    :target: https://github.com/VNG-Realisatie/vng-api-common/actions?query=workflow%3A%22ci-run%22
+    :target: https://github.com/VNG-Realisatie/vng-api-common/actions?query=workflow%3A%22ci-build%22
 
 .. |code-quality| image:: https://github.com/VNG-Realisatie/vng-api-common/workflows/Code%20quality%20checks/badge.svg
      :alt: Code quality checks
