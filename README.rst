@@ -2,7 +2,7 @@
 VNG-API-common - Tooling voor RESTful APIs
 ==========================================
 
-|build-status| |coverage| |docs| |black|
+|build-status| |code-quality| |coverage| |docs| |black|
 
 |python-versions| |django-versions| |pypi-version|
 
@@ -66,8 +66,13 @@ Features
     * ontvangen van webhook events
     * configureren en registreren van notificatiecomponent/webhooks
 
-.. |build-status| image:: https://travis-ci.org/VNG-Realisatie/vng-api-common.svg?branch=master
-    :target: https://travis-ci.org/VNG-Realisatie/vng-api-common
+.. |build-status| image:: https://github.com/maykinmedia/vng-api-common/workflows/ci-run/badge.svg
+    :alt: Build status
+    :target: https://github.com/maykinmedia/vng-api-common/actions?query=workflow%3A%22ci-run%22
+
+.. |code-quality| image:: https://github.com/maykinmedia/vng-api-common/workflows/Code%20quality%20checks/badge.svg
+     :alt: Code quality checks
+     :target: https://github.com/maykinmedia/vng-api-common/actions?query=workflow%3A%22Code+quality+checks%22
 
 .. |coverage| image:: https://codecov.io/gh/VNG-Realisatie/vng-api-common/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/VNG-Realisatie/vng-api-common
