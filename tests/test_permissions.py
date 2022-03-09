@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from django.db.models import ObjectDoesNotExist
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView

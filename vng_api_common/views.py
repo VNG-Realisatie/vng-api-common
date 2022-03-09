@@ -5,7 +5,7 @@ from collections import OrderedDict
 from django.apps import apps
 from django.conf import settings
 from django.http import Http404, HttpRequest
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
 
 import requests

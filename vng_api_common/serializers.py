@@ -4,7 +4,7 @@ from collections import OrderedDict
 from typing import Tuple, Union
 
 from django.db import transaction
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 import isodate
 from djchoices import DjangoChoices
