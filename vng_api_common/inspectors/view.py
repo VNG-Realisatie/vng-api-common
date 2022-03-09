@@ -6,7 +6,7 @@ from typing import Optional, Tuple, Union
 
 from django.apps import apps
 from django.conf import settings
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _
 
 from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
@@ -119,7 +119,7 @@ AUDIT_REQUEST_HEADERS = [
         type=openapi.TYPE_STRING,
         in_=openapi.IN_HEADER,
         required=False,
-        description=ugettext(
+        description=gettext(
             "Identifier of the request, traceable throughout the network"
         ),
     ),
@@ -128,7 +128,7 @@ AUDIT_REQUEST_HEADERS = [
         type=openapi.TYPE_STRING,
         in_=openapi.IN_HEADER,
         required=False,
-        description=ugettext("Explanation why the request is done"),
+        description=gettext("Explanation why the request is done"),
     ),
 ]
 

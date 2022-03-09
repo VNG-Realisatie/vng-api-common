@@ -9,7 +9,7 @@ from django.core.validators import RegexValidator
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 from django.utils.module_loading import import_string
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 import requests
 from rest_framework import serializers, validators

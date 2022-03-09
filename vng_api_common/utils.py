@@ -8,8 +8,7 @@ from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
 from django.urls import Resolver404, ResolverMatch, get_resolver, get_script_prefix
-from django.utils.encoding import smart_text
-from django.utils.module_loading import import_string
+from django.utils.encoding import smart_str
 
 from rest_framework.utils import formatting
 from zds_client.client import ClientError
@@ -257,7 +256,7 @@ def get_view_summary(view_cls):
         summary = view_cls.__doc__.split("\n\n", 1)[1].split(":", 1)[0]
         if "\n\n" in summary:
             summary = summary.rsplit("\n\n", 1)[0].strip().replace("\r", "")
-            return formatting.dedent(smart_text(summary))
+            return formatting.dedent(smart_str(summary))
     except (AttributeError, IndexError):
         pass
 

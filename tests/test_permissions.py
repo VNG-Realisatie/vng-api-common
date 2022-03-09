@@ -2,7 +2,7 @@ from typing import List
 from unittest.mock import patch
 
 from django.db.models import ObjectDoesNotExist
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 import pytest
 from rest_framework import status

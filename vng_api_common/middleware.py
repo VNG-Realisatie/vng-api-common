@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 from django.conf import settings
 from django.db import models, transaction
 from django.db.models import QuerySet
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 import jwt
 from djangorestframework_camel_case.util import underscoreize

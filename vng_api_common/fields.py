@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.core import checks
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _
 
 from iso639 import languages
 
@@ -187,7 +187,7 @@ class DaysDurationField(models.DurationField):
 
     def formfield(self, **kwargs):
         # add sensible help-text
-        _help_text = ugettext("Specifieer de duur als 'DD 00:00'")
+        _help_text = gettext("Specifieer de duur als 'DD 00:00'")
         help_text = f"{self.help_text} {_help_text}" if self.help_text else _help_text
         defaults = {"help_text": help_text}
         defaults.update(**kwargs)

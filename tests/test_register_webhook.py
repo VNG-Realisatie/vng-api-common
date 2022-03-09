@@ -1,10 +1,7 @@
 from unittest.mock import patch
 
 from django.contrib.messages import get_messages
-from django.contrib.messages.middleware import MessageMiddleware
-from django.contrib.sessions.middleware import SessionMiddleware
-from django.test import RequestFactory
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 import pytest
 from requests.exceptions import RequestException
@@ -19,10 +16,7 @@ from vng_api_common.notifications.models import NotificationsConfig, Subscriptio
     return_value={"url": "https://example.com/api/v1/abonnementen/1"},
 )
 @pytest.mark.django_db
-def test_register_webhook_success(*mocks):
-    request = RequestFactory().get("/")
-    SessionMiddleware().process_request(request)
-    MessageMiddleware().process_request(request)
+def test_register_webhook_success(request_with_middleware, *mocks):
 
     config = NotificationsConfig.get_solo()
 
@@ -34,9 +28,9 @@ def test_register_webhook_success(*mocks):
         channels=["zaken"],
     )
 
-    register_webhook(object, request, Subscription.objects.all())
+    register_webhook(object, request_with_middleware, Subscription.objects.all())
 
-    messages = list(get_messages(request))
+    messages = list(get_messages(request_with_middleware))
 
     assert len(messages) == 0
 
@@ -45,10 +39,7 @@ def test_register_webhook_success(*mocks):
 
 
 @pytest.mark.django_db
-def test_register_webhook_request_exception():
-    request = RequestFactory().get("/")
-    SessionMiddleware().process_request(request)
-    MessageMiddleware().process_request(request)
+def test_register_webhook_request_exception(request_with_middleware):
 
     config = NotificationsConfig.get_solo()
 
@@ -63,9 +54,9 @@ def test_register_webhook_request_exception():
     with patch(
         "zds_client.client.Client.create", side_effect=RequestException("exception")
     ):
-        register_webhook(object, request, Subscription.objects.all())
+        register_webhook(object, request_with_middleware, Subscription.objects.all())
 
-    messages = list(get_messages(request))
+    messages = list(get_messages(request_with_middleware))
 
     assert len(messages) == 1
     assert messages[0].message == _(
@@ -74,10 +65,7 @@ def test_register_webhook_request_exception():
 
 
 @pytest.mark.django_db
-def test_register_webhook_client_error():
-    request = RequestFactory().get("/")
-    SessionMiddleware().process_request(request)
-    MessageMiddleware().process_request(request)
+def test_register_webhook_client_error(request_with_middleware):
 
     config = NotificationsConfig.get_solo()
 
@@ -90,9 +78,9 @@ def test_register_webhook_client_error():
     )
 
     with patch("zds_client.client.Client.create", side_effect=ClientError("exception")):
-        register_webhook(object, request, Subscription.objects.all())
+        register_webhook(object, request_with_middleware, Subscription.objects.all())
 
-    messages = list(get_messages(request))
+    messages = list(get_messages(request_with_middleware))
 
     assert len(messages) == 1
     assert messages[0].message == _(
