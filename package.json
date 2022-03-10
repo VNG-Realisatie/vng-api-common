@@ -22,6 +22,6 @@
   },
   "homepage": "https://github.com/vng-Realisatie/gemma-zaken-common#readme",
   "dependencies": {
-    "swagger2openapi": "^6.2.2"
+    "swagger2openapi": "^7.0.8"
   }
 }
