@@ -13,10 +13,15 @@ from rest_framework import fields, serializers
 from .descriptors import GegevensGroepType
 
 try:
-    from relativedeltafield import format_relativedelta, relativedelta
+    # 1.1.x
+    from relativedeltafield.utils import format_relativedelta, relativedelta
 except ImportError:
-    format_relativedelta = None
-    relativedelta = None
+    try:
+        # 1.0.x
+        from relativedeltafield import format_relativedelta, relativedelta
+    except ImportError:
+        format_relativedelta = None
+        relativedelta = None
 
 
 class DurationField(fields.DurationField):
