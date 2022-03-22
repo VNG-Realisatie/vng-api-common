@@ -1,7 +1,7 @@
 import datetime
 import inspect
 from collections import OrderedDict
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
@@ -13,10 +13,15 @@ from rest_framework import fields, serializers
 from .descriptors import GegevensGroepType
 
 try:
-    from relativedeltafield import format_relativedelta, relativedelta
+    # 1.1.x
+    from relativedeltafield.utils import format_relativedelta, relativedelta
 except ImportError:
-    format_relativedelta = None
-    relativedelta = None
+    try:
+        # 1.0.x
+        from relativedeltafield import format_relativedelta, relativedelta
+    except ImportError:
+        format_relativedelta = None
+        relativedelta = None
 
 
 class DurationField(fields.DurationField):
@@ -35,8 +40,12 @@ class DurationField(fields.DurationField):
             assert isinstance(parsed, datetime.timedelta)
             return parsed
 
-    def to_representation(self, value):
+    def to_representation(self, value) -> Optional[str]:
         if relativedelta and isinstance(value, relativedelta):
+            # relativedeltafield 1.1.2 returns a relativedelta() object with no duration,
+            # to keep behaviour consistent with older versions, change that to `None`
+            if not value:
+                return None
             return format_relativedelta(value)
 
         return isodate.duration_isoformat(value)
