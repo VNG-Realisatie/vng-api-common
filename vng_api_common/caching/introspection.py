@@ -15,4 +15,5 @@ def has_cache_header(view: GenericAPIView) -> bool:
     if not isinstance(view, mixins.RetrieveModelMixin):
         return False
 
-    return True
+    conditional_retrieves = getattr(view, "_conditional_retrieves", [])
+    return view.action in conditional_retrieves
