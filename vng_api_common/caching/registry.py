@@ -69,9 +69,6 @@ class Dependency:
             related_objects = query_like.all()
         # one-to-one field or FK
         else:
-            import bpdb
-
-            bpdb.set_trace()
             related_objects = [query_like]
 
         return related_objects

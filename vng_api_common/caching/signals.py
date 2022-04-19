@@ -7,9 +7,8 @@ The signal does nothing except clearing the calculated value, which will be
 re-calculated on the next fetch.
 """
 from django.core.exceptions import FieldDoesNotExist
-from django.db import models, transaction
+from django.db import models
 from django.db.models.base import ModelBase
-from django.db.models.fields.related import ManyToOneRel
 from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
 
@@ -52,16 +51,50 @@ def mark_related_instances_for_etag_update(
             EtagUpdate.mark_affected(obj)
 
 
-def clear_etag(instance: models.Model):
+@receiver(m2m_changed)
+def mark_m2m_related_instances_for_etag_update(
+    sender: ModelBase,
+    instance: models.Model,
+    action: str,
+    model: ModelBase,
+    **kwargs,
+) -> None:
     """
-    Clear the value of the ETag field.
+    Determine which instances are affected by m2m changes.
+
+    Similar to :func:`mark_related_instances_for_etag_update`, but then the m2m variant.
     """
-    instance._etag = ""
-    instance.save(update_fields=["_etag"])
 
+    if action == "pre_clear":
+        # instance is the instance whose m2m field is being cleared
+        handle_m2m_cleared(sender, instance, model)
+        return
 
-def _schedule_clear_etag(instance: models.Model):
-    transaction.on_commit(lambda: clear_etag(instance))
+    if action not in ["post_add", "post_clear", "post_remove"]:
+        return
+
+    # instance is the object's m2m field being changed
+    if is_etag_model(type(instance)):
+        EtagUpdate.mark_affected(instance)
+
+    # involved objects on the "other side of the relationship"
+    pk_set = kwargs["pk_set"] or ()
+    instances = model._default_manager.filter(pk__in=pk_set)
+    related_is_etag = is_etag_model(model)
+    dependency_for = DEPENDENCY_REGISTRY.get(model)
+
+    for related_instance in instances:
+        if related_is_etag:
+            EtagUpdate.mark_affected(related_instance)
+
+        # consult the dependency - changes to related instance may trigger updates in
+        # other related models
+        if dependency_for is None:
+            continue
+
+        for dependency in dependency_for:
+            for obj in dependency.get_related_objects(related_instance):
+                EtagUpdate.mark_affected(obj)
 
 
 def is_etag_model(model: ModelBase) -> bool:
@@ -72,24 +105,6 @@ def is_etag_model(model: ModelBase) -> bool:
         return False
 
     return True
-
-
-def handle_related_etag_instances(instance: models.Model):
-    model = type(instance)
-    fields = [
-        field
-        for field in model._meta.get_fields()
-        if field.is_relation and isinstance(field, ManyToOneRel)
-    ]
-
-    for field in fields:
-        source_model = field.remote_field.model
-        if not is_etag_model(source_model):
-            continue  # TODO: what with more deeply nested objects?
-
-        related_instances = getattr(instance, field.get_accessor_name()).all()
-        for related_instance in related_instances:
-            _schedule_clear_etag(related_instance)
 
 
 def handle_m2m_cleared(
@@ -114,53 +129,15 @@ def handle_m2m_cleared(
     m2m_field = m2m_fields[0]
 
     qs = getattr(instance, m2m_field.name).all()
-    for instance in qs:
-        _schedule_clear_etag(instance)
+    dependency_for = DEPENDENCY_REGISTRY.get(qs.model)
 
+    for related_instance in qs:
+        if is_etag_model(qs.model):
+            EtagUpdate.mark_affected(related_instance)
 
-# @receiver([post_save, post_delete])
-def schedule_etag_clearing(sender: ModelBase, instance: models.Model, **kwargs):
-    if kwargs.get("raw"):
-        return
+        if dependency_for is None:
+            continue
 
-    if not is_etag_model(sender):
-        handle_related_etag_instances(instance)
-        return
-
-    # no value set for the ETag, nothing to do
-    if not instance._etag:
-        return
-
-    if "update_fields" not in kwargs:
-        return
-
-    # only updating the _etag field - either to clear it, or to set the computed
-    # value
-    if kwargs["update_fields"] == {"_etag"}:
-        return
-
-    # clear existing value
-    _schedule_clear_etag(instance)
-
-
-# @receiver(m2m_changed)
-def schedule_etag_clearing_m2m(
-    sender: ModelBase, instance: models.Model, action: str, model: ModelBase, **kwargs
-):
-    if action == "pre_clear":
-        handle_m2m_cleared(sender, instance, model)
-        return
-
-    if action not in ["post_add", "post_clear", "post_remove"]:
-        return
-
-    if not is_etag_model(model):
-        return
-
-    if is_etag_model(type(instance)):
-        _schedule_clear_etag(instance)
-
-    pk_set = kwargs["pk_set"] or ()
-    instances = model.objects.filter(pk__in=pk_set)
-    for instance in instances:
-        _schedule_clear_etag(instance)
+        for dependency in dependency_for:
+            for obj in dependency.get_related_objects(related_instance):
+                EtagUpdate.mark_affected(obj)
