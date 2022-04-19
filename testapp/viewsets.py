@@ -6,7 +6,7 @@ from .models import Group, Hobby, Person
 from .serializers import GroupSerializer, HobbySerializer, PersonSerializer
 
 
-@conditional_retrieve()
+@conditional_retrieve(extra_depends_on={"group"})
 class PersonViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Title
