@@ -80,7 +80,7 @@ def handle_m2m_cleared(
         _schedule_clear_etag(instance)
 
 
-@receiver([post_save, post_delete])
+# @receiver([post_save, post_delete])
 def schedule_etag_clearing(sender: ModelBase, instance: models.Model, **kwargs):
     if kwargs.get("raw"):
         return
@@ -105,7 +105,7 @@ def schedule_etag_clearing(sender: ModelBase, instance: models.Model, **kwargs):
     _schedule_clear_etag(instance)
 
 
-@receiver(m2m_changed)
+# @receiver(m2m_changed)
 def schedule_etag_clearing_m2m(
     sender: ModelBase, instance: models.Model, action: str, model: ModelBase, **kwargs
 ):
