@@ -81,6 +81,10 @@ class EtagUpdate:
         """
         Schedule the ``instance`` to have it's ETag value updated on transaction commit.
         """
+        already_updating = getattr(obj, "_updating_etag", False)
+        if already_updating:
+            return
+
         etag_update = cls(instance=obj, using=using)
 
         # we do not use the top-level transaction.commit, but need the underlying
@@ -103,4 +107,8 @@ class EtagUpdate:
 
     def calculate_new_value(self):
         with transaction.atomic(using=self.using):  # wrap in its own transaction
+            # track the actions _inside_ the on_commit handler, to prevent infinite
+            # loops/stack overflows
+            self.instance._updating_etag = True
             self.instance.calculate_etag_value()
+            del self.instance._updating_etag
