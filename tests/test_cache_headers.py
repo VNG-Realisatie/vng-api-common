@@ -13,6 +13,7 @@ from vng_api_common.inspectors.cache import get_cache_headers
 pytestmark = pytest.mark.django_db(transaction=True)
 
 
+@pytest.mark.django_db(transaction=False)
 def test_etag_header_present(api_client, person):
     path = reverse("person-detail", kwargs={"pk": person.pk})
 
