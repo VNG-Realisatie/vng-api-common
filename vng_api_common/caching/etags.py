@@ -13,12 +13,10 @@ from django.db import models, transaction
 from django.http import Http404, HttpRequest
 
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
-from rest_framework import serializers
 from rest_framework.request import Request
 from rest_framework.settings import api_settings
 
-from ..serializers import GegevensGroepSerializer
-from ..utils import get_resource_for_path, get_subclasses
+from ..utils import get_resource_for_path
 from .registry import MODEL_SERIALIZERS
 
 logger = logging.getLogger(__name__)
