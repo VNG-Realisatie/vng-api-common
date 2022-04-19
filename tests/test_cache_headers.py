@@ -1,3 +1,7 @@
+from unittest.mock import patch
+
+from django.db import transaction
+
 import pytest
 from drf_yasg import openapi
 from drf_yasg.generators import SchemaGenerator
@@ -77,6 +81,9 @@ def test_related_resource_changes_recalculate_etag1(django_capture_on_commit_cal
     person.hobbies.set(hobbies)  # not included in serializer
     person.calculate_etag_value()
 
+    # discard any scheduled callback handlers from test set up
+    transaction.get_connection().run_on_commit = []
+
     assert person._etag, "No ETag value calculated"
     initial_etag_value = person._etag
 
@@ -89,6 +96,8 @@ def test_related_resource_changes_recalculate_etag1(django_capture_on_commit_cal
     assert person._etag == initial_etag_value
 
     # start test 2 - changing the group does affect the serializer output and thus the etag value
+    # discard any scheduled callback handlers from test set up
+    transaction.get_connection().run_on_commit = []
     with django_capture_on_commit_callbacks(execute=True):
         person.group.name = "DWTD"
         person.group.save()
@@ -111,6 +120,8 @@ def test_related_resource_changes_recalculate_etag2(django_capture_on_commit_cal
 
     # now, change the related people resource to the hobby, which should trigger a
     # re-calculate
+    # discard any scheduled callback handlers from test set up
+    transaction.get_connection().run_on_commit = []
     with django_capture_on_commit_callbacks(execute=True):
         person.hobbies.add(hobby)
 
@@ -239,3 +250,17 @@ def test_fetching_cache_enabled_deleted_resource_404s(api_client, person):
     response = api_client.get(path)
 
     assert response.status_code == 404
+
+
+@pytest.mark.django_db(transaction=False)
+def test_etag_updates_deduped(django_capture_on_commit_callbacks):
+    with patch(
+        "testapp.models.Person.calculate_etag_value"
+    ) as mock_calculate_etag_value:
+        with django_capture_on_commit_callbacks(execute=True):
+            # one post_save
+            person = PersonFactory.create()
+            # second post_save
+            person.save()
+
+    assert mock_calculate_etag_value.call_count == 1

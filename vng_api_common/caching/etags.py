@@ -70,6 +70,35 @@ def etag_func(request: HttpRequest, etag_field: str = "_etag", **view_kwargs):
 
 
 @dataclass
+class MethodCallback:
+    callback: callable
+
+    def __eq__(self, other):
+        # NOTE: before Python 3.7 you could compare bound methods, as method.__eq__(other_method)
+        # apparently compared the underlying data through __eq__. Dataclasses implement
+        # __eq__ based on the fields from the constructor, in our case this is the Django
+        # model instance. Django model instances in turn have __eq__ implemented to look
+        # at the same type & if the pk is the same or not.
+        # So, multiple instances of this class for the same django model instance will
+        # have equal methods, and we can de-duplicate them using that logic.
+        #
+        # Since Python 3.7 this appears to no longer be the case, so we wrap it in our
+        # own dataclass to perform this comparison
+        if type(self) != type(other):  # noqa
+            return False
+
+        # same function object?
+        if self.callback.__func__ != other.callback.__func__:
+            return False
+
+        # finally, compare the bound arguments
+        return self.callback.__self__ == other.callback.__self__
+
+    def __call__(self):
+        return self.callback()
+
+
+@dataclass
 class EtagUpdate:
     instance: models.Model
     using: Optional[str] = None
@@ -89,19 +118,20 @@ class EtagUpdate:
         # connection object to ensure the update is only scheduled once.
         connection = transaction.get_connection(using)
 
-        # TODO: implement duplicate-detection logic
-        # NOTE: you can compare methods in python, as method.__eq__(other_method)
-        # apparently compares the underlying data through __eq__. Dataclasses implement
-        # __eq__ based on the fields from the constructor, in our case this is the Django
-        # model instance. Django model instances in turn have __eq__ implemented to look
-        # at the same type & if the pk is the same or not.
-        # So, multiple instances of this class for the same django model instance will
-        # have equal methods, and we can de-duplicate them using that logic.
+        func = MethodCallback(etag_update.calculate_new_value)
+        for _, _func in connection.run_on_commit:
+            if func == _func:
+                logger.debug(
+                    "Update for model instance %r with pk %s was already scheduled",
+                    type(obj),
+                    obj.pk,
+                )
+                return
 
         logger.debug(
             "Scheduling model instance %r with pk %s for ETag update", type(obj), obj.pk
         )
-        connection.on_commit(etag_update.calculate_new_value)
+        connection.on_commit(func)
 
     def calculate_new_value(self):
         with transaction.atomic(using=self.using):  # wrap in its own transaction
