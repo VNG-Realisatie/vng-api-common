@@ -35,7 +35,7 @@ def mark_related_instances_for_etag_update(
         return
 
     # if the model is itself something that has an etag, mark it for update
-    if is_etag_model(sender):
+    if is_etag_model(sender) and not kwargs["signal"] is post_delete:
         EtagUpdate.mark_affected(instance)
 
     # otherwise, find out which relations are affected
