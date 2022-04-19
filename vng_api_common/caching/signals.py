@@ -13,6 +13,44 @@ from django.db.models.fields.related import ManyToOneRel
 from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
 
+from .etags import EtagUpdate
+from .registry import DEPENDENCY_REGISTRY
+
+
+@receiver([post_save, post_delete])
+def mark_related_instances_for_etag_update(
+    sender: ModelBase, instance: models.Model, **kwargs
+) -> None:
+    """
+    Determine which instances are affected by changes in ``instance``.
+
+    The sender/instance may be a model supporting ETag-based caching, or may be related
+    to such a model. We must determine which instances are affected and ensure that
+    the ETag value is properly scheduled for re-computation based on the new data.
+
+    Processing of the ETag values is only done on transaction.on_commit so that all
+    explicit changes are propagated before we even consider calculating the new ETag
+    value.
+    """
+    if kwargs.get("raw"):
+        return
+
+    # if the model is itself something that has an etag, mark it for update
+    if is_etag_model(sender):
+        EtagUpdate.mark_affected(instance)
+
+    # otherwise, find out which relations are affected
+    dependency_for = DEPENDENCY_REGISTRY.get(sender)
+    if dependency_for is None:
+        return
+
+    for dependency in dependency_for:
+        if not is_etag_model(dependency.affected_model):
+            continue
+
+        for obj in dependency.get_related_objects(instance):
+            EtagUpdate.mark_affected(obj)
+
 
 def clear_etag(instance: models.Model):
     """

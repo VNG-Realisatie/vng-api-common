@@ -1,7 +1,8 @@
 import logging
 from dataclasses import dataclass
-from typing import Dict, Set, Type, Union
+from typing import Dict, Iterable, Set, Type, Union
 
+from django.db import models
 from django.db.models.base import ModelBase
 from django.db.models.fields.related import RelatedField as _RelatedField
 from django.db.models.fields.reverse_related import ForeignObjectRel
@@ -50,6 +51,30 @@ class Dependency:
 
     def __hash__(self):
         return hash(self.field)
+
+    def get_related_objects(self, instance: models.Model) -> Iterable[models.Model]:
+        assert isinstance(
+            instance, self.source_model
+        ), "Instance is not of expected model class"
+
+        reverse_relation_field = self.field.remote_field
+
+        if isinstance(reverse_relation_field, ForeignObjectRel):
+            query_like = getattr(instance, reverse_relation_field.get_accessor_name())
+        else:
+            query_like = getattr(instance, reverse_relation_field.name)
+
+        # reverse FK or m2m
+        if isinstance(query_like, (models.Manager, models.QuerySet)):
+            related_objects = query_like.all()
+        # one-to-one field or FK
+        else:
+            import bpdb
+
+            bpdb.set_trace()
+            related_objects = [query_like]
+
+        return related_objects
 
 
 def extract_dependencies(viewset: type, explicit_field_names: Set[str]) -> None:
