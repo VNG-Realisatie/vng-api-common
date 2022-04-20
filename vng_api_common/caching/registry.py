@@ -13,6 +13,7 @@ from rest_framework.relations import (
     ManyRelatedField,
     RelatedField,
 )
+from rest_framework.schemas.generators import BaseSchemaGenerator
 from rest_framework.serializers import Serializer
 from rest_framework.utils.model_meta import get_field_info
 
@@ -102,7 +103,10 @@ def extract_dependencies(viewset: type, explicit_field_names: Set[str]) -> None:
             )
 
     # next, introspect the serialier
-    serializer = viewset.serializer_class()
+    generator = BaseSchemaGenerator()
+    callback = viewset.as_view({"get": "retrieve"})
+    view = generator.create_view(callback, method="GET", request=None)
+    serializer = view.get_serializer()
 
     if model in MODEL_SERIALIZERS:
         logger.warning("Model %r is already registered in MODEL_SERIALIZERS.", model)
