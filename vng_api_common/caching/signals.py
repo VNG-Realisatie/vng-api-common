@@ -50,6 +50,10 @@ def mark_related_instances_for_etag_update(
     if kwargs.get("raw"):
         return
 
+    # prevent infinite recursion caused by the save of the new _etag value
+    if kwargs.get("update_fields") == {"_etag"}:
+        return
+
     # if the model is itself something that has an etag, mark it for update
     if is_etag_model(sender) and not kwargs["signal"] is post_delete:
         EtagUpdate.mark_affected(instance)

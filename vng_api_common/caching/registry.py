@@ -2,13 +2,19 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, Iterable, Set, Type, Union
 
+from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
 from django.db import models
 from django.db.models.base import ModelBase
 from django.db.models.fields.related import RelatedField as _RelatedField
 from django.db.models.fields.reverse_related import ForeignObjectRel
 
-from rest_framework.relations import ManyRelatedField, RelatedField
+from rest_framework.relations import (
+    HyperlinkedIdentityField,
+    ManyRelatedField,
+    RelatedField,
+)
 from rest_framework.serializers import Serializer
+from rest_framework.utils.model_meta import get_field_info
 
 logger = logging.getLogger(__name__)
 
@@ -59,17 +65,22 @@ class Dependency:
 
         reverse_relation_field = self.field.remote_field
 
-        if isinstance(reverse_relation_field, ForeignObjectRel):
-            query_like = getattr(instance, reverse_relation_field.get_accessor_name())
-        else:
-            query_like = getattr(instance, reverse_relation_field.name)
+        try:
+            if isinstance(reverse_relation_field, ForeignObjectRel):
+                query_like = getattr(
+                    instance, reverse_relation_field.get_accessor_name()
+                )
+            else:
+                query_like = getattr(instance, reverse_relation_field.name)
+        except ObjectDoesNotExist:  # nullable OneToOneField, for example
+            return []
 
         # reverse FK or m2m
         if isinstance(query_like, (models.Manager, models.QuerySet)):
             related_objects = query_like.all()
         # one-to-one field or FK
         else:
-            related_objects = [query_like]
+            related_objects = [query_like] if query_like is not None else []
 
         return related_objects
 
@@ -98,11 +109,46 @@ def extract_dependencies(viewset: type, explicit_field_names: Set[str]) -> None:
     else:
         MODEL_SERIALIZERS[model] = type(serializer)
 
+    info = get_field_info(model)
+    (
+        pk,
+        fields,
+        forward_relations,
+        reverse_relations,
+        fields_and_pk,
+        relationships,
+    ) = info
+
     for field in serializer.fields.values():
         if not isinstance(field, (RelatedField, ManyRelatedField)):
             continue
 
-        model_field = model._meta.get_field(field.source)
+        # HyperlinkedIdentityField points to the object itself and not a related object
+        if isinstance(field, HyperlinkedIdentityField):
+            continue
+
+        if field.source not in relationships:
+            logger.debug(
+                "Field source %s not found in relationships, skipping", field.source
+            )
+            continue
+
+        try:
+            model_field = model._meta.get_field(field.source)
+        except FieldDoesNotExist:
+            relation_info = relationships[field.source]
+            assert relation_info.to_many
+            # find the field by accessor name
+            candidates = [
+                f
+                for f in model._meta.get_fields()
+                if f.remote_field
+                and getattr(f, "get_accessor_name", None)
+                and f.get_accessor_name() == field.source
+            ]
+            assert len(candidates) == 1
+            model_field = candidates[0]
+
         add_dependency(model_field)
 
     # and finally, add the explicit field names
