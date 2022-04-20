@@ -1,3 +1,7 @@
+from unittest.mock import patch
+
+from django.db import transaction
+
 import pytest
 from drf_yasg import openapi
 from drf_yasg.generators import SchemaGenerator
@@ -6,12 +10,14 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
 
+from testapp.factories import GroupFactory, HobbyFactory, PersonFactory
 from testapp.viewsets import PersonViewSet
 from vng_api_common.inspectors.cache import get_cache_headers
 
 pytestmark = pytest.mark.django_db(transaction=True)
 
 
+@pytest.mark.django_db(transaction=False)
 def test_etag_header_present(api_client, person):
     path = reverse("person-detail", kwargs={"pk": person.pk})
 
@@ -53,6 +59,75 @@ def test_cache_headers_detected():
 
     assert "ETag" in headers
     assert isinstance(headers["ETag"], openapi.Schema)
+
+
+@pytest.mark.django_db(transaction=False)
+def test_related_resource_changes_recalculate_etag1(django_capture_on_commit_callbacks):
+    # Assert that resources references in the serializer trigger ETag recalculates, while
+    # resources not referenced don't.
+    hobbies = [
+        HobbyFactory.create(name="playing guitar"),
+        HobbyFactory.create(name="playing synths"),
+    ]
+    person = PersonFactory.create(
+        name="Jon Carpenter",
+        address_street="Synthwave",
+        address_number="101",
+        # included in serializer, however this is through a serializer method field and thus
+        # explicitly declared. See the next test case for implicit relation following from
+        # the serializer fields.
+        group=GroupFactory.create(name="Brut"),
+    )
+    person.hobbies.set(hobbies)  # not included in serializer
+    person.calculate_etag_value()
+
+    # discard any scheduled callback handlers from test set up
+    transaction.get_connection().run_on_commit = []
+
+    assert person._etag, "No ETag value calculated"
+    initial_etag_value = person._etag
+
+    # start test 1 - changing the hobbies should not result in changed etags
+    with django_capture_on_commit_callbacks(execute=True):
+        person.hobbies.clear()
+
+    person.refresh_from_db()
+
+    assert person._etag == initial_etag_value
+
+    # start test 2 - changing the group does affect the serializer output and thus the etag value
+    # discard any scheduled callback handlers from test set up
+    transaction.get_connection().run_on_commit = []
+    with django_capture_on_commit_callbacks(execute=True):
+        person.group.name = "DWTD"
+        person.group.save()
+
+    person.refresh_from_db()
+
+    assert person._etag, "ETag should have been set"
+    assert person._etag != initial_etag_value, "ETag value should have been changed"
+
+
+@pytest.mark.django_db(transaction=False)
+def test_related_resource_changes_recalculate_etag2(django_capture_on_commit_callbacks):
+    # has a simple (reverse) m2m to Person
+    person = PersonFactory.create()
+    hobby = HobbyFactory.create()
+    hobby.calculate_etag_value()
+
+    assert hobby._etag, "No ETag value calculated"
+    initial_etag_value = hobby._etag
+
+    # now, change the related people resource to the hobby, which should trigger a
+    # re-calculate
+    # discard any scheduled callback handlers from test set up
+    transaction.get_connection().run_on_commit = []
+    with django_capture_on_commit_callbacks(execute=True):
+        person.hobbies.add(hobby)
+
+    hobby.refresh_from_db()
+    assert hobby._etag, "ETag should have been set"
+    assert hobby._etag != initial_etag_value, "ETag value should have been changed"
 
 
 def test_etag_changes_m2m_changes_forward(api_client, hobby, person):
@@ -177,21 +252,15 @@ def test_fetching_cache_enabled_deleted_resource_404s(api_client, person):
     assert response.status_code == 404
 
 
-def test_m2m_clear_schedules_etag_clear(api_client, person, hobby):
-    person.hobbies.add(hobby)
-    person_path = reverse("person-detail", kwargs={"pk": person.pk})
-    person_etag = api_client.get(person_path)["ETag"]
-    assert person_etag
-    assert person_etag != '""'
-    hobby_path = reverse("hobby-detail", kwargs={"pk": hobby.pk})
-    hobby_etag = api_client.get(hobby_path)["ETag"]
-    assert hobby_etag
-    assert hobby_etag != '""'
+@pytest.mark.django_db(transaction=False)
+def test_etag_updates_deduped(django_capture_on_commit_callbacks):
+    with patch(
+        "testapp.models.Person.calculate_etag_value"
+    ) as mock_calculate_etag_value:
+        with django_capture_on_commit_callbacks(execute=True):
+            # one post_save
+            person = PersonFactory.create()
+            # second post_save
+            person.save()
 
-    person.hobbies.clear()
-
-    hobby.refresh_from_db()
-    person.refresh_from_db()
-
-    assert not hobby._etag
-    assert not person._etag
+    assert mock_calculate_etag_value.call_count == 1

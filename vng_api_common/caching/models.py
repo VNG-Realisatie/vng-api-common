@@ -9,6 +9,9 @@ from .etags import calculate_etag
 class ETagMixin(models.Model):
     """
     Automatically calculate the (new) ETag value on save.
+
+    Note that the signal receivers in :mod:`vng_api_common.caching.signals` are
+    responsible for (cached) _etag value invalidation.
     """
 
     _etag = models.CharField(
