@@ -5,13 +5,16 @@ from django.db import transaction
 import pytest
 from drf_yasg import openapi
 from drf_yasg.generators import SchemaGenerator
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.reverse import reverse
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
 
 from testapp.factories import GroupFactory, HobbyFactory, PersonFactory
+from testapp.models import Hobby, Person
+from testapp.serializers import HobbySerializer
 from testapp.viewsets import PersonViewSet
+from vng_api_common.caching.decorators import conditional_retrieve
 from vng_api_common.inspectors.cache import get_cache_headers
 
 pytestmark = pytest.mark.django_db(transaction=True)
@@ -264,3 +267,20 @@ def test_etag_updates_deduped(django_capture_on_commit_callbacks):
             person.save()
 
     assert mock_calculate_etag_value.call_count == 1
+
+
+class DynamicSerializerViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Hobby.objects.all()
+
+    def get_serializer(self, *args, **kwargs):
+        return HobbySerializer()
+
+
+def test_dynamic_serializer():
+    REPLACEMENT_REGISTRY = {}
+    with patch(
+        "vng_api_common.caching.registry.DEPENDENCY_REGISTRY", new=REPLACEMENT_REGISTRY
+    ):
+        conditional_retrieve()(DynamicSerializerViewSet)
+
+    assert Person in REPLACEMENT_REGISTRY
