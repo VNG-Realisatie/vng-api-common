@@ -284,3 +284,10 @@ def test_dynamic_serializer():
         conditional_retrieve()(DynamicSerializerViewSet)
 
     assert Person in REPLACEMENT_REGISTRY
+
+
+def test_etag_object_cascading_delete():
+    group = GroupFactory.create()
+    PersonFactory.create(group=group)
+
+    group.delete()
