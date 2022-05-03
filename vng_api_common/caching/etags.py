@@ -135,6 +135,13 @@ class EtagUpdate:
 
     def calculate_new_value(self):
         with transaction.atomic(using=self.using):  # wrap in its own transaction
+            # check if the record still exists - it may have been deleted as part of a
+            # cascade delete, in which case we can't re-calculate and save anything.
+            try:
+                self.instance.refresh_from_db()
+            except self.instance.DoesNotExist:
+                return
+
             # track the actions _inside_ the on_commit handler, to prevent infinite
             # loops/stack overflows
             self.instance._updating_etag = True
