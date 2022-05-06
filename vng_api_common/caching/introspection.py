@@ -6,7 +6,8 @@ def has_cache_header(view: GenericAPIView) -> bool:
     if view.request is None:
         return False
 
-    if view.request.method not in ("GET", "HEAD"):
+    method = view.request.method
+    if method not in ("GET", "HEAD"):
         return False
 
     if hasattr(view, "detail") and not view.detail:
@@ -16,4 +17,4 @@ def has_cache_header(view: GenericAPIView) -> bool:
         return False
 
     conditional_retrieves = getattr(view, "_conditional_retrieves", [])
-    return view.action in conditional_retrieves
+    return method == "HEAD" or view.action in conditional_retrieves
