@@ -6,6 +6,11 @@ from ...validators import UntilNowValidator
 
 
 class NotificatieSerializer(serializers.Serializer):
+    uuid = serializers.UUIDField(
+        label=_("UUID"),
+        help_text=_("Unique resource identifier (UUID4)"),
+        read_only=True,
+    )
     kanaal = serializers.CharField(
         label=_("kanaal"),
         max_length=50,
