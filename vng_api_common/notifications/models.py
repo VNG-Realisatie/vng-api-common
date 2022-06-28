@@ -33,6 +33,16 @@ class NotificationsConfig(ClientConfig):
         help_text=_("an upper limit to the exponential backoff time."),
         default=48,
     )
+    failed_notification_admin_recipients = ArrayField(
+        models.EmailField(max_length=254),
+        verbose_name=_("failed notification email admin recipients"),
+        help_text=_(
+            "Komma-gescheiden lijst van emailadressen die een email moeten ontvangen "
+            "als het niet gelukt is om een notificatie te versturen (na de laatste retry)."
+        ),
+        default=list,
+        blank=True,
+    )
 
     class Meta:
         verbose_name = _("Notificatiescomponentconfiguratie")
