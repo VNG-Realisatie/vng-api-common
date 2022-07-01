@@ -15,6 +15,25 @@ from .constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
 
 @field_default("api_root", "https://notificaties-api.vng.cloud/api/v1/")
 class NotificationsConfig(ClientConfig):
+    notification_delivery_max_retries = models.PositiveIntegerField(
+        help_text=_(
+            "the maximum number of automatic retries. After this amount of retries, "
+            "guaranteed delivery stops trying to deliver the message."
+        ),
+        default=5,
+    )
+    notification_delivery_retry_backoff = models.PositiveIntegerField(
+        help_text=_(
+            "if specified, a factor applied to the exponential backoff. "
+            "This allows you to tune how quickly automatic retries are performed."
+        ),
+        default=3,
+    )
+    notification_delivery_retry_backoff_max = models.PositiveIntegerField(
+        help_text=_("an upper limit to the exponential backoff time."),
+        default=48,
+    )
+
     class Meta:
         verbose_name = _("Notificatiescomponentconfiguratie")
 
