@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "vng_api_common.authorizations",
     "vng_api_common.notifications",
     "vng_api_common.audittrails",
+    "notifications_api_common",
     "testapp",
 ]
 
