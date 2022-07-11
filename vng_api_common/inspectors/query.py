@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.encoding import force_text
 from django.utils.translation import gettext as _
 
-from django_filters.filters import ChoiceFilter
+from django_filters.filters import BaseCSVFilter, ChoiceFilter
 from drf_yasg import openapi
 from drf_yasg.inspectors.query import CoreAPICompatInspector
 from rest_framework.filters import OrderingFilter
@@ -37,7 +37,28 @@ class FilterInspector(CoreAPICompatInspector):
                     getattr(model_field, "help_text", "") if model_field else "",
                 )
 
-                if isinstance(filter_field, URLModelChoiceFilter):
+                if isinstance(filter_field, BaseCSVFilter):
+                    if "choices" in filter_field.extra:
+                        schema = openapi.Schema(
+                            type=openapi.TYPE_ARRAY,
+                            items=openapi.Schema(
+                                type=openapi.TYPE_STRING,
+                                enum=[
+                                    choice[0]
+                                    for choice in filter_field.extra["choices"]
+                                ],
+                            ),
+                        )
+                    else:
+                        schema = openapi.Schema(
+                            type=openapi.TYPE_ARRAY,
+                            items=openapi.Schema(type=openapi.TYPE_STRING),
+                        )
+                    parameter["type"] = openapi.TYPE_ARRAY
+                    parameter["schema"] = schema
+                    parameter["style"] = "form"
+                    parameter["explode"] = False
+                elif isinstance(filter_field, URLModelChoiceFilter):
                     description = _("URL to the related {resource}").format(
                         resource=parameter.name
                     )
