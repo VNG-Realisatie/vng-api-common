@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "vng_api_common.notifications",
     "vng_api_common.audittrails",
     "notifications_api_common",
+    "zgw_consumers",
     "testapp",
 ]
 
