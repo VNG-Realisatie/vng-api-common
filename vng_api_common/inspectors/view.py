@@ -32,6 +32,7 @@ TYPE_TO_FIELDMAPPING = {
     openapi.TYPE_NUMBER: serializers.FloatField,
     openapi.TYPE_STRING: serializers.CharField,
     openapi.TYPE_BOOLEAN: serializers.BooleanField,
+    openapi.TYPE_ARRAY: serializers.ListField,
 }
 
 COMMON_ERRORS = [
