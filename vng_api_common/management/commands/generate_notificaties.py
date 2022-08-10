@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.management import BaseCommand
 from django.template.loader import render_to_string
 
-from ...notifications.kanalen import KANAAL_REGISTRY
+from notifications_api_common.kanalen import KANAAL_REGISTRY
 
 
 class Command(BaseCommand):

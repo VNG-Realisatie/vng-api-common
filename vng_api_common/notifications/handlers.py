@@ -7,7 +7,8 @@ from ..authorizations.serializers import ApplicatieUuidSerializer
 from ..client import get_client
 from ..constants import CommonResourceAction
 from ..utils import get_uuid_from_path
-from .constants import KANAAL_AUTORISATIES
+
+KANAAL_AUTORISATIES = "autorisaties"
 
 
 class LoggingHandler:
