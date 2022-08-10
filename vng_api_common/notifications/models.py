@@ -10,7 +10,6 @@ from zds_client import ClientAuth
 from ..client import get_client
 from ..decorators import field_default
 from ..models import APICredential, ClientConfig
-from .constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
 
 
 @field_default("api_root", "https://notificaties-api.vng.cloud/api/v1/")
@@ -19,9 +18,7 @@ class NotificationsConfig(ClientConfig):
         verbose_name = _("Notificatiescomponentconfiguratie")
 
     def get_auth(self) -> ClientAuth:
-        auth = APICredential.get_auth(
-            self.api_root, scopes=[SCOPE_NOTIFICATIES_PUBLICEREN_LABEL]
-        )
+        auth = APICredential.get_auth(self.api_root, scopes=[])
         return auth
 
 
