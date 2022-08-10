@@ -33,7 +33,6 @@ Features
    :caption: Contents:
 
    quickstart
-   notifications
    ref/index
 
 
