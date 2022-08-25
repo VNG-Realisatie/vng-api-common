@@ -52,6 +52,5 @@ def get_cache_headers(view: APIView) -> [OpenApiParameter]:
                 "deze resources identiek aan elkaar. Je kan de ETag gebruiken "
                 "om caching te implementeren."
             ),
-            response=[status_code],
         ),
     ]
