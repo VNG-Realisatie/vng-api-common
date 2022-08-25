@@ -12,7 +12,7 @@ from django.utils.encoding import smart_str
 
 from rest_framework.utils import formatting
 from zds_client.client import ClientError
-
+from vng_api_common.constants import DRF_EXCLUDED_PATHS
 from .client import get_client
 
 try:
@@ -26,7 +26,6 @@ except ImportError:
 
 if TYPE_CHECKING:
     from rest_framework.viewsets import ViewSet
-
 
 logger = logging.getLogger(__name__)
 
@@ -269,3 +268,18 @@ def get_field_attribute(
     ModelClass = apps.get_model(model_string, require_ready=False)
     field = ModelClass._meta.get_field(field_name)
     return getattr(field, attr_name, None)
+
+
+def preprocessing_filter_spec(endpoints):
+    """exlude endpoints from drf-spectacular"""
+    filtered = []
+    for (path, path_regex, method, callback) in endpoints:
+        # Remove all but DRF API endpoints
+        include = True
+        for excluded_paths in DRF_EXCLUDED_PATHS:
+            if path.endswith(excluded_paths):
+                include = False
+                break
+        if include:
+            filtered.append((path, path_regex, method, callback))
+    return filtered

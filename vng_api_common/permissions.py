@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 def get_required_scopes(
-    request: Request, view: Union["APIView", "ViewSetMixin"]
+    request: Request, view: Union["APIView", "ViewSetMixin"], method=None
 ) -> Union[Scope, None]:
     if not hasattr(view, "required_scopes"):
         raise ImproperlyConfigured(
@@ -40,7 +40,10 @@ def get_required_scopes(
 
     # if action is not set, fall back to the request method
     if action is None and not isinstance(view, ViewSetMixin):
-        action = request.method.lower()
+        if request:
+            action = request.method.lower()
+        else:
+            action = method.lower()
 
     scopes_required = view.required_scopes.get(action)
     return scopes_required

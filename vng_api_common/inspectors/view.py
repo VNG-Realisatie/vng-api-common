@@ -1,39 +1,30 @@
 import inspect
 import logging
-from collections import OrderedDict
-from itertools import chain
-from typing import Optional, Tuple, Union
-
+from drf_spectacular.plumbing import (
+    build_parameter_type,
+    warn
+)
 from django.apps import apps
-from django.conf import settings
 from django.utils.translation import gettext, gettext_lazy as _
 
-from drf_yasg import openapi
-from drf_yasg.inspectors import SwaggerAutoSchema
-from drf_yasg.utils import get_consumes
-from rest_framework import exceptions, serializers, status, viewsets
+from drf_spectacular import openapi
+from drf_spectacular.plumbing import is_serializer, is_basic_type, build_examples_list, build_basic_type
+from drf_spectacular.settings import spectacular_settings
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
+from rest_framework import exceptions, status, viewsets
 
 from ..constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
 from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
 from ..permissions import BaseAuthRequired, get_required_scopes
-from ..search import is_search_view
 from ..serializers import (
     FoutSerializer,
     ValidatieFoutSerializer,
-    add_choice_values_help_text,
 )
 from .cache import CACHE_REQUEST_HEADERS, get_cache_headers, has_cache_header
 
 logger = logging.getLogger(__name__)
-
-TYPE_TO_FIELDMAPPING = {
-    openapi.TYPE_INTEGER: serializers.IntegerField,
-    openapi.TYPE_NUMBER: serializers.FloatField,
-    openapi.TYPE_STRING: serializers.CharField,
-    openapi.TYPE_BOOLEAN: serializers.BooleanField,
-    openapi.TYPE_ARRAY: serializers.ListField,
-}
 
 COMMON_ERRORS = [
     exceptions.AuthenticationFailed,
@@ -52,9 +43,9 @@ DEFAULT_ACTION_ERRORS = {
     "list": COMMON_ERRORS,
     "retrieve": COMMON_ERRORS + [exceptions.NotFound],
     "update": COMMON_ERRORS
-    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+              + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
     "partial_update": COMMON_ERRORS
-    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+                      + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
     "destroy": COMMON_ERRORS + [exceptions.NotFound],
 }
 
@@ -115,42 +106,28 @@ HTTP_STATUS_CODE_TITLES = {
 AUDIT_TRAIL_ENABLED = apps.is_installed("vng_api_common.audittrails")
 
 AUDIT_REQUEST_HEADERS = [
-    openapi.Parameter(
+    OpenApiParameter(
         name=HEADER_LOGRECORD_ID,
-        type=openapi.TYPE_STRING,
-        in_=openapi.IN_HEADER,
+        type=OpenApiTypes.STR,
+        location=OpenApiParameter.HEADER,
         required=False,
         description=gettext(
             "Identifier of the request, traceable throughout the network"
         ),
     ),
-    openapi.Parameter(
+    OpenApiParameter(
         name=HEADER_AUDIT,
-        type=openapi.TYPE_STRING,
-        in_=openapi.IN_HEADER,
+        type=OpenApiTypes.STR,
+        location=OpenApiParameter.HEADER,
         required=False,
         description=gettext("Explanation why the request is done"),
     ),
 ]
 
 
-def response_header(description: str, type: str, format: str = None) -> OrderedDict:
-    header = OrderedDict(
-        (("schema", OrderedDict((("type", type),))), ("description", description))
-    )
-    if format is not None:
-        header["schema"]["format"] = format
-    return header
+version_header = "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1.",
 
-
-version_header = response_header(
-    "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1.",
-    type=openapi.TYPE_STRING,
-)
-
-location_header = response_header(
-    "URL waar de resource leeft.", type=openapi.TYPE_STRING, format=openapi.FORMAT_URI
-)
+location_header = "URL waar de resource leeft."
 
 
 def _view_supports_audittrail(view: viewsets.ViewSet) -> bool:
@@ -185,323 +162,24 @@ def _view_supports_audittrail(view: viewsets.ViewSet) -> bool:
     return action_in_audit_bases
 
 
-class ResponseRef(openapi._Ref):
-    def __init__(self, resolver, response_name, ignore_unresolved=False):
+class AutoSchema(openapi.AutoSchema):
+    def get_auth(self):
         """
-        Adds a reference to a named Response defined in the ``#/responses/`` object.
+        Obtains authentication classes and permissions from view. If authentication
+        is known, resolve security requirement for endpoint and security definition for
+        the component section.
+        For custom authentication subclass ``OpenApiAuthenticationExtension``.
         """
-        assert "responses" in resolver.scopes
-        super().__init__(
-            resolver, response_name, "responses", openapi.Response, ignore_unresolved
-        )
+        auths = []
 
-
-class AutoSchema(SwaggerAutoSchema):
-    @property
-    def model(self):
-        if hasattr(self.view, "queryset") and self.view.queryset is not None:
-            return self.view.queryset.model
-
-        if hasattr(self.view, "get_queryset"):
-            qs = self.view.get_queryset()
-            return qs.model
-        return None
-
-    @property
-    def _is_search_view(self):
-        return is_search_view(self.view)
-
-    def get_operation_id(self, operation_keys=None) -> str:
-        """
-        Simply return the model name as lowercase string, postfixed with the operation name.
-        """
-        operation_keys = operation_keys or self.operation_keys
-
-        operation_id = self.overrides.get("operation_id", "")
-        if operation_id:
-            return operation_id
-
-        action = operation_keys[-1]
-        if self.model is not None:
-            model_name = self.model._meta.model_name
-            return f"{model_name}_{action}"
-        else:
-            operation_id = "_".join(operation_keys)
-            return operation_id
-
-    def should_page(self):
-        if self._is_search_view:
-            return hasattr(self.view, "paginator")
-        return super().should_page()
-
-    def get_request_serializer(self):
-        if not self._is_search_view:
-            return super().get_request_serializer()
-
-        Base = self.view.get_search_input_serializer_class()
-
-        filter_fields = []
-        for filter_backend in self.view.filter_backends:
-            filter_fields += (
-                self.probe_inspectors(
-                    self.filter_inspectors, "get_filter_parameters", filter_backend()
-                )
-                or []
-            )
-
-        filters = {}
-        for parameter in filter_fields:
-            help_text = parameter.description
-            # we can't get the verbose_label back from the enum, so the inspector
-            # in vng_api_common.inspectors.fields leaves a filter field reference behind
-            _filter_field = getattr(parameter, "_filter_field", None)
-            choices = getattr(_filter_field, "extra", {}).get("choices", [])
-            if choices:
-                FieldClass = serializers.ChoiceField
-                extra = {"choices": choices}
-                value_display_mapping = add_choice_values_help_text(choices)
-                help_text += f"\n\n{value_display_mapping}"
-            else:
-                FieldClass = TYPE_TO_FIELDMAPPING[parameter.type]
-                extra = {}
-
-            filters[parameter.name] = FieldClass(
-                help_text=help_text, required=parameter.required, **extra
-            )
-
-        SearchSerializer = type(Base.__name__, (Base,), filters)
-        return SearchSerializer()
-
-    def _get_search_responses(self):
-        response_status = status.HTTP_200_OK
-        response_schema = self.serializer_to_schema(self.get_view_serializer())
-        schema = openapi.Schema(type=openapi.TYPE_ARRAY, items=response_schema)
-        if self.should_page():
-            schema = self.get_paginated_response(schema) or schema
-        return OrderedDict({str(response_status): schema})
-
-    def register_error_responses(self):
-        ref_responses = self.components.with_scope("responses")
-
-        if not ref_responses.keys():
-            # general errors
-            general_classes = list(chain(*DEFAULT_ACTION_ERRORS.values()))
-            # add geo and validation errors
-            exception_classes = general_classes + [
-                PreconditionFailed,
-                exceptions.ValidationError,
-            ]
-            status_codes = sorted({e.status_code for e in exception_classes})
-
-            fout_schema = self.serializer_to_schema(FoutSerializer())
-            validation_fout_schema = self.serializer_to_schema(
-                ValidatieFoutSerializer()
-            )
-            for status_code in status_codes:
-                schema = (
-                    validation_fout_schema
-                    if status_code == exceptions.ValidationError.status_code
-                    else fout_schema
-                )
-                response = openapi.Response(
-                    description=HTTP_STATUS_CODE_TITLES.get(status_code, ""),
-                    schema=schema,
-                )
-                self.set_response_headers(str(status_code), response)
-                ref_responses.set(str(status_code), response)
-
-    def _get_error_responses(self) -> OrderedDict:
-        """
-        Add the appropriate possible error responses to the schema.
-
-        E.g. - we know that HTTP 400 on a POST/PATCH/PUT leads to validation
-        errors, 403 to Permission Denied etc.
-        """
-        # only supports viewsets
-        if not hasattr(self.view, "action"):
-            return OrderedDict()
-
-        self.register_error_responses()
-
-        action = self.view.action
-        if (
-            action not in DEFAULT_ACTION_ERRORS and self._is_search_view
-        ):  # similar to a CREATE
-            action = "create"
-
-        # general errors
-        general_klasses = DEFAULT_ACTION_ERRORS.get(action)
-        if general_klasses is None:
-            logger.debug("Unknown action %s, no default error responses added")
-            return OrderedDict()
-
-        exception_klasses = general_klasses[:]
-        # add geo and validation errors
-        has_validation_errors = self.get_filter_parameters() or any(
-            issubclass(klass, exceptions.ValidationError) for klass in exception_klasses
-        )
-        if has_validation_errors:
-            exception_klasses.append(exceptions.ValidationError)
-
-        if isinstance(self.view, GeoMixin):
-            exception_klasses.append(PreconditionFailed)
-
-        status_codes = sorted({e.status_code for e in exception_klasses})
-
-        return OrderedDict(
-            [
-                (status_code, ResponseRef(self.components, str(status_code)))
-                for status_code in status_codes
-            ]
-        )
-
-    def get_default_responses(self) -> OrderedDict:
-        if self._is_search_view:
-            responses = self._get_search_responses()
-            serializer = self.get_view_serializer()
-        else:
-            responses = super().get_default_responses()
-            serializer = self.get_request_serializer() or self.get_view_serializer()
-
-        # inject any headers
-        _responses = OrderedDict()
-        custom_headers = OrderedDict()
-        for status_, schema in responses.items():
-            if serializer is not None:
-                custom_headers = (
-                    self.probe_inspectors(
-                        self.field_inspectors,
-                        "get_response_headers",
-                        serializer,
-                        {"field_inspectors": self.field_inspectors},
-                        status=status_,
-                    )
-                    or OrderedDict()
-                )
-
-            # add the cache headers, if applicable
-            for header, header_schema in get_cache_headers(self.view).items():
-                custom_headers[header] = header_schema
-
-            assert isinstance(schema, openapi.Schema.OR_REF) or schema == ""
-            response = openapi.Response(
-                description=HTTP_STATUS_CODE_TITLES.get(int(status_), ""),
-                schema=schema or None,
-                headers=custom_headers,
-            )
-            _responses[status_] = response
-
-        for status_code, response in self._get_error_responses().items():
-            _responses[status_code] = response
-
-        return _responses
-
-    @staticmethod
-    def set_response_headers(
-        status_code: str, response: Union[openapi.Response, ResponseRef]
-    ):
-        if not isinstance(response, openapi.Response):
-            return
-
-        response.setdefault("headers", OrderedDict())
-        response["headers"][VERSION_HEADER] = version_header
-
-        if status_code == "201":
-            response["headers"]["Location"] = location_header
-
-    def get_response_schemas(self, response_serializers):
-        # parent class doesn't support responses as ref objects,
-        # so we temporary remove them
-        ref_responses = OrderedDict()
-        for status_code, serializer in response_serializers.copy().items():
-            if isinstance(serializer, ResponseRef):
-                ref_responses[str(status_code)] = response_serializers.pop(status_code)
-
-        responses = super().get_response_schemas(response_serializers)
-
-        # and add them again
-        responses.update(ref_responses)
-        responses = OrderedDict(sorted(responses.items()))
-
-        # add the Api-Version headers
-        for status_code, response in responses.items():
-            self.set_response_headers(status_code, response)
-
-        return responses
-
-    def get_request_content_type_header(self) -> Optional[openapi.Parameter]:
-        if self.method not in ["POST", "PUT", "PATCH"]:
-            return None
-
-        consumes = get_consumes(self.get_parser_classes())
-        return openapi.Parameter(
-            name="Content-Type",
-            in_=openapi.IN_HEADER,
-            type=openapi.TYPE_STRING,
-            required=True,
-            enum=consumes,
-            description=_("Content type of the request body."),
-        )
-
-    def add_manual_parameters(self, parameters):
-        base = super().add_manual_parameters(parameters)
-
-        content_type = self.get_request_content_type_header()
-        if content_type is not None:
-            base = [content_type] + base
-
-        if self._is_search_view:
-            serializer = self.get_request_serializer()
-        else:
-            serializer = self.get_request_serializer() or self.get_view_serializer()
-
-        extra = []
-        if serializer is not None:
-            extra = (
-                self.probe_inspectors(
-                    self.field_inspectors,
-                    "get_request_header_parameters",
-                    serializer,
-                    {"field_inspectors": self.field_inspectors},
-                )
-                or []
-            )
-        result = base + extra
-
-        if has_cache_header(self.view):
-            result += CACHE_REQUEST_HEADERS
-
-        if _view_supports_audittrail(self.view):
-            result += AUDIT_REQUEST_HEADERS
-
-        return result
-
-    def get_security(self):
-        """Return a list of security requirements for this operation.
-
-        Returning an empty list marks the endpoint as unauthenticated (i.e. removes all accepted
-        authentication schemes). Returning ``None`` will inherit the top-level secuirty requirements.
-
-        :return: security requirements
-        :rtype: list[dict[str,list[str]]]"""
         permissions = self.view.get_permissions()
         scope_permissions = [
             perm for perm in permissions if isinstance(perm, BaseAuthRequired)
         ]
 
-        if not scope_permissions:
-            return super().get_security()
-
-        if len(permissions) != len(scope_permissions):
-            logger.warning(
-                "Can't represent all permissions in OAS for path %s and method %s",
-                self.path,
-                self.method,
-            )
-
         required_scopes = []
         for perm in scope_permissions:
-            scopes = get_required_scopes(self.request, self.view)
+            scopes = get_required_scopes(method=self.method, view=self.view, request=None)
             if scopes is None:
                 continue
             required_scopes.append(scopes)
@@ -511,37 +189,162 @@ class AutoSchema(SwaggerAutoSchema):
 
         scopes = [str(scope) for scope in sorted(required_scopes)]
 
-        # operation level security
-        return [{settings.SECURITY_DEFINITION_NAME: scopes}]
+        if spectacular_settings.SECURITY:
+            auths = [{list(spectacular_settings.SECURITY[0])[0]: [scopes]}]
+        return auths
 
-    # all of these break if you accept method HEAD because the view.action is None
-    def is_list_view(self) -> bool:
-        if self.method == "HEAD":
-            return False
-        return super().is_list_view()
+    def get_override_parameters(self):
+        """ override this for custom behaviour """
 
-    def get_summary_and_description(self) -> Tuple[str, str]:
-        if self.method != "HEAD":
-            return super().get_summary_and_description()
+        custom_headers = []
 
-        default_description = _(
-            "De headers voor een specifiek(e) {model_name} opvragen"
-        ).format(model_name=self.model._meta.model_name.upper())
-        default_summary = _(
-            "Vraag de headers op die je bij een GET request zou krijgen."
+        custom_headers += self.get_request_content_type_header()
+
+        if has_cache_header(self.view):
+            custom_headers += CACHE_REQUEST_HEADERS
+
+        if _view_supports_audittrail(self.view):
+            custom_headers += AUDIT_REQUEST_HEADERS
+
+        return custom_headers
+
+    def get_request_content_type_header(self) -> [OpenApiParameter]:
+        if self.method not in ["POST", "PUT", "PATCH"]:
+            return []
+
+        return [OpenApiParameter(
+            name="Content-Type",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.HEADER,
+            required=True,
+            enum=self.map_renderers('media_type'),
+            description=_("Content type of the request body."),
+        )]
+
+    def _get_response_bodies(self, direction='response'):
+        response_serializers = self.get_response_serializers()
+
+        status_codes = self.get_error_codes()
+        codes = {}
+
+        for status_code in status_codes:
+            serializer = ValidatieFoutSerializer if status_code == exceptions.ValidationError.status_code else FoutSerializer
+            codes[str(status_code)] = self._get_response_for_code(
+                OpenApiResponse(description=HTTP_STATUS_CODE_TITLES.get(int(status_code)), response=serializer),
+                str(status_code),
+                self.map_renderers('media_type'),
+                direction=direction)
+
+        if (
+            is_serializer(response_serializers)
+            or is_basic_type(response_serializers)
+            or isinstance(response_serializers, OpenApiResponse)
+        ):
+            if self.method == 'DELETE':
+                codes['204'] = self._get_response_for_code(
+                    OpenApiResponse(description=HTTP_STATUS_CODE_TITLES.get(204), response=response_serializers), "204",
+                    self.map_renderers('media_type'),
+                    direction=direction)
+                return codes
+
+            if self._is_create_operation():
+                codes['201'] = self._get_response_for_code(
+                    OpenApiResponse(description=HTTP_STATUS_CODE_TITLES.get(201), response=response_serializers), "201",
+                    self.map_renderers('media_type'),
+                    direction=direction)
+                return codes
+
+            codes['200'] = codes['200'] = self._get_response_for_code(
+                OpenApiResponse(description=HTTP_STATUS_CODE_TITLES.get(200), response=response_serializers), "200",
+                self.map_renderers('media_type'),
+                direction=direction)
+            return codes
+
+    def get_error_codes(self):
+        if not hasattr(self.view, "action"):
+            return []
+
+        action = self.view.action
+
+        general_klasses = DEFAULT_ACTION_ERRORS.get(action)
+        if general_klasses is None:
+            logger.debug("Unknown action %s, no default error responses added")
+            return []
+
+        exception_klasses = general_klasses[:]
+        # add geo and validation errors
+        has_validation_errors = self._get_filter_parameters() or any(
+            issubclass(klass, exceptions.ValidationError) for klass in exception_klasses
         )
+        if has_validation_errors:
+            exception_klasses.append(exceptions.ValidationError)
 
-        description = self.overrides.get("operation_description", default_description)
-        summary = self.overrides.get("operation_summary", default_summary)
-        return description, summary
+        if isinstance(self.view, GeoMixin):
+            exception_klasses.append(PreconditionFailed)
 
-    # patch around drf-yasg not taking overrides into account
-    # TODO: contribute back in PR
-    def get_produces(self) -> list:
-        produces = super().get_produces()
-        return self.overrides.get("produces", produces)
+        status_codes = sorted({e.status_code for e in exception_klasses})
+        return status_codes
 
+    def custom_response_headers(self, status_code):
+        custom_response_headers = [OpenApiParameter(
+            name="Location",
+            type=OpenApiTypes.URI,
+            location=OpenApiParameter.HEADER,
+            description=location_header,
+            response=[201], )]
 
-# translations aren't picked up/defined in DRF, so we need to hook them up here
-_("A page number within the paginated result set.")
-_("Number of results to return per page.")
+        custom_response_headers += get_cache_headers(self.view, status_code)
+        custom_response_headers += [OpenApiParameter(
+            name=VERSION_HEADER,
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.HEADER,
+            description=version_header,
+            response=[status_code], )]
+
+        return custom_response_headers
+
+    def _get_response_headers_for_code(self, status_code, direction='response') -> dict:
+
+        result = {}
+        custom_response_headers = self.custom_response_headers(status_code=status_code)
+
+        for parameter in self.get_override_parameters() + custom_response_headers:
+            if not isinstance(parameter, OpenApiParameter):
+                continue
+            if not parameter.response:
+                continue
+            if (
+                isinstance(parameter.response, list)
+                and status_code not in [str(code) for code in parameter.response]
+            ):
+                continue
+
+            if is_basic_type(parameter.type):
+                schema = build_basic_type(parameter.type)
+            elif is_serializer(parameter.type):
+                schema = self.resolve_serializer(parameter.type, direction).ref
+            else:
+                schema = parameter.type
+
+            if parameter.location not in [OpenApiParameter.HEADER, OpenApiParameter.COOKIE]:
+                warn(f'incompatible location type ignored for response parameter {parameter.name}')
+            parameter_type = build_parameter_type(
+                name=parameter.name,
+                schema=schema,
+                location=parameter.location,
+                required=parameter.required,
+                description=parameter.description,
+                enum=parameter.enum,
+                pattern=parameter.pattern,
+                deprecated=parameter.deprecated,
+                style=parameter.style,
+                explode=parameter.explode,
+                default=parameter.default,
+                allow_blank=parameter.allow_blank,
+                examples=build_examples_list(parameter.examples),
+                extensions=parameter.extensions,
+            )
+            del parameter_type['name']
+            del parameter_type['in']
+            result[parameter.name] = parameter_type
+        return result
