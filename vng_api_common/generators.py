@@ -6,7 +6,7 @@ from drf_spectacular.generators import SchemaGenerator as _OpenAPISchemaGenerato
 from drf_spectacular.plumbing import (
     normalize_result_object,
     sanitize_result_object,
-    sanitize_specification_extensions, build_root_object,
+    build_root_object,
 )
 from drf_spectacular.settings import spectacular_settings
 
