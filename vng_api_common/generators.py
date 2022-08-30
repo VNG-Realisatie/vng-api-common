@@ -1,4 +1,5 @@
 import importlib
+from rest_framework.test import APIRequestFactory
 
 from drf_spectacular.drainage import reset_generator_stats
 from drf_spectacular.plumbing import sanitize_result_object, normalize_result_object, \
@@ -57,3 +58,23 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
         if settings.EXTERNAL_DOCS:
             root['externalDocs'] = settings.EXTERNAL_DOCS
         return root
+
+
+
+def build_mock_request(method, path, view, original_request, **kwargs):
+    """ build a mocked request and use original request as reference if available """
+    request = getattr(APIRequestFactory(), method.lower())(path=path)
+    # request = view.initialize_request(request)
+    if original_request:
+        request.user = original_request.user
+        request.auth = original_request.auth
+        # ignore headers related to authorization as it has been handled above.
+        # also ignore ACCEPT as the MIME type refers to SpectacularAPIView and the
+        # version (if available) has already been processed by SpectacularAPIView.
+        for name, value in original_request.META.items():
+            if not name.startswith('HTTP_'):
+                continue
+            if name in ['HTTP_ACCEPT', 'HTTP_COOKIE', 'HTTP_AUTHORIZATION']:
+                continue
+            request.META[name] = value
+    return request
