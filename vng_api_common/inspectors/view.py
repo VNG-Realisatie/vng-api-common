@@ -194,7 +194,7 @@ class AutoSchema(openapi.AutoSchema):
         return auths
 
     def get_override_parameters(self):
-        """ override this for custom behaviour """
+        """ add header parameters """
 
         custom_headers = []
 
