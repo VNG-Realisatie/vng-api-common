@@ -224,12 +224,12 @@ class AutoSchema(openapi.AutoSchema):
     def _get_response_bodies(self, direction='response'):
         response_serializers = self.get_response_serializers()
 
-        status_codes = self.get_error_codes()
-        codes = {}
+        error_status_codes = self.get_error_codes()
+        all_response_codes = {}
 
-        for status_code in status_codes:
+        for status_code in error_status_codes:
             serializer = ValidatieFoutSerializer if status_code == exceptions.ValidationError.status_code else FoutSerializer
-            codes[str(status_code)] = self._get_response_for_code(
+            all_response_codes[str(status_code)] = self._get_response_for_code(
                 OpenApiResponse(description=HTTP_STATUS_CODE_TITLES.get(int(status_code)), response=serializer),
                 str(status_code),
                 self.map_renderers('media_type'),
@@ -241,24 +241,24 @@ class AutoSchema(openapi.AutoSchema):
             or isinstance(response_serializers, OpenApiResponse)
         ):
             if self.method == 'DELETE':
-                codes['204'] = self._get_response_for_code(
+                all_response_codes['204'] = self._get_response_for_code(
                     OpenApiResponse(description=HTTP_STATUS_CODE_TITLES.get(204), response=response_serializers), "204",
                     self.map_renderers('media_type'),
                     direction=direction)
-                return codes
+                return all_response_codes
 
             if self._is_create_operation():
-                codes['201'] = self._get_response_for_code(
+                all_response_codes['201'] = self._get_response_for_code(
                     OpenApiResponse(description=HTTP_STATUS_CODE_TITLES.get(201), response=response_serializers), "201",
                     self.map_renderers('media_type'),
                     direction=direction)
-                return codes
+                return all_response_codes
 
-            codes['200'] = codes['200'] = self._get_response_for_code(
+            all_response_codes['200'] = self._get_response_for_code(
                 OpenApiResponse(description=HTTP_STATUS_CODE_TITLES.get(200), response=response_serializers), "200",
                 self.map_renderers('media_type'),
                 direction=direction)
-            return codes
+            return all_response_codes
 
     def get_error_codes(self):
         if not hasattr(self.view, "action"):
