@@ -1,6 +1,4 @@
 import importlib
-from rest_framework.test import APIRequestFactory
-
 from drf_spectacular.drainage import reset_generator_stats
 from drf_spectacular.plumbing import sanitize_result_object, normalize_result_object, \
     sanitize_specification_extensions

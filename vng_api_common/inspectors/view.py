@@ -190,7 +190,7 @@ class AutoSchema(openapi.AutoSchema):
         scopes = [str(scope) for scope in sorted(required_scopes)]
 
         if spectacular_settings.SECURITY:
-            auths = [{list(spectacular_settings.SECURITY[0])[0]: [scopes]}]
+            auths = [{list(spectacular_settings.SECURITY[0])[0]: scopes}]
         return auths
 
     def get_override_parameters(self):
@@ -333,7 +333,7 @@ class AutoSchema(openapi.AutoSchema):
                 schema=schema,
                 location=parameter.location,
                 required=parameter.required,
-                description=parameter.description,
+                description="\n".join(parameter.description),
                 enum=parameter.enum,
                 pattern=parameter.pattern,
                 deprecated=parameter.deprecated,

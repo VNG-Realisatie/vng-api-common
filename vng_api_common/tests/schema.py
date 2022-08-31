@@ -3,6 +3,7 @@ from functools import lru_cache
 from urllib.parse import urlparse
 
 from django.conf import settings
+from drf_spectacular.settings import spectacular_settings
 
 import yaml
 
@@ -23,8 +24,6 @@ def get_operation_url(operation: str, spec_path: str = SPEC_PATH, **kwargs):
     Look up the url of an operation from the API spec.
     """
     spec = get_spec(spec_path)
-    url = spec["servers"][0]["url"]
-    base_path = urlparse(url).path
 
     for path, methods in spec["paths"].items():
         for name, method in methods.items():
@@ -35,7 +34,7 @@ def get_operation_url(operation: str, spec_path: str = SPEC_PATH, **kwargs):
                 format_kwargs = DEFAULT_PATH_PARAMETERS.copy()
                 format_kwargs.update(**kwargs)
                 path = path.format(**format_kwargs)
-                return f"{base_path}{path}"
+                return path
 
     raise ValueError(f"Operation {operation} not found")
 
