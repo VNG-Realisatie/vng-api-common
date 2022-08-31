@@ -64,7 +64,7 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
 def build_mock_request(method, path, view, original_request, **kwargs):
     """ build a mocked request and use original request as reference if available """
     request = getattr(APIRequestFactory(), method.lower())(path=path)
-    # request = view.initialize_request(request)
+    request = view.initialize_request(request)
     if original_request:
         request.user = original_request.user
         request.auth = original_request.auth
