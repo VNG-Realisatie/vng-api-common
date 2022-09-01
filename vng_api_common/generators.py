@@ -57,7 +57,7 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
             TAGS = []
             for tag in settings.TAGS:
                 schema_module = importlib.import_module(tag['path'])
-                doc_string = " ".join(re.split("\s+", schema_module.__dict__[tag['view']].__doc__, flags=re.UNICODE))
+                doc_string = " ".join(schema_module.__dict__[tag['view']].__doc__.split())
                 TAGS.append({"name": tag["name"], "description": doc_string})
             root['tags'] = TAGS
         if settings.EXTERNAL_DOCS:
