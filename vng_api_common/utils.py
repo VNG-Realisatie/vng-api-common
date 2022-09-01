@@ -12,7 +12,9 @@ from django.utils.encoding import smart_str
 
 from rest_framework.utils import formatting
 from zds_client.client import ClientError
+
 from vng_api_common.constants import DRF_EXCLUDED_ENDPOINTS
+
 from .client import get_client
 
 try:

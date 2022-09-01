@@ -2,8 +2,8 @@ import logging
 
 from django.db import transaction
 from django.http import Http404
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import viewsets
 
 from ..compat import get_header
@@ -16,6 +16,7 @@ from .api.serializers import AuditTrailSerializer
 from .models import AuditTrail
 
 logger = logging.getLogger(__name__)
+
 
 class AuditTrailMixin:
     audit = None
