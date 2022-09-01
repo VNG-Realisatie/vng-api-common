@@ -124,7 +124,6 @@ AUDIT_REQUEST_HEADERS = [
     ),
 ]
 
-
 version_header = "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1.",
 
 location_header = "URL waar de resource leeft."
@@ -333,7 +332,8 @@ class AutoSchema(openapi.AutoSchema):
                 schema=schema,
                 location=parameter.location,
                 required=parameter.required,
-                description="\n".join(parameter.description),
+                description="\n".join(parameter.description) if type(
+                    parameter.description) == tuple else parameter.description,
                 enum=parameter.enum,
                 pattern=parameter.pattern,
                 deprecated=parameter.deprecated,
