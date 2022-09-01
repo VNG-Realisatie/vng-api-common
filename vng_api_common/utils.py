@@ -12,7 +12,7 @@ from django.utils.encoding import smart_str
 
 from rest_framework.utils import formatting
 from zds_client.client import ClientError
-from vng_api_common.constants import DRF_EXCLUDED_PATHS
+from vng_api_common.constants import DRF_EXCLUDED_ENDPOINTS
 from .client import get_client
 
 try:
@@ -276,7 +276,7 @@ def preprocessing_filter_spec(endpoints):
     for (path, path_regex, method, callback) in endpoints:
         # Remove all but DRF API endpoints
         include = True
-        for excluded_paths in DRF_EXCLUDED_PATHS:
+        for excluded_paths in DRF_EXCLUDED_ENDPOINTS:
             if path.endswith(excluded_paths):
                 include = False
                 break

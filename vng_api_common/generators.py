@@ -3,10 +3,12 @@ from drf_spectacular.drainage import reset_generator_stats
 from drf_spectacular.plumbing import sanitize_result_object, normalize_result_object, \
     sanitize_specification_extensions
 from drf_spectacular.settings import spectacular_settings
+import re
 
 from drf_spectacular.generators import (
     SchemaGenerator as _OpenAPISchemaGenerator,
 )
+
 
 class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
     def get_schema(self, request=None, public=False):
@@ -22,7 +24,7 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
 
         return sanitize_result_object(normalize_result_object(result))
 
-    def build_root_object(self,paths, components, version):
+    def build_root_object(self, paths, components, version):
         settings = spectacular_settings
         schema_module = importlib.import_module(settings.DESCRIPTION)
 
@@ -52,7 +54,12 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
         if settings.SERVERS:
             root['servers'] = settings.SERVERS
         if settings.TAGS:
-            root['tags'] = settings.TAGS
+            TAGS = []
+            for tag in settings.TAGS:
+                schema_module = importlib.import_module(tag['path'])
+                doc_string = " ".join(re.split("\s+", schema_module.__dict__[tag['view']].__doc__, flags=re.UNICODE))
+                TAGS.append({"name": tag["name"], "description": doc_string})
+            root['tags'] = TAGS
         if settings.EXTERNAL_DOCS:
             root['externalDocs'] = settings.EXTERNAL_DOCS
         return root
