@@ -3,9 +3,9 @@ from functools import lru_cache
 from urllib.parse import urlparse
 
 from django.conf import settings
-from drf_spectacular.settings import spectacular_settings
 
 import yaml
+from drf_spectacular.settings import spectacular_settings
 
 DEFAULT_PATH_PARAMETERS = {"version": "1"}
 

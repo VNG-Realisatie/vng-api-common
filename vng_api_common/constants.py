@@ -45,7 +45,7 @@ class RolOmschrijving(DjangoChoices):
         "belanghebbende",
         "Belanghebbende",
         description="Vanuit eigen en objectief belang rechtstreeks betrokken "
-                    "zijn bij de behandeling en/of de uitkomst van een zaak.",
+        "zijn bij de behandeling en/of de uitkomst van een zaak.",
     )
     beslisser = ChoiceItem(
         "beslisser",
@@ -66,7 +66,7 @@ class RolOmschrijving(DjangoChoices):
         "zaakcoordinator",
         "Zaakcoördinator",
         description="Er voor zorg dragen dat de behandeling van de zaak in samenhang "
-                    "uitgevoerd wordt conform de daarover gemaakte afspraken.",
+        "uitgevoerd wordt conform de daarover gemaakte afspraken.",
     )
     medeinitiator = ChoiceItem("mede_initiator", "Mede-initiator", description="")
 

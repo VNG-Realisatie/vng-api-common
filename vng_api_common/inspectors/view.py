@@ -1,14 +1,18 @@
 import inspect
 import logging
-from drf_spectacular.plumbing import (
-    build_parameter_type,
-    warn
-)
+
 from django.apps import apps
 from django.utils.translation import gettext, gettext_lazy as _
 
 from drf_spectacular import openapi
-from drf_spectacular.plumbing import is_serializer, is_basic_type, build_examples_list, build_basic_type
+from drf_spectacular.plumbing import (
+    build_basic_type,
+    build_examples_list,
+    build_parameter_type,
+    is_basic_type,
+    is_serializer,
+    warn,
+)
 from drf_spectacular.settings import spectacular_settings
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
@@ -18,10 +22,7 @@ from ..constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
 from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
 from ..permissions import BaseAuthRequired, get_required_scopes
-from ..serializers import (
-    FoutSerializer,
-    ValidatieFoutSerializer,
-)
+from ..serializers import FoutSerializer, ValidatieFoutSerializer
 from .cache import CACHE_REQUEST_HEADERS, get_cache_headers, has_cache_header
 
 logger = logging.getLogger(__name__)
@@ -43,9 +44,9 @@ DEFAULT_ACTION_ERRORS = {
     "list": COMMON_ERRORS,
     "retrieve": COMMON_ERRORS + [exceptions.NotFound],
     "update": COMMON_ERRORS
-              + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
     "partial_update": COMMON_ERRORS
-                      + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
     "destroy": COMMON_ERRORS + [exceptions.NotFound],
 }
 
@@ -124,7 +125,9 @@ AUDIT_REQUEST_HEADERS = [
     ),
 ]
 
-version_header = "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1.",
+version_header = (
+    "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1.",
+)
 
 location_header = "URL waar de resource leeft."
 
@@ -178,7 +181,9 @@ class AutoSchema(openapi.AutoSchema):
 
         required_scopes = []
         for perm in scope_permissions:
-            scopes = get_required_scopes(method=self.method, view=self.view, request=None)
+            scopes = get_required_scopes(
+                method=self.method, view=self.view, request=None
+            )
             if scopes is None:
                 continue
             required_scopes.append(scopes)
@@ -193,7 +198,7 @@ class AutoSchema(openapi.AutoSchema):
         return auths
 
     def get_override_parameters(self):
-        """ add header parameters """
+        """add header parameters"""
 
         custom_headers = []
 
@@ -211,52 +216,77 @@ class AutoSchema(openapi.AutoSchema):
         if self.method not in ["POST", "PUT", "PATCH"]:
             return []
 
-        return [OpenApiParameter(
-            name="Content-Type",
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=True,
-            enum=self.map_renderers('media_type'),
-            description=_("Content type of the request body."),
-        )]
+        return [
+            OpenApiParameter(
+                name="Content-Type",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+                required=True,
+                enum=self.map_renderers("media_type"),
+                description=_("Content type of the request body."),
+            )
+        ]
 
-    def _get_response_bodies(self, direction='response'):
+    def _get_response_bodies(self, direction="response"):
         response_serializers = self.get_response_serializers()
 
         error_status_codes = self.get_error_codes()
         all_response_codes = {}
 
         for status_code in error_status_codes:
-            serializer = ValidatieFoutSerializer if status_code == exceptions.ValidationError.status_code else FoutSerializer
+            serializer = (
+                ValidatieFoutSerializer
+                if status_code == exceptions.ValidationError.status_code
+                else FoutSerializer
+            )
             all_response_codes[str(status_code)] = self._get_response_for_code(
-                OpenApiResponse(description=HTTP_STATUS_CODE_TITLES.get(int(status_code)), response=serializer),
+                OpenApiResponse(
+                    description=HTTP_STATUS_CODE_TITLES.get(int(status_code)),
+                    response=serializer,
+                ),
                 str(status_code),
-                self.map_renderers('media_type'),
-                direction=direction)
+                self.map_renderers("media_type"),
+                direction=direction,
+            )
 
         if (
             is_serializer(response_serializers)
             or is_basic_type(response_serializers)
             or isinstance(response_serializers, OpenApiResponse)
         ):
-            if self.method == 'DELETE':
-                all_response_codes['204'] = self._get_response_for_code(
-                    OpenApiResponse(description=HTTP_STATUS_CODE_TITLES.get(204), response=response_serializers), "204",
-                    self.map_renderers('media_type'),
-                    direction=direction)
+            if self.method == "DELETE":
+                all_response_codes["204"] = self._get_response_for_code(
+                    OpenApiResponse(
+                        description=HTTP_STATUS_CODE_TITLES.get(204),
+                        response=response_serializers,
+                    ),
+                    "204",
+                    self.map_renderers("media_type"),
+                    direction=direction,
+                )
                 return all_response_codes
 
             if self._is_create_operation():
-                all_response_codes['201'] = self._get_response_for_code(
-                    OpenApiResponse(description=HTTP_STATUS_CODE_TITLES.get(201), response=response_serializers), "201",
-                    self.map_renderers('media_type'),
-                    direction=direction)
+                all_response_codes["201"] = self._get_response_for_code(
+                    OpenApiResponse(
+                        description=HTTP_STATUS_CODE_TITLES.get(201),
+                        response=response_serializers,
+                    ),
+                    "201",
+                    self.map_renderers("media_type"),
+                    direction=direction,
+                )
                 return all_response_codes
 
-            all_response_codes['200'] = self._get_response_for_code(
-                OpenApiResponse(description=HTTP_STATUS_CODE_TITLES.get(200), response=response_serializers), "200",
-                self.map_renderers('media_type'),
-                direction=direction)
+            all_response_codes["200"] = self._get_response_for_code(
+                OpenApiResponse(
+                    description=HTTP_STATUS_CODE_TITLES.get(200),
+                    response=response_serializers,
+                ),
+                "200",
+                self.map_renderers("media_type"),
+                direction=direction,
+            )
             return all_response_codes
 
     def get_error_codes(self):
@@ -285,24 +315,30 @@ class AutoSchema(openapi.AutoSchema):
         return status_codes
 
     def custom_response_headers(self, status_code):
-        custom_response_headers = [OpenApiParameter(
-            name="Location",
-            type=OpenApiTypes.URI,
-            location=OpenApiParameter.HEADER,
-            description=location_header,
-            response=[201], )]
+        custom_response_headers = [
+            OpenApiParameter(
+                name="Location",
+                type=OpenApiTypes.URI,
+                location=OpenApiParameter.HEADER,
+                description=location_header,
+                response=[201],
+            )
+        ]
 
         custom_response_headers += get_cache_headers(self.view, status_code)
-        custom_response_headers += [OpenApiParameter(
-            name=VERSION_HEADER,
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            description=version_header,
-            response=[status_code], )]
+        custom_response_headers += [
+            OpenApiParameter(
+                name=VERSION_HEADER,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+                description=version_header,
+                response=[status_code],
+            )
+        ]
 
         return custom_response_headers
 
-    def _get_response_headers_for_code(self, status_code, direction='response') -> dict:
+    def _get_response_headers_for_code(self, status_code, direction="response") -> dict:
 
         result = {}
         custom_response_headers = self.custom_response_headers(status_code=status_code)
@@ -312,10 +348,9 @@ class AutoSchema(openapi.AutoSchema):
                 continue
             if not parameter.response:
                 continue
-            if (
-                isinstance(parameter.response, list)
-                and status_code not in [str(code) for code in parameter.response]
-            ):
+            if isinstance(parameter.response, list) and status_code not in [
+                str(code) for code in parameter.response
+            ]:
                 continue
 
             if is_basic_type(parameter.type):
@@ -325,15 +360,21 @@ class AutoSchema(openapi.AutoSchema):
             else:
                 schema = parameter.type
 
-            if parameter.location not in [OpenApiParameter.HEADER, OpenApiParameter.COOKIE]:
-                warn(f'incompatible location type ignored for response parameter {parameter.name}')
+            if parameter.location not in [
+                OpenApiParameter.HEADER,
+                OpenApiParameter.COOKIE,
+            ]:
+                warn(
+                    f"incompatible location type ignored for response parameter {parameter.name}"
+                )
             parameter_type = build_parameter_type(
                 name=parameter.name,
                 schema=schema,
                 location=parameter.location,
                 required=parameter.required,
-                description="\n".join(parameter.description) if type(
-                    parameter.description) == tuple else parameter.description,
+                description="\n".join(parameter.description)
+                if type(parameter.description) == tuple
+                else parameter.description,
                 enum=parameter.enum,
                 pattern=parameter.pattern,
                 deprecated=parameter.deprecated,
@@ -344,7 +385,7 @@ class AutoSchema(openapi.AutoSchema):
                 examples=build_examples_list(parameter.examples),
                 extensions=parameter.extensions,
             )
-            del parameter_type['name']
-            del parameter_type['in']
+            del parameter_type["name"]
+            del parameter_type["in"]
             result[parameter.name] = parameter_type
         return result

@@ -1,23 +1,24 @@
 import importlib
-from drf_spectacular.drainage import reset_generator_stats
-from drf_spectacular.plumbing import sanitize_result_object, normalize_result_object, \
-    sanitize_specification_extensions
-from drf_spectacular.settings import spectacular_settings
 import re
 
-from drf_spectacular.generators import (
-    SchemaGenerator as _OpenAPISchemaGenerator,
+from drf_spectacular.drainage import reset_generator_stats
+from drf_spectacular.generators import SchemaGenerator as _OpenAPISchemaGenerator
+from drf_spectacular.plumbing import (
+    normalize_result_object,
+    sanitize_result_object,
+    sanitize_specification_extensions,
 )
+from drf_spectacular.settings import spectacular_settings
 
 
 class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
     def get_schema(self, request=None, public=False):
-        """ Generate a OpenAPI schema. """
+        """Generate a OpenAPI schema."""
         reset_generator_stats()
         result = self.build_root_object(
             paths=self.parse(request, public),
             components=self.registry.build(spectacular_settings.APPEND_COMPONENTS),
-            version=self.api_version or getattr(request, 'version', None),
+            version=self.api_version or getattr(request, "version", None),
         )
         for hook in spectacular_settings.POSTPROCESSING_HOOKS:
             result = hook(result=result, generator=self, request=request, public=public)
@@ -31,35 +32,39 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
         if settings.VERSION and version:
             version = schema_module.VERSION
         else:
-            version = settings.VERSION or version or ''
+            version = settings.VERSION or version or ""
         root = {
-            'openapi': '3.0.3',
-            'info': {
-                'title': schema_module.TITLE,
-                'version': version,
+            "openapi": "3.0.3",
+            "info": {
+                "title": schema_module.TITLE,
+                "version": version,
                 **sanitize_specification_extensions(settings.EXTENSIONS_INFO),
             },
-            'paths': {**paths, **settings.APPEND_PATHS},
-            'components': components,
+            "paths": {**paths, **settings.APPEND_PATHS},
+            "components": components,
             **sanitize_specification_extensions(settings.EXTENSIONS_ROOT),
         }
         if settings.DESCRIPTION:
-            root['info']['description'] = schema_module.DESCRIPTION if schema_module.DESCRIPTION else ""
+            root["info"]["description"] = (
+                schema_module.DESCRIPTION if schema_module.DESCRIPTION else ""
+            )
         if settings.TOS:
-            root['info']['termsOfService'] = settings.TOS
+            root["info"]["termsOfService"] = settings.TOS
         if settings.CONTACT:
-            root['info']['contact'] = schema_module.CONTACT
+            root["info"]["contact"] = schema_module.CONTACT
         if settings.LICENSE:
-            root['info']['license'] = schema_module.LICENSE
+            root["info"]["license"] = schema_module.LICENSE
         if settings.SERVERS:
-            root['servers'] = settings.SERVERS
+            root["servers"] = settings.SERVERS
         if settings.TAGS:
             TAGS = []
             for tag in settings.TAGS:
-                schema_module = importlib.import_module(tag['path'])
-                doc_string = " ".join(schema_module.__dict__[tag['view']].__doc__.split())
+                schema_module = importlib.import_module(tag["path"])
+                doc_string = " ".join(
+                    schema_module.__dict__[tag["view"]].__doc__.split()
+                )
                 TAGS.append({"name": tag["name"], "description": doc_string})
-            root['tags'] = TAGS
+            root["tags"] = TAGS
         if settings.EXTERNAL_DOCS:
-            root['externalDocs'] = settings.EXTERNAL_DOCS
+            root["externalDocs"] = settings.EXTERNAL_DOCS
         return root
