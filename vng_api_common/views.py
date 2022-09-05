@@ -176,7 +176,7 @@ def _test_nrc_config() -> list:
 
     nrc_client = NotificationsConfig.get_client()
 
-    has_nrc_auth = nrc_client.auth is not None
+    has_nrc_auth = nrc_client.auth is not None if nrc_client else False
 
     if not nrc_config.notifications_api_service:
         checks = [((_("NRC"), _("Missing"), False))]
