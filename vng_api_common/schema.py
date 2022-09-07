@@ -1,5 +1,6 @@
 import logging
 import json
+import yaml
 
 from pathlib import Path
 from django.conf import settings
@@ -11,7 +12,7 @@ from drf_spectacular.renderers import (
     OpenApiYamlRenderer,
     OpenApiYamlRenderer2,
 )
-from drf_spectacular.views import SpectacularAPIView, SpectacularJSONAPIView, SpectacularRedocView
+from drf_spectacular.views import SpectacularAPIView, SpectacularJSONAPIView, SpectacularRedocView, SpectacularYAMLAPIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
@@ -23,13 +24,17 @@ class SchemaViewRedoc(SpectacularRedocView):
         schema_url = self.url or get_relative_url(
             reverse(self.url_name, request=request)
         )
-        return f"{schema_url}openapi.json"
+        return f"{schema_url}openapi.yaml"
 
 
-class SchemaViewAPI(SpectacularJSONAPIView):
+class SchemaViewAPI(SpectacularYAMLAPIView):
     def _get_schema_response(self, request):
-        with open(Path(settings.BASE_DIR) / "src" / "openapi.json", "rb") as file:
-            return JsonResponse(
-                json.loads(file.read()),
-                headers={"Content-Disposition": f'inline; filename="openapi.json"'}
-            )
+        filename = "openapi.yaml"
+
+        with open(Path(settings.BASE_DIR) / "src" / filename, "r") as file:
+            schema = yaml.safe_load(file)
+
+        return Response(
+            data=schema,
+            headers={"Content-Disposition": f'inline; filename="{filename}"'},
+        )
