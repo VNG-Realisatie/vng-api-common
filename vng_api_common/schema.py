@@ -1,5 +1,9 @@
 import logging
+import json
 
+from pathlib import Path
+from django.conf import settings
+from django.http import JsonResponse
 from drf_spectacular.plumbing import get_relative_url
 from drf_spectacular.renderers import (
     OpenApiJsonRenderer,
@@ -7,7 +11,8 @@ from drf_spectacular.renderers import (
     OpenApiYamlRenderer,
     OpenApiYamlRenderer2,
 )
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView
+from drf_spectacular.views import SpectacularAPIView, SpectacularJSONAPIView, SpectacularRedocView
+from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 logger = logging.getLogger(__name__)
@@ -18,17 +23,13 @@ class SchemaViewRedoc(SpectacularRedocView):
         schema_url = self.url or get_relative_url(
             reverse(self.url_name, request=request)
         )
-        return f"{schema_url}openapi.yaml"
+        return f"{schema_url}openapi.json"
 
 
-class SchemaViewAPI(SpectacularAPIView):
-    def get_renderers(self):
-        """
-        Instantiates and returns the list of renderers that this view can use.
-        """
-        if ".yaml" in self.request.path:
-            self.renderer_classes = [OpenApiYamlRenderer, OpenApiYamlRenderer2]
-        elif ".json" in self.request.path:
-            self.renderer_classes = [OpenApiJsonRenderer, OpenApiJsonRenderer2]
-
-        return [renderer() for renderer in self.renderer_classes]
+class SchemaViewAPI(SpectacularJSONAPIView):
+    def _get_schema_response(self, request):
+        with open(Path(settings.BASE_DIR) / "src" / "openapi.json", "rb") as file:
+            return JsonResponse(
+                json.loads(file.read()),
+                headers={"Content-Disposition": f'inline; filename="openapi.json"'}
+            )

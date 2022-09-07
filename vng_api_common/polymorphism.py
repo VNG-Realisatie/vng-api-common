@@ -58,7 +58,6 @@ class Discriminator:
         self.mapping = mapping
         self.group_field = group_field
         self.same_model = same_model
-        self.sub_models = {}
 
     def to_representation(self, instance) -> OrderedDict:
         discriminator_value = getattr(instance, self.discriminator_field)
@@ -142,7 +141,6 @@ class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
                 for field_name, field_type in related_fields.items():
                     if field_type.related_model == serializer.Meta.model:
                         source = field_name
-                        discriminator.sub_models[value] = field_type.related_model._meta.object_name
 
                 group_field = serializer.__class__(
                     source=source, required=False, label=discriminator.group_field
