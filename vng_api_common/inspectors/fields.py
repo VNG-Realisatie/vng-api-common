@@ -1,23 +1,14 @@
 import logging
 
-from drf_yasg import openapi
-from drf_yasg.inspectors.base import NotHandled
-from drf_yasg.inspectors.field import FieldInspector, InlineSerializerInspector
-from rest_framework import serializers
-
-from ..serializers import GegevensGroepSerializer, LengthHyperlinkedRelatedField
+from drf_spectacular.extensions import OpenApiSerializerFieldExtension
+from drf_spectacular.plumbing import ResolvedComponent
+from drf_spectacular.types import PYTHON_TYPE_MAPPING as TYPES_MAP
 
 logger = logging.getLogger(__name__)
 
 
-TYPES_MAP = {
-    str: openapi.TYPE_STRING,
-    int: openapi.TYPE_INTEGER,
-    bool: openapi.TYPE_BOOLEAN,
-}
-
-
-class ReadOnlyFieldInspector(FieldInspector):
+# TODO: verify this in schema output
+class ReadOnlyFieldExtension(OpenApiSerializerFieldExtension):
     """
     Provides conversion for derived ReadOnlyField from model fields.
 
@@ -25,102 +16,66 @@ class ReadOnlyFieldInspector(FieldInspector):
     a model property.
     """
 
-    def field_to_swagger_object(
-        self, field, swagger_object_type, use_references, **kwargs
-    ):
-        SwaggerType, ChildSwaggerType = self._get_partial_types(
-            field, swagger_object_type, use_references, **kwargs
+    target_class = "rest_framework.fields.ReadOnlyField"
+    match_subclasses = True
+
+    def map_serializer_field(self, auto_schema, direction):
+        default_schema = auto_schema._map_serializer_field(
+            self.target, direction, bypass_extensions=True
         )
 
-        if (
-            isinstance(field, serializers.ReadOnlyField)
-            and swagger_object_type == openapi.Schema
-        ):
-            prop = getattr(field.parent.Meta.model, field.source)
-            if not isinstance(prop, property):
-                return NotHandled
+        prop = getattr(self.target.parent.Meta.model, self.target.source)
+        if not isinstance(prop, property):
+            return default_schema
 
-            return_type = prop.fget.__annotations__.get("return")
-            if return_type is None:  # no type annotation, too bad...
-                logger.debug(
-                    "Missing return type annotation for prop %s on model %s",
-                    field.source,
-                    field.parent.Meta.model,
-                )
-                return NotHandled
-
-            type_ = TYPES_MAP.get(return_type)
-            if type_ is None:
-                logger.debug("Missing type mapping for %r", return_type)
-
-            return SwaggerType(type=type_ or openapi.TYPE_STRING)
-
-        return NotHandled
-
-
-class HyperlinkedIdentityFieldInspector(FieldInspector):
-    def field_to_swagger_object(
-        self, field, swagger_object_type, use_references, **kwargs
-    ):
-        SwaggerType, ChildSwaggerType = self._get_partial_types(
-            field, swagger_object_type, use_references, **kwargs
-        )
-
-        if (
-            isinstance(field, serializers.HyperlinkedIdentityField)
-            and swagger_object_type == openapi.Schema
-        ):
-            return SwaggerType(
-                type=openapi.TYPE_STRING,
-                format=openapi.FORMAT_URI,
-                min_length=1,
-                max_length=1000,
-                description="URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.",
+        return_type = prop.fget.__annotations__.get("return")
+        if return_type is None:  # no type annotation, too bad...
+            logger.debug(
+                "Missing return type annotation for prop %s on model %s",
+                self.target.source,
+                self.target.parent.Meta.model,
             )
+            return default_schema
 
-        return NotHandled
+        type_ = TYPES_MAP.get(return_type)
+        if type_ is None:
+            logger.debug("Missing type mapping for %r", return_type)
+
+        return ResolvedComponent(self.target.field_name, type_ or TYPES_MAP[str])
 
 
-class HyperlinkedRelatedFieldInspector(FieldInspector):
-    def field_to_swagger_object(
-        self, field, swagger_object_type, use_references, **kwargs
-    ):
-        SwaggerType, ChildSwaggerType = self._get_partial_types(
-            field, swagger_object_type, use_references, **kwargs
+class HyperlinkedRelatedFieldExtension(OpenApiSerializerFieldExtension):
+    target_class = "rest_framework.relations.HyperlinkedRelatedField"
+    match_subclasses = True
+
+    def map_serializer_field(self, auto_schema, direction):
+        default_schema = auto_schema._map_serializer_field(
+            self.target, direction, bypass_extensions=True
         )
 
-        if (
-            isinstance(field, LengthHyperlinkedRelatedField)
-            and swagger_object_type == openapi.Schema
-        ):
-            max_length = field.max_length
-            min_length = field.min_length
-            return SwaggerType(
-                type=openapi.TYPE_STRING,
-                format=openapi.FORMAT_URI,
-                min_length=min_length,
-                max_length=max_length,
-                description=field.help_text,
-            )
-
-        return NotHandled
+        return {
+            **default_schema,
+            "description": "URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.",
+            "min_length": 1,
+            "max_length": 1000,
+        }
 
 
-class GegevensGroepInspector(InlineSerializerInspector):
-    def process_result(self, result, method_name, obj, **kwargs):
-        if not isinstance(result, openapi.Schema.OR_REF):
-            return result
+class HyperlinkedIdentityFieldExtension(OpenApiSerializerFieldExtension):
+    target_class = "rest_framework.relations.HyperlinkedIdentityField"
+    match_subclasses = True
 
-        if not isinstance(obj, GegevensGroepSerializer):
-            return result
+    def map_serializer_field(self, auto_schema, direction):
+        default_schema = auto_schema._map_serializer_field(
+            self.target, direction, bypass_extensions=True
+        )
 
-        if method_name != "field_to_swagger_object":
-            return result
+        return {
+            **default_schema,
+            "description": self.target.help_text,
+            "min_length": self.target.min_length,
+            "max_length": self.target.max_length,
+        }
 
-        if not obj.allow_null:
-            return result
 
-        schema = openapi.resolve_ref(result, self.components)
-        schema.x_nullable = True
-
-        return result
+# TODO: add Extension for GegevensGroep (this only sets nullable to True though)

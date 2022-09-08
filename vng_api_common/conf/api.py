@@ -65,26 +65,6 @@ BASE_SWAGGER_SETTINGS = {
     "DEFAULT_GENERATOR_CLASS": "vng_api_common.generators.OpenAPISchemaGenerator",
     "DEFAULT_AUTO_SCHEMA_CLASS": "vng_api_common.inspectors.view.AutoSchema",
     "DEFAULT_INFO": "must.be.overridden",
-    "DEFAULT_FIELD_INSPECTORS": (
-        # GeometryFieldInspector has external dependencies, and is opt-in
-        # 'vng_api_common.inspectors.geojson.GeometryFieldInspector',
-        "vng_api_common.inspectors.fields.HyperlinkedIdentityFieldInspector",
-        "vng_api_common.inspectors.fields.ReadOnlyFieldInspector",
-        "vng_api_common.inspectors.polymorphic.PolymorphicSerializerInspector",
-        "vng_api_common.inspectors.fields.GegevensGroepInspector",
-        "drf_yasg.inspectors.CamelCaseJSONFilter",
-        "drf_yasg.inspectors.RecursiveFieldInspector",
-        "drf_yasg.inspectors.ReferencingSerializerInspector",
-        "drf_yasg.inspectors.ChoiceFieldInspector",
-        "drf_yasg.inspectors.FileFieldInspector",
-        "drf_yasg.inspectors.DictFieldInspector",
-        "drf_yasg.inspectors.JSONFieldInspector",
-        "drf_yasg.inspectors.HiddenFieldInspector",
-        "drf_yasg.inspectors.RelatedFieldInspector",
-        "drf_yasg.inspectors.SerializerMethodFieldInspector",
-        "drf_yasg.inspectors.SimpleFieldInspector",
-        "drf_yasg.inspectors.StringDefaultFieldInspector",
-    ),
     "DEFAULT_FILTER_INSPECTORS": ("vng_api_common.inspectors.query.FilterInspector",),
 }
 
