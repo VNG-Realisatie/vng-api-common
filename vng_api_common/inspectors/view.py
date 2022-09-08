@@ -5,8 +5,6 @@ from django.apps import apps
 from django.utils.translation import gettext, gettext_lazy as _
 
 from drf_spectacular import openapi
-from drf_spectacular.drainage import get_override
-from drf_spectacular.extensions import OpenApiSerializerExtension
 from drf_spectacular.plumbing import (
     build_basic_type,
     build_examples_list,
@@ -14,13 +12,11 @@ from drf_spectacular.plumbing import (
     is_basic_type,
     is_serializer,
     warn,
-    force_instance, build_object_type, get_doc, is_patched_serializer, safe_ref, assert_basic_serializer,
-    sanitize_specification_extensions
 )
 from drf_spectacular.settings import spectacular_settings
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
-from rest_framework import exceptions, status, viewsets,serializers
+from rest_framework import exceptions, status, viewsets
 
 from ..constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
 from ..exceptions import Conflict, Gone, PreconditionFailed
@@ -299,9 +295,11 @@ class AutoSchema(openapi.AutoSchema):
                     code, media_types = str(code[0]), code[1:]
                 else:
                     code, media_types = str(code), None
-                content_response = self._get_response_for_code(serializer, code, media_types, direction)
+                content_response = self._get_response_for_code(
+                    serializer, code, media_types, direction
+                )
                 if code in responses:
-                    responses[code]['content'].update(content_response['content'])
+                    responses[code]["content"].update(content_response["content"])
                 else:
                     responses[code] = content_response
             return responses
@@ -406,5 +404,3 @@ class AutoSchema(openapi.AutoSchema):
             del parameter_type["in"]
             result[parameter.name] = parameter_type
         return result
-
-

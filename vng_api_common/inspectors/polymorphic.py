@@ -1,71 +1,38 @@
-"""
-Introspect polymorphic resources
+from drf_spectacular.extensions import OpenApiSerializerExtension
+from drf_spectacular.plumbing import ResolvedComponent
 
-Bulk of the code taken from https://github.com/axnsan12/drf-yasg/issues/100
-"""
-from drf_yasg import openapi
-from drf_yasg.errors import SwaggerGenerationError
-from drf_yasg.inspectors.base import NotHandled
-from drf_yasg.inspectors.field import (
-    CamelCaseJSONFilter,
-    ReferencingSerializerInspector,
-)
-
-from ..polymorphism import PolymorphicSerializer
 from ..utils import underscore_to_camel
 
 
-class PolymorphicSerializerInspector(
-    CamelCaseJSONFilter, ReferencingSerializerInspector
-):
-    def field_to_swagger_object(
-        self, field, swagger_object_type, use_references, **kwargs
-    ):
-        SwaggerType, ChildSwaggerType = self._get_partial_types(
-            field, swagger_object_type, use_references, **kwargs
-        )
+class PolymorphicSerializerExtension(OpenApiSerializerExtension):
+    target_class = "vng_api_common.polymorphism.PolymorphicSerializer"
+    match_subclasses = True
 
-        if not isinstance(field, PolymorphicSerializer):
-            return NotHandled
+    def map_serializer(self, auto_schema, direction):
+        serializer = self.target
+        schema = auto_schema._map_basic_serializer(serializer, direction)
+        root_component = auto_schema.resolve_serializer(serializer, direction)
 
-        if not getattr(field, "discriminator", None):
-            raise SwaggerGenerationError(
-                "'PolymorphicSerializer' derived serializers need to have 'discriminator' set"
+        for attr, model_serializer in serializer.discriminator.mapping.items():
+            linked_schema = {"allOf": [root_component.ref]}
+
+            if model_serializer:
+                component = auto_schema.resolve_serializer(model_serializer, direction)
+
+                if component:
+                    linked_schema["allOf"].append(component.ref)
+
+            linked_component = ResolvedComponent(
+                name=attr, type=ResolvedComponent.SCHEMA, schema=linked_schema
             )
+            auto_schema.registry.register_on_missing(linked_component)
 
-        base_schema_ref = super().field_to_swagger_object(
-            field, swagger_object_type, use_references, **kwargs
-        )
-        if not isinstance(base_schema_ref, openapi.SchemaRef):
-            raise SwaggerGenerationError(
-                "discriminator inheritance requires model references"
-            )
-
-        base_schema = base_schema_ref.resolve(self.components)  # type: openapi.Schema
-        base_schema.discriminator = underscore_to_camel(
-            field.discriminator.discriminator_field
-        )
-
-        for value, serializer in field.discriminator.mapping.items():
-            if serializer is None:
-                allof_derived = openapi.Schema(
-                    type=openapi.TYPE_OBJECT, all_of=[base_schema_ref]
+        polymorphic_schema = {
+            "discriminator": {
+                "propertyName": underscore_to_camel(
+                    serializer.discriminator.discriminator_field
                 )
-            else:
-                derived_ref = self.probe_field_inspectors(
-                    serializer, openapi.Schema, use_references=True
-                )
-                if not isinstance(derived_ref, openapi.SchemaRef):
-                    raise SwaggerGenerationError(
-                        "discriminator inheritance requies model references"
-                    )
+            }
+        }
 
-                allof_derived = openapi.Schema(
-                    type=openapi.TYPE_OBJECT, all_of=[base_schema_ref, derived_ref]
-                )
-            if not self.components.has(value, scope=openapi.SCHEMA_DEFINITIONS):
-                self.components.set(
-                    value, allof_derived, scope=openapi.SCHEMA_DEFINITIONS
-                )
-
-        return base_schema_ref
+        return {**schema, **polymorphic_schema}
