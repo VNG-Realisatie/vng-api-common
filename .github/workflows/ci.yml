@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - master
-      - stable/1.0.x
+      - stable/*
     tags:
       - '*'
   pull_request:
@@ -20,8 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ['3.7', '3.8', '3.9', '3.10']
-        django: ['2.2', '3.2']
+        python: ['3.9', '3.10']
+        django: ['3.2']
 
     services:
       postgres:
