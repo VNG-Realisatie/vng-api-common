@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     "django.contrib.messages",
     "rest_framework",
-    "drf_yasg",
+    "drf_spectacular",
     "vng_api_common",
     "vng_api_common.authorizations",
     "vng_api_common.notifications",
