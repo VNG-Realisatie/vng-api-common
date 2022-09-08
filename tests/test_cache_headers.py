@@ -3,8 +3,8 @@ from unittest.mock import patch
 from django.db import transaction
 
 import pytest
-from drf_yasg import openapi
-from drf_yasg.generators import SchemaGenerator
+from drf_spectacular.generators import SchemaGenerator
+from drf_spectacular.plumbing import ResolvedComponent
 from rest_framework import status, viewsets
 from rest_framework.reverse import reverse
 from rest_framework.test import APIRequestFactory
@@ -61,7 +61,7 @@ def test_cache_headers_detected():
     headers = get_cache_headers(view)
 
     assert "ETag" in headers
-    assert isinstance(headers["ETag"], openapi.Schema)
+    assert isinstance(headers["ETag"], ResolvedComponent)
 
 
 @pytest.mark.django_db(transaction=False)
