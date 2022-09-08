@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.utils.module_loading import import_string
 
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -28,7 +28,7 @@ class NotificationBaseView(APIView):
     def get_serializer(self, *args, **kwargs):
         return NotificatieSerializer(*args, **kwargs)
 
-    @swagger_auto_schema(
+    @extend_schema(
         responses={
             204: "",
             400: ValidatieFoutSerializer,
