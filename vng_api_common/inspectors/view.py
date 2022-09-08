@@ -292,6 +292,20 @@ class AutoSchema(openapi.AutoSchema):
             )
             return all_response_codes
 
+        elif isinstance(response_serializers, dict):
+            responses = {}
+            for code, serializer in response_serializers.items():
+                if isinstance(code, tuple):
+                    code, media_types = str(code[0]), code[1:]
+                else:
+                    code, media_types = str(code), None
+                content_response = self._get_response_for_code(serializer, code, media_types, direction)
+                if code in responses:
+                    responses[code]['content'].update(content_response['content'])
+                else:
+                    responses[code] = content_response
+            return responses
+
     def get_error_codes(self):
         if not hasattr(self.view, "action"):
             return []
