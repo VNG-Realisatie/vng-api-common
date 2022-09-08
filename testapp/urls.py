@@ -1,10 +1,10 @@
 from django.contrib import admin
-from django.urls import include, path, re_path
+from django.urls import include, path
 from django.views.generic import RedirectView
 
+from drf_spectacular.views import SpectacularRedocView, SpectacularYAMLAPIView
 from rest_framework import routers
 
-from .schema import SchemaView
 from .views import NotificationView
 from .viewsets import GroupViewSet, HobbyViewSet, PersonViewSet
 
@@ -20,14 +20,14 @@ urlpatterns = [
         include(
             [
                 # API documentation
-                re_path(
-                    r"^schema/openapi(?P<format>\.json|\.yaml)$",
-                    SchemaView.without_ui(cache_timeout=None),
+                path(
+                    "schema/openapi.yaml",
+                    SpectacularYAMLAPIView(),
                     name="schema-json",
                 ),
-                re_path(
-                    r"^schema/$",
-                    SchemaView.with_ui("redoc", cache_timeout=None),
+                path(
+                    "schema/",
+                    SpectacularRedocView(),
                     name="schema-redoc",
                 ),
             ]
