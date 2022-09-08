@@ -17,7 +17,7 @@ class NotificationBaseView(APIView):
     Abstract view to receive webhooks
     """
 
-    swagger_schema = None
+    schema = None
 
     permission_classes = (AuthScopesRequired,)
     required_scopes = Scope(
