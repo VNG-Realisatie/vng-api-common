@@ -8,15 +8,22 @@ from typing import Union
 
 import requests
 import yaml
-from drf_yasg import openapi
+
+TYPE_OBJECT = "object"
+TYPE_STRING = "string"
+TYPE_NUMBER = "number"
+TYPE_INTEGER = "integer"
+TYPE_BOOLEAN = "boolean"
+TYPE_ARRAY = "array"
+TYPE_FILE = "file"
 
 TYPE_MAP = {
-    openapi.TYPE_OBJECT: dict,
-    openapi.TYPE_STRING: str,
-    openapi.TYPE_NUMBER: (float, int),
-    openapi.TYPE_INTEGER: int,
-    openapi.TYPE_BOOLEAN: bool,
-    openapi.TYPE_ARRAY: list,
+    TYPE_OBJECT: dict,
+    TYPE_STRING: str,
+    TYPE_NUMBER: (float, int),
+    TYPE_INTEGER: int,
+    TYPE_BOOLEAN: bool,
+    TYPE_ARRAY: list,
 }
 
 
@@ -58,6 +65,7 @@ def obj_has_shape(obj: Union[list, dict], schema: dict, resource: str) -> bool:
     obj_schema = schema["components"]["schemas"][resource]
 
     required = obj_schema.get("required", [])
+
     for prop, prop_schema in obj_schema["properties"].items():
         if prop in required and prop not in obj:
             # missing required prop -> can't match the schema
