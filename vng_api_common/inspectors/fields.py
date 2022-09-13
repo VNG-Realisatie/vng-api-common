@@ -1,6 +1,9 @@
 import logging
 
-from drf_spectacular.extensions import OpenApiSerializerFieldExtension
+from drf_spectacular.extensions import (
+    OpenApiSerializerExtension,
+    OpenApiSerializerFieldExtension,
+)
 from drf_spectacular.plumbing import ResolvedComponent
 from drf_spectacular.types import PYTHON_TYPE_MAPPING as TYPES_MAP
 
@@ -78,4 +81,21 @@ class HyperlinkedIdentityFieldExtension(OpenApiSerializerFieldExtension):
         }
 
 
-# TODO: add Extension for GegevensGroep (this only sets nullable to True though)
+class GegevensGroepExtension(OpenApiSerializerExtension):
+    target_class = "vng_api_common.serializers.GegevensGroepSerializer"
+    match_subclasses = True
+
+    def map_serializer(self, auto_schema, direction):
+        schema = auto_schema._map_serializer(
+            self.target, direction, bypass_extensions=True
+        )
+
+        if self.target.allow_null:
+            schema.update(nullable=True)
+
+        if self.target.help_text:
+            schema.update(description=self.target.help_text)
+        else:
+            schema.pop("description", None)
+
+        return schema
