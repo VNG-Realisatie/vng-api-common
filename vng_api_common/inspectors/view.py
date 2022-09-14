@@ -340,7 +340,13 @@ class AutoSchema(openapi.AutoSchema):
             )
         ]
 
-        custom_response_headers += get_cache_headers(self.view, status_code)
+        if int(status_code) in [
+            status.HTTP_200_OK,
+            status.HTTP_201_CREATED,
+            status.HTTP_204_NO_CONTENT,
+        ]:
+            custom_response_headers += get_cache_headers(self.view)
+
         custom_response_headers += [
             OpenApiParameter(
                 name=VERSION_HEADER,
