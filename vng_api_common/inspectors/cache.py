@@ -1,8 +1,6 @@
-from collections import OrderedDict
 
 from django.utils.translation import gettext_lazy as _
 
-from drf_spectacular import openapi
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter
 from rest_framework.views import APIView
@@ -39,8 +37,8 @@ CACHE_REQUEST_HEADERS = [
 ]
 
 
-def get_cache_headers(view: APIView, status_code: str) -> [OpenApiParameter]:
-    if not has_cache_header(view) or status_code not in ["200", "201", "204"]:
+def get_cache_headers(view: APIView) -> [OpenApiParameter]:
+    if not has_cache_header(view):
         return []
 
     return [
