@@ -5,6 +5,7 @@ from django.apps import apps
 from django.utils.translation import gettext, gettext_lazy as _
 
 from drf_spectacular import openapi
+from drf_spectacular.extensions import OpenApiSerializerFieldExtension
 from drf_spectacular.plumbing import (
     build_basic_type,
     build_examples_list,
@@ -13,6 +14,8 @@ from drf_spectacular.plumbing import (
     is_serializer,
     warn,
 )
+from rest_framework.relations import HyperlinkedIdentityField
+
 from vng_api_common.utils import underscore_to_camel
 from drf_spectacular.settings import spectacular_settings
 from drf_spectacular.types import OpenApiTypes
@@ -390,19 +393,21 @@ class AutoSchema(openapi.AutoSchema):
             result[parameter.name] = parameter_type
         return result
 
-    def _map_serializer_field(self, field, direction, bypass_extensions=False):
-        schema = super()._map_serializer_field(field, direction, bypass_extensions=False)
+    def _get_serializer_field_meta(self, field, direction):
+        meta = super()._get_serializer_field_meta(field, direction)
 
         try:
-            schema["title"] = getattr(field.parent.Meta.model, str(field.source)).field.verbose_name
+            meta["title"] = getattr(field.parent.Meta.model, str(field.source)).field.verbose_name
         except (AttributeError, KeyError):
-            schema["title"] = field.field_name
+            meta["title"] = field.field_name
         try:
             path_info = field.parent.Meta.model.__dict__[field.field_name].field.get_path_info()
             for info in path_info:
                 if info.m2m:
-                    schema["uniqueItems"] = True
+                    meta["uniqueItems"] = True
         except (AttributeError, KeyError):
             pass
 
-        return schema
+        return meta
+
+
