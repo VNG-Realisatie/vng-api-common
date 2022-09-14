@@ -14,13 +14,12 @@ from drf_spectacular.plumbing import (
     is_serializer,
     warn,
 )
-from rest_framework.relations import HyperlinkedIdentityField
 
-from vng_api_common.utils import underscore_to_camel
 from drf_spectacular.settings import spectacular_settings
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
 from rest_framework import exceptions, status, viewsets
+from rest_framework.relations import ManyRelatedField
 
 from ..constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
 from ..exceptions import Conflict, Gone, PreconditionFailed
@@ -400,14 +399,5 @@ class AutoSchema(openapi.AutoSchema):
             meta["title"] = getattr(field.parent.Meta.model, str(field.source)).field.verbose_name
         except (AttributeError, KeyError):
             meta["title"] = field.field_name
-        try:
-            path_info = field.parent.Meta.model.__dict__[field.field_name].field.get_path_info()
-            for info in path_info:
-                if info.m2m:
-                    meta["uniqueItems"] = True
-        except (AttributeError, KeyError):
-            pass
 
         return meta
-
-
