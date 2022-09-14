@@ -5,3 +5,4 @@ from .fields import (
     ReadOnlyFieldExtension,
 )
 from .polymorphic import PolymorphicSerializerExtension
+from .query import FilterExtension
