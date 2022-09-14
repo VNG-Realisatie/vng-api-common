@@ -22,12 +22,12 @@ urlpatterns = [
                 # API documentation
                 path(
                     "schema/openapi.yaml",
-                    SpectacularYAMLAPIView(),
+                    SpectacularYAMLAPIView.as_view(),
                     name="schema-json",
                 ),
                 path(
                     "schema/",
-                    SpectacularRedocView(),
+                    SpectacularRedocView.as_view(),
                     name="schema-redoc",
                 ),
             ]
