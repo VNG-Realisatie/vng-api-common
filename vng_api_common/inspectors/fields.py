@@ -136,7 +136,4 @@ class ManyRelatedFieldExtension(OpenApiSerializerFieldExtension):
             self.target, direction, bypass_extensions=True
         )
 
-        return {
-            **default_schema,
-            "uniqueItems": True
-        }
+        return {**default_schema, "uniqueItems": True}

@@ -14,7 +14,6 @@ from drf_spectacular.plumbing import (
     is_serializer,
     warn,
 )
-
 from drf_spectacular.settings import spectacular_settings
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
@@ -47,9 +46,9 @@ DEFAULT_ACTION_ERRORS = {
     "list": COMMON_ERRORS,
     "retrieve": COMMON_ERRORS + [exceptions.NotFound],
     "update": COMMON_ERRORS
-              + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
     "partial_update": COMMON_ERRORS
-                      + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
     "destroy": COMMON_ERRORS + [exceptions.NotFound],
 }
 
@@ -396,7 +395,9 @@ class AutoSchema(openapi.AutoSchema):
         meta = super()._get_serializer_field_meta(field, direction)
 
         try:
-            meta["title"] = getattr(field.parent.Meta.model, str(field.source)).field.verbose_name
+            meta["title"] = getattr(
+                field.parent.Meta.model, str(field.source)
+            ).field.verbose_name
         except (AttributeError, KeyError):
             meta["title"] = field.field_name
 

@@ -38,9 +38,9 @@ from collections import OrderedDict
 from typing import Any, Dict, Union
 
 from django.core.exceptions import FieldDoesNotExist
+
 from drf_spectacular.extensions import OpenApiSerializerExtension
 from drf_spectacular.plumbing import ResolvedComponent
-
 from rest_framework import serializers
 
 from vng_api_common.utils import underscore_to_camel
@@ -117,8 +117,11 @@ class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
 
                 Meta = type("Meta", (), {"model": model, "fields": tuple(fields)})
                 serializer_class = type(
-                    name, (serializers.ModelSerializer,),
-                    {"Meta": Meta,}
+                    name,
+                    (serializers.ModelSerializer,),
+                    {
+                        "Meta": Meta,
+                    },
                 )
 
                 discriminator.mapping[value] = serializer_class()

@@ -1,10 +1,11 @@
-import logging
 import json
-import yaml
-
+import logging
 from pathlib import Path
+
 from django.conf import settings
 from django.http import JsonResponse
+
+import yaml
 from drf_spectacular.plumbing import get_relative_url
 from drf_spectacular.renderers import (
     OpenApiJsonRenderer,
@@ -12,7 +13,12 @@ from drf_spectacular.renderers import (
     OpenApiYamlRenderer,
     OpenApiYamlRenderer2,
 )
-from drf_spectacular.views import SpectacularAPIView, SpectacularJSONAPIView, SpectacularRedocView, SpectacularYAMLAPIView
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularJSONAPIView,
+    SpectacularRedocView,
+    SpectacularYAMLAPIView,
+)
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
