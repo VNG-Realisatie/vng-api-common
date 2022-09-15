@@ -1,8 +1,8 @@
-
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter
+from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
 
 from ..caching.introspection import has_cache_header
@@ -52,5 +52,6 @@ def get_cache_headers(view: APIView) -> [OpenApiParameter]:
                 "deze resources identiek aan elkaar. Je kan de ETag gebruiken "
                 "om caching te implementeren."
             ),
+            response=[HTTP_200_OK],
         ),
     ]
