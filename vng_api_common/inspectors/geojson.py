@@ -60,7 +60,7 @@ class GeometryFieldExtension(OpenApiSerializerFieldExtension):
             object="Point2D",
         )
 
-        auto_schema.registry.register_on_missing(geometry_component)
+        auto_schema.registry.register_on_missing(point2d_component)
 
         point_component = ResolvedComponent(
             name="Point",
