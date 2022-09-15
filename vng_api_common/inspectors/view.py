@@ -5,14 +5,6 @@ from django.apps import apps
 from django.utils.translation import gettext, gettext_lazy as _
 
 from drf_spectacular import openapi
-from drf_spectacular.plumbing import (
-    build_basic_type,
-    build_examples_list,
-    build_parameter_type,
-    is_basic_type,
-    is_serializer,
-    warn,
-)
 from drf_spectacular.settings import spectacular_settings
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
@@ -125,9 +117,7 @@ AUDIT_REQUEST_HEADERS = [
     ),
 ]
 
-version_header = (
-    "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1.",
-)
+version_header = "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
 
 location_header = "URL waar de resource leeft."
 
@@ -198,39 +188,64 @@ class AutoSchema(openapi.AutoSchema):
         return auths
 
     def get_override_parameters(self):
-        """add header parameters"""
-
+        """
+        Note that request and response headers are mixed here. These are filtered
+        when spectacular retrieves the available parameters for a request/response body.
+        """
         custom_headers = []
-
-        custom_headers += self.get_request_content_type_header()
 
         if has_cache_header(self.view):
             custom_headers += CACHE_REQUEST_HEADERS
+            custom_headers += get_cache_headers(self.view)
 
         if _view_supports_audittrail(self.view):
             custom_headers += AUDIT_REQUEST_HEADERS
 
-        return custom_headers
+        if self.method in (
+            "POST",
+            "PUT",
+            "PATCH",
+        ):
+            custom_headers += [
+                OpenApiParameter(
+                    name="Content-Type",
+                    type=OpenApiTypes.STR,
+                    location=OpenApiParameter.HEADER,
+                    required=True,
+                    enum=self.map_renderers("media_type"),
+                    description=_("Content type of the request body."),
+                )
+            ]
 
-    def get_request_content_type_header(self) -> [OpenApiParameter]:
-        if self.method not in ["POST", "PUT", "PATCH"]:
-            return []
+        error_responses = self.get_error_codes()
 
-        return [
+        custom_headers += [
             OpenApiParameter(
-                name="Content-Type",
+                name="Location",
+                type=OpenApiTypes.URI,
+                location=OpenApiParameter.HEADER,
+                description=location_header,
+                response=[status.HTTP_201_CREATED],
+            ),
+            OpenApiParameter(
+                name=VERSION_HEADER,
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.HEADER,
-                required=True,
-                enum=self.map_renderers("media_type"),
-                description=_("Content type of the request body."),
-            )
+                description=version_header,
+                response=[
+                    status.HTTP_200_OK,
+                    status.HTTP_201_CREATED,
+                    status.HTTP_204_NO_CONTENT,
+                    *error_responses,
+                ],
+            ),
         ]
 
+        return custom_headers
+
     def _get_response_bodies(self, direction="response"):
-        response_serializers = self.get_response_serializers()
+        response_bodies = super()._get_response_bodies(direction=direction)
         error_status_codes = self.get_error_codes()
-        all_response_codes = {}
 
         for status_code in error_status_codes:
             serializer = (
@@ -238,7 +253,7 @@ class AutoSchema(openapi.AutoSchema):
                 if status_code == exceptions.ValidationError.status_code
                 else FoutSerializer
             )
-            all_response_codes[str(status_code)] = self._get_response_for_code(
+            response_bodies[str(status_code)] = self._get_response_for_code(
                 OpenApiResponse(
                     description=HTTP_STATUS_CODE_TITLES.get(int(status_code)),
                     response=serializer,
@@ -248,61 +263,10 @@ class AutoSchema(openapi.AutoSchema):
                 direction=direction,
             )
 
-        if (
-            is_serializer(response_serializers)
-            or is_basic_type(response_serializers)
-            or isinstance(response_serializers, OpenApiResponse)
-        ):
-            if self.method == "DELETE":
-                all_response_codes["204"] = self._get_response_for_code(
-                    OpenApiResponse(
-                        description=HTTP_STATUS_CODE_TITLES.get(204),
-                        response=response_serializers,
-                    ),
-                    "204",
-                    self.map_renderers("media_type"),
-                    direction=direction,
-                )
-                return all_response_codes
+        for status_code, response_body in response_bodies.items():
+            response_body["description"] = HTTP_STATUS_CODE_TITLES.get(int(status_code))
 
-            if self._is_create_operation():
-                all_response_codes["201"] = self._get_response_for_code(
-                    OpenApiResponse(
-                        description=HTTP_STATUS_CODE_TITLES.get(201),
-                        response=response_serializers,
-                    ),
-                    "201",
-                    self.map_renderers("media_type"),
-                    direction=direction,
-                )
-                return all_response_codes
-
-            all_response_codes["200"] = self._get_response_for_code(
-                OpenApiResponse(
-                    description=HTTP_STATUS_CODE_TITLES.get(200),
-                    response=response_serializers,
-                ),
-                "200",
-                self.map_renderers("media_type"),
-                direction=direction,
-            )
-            return all_response_codes
-
-        elif isinstance(response_serializers, dict):
-            responses = {}
-            for code, serializer in response_serializers.items():
-                if isinstance(code, tuple):
-                    code, media_types = str(code[0]), code[1:]
-                else:
-                    code, media_types = str(code), None
-                content_response = self._get_response_for_code(
-                    serializer, code, media_types, direction
-                )
-                if code in responses:
-                    responses[code]["content"].update(content_response["content"])
-                else:
-                    responses[code] = content_response
-            return responses
+        return response_bodies
 
     def get_error_codes(self):
         if not hasattr(self.view, "action"):
@@ -328,85 +292,3 @@ class AutoSchema(openapi.AutoSchema):
 
         status_codes = sorted({e.status_code for e in exception_klasses})
         return status_codes
-
-    def custom_response_headers(self, status_code):
-        custom_response_headers = [
-            OpenApiParameter(
-                name="Location",
-                type=OpenApiTypes.URI,
-                location=OpenApiParameter.HEADER,
-                description=location_header,
-                response=[201],
-            )
-        ]
-
-        if int(status_code) in [
-            status.HTTP_200_OK,
-            status.HTTP_201_CREATED,
-            status.HTTP_204_NO_CONTENT,
-        ]:
-            custom_response_headers += get_cache_headers(self.view)
-
-        custom_response_headers += [
-            OpenApiParameter(
-                name=VERSION_HEADER,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.HEADER,
-                description=version_header,
-                response=[status_code],
-            )
-        ]
-
-        return custom_response_headers
-
-    def _get_response_headers_for_code(self, status_code, direction="response") -> dict:
-
-        result = {}
-        custom_response_headers = self.custom_response_headers(status_code=status_code)
-
-        for parameter in self.get_override_parameters() + custom_response_headers:
-            if not isinstance(parameter, OpenApiParameter):
-                continue
-            if not parameter.response:
-                continue
-            if isinstance(parameter.response, list) and status_code not in [
-                str(code) for code in parameter.response
-            ]:
-                continue
-
-            if is_basic_type(parameter.type):
-                schema = build_basic_type(parameter.type)
-            elif is_serializer(parameter.type):
-                schema = self.resolve_serializer(parameter.type, direction).ref
-            else:
-                schema = parameter.type
-
-            if parameter.location not in [
-                OpenApiParameter.HEADER,
-                OpenApiParameter.COOKIE,
-            ]:
-                warn(
-                    f"incompatible location type ignored for response parameter {parameter.name}"
-                )
-            parameter_type = build_parameter_type(
-                name=parameter.name,
-                schema=schema,
-                location=parameter.location,
-                required=parameter.required,
-                description="\n".join(parameter.description)
-                if type(parameter.description) == tuple
-                else parameter.description,
-                enum=parameter.enum,
-                pattern=parameter.pattern,
-                deprecated=parameter.deprecated,
-                style=parameter.style,
-                explode=parameter.explode,
-                default=parameter.default,
-                allow_blank=parameter.allow_blank,
-                examples=build_examples_list(parameter.examples),
-                extensions=parameter.extensions,
-            )
-            del parameter_type["name"]
-            del parameter_type["in"]
-            result[parameter.name] = parameter_type
-        return result
