@@ -38,7 +38,6 @@ from collections import OrderedDict
 from typing import Any, Dict, Union
 
 from django.core.exceptions import FieldDoesNotExist
-
 from rest_framework import serializers
 
 __all__ = ["Discriminator", "PolymorphicSerializer"]
