@@ -4,9 +4,7 @@ from drf_spectacular.extensions import (
     OpenApiSerializerExtension,
     OpenApiSerializerFieldExtension,
 )
-from drf_spectacular.plumbing import ResolvedComponent
 from drf_spectacular.types import PYTHON_TYPE_MAPPING as TYPES_MAP
-
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +43,10 @@ class ReadOnlyFieldExtension(OpenApiSerializerFieldExtension):
         if type_ is None:
             logger.debug("Missing type mapping for %r", return_type)
 
-        return ResolvedComponent(self.target.field_name, type_ or TYPES_MAP[str])
+        return {
+            **default_schema,
+            "type": type_,
+        }
 
 
 class HyperlinkedRelatedFieldExtension(OpenApiSerializerFieldExtension):
