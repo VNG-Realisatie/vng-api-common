@@ -254,7 +254,7 @@ class GeometryFieldExtension(OpenApiSerializerFieldExtension):
                 "description": "GeoJSON multi-polygon geometry",
                 "type": TYPE_OBJECT,
                 "externalDocs": {
-                    "url": "https://tools.ietf.org/html/rfc7946#section-3.1.7",
+                    "url": "https://tools.ietf.org/html/rfc7946#section-3.1.8",
                 },
                 "allOf": [
                     geometry_component.ref,
