@@ -66,7 +66,7 @@ class GeometryFieldExtension(OpenApiSerializerFieldExtension):
             name="Point",
             type=ResolvedComponent.SCHEMA,
             schema={
-                "title": "Point2D",
+                "title": "Point",
                 "description": "GeoJSON point geometry",
                 "type": TYPE_OBJECT,
                 "externalDocs": {
