@@ -10,14 +10,13 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
 from rest_framework import exceptions, status, viewsets
 
-from vng_api_common.inspectors.geojson import has_geo_fields
-
 from ..constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
 from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import DEFAULT_CRS, HEADER_ACCEPT, HEADER_CONTENT, GeoMixin
 from ..permissions import BaseAuthRequired, get_required_scopes
 from ..serializers import FoutSerializer, ValidatieFoutSerializer
 from .cache import CACHE_REQUEST_HEADERS, get_cache_headers, has_cache_header
+from .utils import has_geo_fields
 
 logger = logging.getLogger(__name__)
 
