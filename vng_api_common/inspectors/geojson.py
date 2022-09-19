@@ -1,11 +1,32 @@
 from drf_spectacular.extensions import OpenApiSerializerFieldExtension
 from drf_spectacular.plumbing import ResolvedComponent
+from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
 
 from vng_api_common.oas import TYPE_ARRAY, TYPE_NUMBER, TYPE_OBJECT, TYPE_STRING
 
 
-# TODO: Add response/request headers
+def has_geo_fields(serializer) -> bool:
+    """
+    Check if any of the serializer fields are a GeometryField.
+    If the serializer has nested serializers, a depth-first search is done
+    to check if the nested serializers has `GeometryField`\ s.
+    """
+    for field in serializer.fields.values():
+        if isinstance(field, serializers.Serializer):
+            has_nested_geo_fields = has_geo_fields(field)
+            if has_nested_geo_fields:
+                return True
+
+        elif isinstance(field, (serializers.ListSerializer, serializers.ListField)):
+            field = field.child
+
+        if isinstance(field, GeometryField):
+            return True
+
+    return False
+
+
 class GeometryFieldExtension(OpenApiSerializerFieldExtension):
     target_class = GeometryField
     match_subclasses = True

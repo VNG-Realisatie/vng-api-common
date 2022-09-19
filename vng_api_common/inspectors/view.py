@@ -10,9 +10,11 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
 from rest_framework import exceptions, status, viewsets
 
+from vng_api_common.inspectors.geojson import has_geo_fields
+
 from ..constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
 from ..exceptions import Conflict, Gone, PreconditionFailed
-from ..geo import GeoMixin
+from ..geo import DEFAULT_CRS, HEADER_ACCEPT, HEADER_CONTENT, GeoMixin
 from ..permissions import BaseAuthRequired, get_required_scopes
 from ..serializers import FoutSerializer, ValidatieFoutSerializer
 from .cache import CACHE_REQUEST_HEADERS, get_cache_headers, has_cache_header
@@ -187,61 +189,126 @@ class AutoSchema(openapi.AutoSchema):
             auths = [{list(spectacular_settings.SECURITY[0])[0]: scopes}]
         return auths
 
-    def get_override_parameters(self):
-        """
-        Note that request and response headers are mixed here. These are filtered
-        when spectacular retrieves the available parameters for a request/response body.
-        """
-        custom_headers = []
-
-        if has_cache_header(self.view):
-            custom_headers += CACHE_REQUEST_HEADERS
-            custom_headers += get_cache_headers(self.view)
-
-        if _view_supports_audittrail(self.view):
-            custom_headers += AUDIT_REQUEST_HEADERS
+    def get_request_parameters(self):
+        serializer = self.get_request_serializer()
+        headers = []
 
         if self.method in (
             "POST",
             "PUT",
             "PATCH",
         ):
-            custom_headers += [
-                OpenApiParameter(
-                    name="Content-Type",
-                    type=OpenApiTypes.STR,
-                    location=OpenApiParameter.HEADER,
-                    required=True,
-                    enum=self.map_renderers("media_type"),
-                    description=_("Content type of the request body."),
-                )
-            ]
+            headers.extend(
+                [
+                    OpenApiParameter(
+                        name="Content-Type",
+                        type=OpenApiTypes.STR,
+                        location=OpenApiParameter.HEADER,
+                        required=True,
+                        enum=self.map_renderers("media_type"),
+                        description=_("Content type of the request body."),
+                    )
+                ]
+            )
+
+        if has_cache_header(self.view):
+            headers.extend(CACHE_REQUEST_HEADERS)
+
+        if _view_supports_audittrail(self.view):
+            headers.extend(AUDIT_REQUEST_HEADERS)
+
+        if has_geo_fields(serializer):
+            headers.extend(
+                [
+                    OpenApiParameter(
+                        name=HEADER_ACCEPT,
+                        type=OpenApiTypes.STR,
+                        location=OpenApiParameter.HEADER,
+                        required=True,
+                        description="Het gewenste 'Coordinate Reference System' (CRS) van de "
+                        "geometrie in het antwoord (response body). Volgens de "
+                        "GeoJSON spec is WGS84 de default (EPSG:4326 is "
+                        "hetzelfde als WGS84).",
+                        enum=[DEFAULT_CRS],
+                    ),
+                    OpenApiParameter(
+                        name=HEADER_CONTENT,
+                        type=OpenApiTypes.STR,
+                        location=OpenApiParameter.HEADER,
+                        description="Het 'Coordinate Reference System' (CRS) van de "
+                        "geometrie in de vraag (request body). Volgens de "
+                        "GeoJSON spec is WGS84 de default (EPSG:4326 is "
+                        "hetzelfde als WGS84).",
+                        enum=[DEFAULT_CRS],
+                        required=True,
+                    ),
+                ]
+            )
+
+        return headers
+
+    def get_response_parameters(self):
+        serializer = self.get_request_serializer()
+        headers = []
+
+        if has_cache_header(self.view):
+            headers.extend(get_cache_headers(self.view))
+
+        if has_geo_fields(serializer):
+            headers.extend(
+                [
+                    OpenApiParameter(
+                        name=HEADER_CONTENT,
+                        type=OpenApiTypes.STR,
+                        location=OpenApiParameter.HEADER,
+                        description="Het 'Coordinate Reference System' (CRS) van de "
+                        "geometrie in de vraag (request body). Volgens de "
+                        "GeoJSON spec is WGS84 de default (EPSG:4326 is "
+                        "hetzelfde als WGS84).",
+                        enum=[DEFAULT_CRS],
+                        response=[
+                            status.HTTP_200_OK,
+                            status.HTTP_201_CREATED,
+                            status.HTTP_204_NO_CONTENT,
+                        ],
+                    ),
+                ]
+            )
 
         error_responses = self.get_error_codes()
 
-        custom_headers += [
-            OpenApiParameter(
-                name="Location",
-                type=OpenApiTypes.URI,
-                location=OpenApiParameter.HEADER,
-                description=location_header,
-                response=[status.HTTP_201_CREATED],
-            ),
-            OpenApiParameter(
-                name=VERSION_HEADER,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.HEADER,
-                description=version_header,
-                response=[
-                    status.HTTP_200_OK,
-                    status.HTTP_201_CREATED,
-                    status.HTTP_204_NO_CONTENT,
-                    *error_responses,
-                ],
-            ),
-        ]
+        headers.extend(
+            [
+                OpenApiParameter(
+                    name="Location",
+                    type=OpenApiTypes.URI,
+                    location=OpenApiParameter.HEADER,
+                    description=location_header,
+                    response=[status.HTTP_201_CREATED],
+                ),
+                OpenApiParameter(
+                    name=VERSION_HEADER,
+                    type=OpenApiTypes.STR,
+                    location=OpenApiParameter.HEADER,
+                    description=version_header,
+                    response=[
+                        status.HTTP_200_OK,
+                        status.HTTP_201_CREATED,
+                        status.HTTP_204_NO_CONTENT,
+                        *error_responses,
+                    ],
+                ),
+            ]
+        )
 
-        return custom_headers
+        return headers
+
+    def get_override_parameters(self):
+        """
+        Note that request and response headers are mixed here. These are filtered
+        when spectacular retrieves the available parameters for a request/response body.
+        """
+        return self.get_request_parameters() + self.get_response_parameters()
 
     def _get_response_bodies(self, direction="response"):
         response_bodies = super()._get_response_bodies(direction=direction)
