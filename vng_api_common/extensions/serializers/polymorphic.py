@@ -1,7 +1,7 @@
 from drf_spectacular.extensions import OpenApiSerializerExtension
 from drf_spectacular.plumbing import ResolvedComponent
 
-from ..utils import underscore_to_camel
+from ...utils import underscore_to_camel
 
 
 class PolymorphicSerializerExtension(OpenApiSerializerExtension):
