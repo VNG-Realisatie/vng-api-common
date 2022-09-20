@@ -1,7 +1,7 @@
 __all__ = [
     "API_VERSION",
     "BASE_REST_FRAMEWORK",
-    "BASE_SWAGGER_SETTINGS",
+    "BASE_SPECTACULAR_SETTINGS",
     "COMMON_SPEC",
     "LINK_FETCHER",
     "ZDS_CLIENT_CLASS",
@@ -18,6 +18,7 @@ __all__ = [
 API_VERSION = "1.0.0-rc1"  # semantic version
 
 BASE_REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "vng_api_common.schema.AutoSchema",
     "DEFAULT_RENDERER_CLASSES": (
         "djangorestframework_camel_case.render.CamelCaseJSONRenderer",
     ),
@@ -61,11 +62,8 @@ BASE_REST_FRAMEWORK = {
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
-BASE_SWAGGER_SETTINGS = {
+BASE_SPECTACULAR_SETTINGS = {
     "DEFAULT_GENERATOR_CLASS": "vng_api_common.generators.OpenAPISchemaGenerator",
-    "DEFAULT_AUTO_SCHEMA_CLASS": "vng_api_common.inspectors.view.AutoSchema",
-    "DEFAULT_INFO": "must.be.overridden",
-    "DEFAULT_FILTER_INSPECTORS": ("vng_api_common.inspectors.query.FilterInspector",),
 }
 
 REDOC_SETTINGS = {"EXPAND_RESPONSES": "200,201", "SPEC_URL": "openapi.json"}

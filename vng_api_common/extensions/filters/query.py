@@ -7,7 +7,7 @@ from drf_spectacular.extensions import OpenApiFilterExtension
 from rest_framework.filters import OrderingFilter
 
 from vng_api_common.filters import URLModelChoiceFilter
-from vng_api_common.inspectors.utils import get_target_field
+from vng_api_common.extensions.utils import get_target_field
 from vng_api_common.oas import TYPE_ARRAY, TYPE_STRING
 from vng_api_common.utils import underscore_to_camel
 
