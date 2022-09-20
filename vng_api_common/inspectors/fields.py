@@ -4,12 +4,11 @@ from drf_spectacular.extensions import (
     OpenApiSerializerExtension,
     OpenApiSerializerFieldExtension,
 )
-from drf_spectacular.types import PYTHON_TYPE_MAPPING as TYPES_MAP
+from drf_spectacular.types import OPENAPI_TYPE_MAPPING, PYTHON_TYPE_MAPPING as TYPES_MAP
 
 logger = logging.getLogger(__name__)
 
 
-# TODO: verify this in schema output
 class ReadOnlyFieldExtension(OpenApiSerializerFieldExtension):
     """
     Provides conversion for derived ReadOnlyField from model fields.
@@ -42,10 +41,13 @@ class ReadOnlyFieldExtension(OpenApiSerializerFieldExtension):
         type_ = TYPES_MAP.get(return_type)
         if type_ is None:
             logger.debug("Missing type mapping for %r", return_type)
+            return default_schema
+
+        type_info = OPENAPI_TYPE_MAPPING[type_]
 
         return {
             **default_schema,
-            "type": type_,
+            **type_info,
         }
 
 
