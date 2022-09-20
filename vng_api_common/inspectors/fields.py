@@ -52,7 +52,7 @@ class ReadOnlyFieldExtension(OpenApiSerializerFieldExtension):
 
 
 class HyperlinkedRelatedFieldExtension(OpenApiSerializerFieldExtension):
-    target_class = "rest_framework.relations.HyperlinkedRelatedField"
+    target_class = "vng_api_common.serializers.LengthHyperlinkedRelatedField"
     match_subclasses = True
 
     def map_serializer_field(self, auto_schema, direction):
@@ -62,9 +62,9 @@ class HyperlinkedRelatedFieldExtension(OpenApiSerializerFieldExtension):
 
         return {
             **default_schema,
-            "description": "URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.",
-            "min_length": 1,
-            "max_length": 1000,
+            "description": self.target.help_text,
+            "min_length": self.target.min_length,
+            "max_length": self.target.max_length,
         }
 
 
@@ -79,9 +79,9 @@ class HyperlinkedIdentityFieldExtension(OpenApiSerializerFieldExtension):
 
         return {
             **default_schema,
-            "description": self.target.help_text,
-            "min_length": self.target.min_length,
-            "max_length": self.target.max_length,
+            "description": "URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.",
+            "min_length": 1,
+            "max_length": 1000,
         }
 
 
