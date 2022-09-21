@@ -14,8 +14,6 @@ HEADER_LOGRECORD_ID = "X-NLX-Logrecord-ID"
 
 FILTER_URL_DID_NOT_RESOLVE = "NO_MATCHING_OBJECT"
 
-DRF_EXCLUDED_ENDPOINTS = ["callbacks", "jwtsecret/", "openapi.yaml", "openapi{var}"]
-
 
 class VertrouwelijkheidsAanduiding(DjangoChoices):
     openbaar = ChoiceItem("openbaar", "Openbaar")

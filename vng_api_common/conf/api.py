@@ -3,6 +3,7 @@ __all__ = [
     "BASE_REST_FRAMEWORK",
     "BASE_SPECTACULAR_SETTINGS",
     "COMMON_SPEC",
+    "DRF_EXCLUDED_ENDPOINTS",
     "LINK_FETCHER",
     "ZDS_CLIENT_CLASS",
     "GEMMA_URL_TEMPLATE",
@@ -64,7 +65,29 @@ BASE_REST_FRAMEWORK = {
 
 BASE_SPECTACULAR_SETTINGS = {
     "DEFAULT_GENERATOR_CLASS": "vng_api_common.generators.OpenAPISchemaGenerator",
+    "PREPROCESSING_HOOKS": ["vng_api_common.utils.get_schema_endpoints"],
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+        "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields",
+    ],
+    "SCHEMA_PATH_PREFIX": "/api/v1",
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            "JWT-Claims": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer",
+            }
+        },
+    },
+    "SECURITY": [
+        {
+            "JWT-Claims": [],
+        }
+    ],
 }
+
+DRF_EXCLUDED_ENDPOINTS = ["callbacks", "jwtsecret/", "openapi.yaml", "openapi{var}"]
 
 REDOC_SETTINGS = {"EXPAND_RESPONSES": "200,201", "SPEC_URL": "openapi.json"}
 
