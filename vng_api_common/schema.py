@@ -184,6 +184,7 @@ class AutoSchema(openapi.AutoSchema):
 
         scopes = [str(scope) for scope in sorted(required_scopes)]
 
+        # TODO: this should not be hardcoded
         if spectacular_settings.SECURITY:
             auths = [{list(spectacular_settings.SECURITY[0])[0]: scopes}]
         return auths
