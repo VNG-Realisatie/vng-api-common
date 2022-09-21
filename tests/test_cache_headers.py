@@ -4,7 +4,6 @@ from django.db import transaction
 
 import pytest
 from drf_spectacular.generators import SchemaGenerator
-from drf_spectacular.plumbing import ResolvedComponent
 from rest_framework import status, viewsets
 from rest_framework.reverse import reverse
 from rest_framework.test import APIRequestFactory
@@ -15,7 +14,7 @@ from testapp.models import Hobby, Person
 from testapp.serializers import HobbySerializer
 from testapp.viewsets import PersonViewSet
 from vng_api_common.caching.decorators import conditional_retrieve
-from vng_api_common.inspectors.cache import get_cache_headers
+from vng_api_common.extensions.utils import get_cache_headers
 
 pytestmark = pytest.mark.django_db(transaction=True)
 
@@ -60,8 +59,7 @@ def test_cache_headers_detected():
 
     headers = get_cache_headers(view)
 
-    assert "ETag" in headers
-    assert isinstance(headers["ETag"], ResolvedComponent)
+    assert any((True for header in headers if header.name == "ETag"))
 
 
 @pytest.mark.django_db(transaction=False)
