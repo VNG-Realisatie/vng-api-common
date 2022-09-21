@@ -156,6 +156,37 @@ def _view_supports_audittrail(view: viewsets.ViewSet) -> bool:
 
 
 class AutoSchema(openapi.AutoSchema):
+    method_mapping = {
+        "get": "retrieve",
+        "post": "create",
+        "put": "update",
+        "patch": "partial_update",
+        "delete": "destroy",
+        "head": "headers",
+    }
+
+    def get_operation_id(self):
+        action = self.method_mapping[self.method.lower()]
+        view_action = getattr(self.view, "action", None)
+
+        if self.method == "GET" and self._is_list_view():
+            action = "list"
+        # its a custom view
+        elif view_action and action != view_action:
+            return "_".join(self._tokenize_path())
+
+        if self.model is not None:
+            model_name = self.model._meta.model_name
+            return f"{model_name}_{action}"
+
+        return super().get_operation_id()
+
+    def get_description(self):
+        if self.method == "HEAD":
+            return _("Vraag de headers op die je bij een GET request zou krijgen.")
+
+        return super().get_description()
+
     def get_auth(self):
         """
         Obtains authentication classes and permissions from view. If authentication
@@ -359,3 +390,13 @@ class AutoSchema(openapi.AutoSchema):
 
         status_codes = sorted({e.status_code for e in exception_klasses})
         return status_codes
+
+    @property
+    def model(self):
+        if hasattr(self.view, "queryset") and self.view.queryset is not None:
+            return self.view.queryset.model
+
+        if hasattr(self.view, "get_queryset"):
+            qs = self.view.get_queryset()
+            return qs.model
+        return None
