@@ -13,8 +13,6 @@ from django.utils.encoding import smart_str
 from rest_framework.utils import formatting
 from zds_client.client import ClientError
 
-from vng_api_common.constants import DRF_EXCLUDED_ENDPOINTS
-
 from .client import get_client
 
 try:
@@ -272,16 +270,18 @@ def get_field_attribute(
     return getattr(field, attr_name, None)
 
 
-def preprocessing_filter_spec(endpoints):
-    """exlude endpoints from drf-spectacular"""
-    filtered = []
+def get_schema_endpoints(endpoints):
+    filtered_endpoints = []
+
     for (path, path_regex, method, callback) in endpoints:
-        # Remove all but DRF API endpoints
-        include = True
-        for excluded_paths in DRF_EXCLUDED_ENDPOINTS:
-            if path.endswith(excluded_paths):
-                include = False
-                break
-        if include:
-            filtered.append((path, path_regex, method, callback))
-    return filtered
+        is_excluded = any(
+            (
+                path.endswith(excluded_path)
+                for excluded_path in settings.DRF_EXCLUDED_ENDPOINTS
+            )
+        )
+
+        if not is_excluded:
+            filtered_endpoints.append((path, path_regex, method, callback))
+
+    return filtered_endpoints
