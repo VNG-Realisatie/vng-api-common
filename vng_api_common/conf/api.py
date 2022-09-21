@@ -14,9 +14,12 @@ __all__ = [
     "NOTIFICATIONS_KANAAL",
     "NOTIFICATIONS_DISABLED",
     "JWT_LEEWAY",
+    "SECURITY_DEFINITION_NAME",
 ]
 
 API_VERSION = "1.0.0-rc1"  # semantic version
+
+SECURITY_DEFINITION_NAME = "JWT-Claims"
 
 BASE_REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "vng_api_common.schema.AutoSchema",
@@ -73,7 +76,7 @@ BASE_SPECTACULAR_SETTINGS = {
     "SCHEMA_PATH_PREFIX": "/api/v1",
     "APPEND_COMPONENTS": {
         "securitySchemes": {
-            "JWT-Claims": {
+            SECURITY_DEFINITION_NAME: {
                 "type": "http",
                 "bearerFormat": "JWT",
                 "scheme": "bearer",
@@ -82,7 +85,7 @@ BASE_SPECTACULAR_SETTINGS = {
     },
     "SECURITY": [
         {
-            "JWT-Claims": [],
+            SECURITY_DEFINITION_NAME: [],
         }
     ],
 }
