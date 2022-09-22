@@ -416,10 +416,10 @@ class AutoSchema(openapi.AutoSchema):
         )
 
     def get_error_codes(self):
-        if not hasattr(self.view, "action"):
+        if not hasattr(self.view, "action") and not is_search_view(self.view):
             return []
 
-        action = self.view.action
+        action = self.view.action if not is_search_view(self.view) else "create"
 
         general_klasses = DEFAULT_ACTION_ERRORS.get(action)
         if general_klasses is None:
