@@ -5,11 +5,14 @@ from django.apps import apps
 from django.utils.translation import gettext, gettext_lazy as _
 
 from drf_spectacular import openapi
+from drf_spectacular.extensions import OpenApiFilterExtension
 from drf_spectacular.plumbing import ResolvedComponent
 from drf_spectacular.settings import spectacular_settings
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
 from rest_framework import exceptions, status, viewsets
+
+from vng_api_common.search import is_search_view
 
 from .caching.introspection import has_cache_header
 from .constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
@@ -156,6 +159,25 @@ def _view_supports_audittrail(view: viewsets.ViewSet) -> bool:
     return action_in_audit_bases
 
 
+def convert_parameters(parameters):
+    converted_parameters = []
+
+    for parameter in parameters:
+        kwargs = {}
+
+        for key, value in parameter.items():
+            if key == "in":
+                location = parameter[key]
+                kwargs["location"] = location
+            elif key == "schema":
+                kwargs.update(value)
+            else:
+                kwargs[key] = value
+
+            converted_parameters.append(OpenApiParameter(**kwargs))
+    return converted_parameters
+
+
 class AutoSchema(openapi.AutoSchema):
     method_mapping = {
         "get": "retrieve",
@@ -221,6 +243,13 @@ class AutoSchema(openapi.AutoSchema):
             auths = [{list(spectacular_settings.SECURITY[0])[0]: scopes}]
         return auths
 
+    def get_request_serializer(self):
+        if is_search_view(self.view):
+            serializer_class = self.view.get_search_input_serializer_class()
+            return serializer_class()
+
+        return super().get_request_serializer()
+
     def get_request_parameters(self):
         serializer = self.get_request_serializer()
         headers = []
@@ -242,6 +271,19 @@ class AutoSchema(openapi.AutoSchema):
                     )
                 ]
             )
+
+        # TODO: show paginated response
+        if is_search_view(self.view):
+            paginator = self._get_paginator()
+
+            filter_extension = OpenApiFilterExtension.get_match(paginator)
+            if filter_extension:
+                parameters = filter_extension.get_schema_operation_parameters(self)
+            else:
+                parameters = paginator.get_schema_operation_parameters(self.view)
+
+            converted_parameters = convert_parameters(parameters)
+            headers.extend(converted_parameters)
 
         if has_cache_header(self.view):
             headers.extend(CACHE_REQUEST_HEADERS)
@@ -361,7 +403,9 @@ class AutoSchema(openapi.AutoSchema):
                 self.map_renderers("media_type"),
                 direction=direction,
             )
-            self.register_error_responses(status_code, response_bodies[str(status_code)])
+            self.register_error_responses(
+                status_code, response_bodies[str(status_code)]
+            )
 
         for status_code, response_body in response_bodies.items():
             response_body["description"] = HTTP_STATUS_CODE_TITLES.get(int(status_code))
@@ -409,5 +453,3 @@ class AutoSchema(openapi.AutoSchema):
             qs = self.view.get_queryset()
             return qs.model
         return None
-
-
