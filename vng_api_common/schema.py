@@ -6,11 +6,16 @@ from django.utils.translation import gettext, gettext_lazy as _
 
 from drf_spectacular import openapi
 from drf_spectacular.extensions import OpenApiFilterExtension
-from drf_spectacular.plumbing import ResolvedComponent
+from drf_spectacular.plumbing import (
+    ResolvedComponent,
+    build_array_type,
+    build_media_type_object,
+    modify_media_types_for_versioning,
+)
 from drf_spectacular.settings import spectacular_settings
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
-from rest_framework import exceptions, status, viewsets
+from rest_framework import exceptions, serializers, status, viewsets
 
 from vng_api_common.search import is_search_view
 
@@ -386,31 +391,29 @@ class AutoSchema(openapi.AutoSchema):
 
     def _get_response_bodies(self, direction="response"):
         response_bodies = super()._get_response_bodies(direction=direction)
-        error_status_codes = self.get_error_codes()
 
-        for status_code in error_status_codes:
-            serializer = (
-                ValidatieFoutSerializer
-                if status_code == exceptions.ValidationError.status_code
-                else FoutSerializer
-            )
-            response_bodies[str(status_code)] = self._get_response_for_code(
-                OpenApiResponse(
-                    description=HTTP_STATUS_CODE_TITLES.get(int(status_code)),
-                    response=serializer,
-                ),
-                str(status_code),
-                self.map_renderers("media_type"),
-                direction=direction,
-            )
-            self.register_error_responses(
-                status_code, response_bodies[str(status_code)]
-            )
+        self.register_error_responses(response_bodies, direction)
 
         for status_code, response_body in response_bodies.items():
             response_body["description"] = HTTP_STATUS_CODE_TITLES.get(int(status_code))
 
         return response_bodies
+
+    def _get_response_for_code(
+        self, serializer, status_code, media_types=None, direction="response"
+    ):
+        if (
+            isinstance(serializer, serializers.Serializer)
+            and is_search_view(self.view)
+            and status_code == str(status.HTTP_200_OK)
+        ):
+            return self.get_search_response(
+                serializer, status_code, media_types, direction
+            )
+
+        return super()._get_response_for_code(
+            serializer, status_code, media_types=media_types, direction=direction
+        )
 
     def get_error_codes(self):
         if not hasattr(self.view, "action"):
@@ -437,12 +440,72 @@ class AutoSchema(openapi.AutoSchema):
         status_codes = sorted({e.status_code for e in exception_klasses})
         return status_codes
 
-    def register_error_responses(self, status_code, schema):
+    def register_error_responses(self, response_bodies, direction):
+        error_status_codes = self.get_error_codes()
 
-        component_error_response = ResolvedComponent(
-            name=status_code, type="responses", schema=schema
+        for status_code in error_status_codes:
+            serializer = (
+                ValidatieFoutSerializer
+                if status_code == exceptions.ValidationError.status_code
+                else FoutSerializer
+            )
+            response_bodies[str(status_code)] = self._get_response_for_code(
+                OpenApiResponse(
+                    description=HTTP_STATUS_CODE_TITLES.get(int(status_code)),
+                    response=serializer,
+                ),
+                str(status_code),
+                self.map_renderers("media_type"),
+                direction=direction,
+            )
+
+            component_error_response = ResolvedComponent(
+                name=status_code,
+                type="responses",
+                schema=response_bodies[str(status_code)],
+            )
+            self.registry.register_on_missing(component_error_response)
+
+    def get_search_response(self, serializer, status_code, media_types, direction):
+        paginator = self._get_paginator()
+        paginated_name = self.get_paginated_name(
+            self._get_serializer_name(serializer, "response")
         )
-        self.registry.register_on_missing(component_error_response)
+
+        child_component = self.resolve_serializer(serializer, direction)
+        schema = paginator.get_paginated_response_schema(
+            build_array_type(child_component.ref)
+        )
+
+        component = ResolvedComponent(
+            name=paginated_name,
+            type=ResolvedComponent.SCHEMA,
+            schema=schema,
+            object=serializer,
+        )
+
+        self.registry.register_on_missing(component)
+
+        headers = self._get_response_headers_for_code(status_code, direction)
+        headers = {"headers": headers} if headers else {}
+
+        if not media_types:
+            media_types = self.map_renderers("media_type")
+
+        media_types = modify_media_types_for_versioning(self.view, media_types)
+
+        return {
+            **headers,
+            "content": {
+                media_type: build_media_type_object(
+                    component.ref,
+                    self._get_examples(
+                        serializer, direction, media_type, status_code, []
+                    ),
+                )
+                for media_type in media_types
+            },
+        }
 
     @property
     def model(self):
