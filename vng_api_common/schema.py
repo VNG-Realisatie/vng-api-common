@@ -5,6 +5,7 @@ from django.apps import apps
 from django.utils.translation import gettext, gettext_lazy as _
 
 from drf_spectacular import openapi
+from drf_spectacular.plumbing import ResolvedComponent
 from drf_spectacular.settings import spectacular_settings
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
@@ -360,6 +361,7 @@ class AutoSchema(openapi.AutoSchema):
                 self.map_renderers("media_type"),
                 direction=direction,
             )
+            self.register_error_responses(status_code, response_bodies[str(status_code)])
 
         for status_code, response_body in response_bodies.items():
             response_body["description"] = HTTP_STATUS_CODE_TITLES.get(int(status_code))
@@ -391,6 +393,13 @@ class AutoSchema(openapi.AutoSchema):
         status_codes = sorted({e.status_code for e in exception_klasses})
         return status_codes
 
+    def register_error_responses(self, status_code, schema):
+
+        component_error_response = ResolvedComponent(
+            name=status_code, type="responses", schema=schema
+        )
+        self.registry.register_on_missing(component_error_response)
+
     @property
     def model(self):
         if hasattr(self.view, "queryset") and self.view.queryset is not None:
@@ -400,3 +409,5 @@ class AutoSchema(openapi.AutoSchema):
             qs = self.view.get_queryset()
             return qs.model
         return None
+
+

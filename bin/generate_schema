@@ -11,22 +11,23 @@ fi
 
 echo "Generating Swagger schema"
 src/manage.py generate_swagger \
-    ./src/swagger2.0.json \
+    --output-file ./src/openapi.yaml \
     --overwrite \
-    --format=json \
+    --format=openapi \
     --mock-request \
     --url https://example.com/api/v1
 
-echo "Converting Swagger to OpenAPI 3.0..."
-npm run convert
 patch_content_types
 
 echo "Generating unresolved OpenAPI 3.0 schema"
 use_external_components
 
+echo "Prettifying OpenAPI schema"
+npx prettier --write --single-quote ./src/openapi.yaml
+
 echo "Generating resources document"
 src/manage.py generate_swagger \
-    ./src/resources.md \
+    --output-file ./src/resources.md \
     --overwrite \
     --mock-request \
     --url https://example.com/api/v1 \

@@ -1,6 +1,5 @@
 """
 Patch the content-type of error responses.
-
 Due to the changes between Swagger 2.0 and OpenAPI 3.0, we cannot handle
 this at the Python level.
 """
