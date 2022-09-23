@@ -1,17 +1,14 @@
 from typing import Optional, Type
 
 from django.db import models
-
-from rest_framework import serializers
-from rest_framework.utils.model_meta import get_field_info
-
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter
+from rest_framework import serializers
 from rest_framework.status import HTTP_200_OK
+from rest_framework.utils.model_meta import get_field_info
 from rest_framework.views import APIView
-
 
 CACHE_REQUEST_HEADERS = [
     OpenApiParameter(
@@ -41,6 +38,7 @@ CACHE_REQUEST_HEADERS = [
         ],
     )
 ]
+
 
 def get_target_field(model: Type[models.Model], field: str) -> Optional[models.Field]:
     """
