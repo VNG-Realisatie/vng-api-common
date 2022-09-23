@@ -2,10 +2,7 @@
 Test that the required content type headers are present.
 """
 from django.urls import path
-from django.utils.translation import gettext_lazy as _
 
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiParameter
 from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -64,17 +61,16 @@ def test_json_content_type():
 def test_multipart_content_type():
     schema = _generate_schema()
 
-    get_operation = schema.paths["/multipart"]["get"]
-    post_operation = schema.paths["/multipart"]["post"]
+    get_operation = schema["paths"]["/multipart"]["get"]
+    post_operation = schema["paths"]["/multipart"]["post"]
 
-    assert get_operation["parameters"] == []
+    assert "parameters" not in get_operation
     assert post_operation["parameters"] == [
-        OpenApiParameter(
-            name="Content-Type",
-            location=OpenApiParameter.HEADER,
-            type=OpenApiTypes.STR,
-            required=True,
-            enum=["multipart/form-data"],
-            description=_("Content type of the request body."),
-        )
+        {
+            "description": "Content type of the request body.",
+            "in": "header",
+            "name": "Content-Type",
+            "required": True,
+            "schema": {"enum": ["multipart/form-data"], "type": "string"},
+        }
     ]
