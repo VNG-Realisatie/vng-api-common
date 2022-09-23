@@ -16,15 +16,15 @@ def test_schema_root_tags():
     request = APIView().initialize_request(request)
     request._request.jwt_auth = mock.Mock()
 
-    generator = OpenAPISchemaGenerator(info=mock.Mock())
+    generator = OpenAPISchemaGenerator()
 
     schema = generator.get_schema(request)
-    assert hasattr(schema, "tags")
+    assert "tags" in schema
 
-    # Convert list of ordereddicts to simple dict.
-    tags = dict([dict(od).values() for od in schema.tags])
-    assert "persons" in tags
-    assert tags["persons"] == "Summary\n\nMore summary"
+    summary = next(
+        tag["description"] for tag in schema["tags"] if tag["name"] == "persons"
+    )
+    assert summary == "Summary\n\nMore summary"
 
 
 def test_view_summary():
