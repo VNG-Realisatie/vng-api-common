@@ -3,6 +3,7 @@ __all__ = [
     "BASE_REST_FRAMEWORK",
     "BASE_SPECTACULAR_SETTINGS",
     "COMMON_SPEC",
+    "DOCUMENTATION_INFO_MODULE",
     "DRF_EXCLUDED_ENDPOINTS",
     "LINK_FETCHER",
     "ZDS_CLIENT_CLASS",
@@ -89,6 +90,8 @@ BASE_SPECTACULAR_SETTINGS = {
         }
     ],
 }
+
+DOCUMENTATION_INFO_MODULE = None
 
 DRF_EXCLUDED_ENDPOINTS = ["callbacks", "jwtsecret/", "openapi.yaml", "openapi{var}"]
 
