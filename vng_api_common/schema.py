@@ -282,7 +282,6 @@ class AutoSchema(openapi.AutoSchema):
                 ]
             )
 
-        # TODO: show paginated response
         if is_search_view(self.view):
             paginator = self._get_paginator()
 
