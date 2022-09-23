@@ -393,6 +393,11 @@ class AutoSchema(openapi.AutoSchema):
         """
         return self.get_request_parameters() + self.get_response_parameters()
 
+    def is_deprecated(self):
+        return (
+            getattr(self.view, "deprecation_message", None) or super().is_deprecated()
+        )
+
     def _get_response_bodies(self, direction="response"):
         response_bodies = super()._get_response_bodies(direction=direction)
 
