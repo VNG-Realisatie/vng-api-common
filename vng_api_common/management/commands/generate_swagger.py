@@ -12,7 +12,6 @@ from drf_spectacular.drainage import GENERATOR_STATS
 from drf_spectacular.management.commands.spectacular import (
     Command as SpectacularCommand,
 )
-from drf_spectacular.renderers import OpenApiJsonRenderer, OpenApiYamlRenderer
 from drf_spectacular.settings import spectacular_settings
 from rest_framework.settings import api_settings
 from rest_framework.test import APIRequestFactory, force_authenticate
@@ -66,7 +65,7 @@ class Command(SpectacularCommand):
             default=False,
             action="store_true",
             help="Overwrite the output file if it already exists. "
-                 "Default behavior is to stop if the output file exists.",
+            "Default behavior is to stop if the output file exists.",
         )
         parser.add_argument(
             "-m",
@@ -75,7 +74,7 @@ class Command(SpectacularCommand):
             default=False,
             action="store_true",
             help="Use a mock request when generating the swagger schema. This is useful if your views or serializers "
-                 "depend on context from a request in order to function.",
+            "depend on context from a request in order to function.",
         )
         parser.add_argument(
             "-u",
@@ -96,10 +95,10 @@ class Command(SpectacularCommand):
             default=False,
             action="store_true",
             help="Hides endpoints not accesible to the target user. If --user is not given, only shows endpoints that "
-                 "are accesible to unauthenticated users.\n"
-                 "This has the same effect as passing public=False to get_schema_view() or "
-                 "OpenAPISchemaGenerator.get_schema().\n"
-                 "This option implies --mock-request.",
+            "are accesible to unauthenticated users.\n"
+            "This has the same effect as passing public=False to get_schema_view() or "
+            "OpenAPISchemaGenerator.get_schema().\n"
+            "This option implies --mock-request.",
         )
 
     def get_mock_request(self, url, format, user=None):
@@ -138,10 +137,7 @@ class Command(SpectacularCommand):
             api_root = reverse("api-root", kwargs={"version": get_major_version()})
         except NoReverseMatch:
             api_root = reverse("api-root")
-        api_url = (
-            api_url
-            or f"http://example.com{api_root}"  # noqa
-        )
+        api_url = api_url or f"http://example.com{api_root}"  # noqa
         if user:
             # Only call get_user_model if --user was passed in order to
             # avoid crashing if auth is not configured in the project
@@ -168,9 +164,7 @@ class Command(SpectacularCommand):
             generator_class_import = spectacular_settings.DEFAULT_GENERATOR_CLASS
 
         generator = generator_class_import(
-            urlconf=urlconf,
-            api_version=api_version,
-            url=api_url
+            urlconf=urlconf, api_version=api_version, url=api_url
         )
 
         schema = generator.get_schema(request=request, public=not private)
