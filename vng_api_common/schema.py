@@ -276,7 +276,7 @@ class AutoSchema(openapi.AutoSchema):
                         type=OpenApiTypes.STR,
                         location=OpenApiParameter.HEADER,
                         required=True,
-                        enum=self.map_renderers("media_type"),
+                        enum=self.map_parsers(),
                         description=_("Content type of the request body."),
                     )
                 ]
