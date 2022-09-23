@@ -46,19 +46,18 @@ def _generate_schema():
 def test_json_content_type():
     schema = _generate_schema()
 
-    get_operation = schema.paths["/json"]["get"]
-    post_operation = schema.paths["/json"]["post"]
+    get_operation = schema["paths"]["/json"]["get"]
+    post_operation = schema["paths"]["/json"]["post"]
 
-    assert get_operation["parameters"] == []
+    assert "parameters" not in get_operation
     assert post_operation["parameters"] == [
-        OpenApiParameter(
-            name="Content-Type",
-            location=OpenApiParameter.HEADER,
-            type=OpenApiTypes.STR,
-            required=True,
-            enum=["application/json"],
-            description=_("Content type of the request body."),
-        )
+        {
+            "description": "Content type of the request body.",
+            "in": "header",
+            "name": "Content-Type",
+            "required": True,
+            "schema": {"enum": ["application/json"], "type": "string"},
+        }
     ]
 
 
