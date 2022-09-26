@@ -7,7 +7,7 @@ def is_search_view(view):
     _action = getattr(view, "action", None)
     if _action is None:
         return
-    action = getattr(view, view.action)
+    action = getattr(view, view.action, None)
     return getattr(action, "is_search_action", False)
 
 

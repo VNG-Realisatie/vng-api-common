@@ -18,7 +18,6 @@ from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
 from rest_framework import exceptions, serializers, status, viewsets
 
 from vng_api_common.search import is_search_view
-from vng_api_common.utils import get_view_summary
 
 from .caching.introspection import has_cache_header
 from .constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
@@ -194,6 +193,12 @@ class AutoSchema(openapi.AutoSchema):
         "head": "headers",
     }
 
+    def get_operation(self, path, path_regex, path_prefix, method, registry):
+        if method.upper() == "HEAD":
+            self.view.action = "headers"
+
+        return super().get_operation(path, path_regex, path_prefix, method, registry)
+
     def get_operation_id(self):
         action = self.method_mapping[self.method.lower()]
         view_action = getattr(self.view, "action", None)
@@ -209,16 +214,6 @@ class AutoSchema(openapi.AutoSchema):
             return f"{model_name}_{action}"
 
         return super().get_operation_id()
-
-    def get_summary(self):
-        summary = get_view_summary(self.view)
-        return summary or super().get_summary() or ""
-
-    def get_description(self):
-        if self.method == "HEAD":
-            return _("Vraag de headers op die je bij een GET request zou krijgen.")
-
-        return super().get_description()
 
     def get_auth(self):
         """
