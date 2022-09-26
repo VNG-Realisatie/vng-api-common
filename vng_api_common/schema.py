@@ -215,6 +215,18 @@ class AutoSchema(openapi.AutoSchema):
 
         return super().get_operation_id()
 
+    def get_summary(self):
+        if self.method == "HEAD":
+            return _("De headers voor een specifiek(e) %(model)s opvragen ") % {
+                "model": self.model._meta.verbose_name.upper()
+            }
+        return super().get_summary()
+
+    def get_description(self):
+        if self.method == "HEAD":
+            return _("Vraag de headers op die je bij een GET request zou krijgen.")
+        return super().get_description()
+
     def get_auth(self):
         """
         Obtains authentication classes and permissions from view. If authentication
