@@ -53,7 +53,6 @@ class FilterExtension(OpenApiFilterExtension):
                         [choice[0] for choice in filter_field.extra["choices"]],
                     )
 
-                parameter["type"] = TYPE_ARRAY
                 parameter["schema"] = schema
                 parameter["style"] = "form"
                 parameter["explode"] = False
