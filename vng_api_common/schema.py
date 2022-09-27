@@ -207,7 +207,7 @@ class AutoSchema(openapi.AutoSchema):
             action = "list"
         # its a custom view
         elif view_action and action != view_action:
-            return "_".join(self._tokenize_path())
+            action = self._tokenize_path()[-1]
 
         if self.model is not None:
             model_name = self.model._meta.model_name
