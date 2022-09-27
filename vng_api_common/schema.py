@@ -401,7 +401,7 @@ class AutoSchema(openapi.AutoSchema):
         return self.get_request_parameters() + self.get_response_parameters()
 
     def is_deprecated(self):
-        return (
+        return bool(
             getattr(self.view, "deprecation_message", None) or super().is_deprecated()
         )
 
