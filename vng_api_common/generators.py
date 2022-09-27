@@ -63,7 +63,7 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
             tags.append(
                 {
                     "name": tag,
-                    "description": getattr(view, "global_description", None),
+                    "description": getattr(view, "global_description", ""),
                 }
             )
 
