@@ -1,12 +1,12 @@
 from unittest import mock
 
+from django.utils.translation import gettext as _
+
 import pytest
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
 
-from testapp.viewsets import PersonViewSet
 from vng_api_common.generators import OpenAPISchemaGenerator
-from vng_api_common.utils import get_view_summary
 
 pytestmark = pytest.mark.django_db(transaction=True)
 
@@ -21,13 +21,7 @@ def test_schema_root_tags():
     schema = generator.get_schema(request)
     assert "tags" in schema
 
-    summary = next(
+    description = next(
         tag["description"] for tag in schema["tags"] if tag["name"] == "persons"
     )
-    assert summary == "Summary\n\nMore summary"
-
-
-def test_view_summary():
-    summary = get_view_summary(PersonViewSet)
-
-    assert summary == "Summary\n\nMore summary"
+    assert description == str(_("This is the global resource description"))
