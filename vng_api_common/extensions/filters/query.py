@@ -62,13 +62,13 @@ class FilterExtension(OpenApiFilterExtension):
                     resource=parameter_name
                 )
                 parameter["description"] = help_text or description
-                parameter["format"] = "uri"
+                parameter["schema"]["format"] = "uri"
             elif isinstance(filter_field, ChoiceFilter):
                 parameter["schema"]["enum"] = [
                     choice[0] for choice in filter_field.extra["choices"]
                 ]
             elif model_field and isinstance(model_field, models.URLField):
-                parameter["format"] = "uri"
+                parameter["schema"]["format"] = "uri"
 
             if parameter["description"] == original_description and help_text:
                 parameter["description"] = force_text(help_text)
