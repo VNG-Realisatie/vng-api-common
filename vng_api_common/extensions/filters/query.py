@@ -73,9 +73,9 @@ class FilterExtension(OpenApiFilterExtension):
                 parameter["description"] = force_text(help_text)
 
             if "max_length" in filter_field.extra:
-                parameter["max_length"] = filter_field.extra["max_length"]
+                parameter["schema"]["maxLength"] = filter_field.extra["max_length"]
             if "min_length" in filter_field.extra:
-                parameter["min_length"] = filter_field.extra["min_length"]
+                parameter["schema"]["minLength"] = filter_field.extra["min_length"]
 
             parameter["name"] = parameter_name
 
