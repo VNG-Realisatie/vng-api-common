@@ -476,7 +476,7 @@ class AutoSchema(openapi.AutoSchema):
             )
 
             component_error_response = ResolvedComponent(
-                name=status_code,
+                name=str(status_code),
                 type="responses",
                 schema=response_bodies[str(status_code)],
             )
