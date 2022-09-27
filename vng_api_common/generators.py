@@ -28,6 +28,7 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
 
     def get_schema(self, request=None, public=False):
         schema = super().get_schema(request=request, public=public)
+        schema["tags"] = self.get_tags()
 
         try:
             info_module = import_module(settings.DOCUMENTATION_INFO_MODULE)
@@ -42,7 +43,6 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
         schema["info"].update(info_kwargs)
         return schema
 
-    # TODO: rewrite this to include tags in schema
     def get_tags(self):
         tags = []
 
@@ -63,7 +63,7 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
             tags.append(
                 {
                     "name": tag,
-                    "description": view.schema.get_summary(),
+                    "description": getattr(view, "global_description", None),
                 }
             )
 
