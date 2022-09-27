@@ -166,6 +166,10 @@ def _view_supports_audittrail(view: viewsets.ViewSet) -> bool:
 
 def convert_parameters(parameters):
     converted_parameters = []
+    type_mapping = {
+        "string": OpenApiTypes.STR,
+        "integer": OpenApiTypes.INT,
+    }
 
     for parameter in parameters:
         kwargs = {}
@@ -175,11 +179,13 @@ def convert_parameters(parameters):
                 location = parameter[key]
                 kwargs["location"] = location
             elif key == "schema":
-                kwargs.update(value)
+                type_ = value["type"]
+                converted_type = type_mapping.get(type_, type_)
+                kwargs.update({**value, "type": converted_type})
             else:
                 kwargs[key] = value
 
-            converted_parameters.append(OpenApiParameter(**kwargs))
+        converted_parameters.append(OpenApiParameter(**kwargs))
     return converted_parameters
 
 
