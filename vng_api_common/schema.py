@@ -46,9 +46,9 @@ DEFAULT_ACTION_ERRORS = {
     "list": COMMON_ERRORS,
     "retrieve": COMMON_ERRORS + [exceptions.NotFound],
     "update": COMMON_ERRORS
-              + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
     "partial_update": COMMON_ERRORS
-                      + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
     "destroy": COMMON_ERRORS + [exceptions.NotFound],
 }
 
@@ -322,9 +322,9 @@ class AutoSchema(openapi.AutoSchema):
                         location=OpenApiParameter.HEADER,
                         required=True,
                         description="Het gewenste 'Coordinate Reference System' (CRS) van de "
-                                    "geometrie in het antwoord (response body). Volgens de "
-                                    "GeoJSON spec is WGS84 de default (EPSG:4326 is "
-                                    "hetzelfde als WGS84).",
+                        "geometrie in het antwoord (response body). Volgens de "
+                        "GeoJSON spec is WGS84 de default (EPSG:4326 is "
+                        "hetzelfde als WGS84).",
                         enum=[DEFAULT_CRS],
                     ),
                     OpenApiParameter(
@@ -332,9 +332,9 @@ class AutoSchema(openapi.AutoSchema):
                         type=OpenApiTypes.STR,
                         location=OpenApiParameter.HEADER,
                         description="Het 'Coordinate Reference System' (CRS) van de "
-                                    "geometrie in de vraag (request body). Volgens de "
-                                    "GeoJSON spec is WGS84 de default (EPSG:4326 is "
-                                    "hetzelfde als WGS84).",
+                        "geometrie in de vraag (request body). Volgens de "
+                        "GeoJSON spec is WGS84 de default (EPSG:4326 is "
+                        "hetzelfde als WGS84).",
                         enum=[DEFAULT_CRS],
                         required=True,
                     ),
@@ -358,9 +358,9 @@ class AutoSchema(openapi.AutoSchema):
                         type=OpenApiTypes.STR,
                         location=OpenApiParameter.HEADER,
                         description="Het 'Coordinate Reference System' (CRS) van de "
-                                    "geometrie in de vraag (request body). Volgens de "
-                                    "GeoJSON spec is WGS84 de default (EPSG:4326 is "
-                                    "hetzelfde als WGS84).",
+                        "geometrie in de vraag (request body). Volgens de "
+                        "GeoJSON spec is WGS84 de default (EPSG:4326 is "
+                        "hetzelfde als WGS84).",
                         enum=[DEFAULT_CRS],
                         response=[
                             status.HTTP_200_OK,
@@ -528,18 +528,27 @@ class AutoSchema(openapi.AutoSchema):
                 for media_type in media_types
             },
         }
+
     def _get_serializer_field_meta(self, field, direction):
         meta = super()._get_serializer_field_meta(field, direction)
-        title = meta.get("title", "")
-        if not title:
-            Meta = getattr(field.parent, "Meta", None)
-            model = getattr(Meta, "model", None)
-            if model:
-                source = getattr(field.parent.Meta.model, str(field.source), None)
-                if getattr(source, "field", None):
-                    verbose_name = getattr(source.field, "verbose_name", None)
-                    if verbose_name:
-                        meta["title"] = source.field.verbose_name
+        title = meta.get("title")
+
+        if title:
+            return meta
+
+        Meta = getattr(field.parent, "Meta", None)
+        model = getattr(Meta, "model", None)
+
+        if model:
+            source = getattr(model, str(field.source), None)
+            field = getattr(source, "field", None)
+
+            if not field:
+                return meta
+
+            verbose_name = getattr(field, "verbose_name", None)
+            meta["title"] = verbose_name if verbose_name else ""
+
         return meta
 
     @property
