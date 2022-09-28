@@ -18,7 +18,7 @@ class NotificationsConfig(ClientConfig):
         verbose_name = _("Notificatiescomponentconfiguratie")
 
     def get_auth(self) -> ClientAuth:
-        auth = APICredential.get_auth(self.api_root, scopes=[])
+        auth = APICredential.get_auth(self.api_root)
         return auth
 
 
