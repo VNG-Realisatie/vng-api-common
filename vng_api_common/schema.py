@@ -529,6 +529,28 @@ class AutoSchema(openapi.AutoSchema):
             },
         }
 
+    def _get_serializer_field_meta(self, field, direction):
+        meta = super()._get_serializer_field_meta(field, direction)
+        title = meta.get("title")
+
+        if title:
+            return meta
+
+        Meta = getattr(field.parent, "Meta", None)
+        model = getattr(Meta, "model", None)
+
+        if model:
+            source = getattr(model, str(field.source), None)
+            field = getattr(source, "field", None)
+
+            if not field:
+                return meta
+
+            verbose_name = getattr(field, "verbose_name", None)
+            meta["title"] = verbose_name if verbose_name else ""
+
+        return meta
+
     @property
     def model(self):
         if hasattr(self.view, "queryset") and self.view.queryset is not None:
