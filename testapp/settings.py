@@ -36,13 +36,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "rest_framework",
     "drf_yasg",
+    "simple_certmanager",
+    "zgw_consumers",
+    "notifications_api_common",
     "vng_api_common",
     "vng_api_common.authorizations",
     "vng_api_common.notifications",
     "vng_api_common.audittrails",
-    "notifications_api_common",
-    "zgw_consumers",
-    "simple_certmanager",
     "testapp",
 ]
 
