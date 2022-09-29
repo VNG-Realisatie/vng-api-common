@@ -46,9 +46,9 @@ DEFAULT_ACTION_ERRORS = {
     "list": COMMON_ERRORS,
     "retrieve": COMMON_ERRORS + [exceptions.NotFound],
     "update": COMMON_ERRORS
-    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+              + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
     "partial_update": COMMON_ERRORS
-    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+                      + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
     "destroy": COMMON_ERRORS + [exceptions.NotFound],
 }
 
@@ -322,9 +322,9 @@ class AutoSchema(openapi.AutoSchema):
                         location=OpenApiParameter.HEADER,
                         required=True,
                         description="Het gewenste 'Coordinate Reference System' (CRS) van de "
-                        "geometrie in het antwoord (response body). Volgens de "
-                        "GeoJSON spec is WGS84 de default (EPSG:4326 is "
-                        "hetzelfde als WGS84).",
+                                    "geometrie in het antwoord (response body). Volgens de "
+                                    "GeoJSON spec is WGS84 de default (EPSG:4326 is "
+                                    "hetzelfde als WGS84).",
                         enum=[DEFAULT_CRS],
                     ),
                     OpenApiParameter(
@@ -332,9 +332,9 @@ class AutoSchema(openapi.AutoSchema):
                         type=OpenApiTypes.STR,
                         location=OpenApiParameter.HEADER,
                         description="Het 'Coordinate Reference System' (CRS) van de "
-                        "geometrie in de vraag (request body). Volgens de "
-                        "GeoJSON spec is WGS84 de default (EPSG:4326 is "
-                        "hetzelfde als WGS84).",
+                                    "geometrie in de vraag (request body). Volgens de "
+                                    "GeoJSON spec is WGS84 de default (EPSG:4326 is "
+                                    "hetzelfde als WGS84).",
                         enum=[DEFAULT_CRS],
                         required=True,
                     ),
@@ -358,9 +358,9 @@ class AutoSchema(openapi.AutoSchema):
                         type=OpenApiTypes.STR,
                         location=OpenApiParameter.HEADER,
                         description="Het 'Coordinate Reference System' (CRS) van de "
-                        "geometrie in de vraag (request body). Volgens de "
-                        "GeoJSON spec is WGS84 de default (EPSG:4326 is "
-                        "hetzelfde als WGS84).",
+                                    "geometrie in de vraag (request body). Volgens de "
+                                    "GeoJSON spec is WGS84 de default (EPSG:4326 is "
+                                    "hetzelfde als WGS84).",
                         enum=[DEFAULT_CRS],
                         response=[
                             status.HTTP_200_OK,
@@ -543,6 +543,7 @@ class AutoSchema(openapi.AutoSchema):
             source = getattr(model, str(field.source), None)
             field = getattr(source, "field", None)
 
+
             if not field:
                 return meta
 
@@ -550,6 +551,12 @@ class AutoSchema(openapi.AutoSchema):
             meta["title"] = verbose_name if verbose_name else ""
 
         return meta
+
+    def map_renderers(self, attribute):
+        for renderer in self.view.get_renderers():
+            if getattr(renderer, attribute, None):
+                return super().map_renderers(attribute)
+        return []
 
     @property
     def model(self):
