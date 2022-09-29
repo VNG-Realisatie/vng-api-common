@@ -16,6 +16,7 @@ __all__ = [
     "NOTIFICATIONS_DISABLED",
     "JWT_LEEWAY",
     "SECURITY_DEFINITION_NAME",
+    "SPECTACULAR_EXTENSIONS",
 ]
 
 API_VERSION = "1.0.0-rc1"  # semantic version
@@ -90,6 +91,8 @@ BASE_SPECTACULAR_SETTINGS = {
         }
     ],
 }
+
+SPECTACULAR_EXTENSIONS = []
 
 DOCUMENTATION_INFO_MODULE = None
 
