@@ -11,9 +11,10 @@ class HistoryURLFieldExtension(OpenApiSerializerFieldExtension):
         )
         if self.target.__class__.__name__ == "HistoryURLField":
             default_schema["example"] = ["http://example.com"]
-            default_schema["items"] = {'type': 'string', "format": "uri"}
+            default_schema["items"] = {"type": "string", "format": "uri"}
             default_schema["format"] = "uri"
             default_schema |= {
-                "description": f"URL referenties van de {self.target.field_name} welke horen bij deze versie van het ZAAKTYPE.", }
+                "description": f"URL referenties van de {self.target.field_name} welke horen bij deze versie van het ZAAKTYPE.",
+            }
 
         return default_schema
