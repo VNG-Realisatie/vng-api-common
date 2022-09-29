@@ -13,4 +13,6 @@ class HistoryURLFieldExtension(OpenApiSerializerFieldExtension):
             default_schema["description"] = (
                 f"URL referenties van de {self.target.field_name} welke horen bij deze versie van het ZAAKTYPE.",
             )
+            default_schema["example"] = ["http://example.com"]
+
         return default_schema
