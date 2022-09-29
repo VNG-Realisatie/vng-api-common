@@ -18,6 +18,7 @@ from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
 from rest_framework import exceptions, serializers, status, viewsets
 
 from vng_api_common.search import is_search_view
+from vng_api_common.utils import underscore_to_camel
 
 from .caching.introspection import has_cache_header
 from .constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
@@ -536,13 +537,13 @@ class AutoSchema(openapi.AutoSchema):
         if title:
             return meta
 
+        meta["title"] = underscore_to_camel(field.field_name)
+
         Meta = getattr(field.parent, "Meta", None)
         model = getattr(Meta, "model", None)
-
         if model:
             source = getattr(model, str(field.source), None)
             field = getattr(source, "field", None)
-
 
             if not field:
                 return meta
