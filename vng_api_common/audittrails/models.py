@@ -1,6 +1,5 @@
 import uuid
 
-from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -63,14 +62,14 @@ class AuditTrail(models.Model):
     applicatie_weergave = models.CharField(
         max_length=200, blank=True, help_text=_("Vriendelijke naam van de applicatie.")
     )
-    oud = JSONField(
+    oud = models.JSONField(
         null=True,
         encoder=DjangoJSONEncoder,
         help_text=_(
             "Volledige JSON body van het object zoals dat bestond voordat de actie heeft plaatsgevonden."
         ),
     )
-    nieuw = JSONField(
+    nieuw = models.JSONField(
         null=True,
         encoder=DjangoJSONEncoder,
         help_text=_("Volledige JSON body van het object na de actie."),

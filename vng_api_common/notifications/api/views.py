@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.utils.module_loading import import_string
 
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from notifications_api_common.api.serializers import NotificatieSerializer
 from rest_framework import status
 from rest_framework.response import Response
@@ -18,7 +18,7 @@ class NotificationBaseView(APIView):
     Abstract view to receive webhooks
     """
 
-    swagger_schema = None
+    schema = None
 
     permission_classes = (AuthScopesRequired,)
     required_scopes = Scope(
@@ -28,7 +28,7 @@ class NotificationBaseView(APIView):
     def get_serializer(self, *args, **kwargs):
         return NotificatieSerializer(*args, **kwargs)
 
-    @swagger_auto_schema(
+    @extend_schema(
         responses={
             204: "",
             400: ValidatieFoutSerializer,

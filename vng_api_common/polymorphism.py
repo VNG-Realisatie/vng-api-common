@@ -106,16 +106,18 @@ class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
             ) from exc
 
         values_seen = set()
-
         for value, fields in discriminator.mapping.items():
             # construct a serializer instance if a tuple/list of fields is passed
             if isinstance(fields, (tuple, list)):
                 name = f"{value}{model._meta.object_name}Serializer"
 
                 Meta = type("Meta", (), {"model": model, "fields": tuple(fields)})
-
                 serializer_class = type(
-                    name, (serializers.ModelSerializer,), {"Meta": Meta}
+                    name,
+                    (serializers.ModelSerializer,),
+                    {
+                        "Meta": Meta,
+                    },
                 )
 
                 discriminator.mapping[value] = serializer_class()
@@ -163,7 +165,6 @@ class PolymorphicSerializerMetaclass(serializers.SerializerMetaclass):
                     name,
                     difference,
                 )
-
         return discriminator
 
     def __new__(cls, name, bases, attrs):

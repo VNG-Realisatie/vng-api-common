@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     "django.contrib.messages",
     "rest_framework",
-    "drf_yasg",
+    "drf_spectacular",
     "simple_certmanager",
     "zgw_consumers",
     "notifications_api_common",
@@ -81,15 +81,4 @@ REST_FRAMEWORK = BASE_REST_FRAMEWORK.copy()
 
 SECURITY_DEFINITION_NAME = "JWT-Claims"
 
-SWAGGER_SETTINGS = BASE_SWAGGER_SETTINGS.copy()
-
-SWAGGER_SETTINGS["DEFAULT_FIELD_INSPECTORS"] = SWAGGER_SETTINGS[
-    "DEFAULT_FIELD_INSPECTORS"
-][1:]
-
-SWAGGER_SETTINGS.update(
-    {
-        "DEFAULT_INFO": "testapp.schema.info",
-        "SECURITY_DEFINITIONS": {SECURITY_DEFINITION_NAME: {}},
-    }
-)
+SPECTACULAR_SETTINGS = BASE_SPECTACULAR_SETTINGS.copy()

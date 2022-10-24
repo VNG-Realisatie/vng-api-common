@@ -3,8 +3,6 @@ Replace internal references to external for reusable components
 
 Due to the limitations of drf_yasg we cannot handle this at the Python level
 """
-import os.path
-
 from django.conf import settings
 from django.core.management import BaseCommand
 
@@ -54,7 +52,6 @@ class Command(BaseCommand):
             common_yaml = response.text
         except requests.exceptions.RequestException:
             return
-
         common_spec = yaml.safe_load(common_yaml)
         common_components = common_spec["components"]
 

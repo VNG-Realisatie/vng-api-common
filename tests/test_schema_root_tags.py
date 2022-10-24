@@ -1,12 +1,12 @@
 from unittest import mock
 
+from django.utils.translation import gettext as _
+
 import pytest
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
 
-from testapp.viewsets import PersonViewSet
 from vng_api_common.generators import OpenAPISchemaGenerator
-from vng_api_common.utils import get_view_summary
 
 pytestmark = pytest.mark.django_db(transaction=True)
 
@@ -16,18 +16,12 @@ def test_schema_root_tags():
     request = APIView().initialize_request(request)
     request._request.jwt_auth = mock.Mock()
 
-    generator = OpenAPISchemaGenerator(info=mock.Mock())
+    generator = OpenAPISchemaGenerator()
 
     schema = generator.get_schema(request)
-    assert hasattr(schema, "tags")
+    assert "tags" in schema
 
-    # Convert list of ordereddicts to simple dict.
-    tags = dict([dict(od).values() for od in schema.tags])
-    assert "persons" in tags
-    assert tags["persons"] == "Summary\n\nMore summary"
-
-
-def test_view_summary():
-    summary = get_view_summary(PersonViewSet)
-
-    assert summary == "Summary\n\nMore summary"
+    description = next(
+        tag["description"] for tag in schema["tags"] if tag["name"] == "persons"
+    )
+    assert description == str(_("This is the global resource description"))

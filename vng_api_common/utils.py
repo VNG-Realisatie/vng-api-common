@@ -27,7 +27,6 @@ except ImportError:
 if TYPE_CHECKING:
     from rest_framework.viewsets import ViewSet
 
-
 logger = logging.getLogger(__name__)
 
 RE_UNDERSCORE = re.compile(r"[a-z]_[a-z]")
@@ -269,3 +268,20 @@ def get_field_attribute(
     ModelClass = apps.get_model(model_string, require_ready=False)
     field = ModelClass._meta.get_field(field_name)
     return getattr(field, attr_name, None)
+
+
+def get_schema_endpoints(endpoints):
+    filtered_endpoints = []
+
+    for (path, path_regex, method, callback) in endpoints:
+        is_excluded = any(
+            (
+                path.endswith(excluded_path)
+                for excluded_path in settings.DRF_EXCLUDED_ENDPOINTS
+            )
+        )
+
+        if not is_excluded:
+            filtered_endpoints.append((path, path_regex, method, callback))
+
+    return filtered_endpoints

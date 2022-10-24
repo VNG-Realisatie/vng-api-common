@@ -3,12 +3,6 @@ from django.db import models
 from django.forms.fields import CharField
 from django.utils.translation import gettext_lazy as _
 
-from drf_yasg import openapi
-from drf_yasg.inspectors.field import (
-    basic_type_info,
-    model_field_to_basic_type,
-    serializer_field_to_basic_type,
-)
 from rest_framework import serializers
 
 from . import fields
@@ -32,28 +26,9 @@ class ZDSSchemaConfig(AppConfig):
         from . import checks  # noqa
         from .caching import signals  # noqa
 
-        patch_duration_type()
         register_serializer_field()
         set_custom_hyperlinkedmodelserializer_field()
         set_charfield_error_messages()
-
-
-def patch_duration_type():
-    def _patch(basic_types, _field_cls, format=None):
-        for index, (field_cls, basic_type) in enumerate(basic_types):
-            if field_cls is _field_cls:
-                basic_types[index] = (_field_cls, (openapi.TYPE_STRING, format))
-                break
-
-    _patch(model_field_to_basic_type, models.DurationField, FORMAT_DURATION)
-    _patch(basic_type_info, models.DurationField, FORMAT_DURATION)
-    _patch(serializer_field_to_basic_type, serializers.DurationField, FORMAT_DURATION)
-    _patch(basic_type_info, serializers.DurationField, FORMAT_DURATION)
-
-    # best-effort support for relativedeltafield
-    if RelativeDeltaField is not None:
-        _patch(model_field_to_basic_type, RelativeDeltaField, FORMAT_DURATION)
-        _patch(basic_type_info, RelativeDeltaField, FORMAT_DURATION)
 
 
 def register_serializer_field():

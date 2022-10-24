@@ -3,6 +3,7 @@ import logging
 from django.db import transaction
 from django.http import Http404
 
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import viewsets
 
 from ..compat import get_header
