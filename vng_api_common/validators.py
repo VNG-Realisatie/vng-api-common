@@ -41,7 +41,7 @@ class AlphanumericExcludingDiacritic:
         match = WORD_REGEX.match(stripped_value)
         if not match:
             raise ValidationError(
-                'Waarde "{0}" mag geen diakrieten of non-ascii tekens bevatten{1}'.format(
+                'Waarde "{0}" mag geen diakrieten, spaties of non-ascii tekens bevatten{1}'.format(
                     value,
                     " na de eerste {0} karakters".format(self.start)
                     if self.start
