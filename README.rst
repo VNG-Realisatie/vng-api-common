@@ -1,17 +1,15 @@
-==========================================
-VNG-API-common - Tooling voor RESTful APIs
-==========================================
+===================================================
+Commonground-API-common - Tooling voor RESTful APIs
+===================================================
 
 |build-status| |code-quality| |coverage| |docs| |black|
 
 |python-versions| |django-versions| |pypi-version|
 
-VNG-API-common biedt generieke implementaties en tooling voor RESTful APIs
+Commonground-API-common biedt generieke implementaties en tooling voor RESTful APIs
 in een Common Ground gegevenslandschap.
 
-De tooling wordt o.a. gebruikt in de referentie-implementaties van componenten
-voor zaakgericht werken, maar ook in VNG-APIs voor referentielijsten en de
-Gemeentelijke Selectielijst.
+Dit project is een fork van commonground-api-common.
 
 Zie de uitgebreide `documentatie`_ voor de features en het gebruik.
 
@@ -66,30 +64,30 @@ Features
     * ontvangen van webhook events
     * configureren en registreren van notificatiecomponent/webhooks
 
-.. |build-status| image:: https://github.com/VNG-Realisatie/vng-api-common/workflows/ci-build/badge.svg
+.. |build-status| image:: https://github.com/maykinmedia/commonground-api-common/workflows/ci-build/badge.svg
     :alt: Build status
-    :target: https://github.com/VNG-Realisatie/vng-api-common/actions?query=workflow%3A%22ci-build%22
+    :target: https://github.com/maykinmedia/commonground-api-common/actions?query=workflow%3A%22ci-build%22
 
-.. |code-quality| image:: https://github.com/VNG-Realisatie/vng-api-common/workflows/Code%20quality%20checks/badge.svg
+.. |code-quality| image:: https://github.com/maykinmedia/commonground-api-common/workflows/Code%20quality%20checks/badge.svg
      :alt: Code quality checks
-     :target: https://github.com/VNG-Realisatie/vng-api-common/actions?query=workflow%3A%22Code+quality+checks%22
+     :target: https://github.com/maykinmedia/commonground-api-common/actions?query=workflow%3A%22Code+quality+checks%22
 
-.. |coverage| image:: https://codecov.io/gh/VNG-Realisatie/vng-api-common/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/VNG-Realisatie/vng-api-common
+.. |coverage| image:: https://codecov.io/gh/maykinmedia/commonground-api-common/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/maykinmedia/commonground-api-common
     :alt: Coverage status
 
-.. |docs| image:: https://readthedocs.org/projects/vng-api-common/badge/?version=latest
-    :target: https://vng-api-common.readthedocs.io/en/latest/?badge=latest
+.. |docs| image:: https://readthedocs.org/projects/commonground-api-common/badge/?version=latest
+    :target: https://commonground-api-common.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-.. |python-versions| image:: https://img.shields.io/pypi/pyversions/vng-api-common.svg
+.. |python-versions| image:: https://img.shields.io/pypi/pyversions/commonground-api-common.svg
 
-.. |django-versions| image:: https://img.shields.io/pypi/djversions/vng-api-common.svg
+.. |django-versions| image:: https://img.shields.io/pypi/djversions/commonground-api-common.svg
 
-.. |pypi-version| image:: https://img.shields.io/pypi/v/vng-api-common.svg
-    :target: https://pypi.org/project/vng-api-common/
+.. |pypi-version| image:: https://img.shields.io/pypi/v/commonground-api-common.svg
+    :target: https://pypi.org/project/commonground-api-common/
 
 .. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
 
-.. _documentatie: https://vng-api-common.readthedocs.io/en/latest/?badge=latest
+.. _documentatie: https://commonground-api-common.readthedocs.io/en/latest/?badge=latest
