@@ -72,7 +72,7 @@ Features
      :alt: Code quality checks
      :target: https://github.com/maykinmedia/commonground-api-common/actions?query=workflow%3A%22Code+quality+checks%22
 
-.. |coverage| image:: https://codecov.io/gh/maykinmedia/commonground-api-common/branch/master/graph/badge.svg
+.. |coverage| image:: https://codecov.io/gh/maykinmedia/commonground-api-common/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/maykinmedia/commonground-api-common
     :alt: Coverage status
 
