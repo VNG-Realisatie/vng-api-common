@@ -46,8 +46,8 @@ django.setup()
 
 # -- Project information -----------------------------------------------------
 
-project = "VNG-API-common"
-copyright = "2019, VNG-Realisatie, Maykin Media"
+project = "Commonground-API-common"
+copyright = "2022, VNG-Realisatie, Maykin Media"
 author = "VNG-Realisatie, Maykin Media"
 
 # The full version, including alpha/beta/rc tags
@@ -85,4 +85,7 @@ html_theme = "sphinx_rtd_theme"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []
 
-linkcheck_ignore = [r"http://localhost:\d+/", r"https://img.shields.io/.*"]  # slow...
+linkcheck_ignore = [
+    r"http://localhost:\d+/",
+    r"https://img.shields.io/.*",  # slow...
+]
