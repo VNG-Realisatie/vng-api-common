@@ -25,8 +25,9 @@ except ImportError:
 FORMAT_DURATION = "duration"
 
 
-class ZDSSchemaConfig(AppConfig):
+class CommonGroundAPICommonConfig(AppConfig):
     name = "vng_api_common"
+    label = "vng_api_common"  # for backwards compatibility
 
     def ready(self):
         from . import checks  # noqa
