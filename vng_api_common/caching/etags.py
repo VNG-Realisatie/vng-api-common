@@ -8,7 +8,7 @@ from typing import Optional
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models, transaction
+from django.db import DatabaseError, models, transaction
 from django.http import Http404, HttpRequest
 
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
@@ -129,19 +129,25 @@ class EtagUpdate:
         logger.debug(
             "Scheduling model instance %r with pk %s for ETag update", type(obj), obj.pk
         )
+        # TODO: move this to celery to improve performance
         connection.on_commit(func)
 
     def calculate_new_value(self):
         with transaction.atomic(using=self.using):  # wrap in its own transaction
-            # check if the record still exists - it may have been deleted as part of a
-            # cascade delete, in which case we can't re-calculate and save anything.
-            try:
-                self.instance.refresh_from_db()
-            except self.instance.DoesNotExist:
-                return
-
             # track the actions _inside_ the on_commit handler, to prevent infinite
             # loops/stack overflows
-            self.instance._updating_etag = True
-            self.instance.calculate_etag_value()
-            del self.instance._updating_etag
+            try:
+                self.instance._updating_etag = True
+                self.instance.calculate_etag_value()
+            except DatabaseError as exc:
+                # the record may already have been deleted via a cascade delete. rather
+                # than always checking if the record still exists (which performs a query
+                # every time), we just try to update and see if it fails. The exception
+                # message is defined in django.db.models.base.Model._save_table
+                # TODO: see if we can tap into post_delete to remove the callback from
+                # the transaction.on_commit stack?
+                if exc.args[0] == "Save with update_fields did not affect any rows.":
+                    return
+                raise
+            finally:
+                del self.instance._updating_etag
