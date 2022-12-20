@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from typing import Optional
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
 from django.http import Http404, HttpRequest
@@ -16,7 +15,7 @@ from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 from rest_framework.request import Request
 from rest_framework.settings import api_settings
 
-from ..utils import get_resource_for_path
+from ..utils import get_domain, get_resource_for_path
 from .registry import MODEL_SERIALIZERS
 
 logger = logging.getLogger(__name__)
@@ -24,8 +23,7 @@ logger = logging.getLogger(__name__)
 
 class StaticRequest(HttpRequest):
     def get_host(self) -> str:
-        site = Site.objects.get_current()
-        return site.domain
+        return get_domain()
 
     def _get_scheme(self) -> str:
         return "https" if settings.IS_HTTPS else "http"

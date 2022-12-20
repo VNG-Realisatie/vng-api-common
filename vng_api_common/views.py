@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 from django.apps import apps
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404, HttpRequest
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
@@ -19,6 +20,7 @@ from .compat import sentry_client
 from .constants import ComponentTypes
 from .exception_handling import HandledException
 from .scopes import SCOPE_REGISTRY
+from .utils import get_domain
 
 logger = logging.getLogger(__name__)
 
@@ -107,15 +109,12 @@ class ViewConfigView(TemplateView):
 
 
 def _test_sites_config(request: HttpRequest) -> list:
-    if not apps.is_installed("django.contrib.sites"):
+    try:
+        domain = get_domain()
+    except ImproperlyConfigured:
         return []
-
-    from django.contrib.sites.models import Site
-
-    site = Site.objects.get_current()
-
     return [
-        (_("Site domain"), site.domain, request.get_host() == site.domain),
+        (_("Site domain"), domain, request.get_host() == domain),
         (_("HTTPS"), settings.IS_HTTPS, settings.IS_HTTPS == request.is_secure()),
     ]
 
