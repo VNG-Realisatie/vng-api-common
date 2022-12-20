@@ -1,9 +1,10 @@
 import logging
+from typing import Optional
 
 from django.db import transaction
 from django.http import Http404
 
-from rest_framework import viewsets
+from rest_framework import serializers, viewsets
 
 from ..compat import get_header
 from ..constants import CommonResourceAction
@@ -91,10 +92,19 @@ class AuditTrailMixin:
 
 
 class AuditTrailCreateMixin(AuditTrailMixin):
+    _audittrail_serializer: Optional[serializers.Serializer] = None
+
     def get_audittrail_instance(self, response):
+        if self._audittrail_serializer is not None:
+            return self._audittrail_serializer.instance
         zaak_uuid = get_uuid_from_path(response.data["url"])
         instance = self.get_queryset().get(uuid=zaak_uuid)
         return instance
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        # cache for future re-use
+        self._audittrail_serializer = serializer
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
@@ -110,6 +120,8 @@ class AuditTrailCreateMixin(AuditTrailMixin):
 
 
 class AuditTrailUpdateMixin(AuditTrailMixin):
+    # TODO: cache serializer(s) via perform_update?
+
     def update(self, request, *args, **kwargs):
         # Retrieve the data stored in the object before updating
         instance = self.get_object()
@@ -134,6 +146,8 @@ class AuditTrailUpdateMixin(AuditTrailMixin):
 
 
 class AuditTrailDestroyMixin(AuditTrailMixin):
+    # TODO: cache serializer(s) via perform_update?
+
     def destroy(self, request, *args, **kwargs):
         # Retrieve the data stored in the object before updating
         instance = self.get_object()
