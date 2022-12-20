@@ -4,7 +4,8 @@ Calculate ETag values for API resources.
 import hashlib
 import logging
 from dataclasses import dataclass
-from typing import Optional
+from typing import Dict, Optional
+from weakref import WeakKeyDictionary
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -12,6 +13,7 @@ from django.db import DatabaseError, models, transaction
 from django.http import Http404, HttpRequest
 
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
+from rest_framework import serializers
 from rest_framework.request import Request
 from rest_framework.settings import api_settings
 
@@ -19,6 +21,34 @@ from ..utils import get_domain, get_resource_for_path
 from .registry import MODEL_SERIALIZERS
 
 logger = logging.getLogger(__name__)
+
+# entries are discarded when there are no hard references anymore to the model instance
+weak_object_serializers_dict = WeakKeyDictionary()
+
+
+def track_object_serializer(instance: models.Model, serializer: serializers.Serializer):
+    """
+    Track the serializer used for instance write.
+
+    This is a performance optimization trick - if we can extract the serializer instance
+    from the model instance used for the creation or update of the instance, we can
+    avoid multiple serializer rounds. Additionally, the serializer should already
+    contain context related to the request/domain.
+    """
+    existing = weak_object_serializers_dict.get(instance)
+    if existing and existing != serializer:
+        raise ValueError(
+            "The instance is already tracking a different serializer for "
+            "ETag calculation"
+        )
+    serializer_class = MODEL_SERIALIZERS[type(instance)]
+    if not isinstance(serializer, serializer_class):
+        raise TypeError(
+            "Cannot track serializer %r, expected a %r instance."
+            % (serializer, serializer_class)
+        )
+
+    weak_object_serializers_dict[instance] = serializer
 
 
 class StaticRequest(HttpRequest):
@@ -29,14 +59,11 @@ class StaticRequest(HttpRequest):
         return "https" if settings.IS_HTTPS else "http"
 
 
-def calculate_etag(instance: models.Model) -> str:
-    """
-    Calculate the MD5 hash of a resource representation in the API.
+def get_etag_serializer(instance: models.Model) -> serializers.Serializer:
+    serializer = weak_object_serializers_dict.get(instance)
+    if serializer is not None:
+        return serializer
 
-    The serializer for the model class is retrieved, and then used to construct
-    the representation of the instance. Then, the representation is rendered
-    to camelCase JSON, after which the MD5 hash is calculated of this result.
-    """
     model_class = type(instance)
     serializer_class = MODEL_SERIALIZERS[model_class]
 
@@ -47,6 +74,18 @@ def calculate_etag(instance: models.Model) -> str:
     request.versioning_scheme = api_settings.DEFAULT_VERSIONING_CLASS()
 
     serializer = serializer_class(instance=instance, context={"request": request})
+    return serializer
+
+
+def calculate_etag(instance: models.Model) -> str:
+    """
+    Calculate the MD5 hash of a resource representation in the API.
+
+    The serializer for the model class is retrieved, and then used to construct
+    the representation of the instance. Then, the representation is rendered
+    to camelCase JSON, after which the MD5 hash is calculated of this result.
+    """
+    serializer = get_etag_serializer(instance)
 
     # render the output to json, which is used as hash input
     renderer = CamelCaseJSONRenderer()
