@@ -4,7 +4,7 @@ Calculate ETag values for API resources.
 import hashlib
 import logging
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Optional
 from weakref import WeakKeyDictionary
 
 from django.conf import settings
