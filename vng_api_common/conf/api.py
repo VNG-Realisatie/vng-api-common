@@ -110,3 +110,5 @@ vng_branch = "ref-responses"
 COMMON_SPEC = f"https://raw.githubusercontent.com/{vng_repo}/feature/{vng_branch}/vng_api_common/schemas/common.yaml"
 
 JWT_LEEWAY = 0  # default in PyJWT
+
+COMMONGROUND_API_COMMON_GET_DOMAIN = "vng_api_common.utils.get_site_domain"

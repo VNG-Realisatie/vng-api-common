@@ -242,26 +242,27 @@ class NestedGegevensGroepMixin:
         attr = getattr(self.Meta.model, name)
         return isinstance(attr, GegevensGroepType)
 
-    @transaction.atomic
     def create(self, validated_data):
         """
         Handle nested writes.
         """
         gegevensgroepen = {}
-
         for name in list(validated_data.keys()):
             if not self._is_gegevensgroep(name):
                 continue
 
             gegevensgroepen[name] = validated_data.pop(name)
 
-        # perform the default create
-        obj = super().create(validated_data)
+        # avoid a number of queries if there's no gegevensgroep actions to perform
+        if not gegevensgroepen:
+            return super().create(validated_data)
 
-        for name, gegevensgroepdata in gegevensgroepen.items():
-            setattr(obj, name, gegevensgroepdata)
-
-        obj.save()
+        with transaction.atomic():
+            # perform the default create
+            obj = super().create(validated_data)
+            for name, gegevensgroepdata in gegevensgroepen.items():
+                setattr(obj, name, gegevensgroepdata)
+            obj.save()
 
         return obj
 

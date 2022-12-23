@@ -5,10 +5,12 @@ from typing import TYPE_CHECKING, List, Optional, Union
 
 from django.apps import apps
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.http import HttpRequest
 from django.urls import Resolver404, ResolverMatch, get_resolver, get_script_prefix
 from django.utils.encoding import smart_str
+from django.utils.module_loading import import_string
 
 from rest_framework.utils import formatting
 from zds_client.client import ClientError
@@ -269,3 +271,30 @@ def get_field_attribute(
     ModelClass = apps.get_model(model_string, require_ready=False)
     field = ModelClass._meta.get_field(field_name)
     return getattr(field, attr_name, None)
+
+
+def get_domain() -> str:
+    """
+    Derive the domain where the application is hosted.
+    """
+    getter = import_string(settings.COMMONGROUND_API_COMMON_GET_DOMAIN)
+    return getter()
+
+
+def get_site_domain() -> str:
+    """
+    Derive the domain where the application is hosted.
+
+    You can provide an alternative implementation via the
+    ``COMMONGROUND_API_COMMON_GET_DOMAIN`` setting, which takes a dotted path to a
+    callable taking no arguments.
+    """
+    if not apps.is_installed("django.contrib.sites"):
+        raise ImproperlyConfigured(
+            "'django.contrib.sites' is not installed in INSTALLED_APPS"
+        )
+
+    from django.contrib.sites.models import Site
+
+    site = Site.objects.get_current()
+    return site.domain
