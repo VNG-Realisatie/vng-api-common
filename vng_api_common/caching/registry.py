@@ -59,7 +59,11 @@ class Dependency:
     def __hash__(self):
         return hash(self.field)
 
-    def get_related_objects(self, instance: models.Model) -> Iterable[models.Model]:
+    def get_related_objects(
+        self,
+        instance: models.Model,
+        is_delete: bool = False,
+    ) -> Iterable[models.Model]:
         assert isinstance(
             instance, self.source_model
         ), "Instance is not of expected model class"
@@ -68,12 +72,18 @@ class Dependency:
 
         try:
             if isinstance(reverse_relation_field, ForeignObjectRel):
+                on_delete = self.field.remote_field.on_delete
                 query_like = getattr(
                     instance, reverse_relation_field.get_accessor_name()
                 )
             else:
+                on_delete = self.field.on_delete
                 query_like = getattr(instance, reverse_relation_field.name)
         except ObjectDoesNotExist:  # nullable OneToOneField, for example
+            return []
+
+        if is_delete and on_delete is models.CASCADE:
+            # no point in trying to update records that will be cascade deleted
             return []
 
         # reverse FK or m2m

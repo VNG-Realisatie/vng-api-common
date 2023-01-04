@@ -19,7 +19,9 @@ from .registry import DEPENDENCY_REGISTRY, Dependency
 
 
 def mark_affected_objects(
-    dependencies: Optional[Set[Dependency]], instance: models.Model
+    dependencies: Optional[Set[Dependency]],
+    instance: models.Model,
+    is_delete: bool = False,
 ):
     if dependencies is None:
         return
@@ -28,13 +30,13 @@ def mark_affected_objects(
         if not is_etag_model(dependency.affected_model):
             continue
 
-        for obj in dependency.get_related_objects(instance):
+        for obj in dependency.get_related_objects(instance, is_delete=is_delete):
             EtagUpdate.mark_affected(obj)
 
 
 @receiver([post_save, post_delete])
 def mark_related_instances_for_etag_update(
-    sender: ModelBase, instance: models.Model, **kwargs
+    sender: ModelBase, instance: models.Model, signal, **kwargs
 ) -> None:
     """
     Determine which instances are affected by changes in ``instance``.
@@ -55,12 +57,13 @@ def mark_related_instances_for_etag_update(
         return
 
     # if the model is itself something that has an etag, mark it for update
-    if is_etag_model(sender) and not kwargs["signal"] is post_delete:
+    is_delete = signal is post_delete
+    if is_etag_model(sender) and not is_delete:
         EtagUpdate.mark_affected(instance)
 
     # otherwise, find out which relations are affected
     dependency_for = DEPENDENCY_REGISTRY.get(sender)
-    mark_affected_objects(dependency_for, instance)
+    mark_affected_objects(dependency_for, instance, is_delete=is_delete)
 
 
 @receiver(m2m_changed)
