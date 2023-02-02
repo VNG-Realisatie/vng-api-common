@@ -102,7 +102,6 @@ class MockClient:
 
 
 class ZTCMockClient(MockClient):
-
     data = {
         "statustype": [
             {

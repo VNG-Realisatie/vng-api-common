@@ -193,7 +193,6 @@ class Command(SpectacularCommand):
 
         whitelist = [model._meta.object_name for model in apps.get_models()]
         for resource, definition in schema["components"]["schemas"].items():
-
             if resource not in whitelist:
                 continue
             properties = definition.get("properties", False)

@@ -34,7 +34,6 @@ def get_operation(forwards: bool = True):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("notifications", "0009_auto_20190729_0427"),
         ("notifications_api_common", "0001_initial"),

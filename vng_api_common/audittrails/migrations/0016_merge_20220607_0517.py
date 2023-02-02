@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("audittrails", "0015_auto_20220318_1608"),
         ("audittrails", "0014_auto_20210323_1654"),

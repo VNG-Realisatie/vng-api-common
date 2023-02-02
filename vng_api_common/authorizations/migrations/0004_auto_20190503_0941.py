@@ -6,7 +6,6 @@ import vng_api_common.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("authorizations", "0003_auto_20190502_0409")]
 
     operations = [
