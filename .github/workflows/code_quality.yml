@@ -20,9 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ['3.9', '3.10']
-        django: ['3.2']
-        zdsclient: ['1.0']
         toxenv:
           - isort
           - black
@@ -35,10 +32,6 @@ jobs:
       - name: Install dependencies
         run: pip install tox tox-gh-actions
       - run: |
-          export TOXENV=py${PYTHON_VERSION/./}-django${DJANGO/./}-zdsclient${ZDS_CLIENT/./}
           tox
         env:
           TOXENV: ${{ matrix.toxenv }}
-          ZDS_CLIENT: ${{ matrix.zdsclient }}
-
-
