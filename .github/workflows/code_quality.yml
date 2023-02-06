@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        zdsclient: ['1.0']
         toxenv:
           - isort
           - black
@@ -34,3 +35,6 @@ jobs:
       - run: tox
         env:
           TOXENV: ${{ matrix.toxenv }}
+          ZDS_CLIENT: ${{ matrix.zdsclient }}
+
+
