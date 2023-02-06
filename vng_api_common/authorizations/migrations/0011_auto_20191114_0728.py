@@ -25,7 +25,6 @@ class Renamer:
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("authorizations", "0010_auto_20190712_1643"),
     ]

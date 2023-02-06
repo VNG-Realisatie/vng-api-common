@@ -26,7 +26,6 @@ logger = logging.getLogger(__name__)
 
 
 class Backend(DjangoFilterBackend):
-
     # Taken from drf_yasg.inspectors.field.CamelCaseJSONFilter
     def _is_camel_case(self, view):
         return any(

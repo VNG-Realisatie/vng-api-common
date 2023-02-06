@@ -17,7 +17,6 @@ def fix_config(apps, _):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("notifications", "0004_auto_20190325_1313")]
 
     operations = [migrations.RunPython(fix_config, migrations.RunPython.noop)]

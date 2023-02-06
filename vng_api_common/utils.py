@@ -273,7 +273,7 @@ def get_field_attribute(
 def get_schema_endpoints(endpoints):
     filtered_endpoints = []
 
-    for (path, path_regex, method, callback) in endpoints:
+    for path, path_regex, method, callback in endpoints:
         is_excluded = any(
             (
                 path.endswith(excluded_path)
