@@ -1,11 +1,9 @@
 import os
 from functools import lru_cache
-from urllib.parse import urlparse
 
 from django.conf import settings
 
 import yaml
-from drf_spectacular.settings import spectacular_settings
 
 DEFAULT_PATH_PARAMETERS = {"version": "1"}
 
@@ -35,6 +33,8 @@ def get_operation_url(operation: str, spec_path: str = SPEC_PATH, **kwargs):
                 format_kwargs = DEFAULT_PATH_PARAMETERS.copy()
                 format_kwargs.update(**kwargs)
                 path = path.format(**format_kwargs)
+                if str(path).startswith("/"):
+                    path = path[1:]
                 return os.path.join(
                     BASE_SPECTACULAR_SETTINGS["SCHEMA_PATH_PREFIX"], path
                 )
