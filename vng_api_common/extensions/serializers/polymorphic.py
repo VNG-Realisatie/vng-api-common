@@ -15,7 +15,7 @@ class PolymorphicSerializerExtension(OpenApiSerializerExtension):
         mapping = {}
         for attr, model_serializer in serializer.discriminator.mapping.items():
             linked_schema = {"allOf": [root_component.ref]}
-            root_component_name = linked_schema['allOf'][0]['$ref'].split('/')[-1]
+            root_component_name = linked_schema["allOf"][0]["$ref"].split("/")[-1]
             if model_serializer:
                 component = auto_schema.resolve_serializer(model_serializer, direction)
 
@@ -24,7 +24,9 @@ class PolymorphicSerializerExtension(OpenApiSerializerExtension):
 
             mapping[attr] = f"#/components/schemas/{attr}_{root_component_name}"
             linked_component = ResolvedComponent(
-                name=f"{attr}_{root_component_name}", type=ResolvedComponent.SCHEMA, schema=linked_schema
+                name=f"{attr}_{root_component_name}",
+                type=ResolvedComponent.SCHEMA,
+                schema=linked_schema,
             )
 
             auto_schema.registry.register_on_missing(linked_component)
@@ -34,7 +36,7 @@ class PolymorphicSerializerExtension(OpenApiSerializerExtension):
                 "propertyName": underscore_to_camel(
                     serializer.discriminator.discriminator_field
                 ),
-                "mapping":mapping
+                "mapping": mapping,
             }
         }
 
