@@ -10,6 +10,7 @@ from drf_spectacular.settings import spectacular_settings
 DEFAULT_PATH_PARAMETERS = {"version": "1"}
 
 SPEC_PATH = os.path.join(settings.BASE_DIR, "src", "openapi.yaml")
+from vng_api_common.conf.api import BASE_SPECTACULAR_SETTINGS
 
 
 @lru_cache()
@@ -34,7 +35,9 @@ def get_operation_url(operation: str, spec_path: str = SPEC_PATH, **kwargs):
                 format_kwargs = DEFAULT_PATH_PARAMETERS.copy()
                 format_kwargs.update(**kwargs)
                 path = path.format(**format_kwargs)
-                return path
+                return os.path.join(
+                    BASE_SPECTACULAR_SETTINGS["SCHEMA_PATH_PREFIX"], path
+                )
 
     raise ValueError(f"Operation {operation} not found")
 
