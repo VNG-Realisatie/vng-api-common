@@ -70,6 +70,7 @@ BASE_REST_FRAMEWORK = {
 
 BASE_SPECTACULAR_SETTINGS = {
     "DEFAULT_GENERATOR_CLASS": "vng_api_common.generators.OpenAPISchemaGenerator",
+    "SCHEMA_PATH_PREFIX_TRIM": True,
     "PREPROCESSING_HOOKS": ["vng_api_common.utils.get_schema_endpoints"],
     "POSTPROCESSING_HOOKS": [
         "drf_spectacular.hooks.postprocess_schema_enums",
