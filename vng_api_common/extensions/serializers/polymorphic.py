@@ -15,7 +15,7 @@ class PolymorphicSerializerExtension(OpenApiSerializerExtension):
         mapping = {}
         for attr, model_serializer in serializer.discriminator.mapping.items():
             linked_schema = {"allOf": [root_component.ref]}
-            root_component_name = linked_schema["allOf"][0]["$ref"].split("/")[-1]
+            root_component_name = self._get_root_component_name(linked_schema)
             if model_serializer:
                 component = auto_schema.resolve_serializer(model_serializer, direction)
 
@@ -41,3 +41,12 @@ class PolymorphicSerializerExtension(OpenApiSerializerExtension):
         }
 
         return {**schema, **polymorphic_schema}
+
+    @staticmethod
+    def _get_root_component_name(linked_schema):
+        allOf = linked_schema.get("allOf", None)
+        if allOf:
+            ref = allOf[0].get("$ref", None)
+            if ref:
+                return ref.split("/")[-1]
+        return None
