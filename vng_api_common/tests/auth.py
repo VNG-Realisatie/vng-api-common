@@ -59,6 +59,9 @@ def generate_jwt_auth(
         "user_representation": user_representation,
     }
     encoded = jwt.encode(payload, secret, algorithm="HS256")
+
+    if isinstance(encoded, str):
+        return f"Bearer {encoded}"
     return f"Bearer {encoded.decode('utf-8')}"
 
 
