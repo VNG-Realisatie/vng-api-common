@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notifications', '0010_auto_20220704_1419'),
+        ("notifications", "0010_auto_20220704_1419"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='notificationsconfig',
-            name='api_root',
-            field=models.URLField(unique=True, verbose_name='api root'),
+            model_name="notificationsconfig",
+            name="api_root",
+            field=models.URLField(unique=True, verbose_name="api root"),
         ),
     ]
