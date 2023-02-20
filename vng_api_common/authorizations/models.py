@@ -5,18 +5,15 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from ..constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from ..decorators import field_default
 from ..fields import VertrouwelijkheidsAanduidingField
 from ..models import APIMixin, ClientConfig
 
 
-@field_default("api_root", "https://autorisaties-api.vng.cloud/api/v1")
 class AuthorizationsConfig(ClientConfig):
     component = models.CharField(
         _("component"),
         max_length=50,
         choices=ComponentTypes.choices,
-        default=ComponentTypes.zrc,
     )
 
     class Meta:

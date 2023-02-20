@@ -8,11 +8,9 @@ from django.utils.translation import gettext_lazy as _
 from zds_client import ClientAuth
 
 from ..client import get_client
-from ..decorators import field_default
 from ..models import APICredential, ClientConfig
 
 
-@field_default("api_root", "https://notificaties-api.vng.cloud/api/v1/")
 class NotificationsConfig(ClientConfig):
     class Meta:
         verbose_name = _("Notificatiescomponentconfiguratie")
