@@ -34,3 +34,8 @@ class Person(ETagMixin, models.Model):
 
 class Hobby(ETagMixin, models.Model):
     name = models.CharField(_("name"), max_length=100)
+
+
+class Record(models.Model):
+    identificatie = models.CharField(_("identificatie"), max_length=50, unique=True)
+    create_date = models.DateField(_("create date"))
