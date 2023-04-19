@@ -9,7 +9,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("audittrails", "0008_audittrail_resource_weergave")]
 
     operations = [

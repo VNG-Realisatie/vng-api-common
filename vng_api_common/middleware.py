@@ -215,7 +215,6 @@ class JWTAuth:
 
 
 class AuthMiddleware:
-
     header = "HTTP_AUTHORIZATION"
     auth_type = "Bearer"
 

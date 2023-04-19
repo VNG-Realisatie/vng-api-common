@@ -6,7 +6,6 @@ from ._operations import RemoveField
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("audittrails", "0011_auto_20190918_1335"),
     ]

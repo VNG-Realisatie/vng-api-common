@@ -19,7 +19,6 @@ def forward(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("authorizations", "0008_auto_20190712_1541")]
 
     operations = [migrations.RunPython(forward, migrations.RunPython.noop)]
