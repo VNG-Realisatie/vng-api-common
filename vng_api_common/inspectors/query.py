@@ -1,5 +1,10 @@
 from django.db import models
-from django.utils.encoding import force_text
+
+try:
+    from django.utils.encoding import force_str
+except ImportError:  # Django < 4.0
+    from django.utils.encoding import force_text as force_str
+
 from django.utils.translation import gettext as _
 
 from django_filters.filters import BaseCSVFilter, ChoiceFilter
@@ -72,7 +77,7 @@ class FilterInspector(CoreAPICompatInspector):
                     parameter.format = openapi.FORMAT_URI
 
                 if not parameter.description and help_text:
-                    parameter.description = force_text(help_text)
+                    parameter.description = force_str(help_text)
 
                 if "max_length" in filter_field.extra:
                     parameter.max_length = filter_field.extra["max_length"]
