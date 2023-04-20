@@ -214,15 +214,14 @@ def generate_unique_identification(instance: models.Model, date_field_name: str)
 
     pattern = prefix + r"-\d{10}"
 
-    issued_ids_for_year = model._default_manager.filter(identificatie__regex=pattern)
-
-    if issued_ids_for_year.exists():
-        max_id = issued_ids_for_year.aggregate(models.Max("identificatie"))[
-            "identificatie__max"
-        ]
-        number = int(max_id.split("-")[-1]) + 1
-    else:
-        number = 1
+    # ⚡ start_with is added to use index in DB query
+    issued_ids_for_year = model._default_manager.filter(
+        identificatie__startswith=prefix, identificatie__regex=pattern
+    )
+    max_id = issued_ids_for_year.aggregate(models.Max("identificatie"))[
+        "identificatie__max"
+    ]
+    number = int(max_id.split("-")[-1]) + 1 if max_id is not None else 1
 
     padded_number = str(number).zfill(10)
     return f"{prefix}-{padded_number}"

@@ -1,10 +1,16 @@
+from datetime import date
+
 from django.urls import reverse
 
 import pytest
 
-from testapp.models import Group
+from testapp.models import Group, Record
 from testapp.viewsets import GroupViewSet
-from vng_api_common.utils import get_resources_for_paths, get_viewset_for_path
+from vng_api_common.utils import (
+    generate_unique_identification,
+    get_resources_for_paths,
+    get_viewset_for_path,
+)
 
 
 def test_viewset_for_path_no_subpath():
@@ -69,3 +75,18 @@ def test_no_resolution():
 
     with pytest.raises(RuntimeError):
         get_resources_for_paths(paths)
+
+
+@pytest.mark.django_db
+def test_generate_unique_identification():
+    record1 = Record(create_date=date(2023, 3, 3))
+    id1 = generate_unique_identification(record1, "create_date")
+
+    assert id1 == "RECORD-2023-0000000001"
+
+    record1.identificatie = id1
+    record1.save()
+    record2 = Record(create_date=date(2023, 3, 3))
+    id2 = generate_unique_identification(record2, "create_date")
+
+    assert id2 == "RECORD-2023-0000000002"
