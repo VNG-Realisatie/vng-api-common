@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("audittrails", "0007_auto_20190522_0916")]
 
     operations = [

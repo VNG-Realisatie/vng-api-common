@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("audittrails", "0010_audittrail_request_id")]
 
     operations = [
