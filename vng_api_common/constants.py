@@ -1,8 +1,5 @@
-import warnings
-
-from django.utils.translation import gettext_lazy as _
 from django.db import models
-
+from django.utils.translation import gettext_lazy as _
 
 BSN_LENGTH = 9
 RSIN_LENGTH = 9

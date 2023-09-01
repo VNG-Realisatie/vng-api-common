@@ -3,7 +3,7 @@ import inspect
 from collections import OrderedDict
 from typing import Optional, Tuple, Union
 
-from django.db import transaction, models
+from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 
 import isodate
