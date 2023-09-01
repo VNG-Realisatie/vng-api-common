@@ -45,11 +45,6 @@ class RolTypes(models.TextChoices):
     medewerker = "medewerker", _("Medewerker")
 
 
-class ObjectTypes(models.TextChoices):
-    besluit = "besluit", _("Besluit")
-    zaak = "zaak", _("Zaak")
-
-
 class Archiefnominatie(models.TextChoices):
     blijvend_bewaren = "blijvend_bewaren", _(
         "Het zaakdossier moet bewaard blijven en op de Archiefactiedatum "
@@ -152,13 +147,3 @@ class CommonResourceAction(models.TextChoices):
 class RelatieAarden(models.TextChoices):
     hoort_bij = "hoort_bij", _("Hoort bij, omgekeerd: kent")
     legt_vast = "legt_vast", _("Legt vast, omgekeerd: kan vastgelegd zijn als")
-
-    @classmethod
-    def from_object_type(cls, object_type: str) -> str:
-        if object_type == ObjectTypes.zaak:
-            return cls.hoort_bij
-
-        if object_type == ObjectTypes.besluit:
-            return cls.legt_vast
-
-        raise ValueError(f"Unknown object_type '{object_type}'")
