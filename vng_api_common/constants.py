@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -21,6 +23,23 @@ class VertrouwelijkheidsAanduiding(models.TextChoices):
     confidentieel = "confidentieel", _("Confidentieel")
     geheim = "geheim", _("Geheim")
     zeer_geheim = "zeer_geheim", _("Zeer geheim")
+
+    @classmethod
+    def get_order_expression(cls, field_name):
+        whens = []
+        for order, value in enumerate(cls.values):
+            whens.append(
+                models.When(**{field_name: value, "then": models.Value(order)})
+            )
+        return models.Case(*whens, output_field=models.IntegerField())
+
+    @classmethod
+    def get_choice_order(cls, value) -> Optional[int]:
+        orders = {
+            value: order
+            for order, value in enumerate(VertrouwelijkheidsAanduiding.values)
+        }
+        return orders.get(value)
 
 
 class RolOmschrijving(models.TextChoices):
@@ -144,3 +163,13 @@ class CommonResourceAction(models.TextChoices):
 class RelatieAarden(models.TextChoices):
     hoort_bij = "hoort_bij", _("Hoort bij, omgekeerd: kent")
     legt_vast = "legt_vast", _("Legt vast, omgekeerd: kan vastgelegd zijn als")
+
+    @classmethod
+    def from_object_type(cls, object_type: str) -> str:
+        if object_type == "zaak":
+            return cls.hoort_bij
+
+        if object_type == "besluit":
+            return cls.legt_vast
+
+        raise ValueError(f"Unknown object_type '{object_type}'")

@@ -69,6 +69,9 @@ class AuditTrailMixin:
         toelichting = get_header(self.request, "X-Audit-Toelichting") or ""
 
         logrecord_id = get_header(self.request, "X-NLX-Logrecord-ID") or ""
+        action_labels = dict(
+            zip(CommonResourceAction.names, CommonResourceAction.labels)
+        )
 
         trail = AuditTrail(
             bron=self.audit.component_name,
@@ -76,7 +79,7 @@ class AuditTrailMixin:
             applicatie_id=app_id,
             applicatie_weergave=app_presentation,
             actie=action,
-            actie_weergave=CommonResourceAction.labels.get(action, ""),
+            actie_weergave=action_labels.get(action, ""),
             gebruikers_id=user_id,
             gebruikers_weergave=user_representation,
             resultaat=status_code,
