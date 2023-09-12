@@ -73,6 +73,10 @@ def obj_has_shape(obj: Union[list, dict], schema: dict, resource: str) -> bool:
         if "$ref" in prop_schema:
             continue
 
+        # TODO Handling allOf and oneOf not yet implemented
+        if "allOf" in prop_schema or "oneOf" in prop_schema:
+            continue
+
         # Allow None if property is nullable
         if value is None:
             if prop_schema.get("nullable", False):
