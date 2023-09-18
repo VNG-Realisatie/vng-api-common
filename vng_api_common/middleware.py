@@ -161,7 +161,7 @@ class JWTAuth:
         if value is None:
             return base
 
-        order_provided = VertrouwelijkheidsAanduiding.get_choice(value).order
+        order_provided = VertrouwelijkheidsAanduiding.get_choice_order(value)
         order_case = VertrouwelijkheidsAanduiding.get_order_expression(
             "max_vertrouwelijkheidaanduiding"
         )

@@ -3,11 +3,10 @@ import inspect
 from collections import OrderedDict
 from typing import Optional, Tuple, Union
 
-from django.db import transaction
+from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 
 import isodate
-from djchoices import DjangoChoices
 from rest_framework import fields, serializers
 
 from .descriptors import GegevensGroepType
@@ -90,23 +89,11 @@ class ValidatieFoutSerializer(FoutSerializer):
     invalid_params = FieldValidationErrorSerializer(many=True)
 
 
-def add_choice_values_help_text(choices: Union[DjangoChoices, Tuple[str, str]]) -> str:
-    items = []
-
-    is_dj_choices = inspect.isclass(choices) and issubclass(choices, DjangoChoices)
+def add_choice_values_help_text(choices: Union[models.Choices, Tuple[str, str]]) -> str:
+    is_dj_choices = inspect.isclass(choices) and issubclass(choices, models.Choices)
     _choices = choices.choices if is_dj_choices else choices
 
-    for key, value in _choices:
-        description = (
-            getattr(choices.get_choice(key), "description", None)
-            if is_dj_choices
-            else None
-        )
-        if description:
-            item = f"* `{key}` - ({value}) {description}"
-        else:
-            item = f"* `{key}` - {value}"
-        items.append(item)
+    items = [f"* `{key}` - {value}" for key, value in _choices]
 
     return "Uitleg bij mogelijke waarden:\n\n" + "\n".join(items)
 

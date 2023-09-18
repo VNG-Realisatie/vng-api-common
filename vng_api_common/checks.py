@@ -2,8 +2,7 @@ import re
 from typing import Any
 
 from django.core.checks import Warning, register
-
-from djchoices import DjangoChoices
+from django.db.models import Choices
 
 from .utils import get_subclasses
 
@@ -28,8 +27,8 @@ def check_lowercased_constants(app_configs, **kwargs):
     """
     warnings = []
 
-    for klass in get_subclasses(DjangoChoices):
-        enum_values = klass.values.keys()
+    for klass in get_subclasses(Choices):
+        enum_values = klass.values
         if any((not enum_value_ok(value) for value in enum_values)):
             warnings.append(
                 Warning(
