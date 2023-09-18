@@ -13,6 +13,16 @@ HEADER_LOGRECORD_ID = "X-NLX-Logrecord-ID"
 
 FILTER_URL_DID_NOT_RESOLVE = "NO_MATCHING_OBJECT"
 
+# constants for ObjectInformatieObjectTypes
+BESLUIT_CONST = "besluit"
+BESLUIT_CHOICE = BESLUIT_CONST, _("Besluit")
+
+ZAAK_CONST = "zaak"
+ZAAK_CHOICE = ZAAK_CONST, _("Zaak")
+
+VERZOEK_CONST = "verzoek"
+VERZOEK_CHOICE = VERZOEK_CONST, _("Verzoek")
+
 
 class VertrouwelijkheidsAanduiding(models.TextChoices):
     openbaar = "openbaar", _("Openbaar")
