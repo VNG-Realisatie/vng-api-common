@@ -30,7 +30,7 @@ class FilterInspector(CoreAPICompatInspector):
 
         if fields:
             queryset = self.view.get_queryset()
-            filter_class = filter_backend.get_filter_class(self.view, queryset)
+            filter_class = filter_backend.get_filterset_class(self.view, queryset)
 
             for parameter in fields:
                 filter_field = filter_class.base_filters[parameter.name]
