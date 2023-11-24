@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="stylesheet" href="{% static 'vng_api_common/libs/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'vng_api_common/css/screen.css' %}">
     <link rel="stylesheet" href="{% static 'vng_api_common/libs/fontawesome/css/all.min.css' %}">
 
     <link rel="icon" type="image/png" href="{% static 'vng_api_common/ico/favicon.png' %}">
@@ -17,10 +17,8 @@
 
     {% if not settings.SITE_TITLE or not settings.PROJECT_NAME %}
       <div class="container">
-        <div class="alert alert-danger">
-          Please add the variables <em>SITE_TITLE</em> and <em>PROJECT_NAME</em> to your <em>settings.py</em> and make
-          sure they are available via <em>context processors</em>.
-        </div>
+        Please add the variables <em>SITE_TITLE</em> and <em>PROJECT_NAME</em> to your <em>settings.py</em> and make
+        sure they are available via <em>context processors</em>.
       </div>
     {% endif %}
 
@@ -29,59 +27,53 @@
       to get some actual content.
     {% endblock %}
 
-    <div class="container">
-      <footer class="pt-4 my-md-5 pt-md-5 border-top">
-        <div class="row">
-          <div class="col-12 col-md">
-            <img class="mb-2" src="{% static 'vng_api_common/img/vng.svg' %}" alt="" width="96" height="50">
-            <small class="d-block mb-3 text-muted">&copy; {% now "Y" %}</small>
+    {% block footer %}
+      <div class="container">
+        <footer class="footer">
+          <div class="footer__row">
+            <div class="footer__item footer__logo">
+              <img src="{% static 'vng_api_common/img/vng.svg' %}" alt="" width="96" height="50">
+              <small>&copy; {% now "Y" %}</small>
+            </div>
+            <div class="footer__item">
+              <h5>Resources</h5>
+              <ul class="list">
+                <li><a class="link link--muted" href="https://github.com/{{settings.SELF_REPO}}">Code op Github</a></li>
+                <li><a class="link link--muted" href="https://github.com/{{settings.SELF_REPO}}/blob/master/README.rst">README</a></li>
+                <li><a class="link link--muted" href="https://zaakgerichtwerken.vng.cloud/">Documentatie</a></li>
+                <li><a class="link link--muted" href="https://zaken-auth.vng.cloud">Autorisaties</a></li>
+                <li><a class="link link--muted" href="https://zgw-demo.vng.cloud">Demo app</a></li>
+              </ul>
+            </div>
+            <div class="footer__item">
+              {% if not request.get_host|is_local %}
+                  <h5>Terms of use</h5>
+                  <ul class="list">
+                    <li><a class="link link--muted" href="https://zaakgerichtwerken.vng.cloud/beheer/gebruiksvoorwaarden">Terms</a></li>
+                  </ul>
+              {% endif %}
+            </div>
+            <div class="footer__item">
+              <h5>Over Common Ground</h5>
+              <ul class="list">
+                <li><a class="link link--muted" href="https://commonground.nl/">Common Ground</a></li>
+              </ul>
+            </div>
           </div>
-          <div class="col-6 col-md">
-            <h5>Resources</h5>
-            <ul class="list-unstyled text-small">
-              <li><a class="text-muted" href="https://github.com/{{settings.SELF_REPO}}">Code op Github</a></li>
-              <li><a class="text-muted" href="https://github.com/{{settings.SELF_REPO}}/blob/master/README.rst">README</a></li>
-              <li><a class="text-muted" href="https://zaakgerichtwerken.vng.cloud/">Documentatie</a></li>
-              <li><a class="text-muted" href="https://zaken-auth.vng.cloud">Autorisaties</a></li>
-              <li><a class="text-muted" href="https://zgw-demo.vng.cloud">Demo app</a></li>
-            </ul>
-          </div>
-          <div class="col-6 col-md">
-            {% if not request.get_host|is_local %}
-                <h5>Terms of use</h5>
-                <ul class="list-unstyled text-small">
-                  <li><a class="text-muted" href="https://zaakgerichtwerken.vng.cloud/beheer/gebruiksvoorwaarden">Terms</a></li>
-                </ul>
-            {% endif %}
-          </div>
-          <div class="col-6 col-md">
-            <h5>Over Common Ground</h5>
-            <ul class="list-unstyled text-small">
-              <li><a class="text-muted" href="https://commonground.nl/">Common Ground</a></li>
-            </ul>
-          </div>
-        </div>
 
-        <div class="row">
-          <div class="col-6 text-muted">
-            <code>{{ settings.API_VERSION }}</code>
-          </div>
-          <div class="col-6 text-muted text-right">
-            <code>{{ settings.GIT_SHA|default:"" }}</code>
-          </div>
-        </div>
-      </footer>
-    </div>
-
-    <script src="{% static 'vng_api_common/libs/jquery/jquery-3.3.1.slim.min.js' %}"></script>
-    <script src="{% static 'vng_api_common/libs/popper/popper.min.js' %}"></script>
-    <script src="{% static 'vng_api_common/libs/bootstrap/js/bootstrap.min.js' %}"></script>
-
-    <script>
-      $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
-      })
-    </script>
+          {% if request.user.is_authenticated %}
+            <div class="footer__row">
+              <div class="footer__item footer__item--wide">
+                <code>{{ settings.API_VERSION }}</code>
+              </div>
+              <div class="footer__item footer__item--wide footer__item--right">
+                <code>{{ settings.GIT_SHA|default:"" }}</code>
+              </div>
+            </div>
+          {% endif %}
+        </footer>
+      </div>
+    {% endblock footer %}
 
     {% block extra_scripts %}{% endblock %}
   </body>

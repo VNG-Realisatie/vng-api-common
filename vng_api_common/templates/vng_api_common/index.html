@@ -2,60 +2,50 @@
 
 {% block content %}
 
-  <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-    <h1 class="display-4">{{ settings.PROJECT_NAME }} startpunt</h1>
-    <p class="lead">{{ settings.SITE_TITLE }}</p>
+  <div class="header">
+    <h1 class="header__title">{{ settings.PROJECT_NAME }} startpunt</h1>
+    <p class="header__description">{{ settings.SITE_TITLE }}</p>
   </div>
 
-  <div class="container text-center">
+  <div class="container container--center">
 
     {% block docs %}
 
       <h2>Documentatie</h2>
 
-      <div class="row justify-content-md-center">
+      <div class="cardlist">
 
         {% block docs_oas %}
-          <div class="col-sm-4">
-
+          <div class="cardlist__item">
             <div class="card">
-              <div class="card-body">
-                <h5 class="card-title"><i class="fas fa-wifi"></i> API specificatie</h5>
-                <p class="card-text">Technische API documentatie in de vorm van een Open API Specificatie (OAS).</p>
-                <a href="https://redocly.github.io/redoc/?url={{ settings.GITHUB_API_SPEC }}" class="btn btn-primary">API specificaties</a>
-              </div>
+              <h5 class="card__title"><i class="fas fa-wifi"></i> API specificatie</h5>
+              <p>Technische API documentatie in de vorm van een Open API Specificatie (OAS).</p>
+              <a href="https://redocly.github.io/redoc/?url={{ settings.GITHUB_API_SPEC }}" class="button button--primary">API specificaties</a>
             </div>
-
           </div>
         {% endblock %}
 
         {% block docs_scopes %}
-          <div class="col-sm-4">
-
+          <div class="cardlist__item">
             <div class="card">
-              <div class="card-body">
-                <h5 class="card-title"><i class="fas fa-shield-alt"></i> API scopes</h5>
-                <p class="card-text">Alle scopes binnen deze API voor gebruik in JWT's t.b.v. autorisaties.</p>
-                <a href="https://github.com/{{ settings.SELF_REPO }}/blob/{{ settings.SELF_BRANCH }}/src/autorisaties.md" class="btn btn-primary">API scopes</a>
-              </div>
+              <h5 class="card__title"><i class="fas fa-shield-alt"></i> API scopes</h5>
+              <p>Alle scopes binnen deze API voor gebruik in JWT's t.b.v. autorisaties.</p>
+              <a href="https://github.com/{{ settings.SELF_REPO }}/blob/{{ settings.SELF_BRANCH }}/src/autorisaties.md" class="button button--primary">API scopes</a>
             </div>
-
           </div>
        {% endblock %}
 
        {% block extra_docs %}{% endblock %}
 
      </div>
-     <p></p>
 
     {% endblock %}
 
     {% block extra_content %}{% endblock %}
 
     {% block admin_link %}
-      <p></p>
       <p>
-        <a href="{% url 'admin:index' %}" class="btn btn-sm btn-danger"><i class="fas fa-lock"></i> Beheer</a>
+        <a href="{% url 'admin:index' %}" class="button button--alert"><i class="fas fa-lock"></i> Beheer</a>
       </p>
     {% endblock %}
 
