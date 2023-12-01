@@ -3,6 +3,8 @@ from typing import Optional
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from .choices import TextChoicesWithDescriptions
+
 BSN_LENGTH = 9
 RSIN_LENGTH = 9
 
@@ -52,7 +54,7 @@ class VertrouwelijkheidsAanduiding(models.TextChoices):
         return orders.get(value)
 
 
-class RolOmschrijving(models.TextChoices):
+class RolOmschrijving(TextChoicesWithDescriptions):
     adviseur = "adviseur", _("Adviseur")
     behandelaar = "behandelaar", _("Behandelaar")
     belanghebbende = "belanghebbende", _("Belanghebbende")
@@ -61,6 +63,20 @@ class RolOmschrijving(models.TextChoices):
     klantcontacter = "klantcontacter", _("Klantcontacter")
     zaakcoordinator = "zaakcoordinator", _("Zaakcoördinator")
     medeinitiator = "mede_initiator", _("Mede-initiator")
+
+    @classmethod
+    def get_descriptions(cls):
+        return {
+            cls.adviseur: "Kennis in dienst stellen van de behandeling van (een deel van) een zaak.",
+            cls.behandelaar: "De vakinhoudelijke behandeling doen van (een deel van) een zaak.",
+            cls.belanghebbende: "Vanuit eigen en objectief belang rechtstreeks betrokken "
+            "zijn bij de behandeling en/of de uitkomst van een zaak.",
+            cls.beslisser: "Nemen van besluiten die voor de uitkomst van een zaak noodzakelijk zijn.",
+            cls.initiator: "Aanleiding geven tot de start van een zaak ..",
+            cls.klantcontacter: "Het eerste aanspreekpunt zijn voor vragen van burgers en bedrijven ..",
+            cls.zaakcoordinator: "Er voor zorg dragen dat de behandeling van de zaak in samenhang uitgevoerd wordt conform de daarover gemaakte afspraken.",
+            cls.medeinitiator: "",
+        }
 
 
 class RolTypes(models.TextChoices):
@@ -97,7 +113,8 @@ class Archiefstatus(models.TextChoices):
     )
 
 
-class BrondatumArchiefprocedureAfleidingswijze(models.TextChoices):
+# @ensure_description_exists
+class BrondatumArchiefprocedureAfleidingswijze(TextChoicesWithDescriptions):
     afgehandeld = "afgehandeld", _("Afgehandeld")
     ander_datumkenmerk = "ander_datumkenmerk", _("Ander datumkenmerk")
     eigenschap = "eigenschap", _("Eigenschap")
@@ -107,6 +124,65 @@ class BrondatumArchiefprocedureAfleidingswijze(models.TextChoices):
     termijn = "termijn", _("Termijn")
     vervaldatum_besluit = "vervaldatum_besluit", _("Vervaldatum besluit")
     zaakobject = "zaakobject", _("Zaakobject")
+
+    @classmethod
+    def get_descriptions(cls):
+        return {
+            cls.afgehandeld: _(
+                "De termijn start op de datum waarop de zaak is "
+                "afgehandeld (ZAAK.Einddatum in het RGBZ)."
+            ),
+            cls.ander_datumkenmerk: _(
+                "De termijn start op de datum die is vastgelegd in een "
+                "ander datumveld dan de datumvelden waarop de overige "
+                "waarden (van deze attribuutsoort) betrekking hebben. "
+                "`Objecttype`, `Registratie` en `Datumkenmerk` zijn niet "
+                "leeg."
+            ),
+            cls.eigenschap: _(
+                "De termijn start op de datum die is vastgelegd in een "
+                "ander datumveld dan de datumvelden waarop de overige "
+                "waarden (van deze attribuutsoort) betrekking hebben. "
+                "`Objecttype`, `Registratie` en `Datumkenmerk` zijn niet "
+                "leeg."
+            ),
+            cls.gerelateerde_zaak: _(
+                "De termijn start op de datum waarop de gerelateerde "
+                "zaak is afgehandeld (`ZAAK.Einddatum` of "
+                "`ZAAK.Gerelateerde_zaak.Einddatum` in het RGBZ). "
+                "`ResultaatType.ZaakType` heeft gerelateerd `ZaakType`"
+            ),
+            cls.hoofdzaak: _(
+                "De termijn start op de datum waarop de gerelateerde "
+                "zaak is afgehandeld, waarvan de zaak een deelzaak is "
+                "(`ZAAK.Einddatum` van de hoofdzaak in het RGBZ). "
+                "ResultaatType.ZaakType is deelzaaktype van ZaakType."
+            ),
+            cls.ingangsdatum_besluit: _(
+                "De termijn start op de datum waarop het besluit van "
+                "kracht wordt (`BESLUIT.Ingangsdatum` in het RGBZ).	"
+                "ResultaatType.ZaakType heeft relevant BesluitType"
+            ),
+            cls.termijn: _(
+                "De termijn start een vast aantal jaren na de datum "
+                "waarop de zaak is afgehandeld (`ZAAK.Einddatum` in het "
+                "RGBZ)."
+            ),
+            cls.vervaldatum_besluit: _(
+                "De termijn start op de dag na de datum waarop het "
+                "besluit vervalt (`BESLUIT.Vervaldatum` in het RGBZ). "
+                "ResultaatType.ZaakType heeft relevant BesluitType"
+            ),
+            cls.zaakobject: _(
+                "De termijn start op de einddatum geldigheid van het "
+                "zaakobject waarop de zaak betrekking heeft "
+                "(bijvoorbeeld de overlijdendatum van een Persoon). "
+                "M.b.v. de attribuutsoort `Objecttype` wordt vastgelegd "
+                "om welke zaakobjecttype het gaat; m.b.v. de "
+                "attribuutsoort `Datumkenmerk` wordt vastgelegd welke "
+                "datum-attribuutsoort van het zaakobjecttype het betreft."
+            ),
+        }
 
 
 class ZaakobjectTypes(models.TextChoices):
