@@ -1,4 +1,8 @@
+import re
+
 from django.db.models import TextChoices
+
+import pytest
 
 from vng_api_common.choices import (
     TextChoicesWithDescriptions,
@@ -42,3 +46,24 @@ def test_add_choice_values_help_text_with_descriptions():
         "* `option2` - (option two name) Description of option two"
     )
     assert help_text == expected_text
+
+
+def test_add_choice_values_help_text_with_asdsadasdescriptions():
+    class BadChoicesWithDescriptions(TextChoicesWithDescriptions):
+        option1 = "option1", "option one name"
+        option2 = "option2", "option two name"
+
+        @staticmethod
+        def get_descriptions():
+            return {
+                ChoicesWithDescriptions.option1: "Option one description",
+                # ChoicesWithDescriptions.option2: "Description of option two",
+            }
+
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Choice (option2, option two name) in BadChoicesWithDescriptions is missing a description"
+        ),
+    ):
+        ensure_description_exists(BadChoicesWithDescriptions)

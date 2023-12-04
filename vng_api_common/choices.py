@@ -4,9 +4,11 @@ from django.db.models import TextChoices
 def ensure_description_exists(cls):
     descriptions = cls.get_descriptions()
 
-    for choice in cls.choices:
-        assert choice in descriptions
-
+    for choice, text in cls.choices:
+        if choice not in descriptions:
+            raise ValueError(
+                f"Choice ({choice}, {text}) in {cls.__name__} is missing a description"
+            )
     return cls
 
 

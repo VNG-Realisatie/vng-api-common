@@ -12,6 +12,7 @@ from drf_yasg.inspectors.field import (
 from rest_framework import serializers
 
 from . import fields
+from .choices import TextChoicesWithDescriptions, ensure_description_exists
 from .serializers import DurationField, LengthHyperlinkedRelatedField
 
 try:
@@ -37,6 +38,7 @@ class CommonGroundAPICommonConfig(AppConfig):
         register_serializer_field()
         set_custom_hyperlinkedmodelserializer_field()
         set_charfield_error_messages()
+        ensure_text_choice_descriptions()
 
 
 def patch_duration_type():
@@ -88,3 +90,8 @@ def set_charfield_error_messages():
             "min_length": _("The value has too few characters"),
         }
     )
+
+
+def ensure_text_choice_descriptions():
+    for cls in TextChoicesWithDescriptions.__subclasses__():
+        ensure_description_exists(cls)
