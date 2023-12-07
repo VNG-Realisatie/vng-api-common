@@ -13,6 +13,7 @@ __all__ = [
     "NOTIFICATIONS_KANAAL",
     "NOTIFICATIONS_DISABLED",
     "JWT_LEEWAY",
+    "COMMONGROUND_API_COMMON_GET_DOMAIN",
 ]
 
 API_VERSION = "1.0.0-rc1"  # semantic version
