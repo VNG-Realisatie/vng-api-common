@@ -38,7 +38,7 @@ class CommonGroundAPICommonConfig(AppConfig):
         register_serializer_field()
         set_custom_hyperlinkedmodelserializer_field()
         set_charfield_error_messages()
-        ensure_text_choice_descriptions()
+        ensure_text_choice_descriptions(TextChoicesWithDescriptions)
 
 
 def patch_duration_type():
@@ -92,6 +92,8 @@ def set_charfield_error_messages():
     )
 
 
-def ensure_text_choice_descriptions():
-    for cls in TextChoicesWithDescriptions.__subclasses__():
-        ensure_description_exists(cls)
+def ensure_text_choice_descriptions(text_choice_class):
+    ensure_description_exists(text_choice_class)
+
+    for cls in text_choice_class.__subclasses__():
+        ensure_text_choice_descriptions(cls)

@@ -48,7 +48,7 @@ def test_add_choice_values_help_text_with_descriptions():
     assert help_text == expected_text
 
 
-def test_add_choice_values_help_text_with_asdsadasdescriptions():
+def test_text_choice_with_descriptions_validator():
     class BadChoicesWithDescriptions(TextChoicesWithDescriptions):
         option1 = "option1", "option one name"
         option2 = "option2", "option two name"
@@ -67,3 +67,29 @@ def test_add_choice_values_help_text_with_asdsadasdescriptions():
         ),
     ):
         ensure_description_exists(BadChoicesWithDescriptions)
+
+
+def test_text_choice_with_descriptions_validator_recursion():
+    class TextChoiceSubclass(TextChoicesWithDescriptions):
+        @classmethod
+        def descriptions(cls):
+            return {}
+
+    class BadChoicesSubclassWithDescriptions(TextChoiceSubclass):
+        option1 = "option1", "option one name"
+        option2 = "option2", "option two name"
+
+        @classmethod
+        def descriptions(cls):
+            return {
+                ChoicesWithDescriptions.option1: "Option one description",
+                # ChoicesWithDescriptions.option2: "Description of option two",
+            }
+
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Choice (option2, option two name) in BadChoicesSubclassWithDescriptions is missing a description"
+        ),
+    ):
+        ensure_description_exists(BadChoicesSubclassWithDescriptions)
