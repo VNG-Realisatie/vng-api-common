@@ -65,7 +65,7 @@ class RolOmschrijving(TextChoicesWithDescriptions):
     medeinitiator = "mede_initiator", _("Mede-initiator")
 
     @classmethod
-    def get_descriptions(cls):
+    def descriptions(cls):
         return {
             cls.adviseur: "Kennis in dienst stellen van de behandeling van (een deel van) een zaak.",
             cls.behandelaar: "De vakinhoudelijke behandeling doen van (een deel van) een zaak.",
@@ -113,7 +113,6 @@ class Archiefstatus(models.TextChoices):
     )
 
 
-# @ensure_description_exists
 class BrondatumArchiefprocedureAfleidingswijze(TextChoicesWithDescriptions):
     afgehandeld = "afgehandeld", _("Afgehandeld")
     ander_datumkenmerk = "ander_datumkenmerk", _("Ander datumkenmerk")
@@ -126,7 +125,7 @@ class BrondatumArchiefprocedureAfleidingswijze(TextChoicesWithDescriptions):
     zaakobject = "zaakobject", _("Zaakobject")
 
     @classmethod
-    def get_descriptions(cls):
+    def descriptions(cls):
         return {
             cls.afgehandeld: _(
                 "De termijn start op de datum waarop de zaak is "

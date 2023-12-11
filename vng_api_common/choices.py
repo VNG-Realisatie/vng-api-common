@@ -1,18 +1,20 @@
+from typing import Dict
+
 from django.db.models import TextChoices
 
 
-def ensure_description_exists(cls):
-    descriptions = cls.get_descriptions()
+def ensure_description_exists(text_choices):
+    descriptions = text_choices.descriptions()
 
-    for choice, text in cls.choices:
+    for choice, text in text_choices.choices:
         if choice not in descriptions:
             raise ValueError(
-                f"Choice ({choice}, {text}) in {cls.__name__} is missing a description"
+                f"Choice ({choice}, {text}) in {text_choices.__name__} is missing a description"
             )
-    return cls
+    return text_choices
 
 
 class TextChoicesWithDescriptions(TextChoices):
     @classmethod
-    def get_descriptions(cls):
+    def descriptions(cls) -> Dict[str, str]:
         return {}

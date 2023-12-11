@@ -95,7 +95,7 @@ def add_choice_values_help_text(choices: Union[models.Choices, Tuple[str, str]])
     _choices = choices.choices if is_dj_choices else choices
 
     if issubclass(choices, TextChoicesWithDescriptions):
-        descriptions = choices.get_descriptions()
+        descriptions = choices.descriptions()
         items = [
             f"* `{key}` - ({value}) {descriptions[key]}" for key, value in _choices
         ]

@@ -20,8 +20,8 @@ class ChoicesWithDescriptions(TextChoicesWithDescriptions):
     option1 = "option1", "option one name"
     option2 = "option2", "option two name"
 
-    @staticmethod
-    def get_descriptions():
+    @classmethod
+    def descriptions(cls):
         return {
             ChoicesWithDescriptions.option1: "Option one description",
             ChoicesWithDescriptions.option2: "Description of option two",
@@ -53,8 +53,8 @@ def test_add_choice_values_help_text_with_asdsadasdescriptions():
         option1 = "option1", "option one name"
         option2 = "option2", "option two name"
 
-        @staticmethod
-        def get_descriptions():
+        @classmethod
+        def descriptions(cls):
             return {
                 ChoicesWithDescriptions.option1: "Option one description",
                 # ChoicesWithDescriptions.option2: "Description of option two",
