@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 import isodate
 from rest_framework import fields, serializers
 
+from .choices import TextChoicesWithDescriptions
 from .descriptors import GegevensGroepType
 
 try:
@@ -93,7 +94,13 @@ def add_choice_values_help_text(choices: Union[models.Choices, Tuple[str, str]])
     is_dj_choices = inspect.isclass(choices) and issubclass(choices, models.Choices)
     _choices = choices.choices if is_dj_choices else choices
 
-    items = [f"* `{key}` - {value}" for key, value in _choices]
+    if issubclass(choices, TextChoicesWithDescriptions):
+        descriptions = choices.descriptions()
+        items = [
+            f"* `{key}` - ({value}) {descriptions[key]}" for key, value in _choices
+        ]
+    else:
+        items = [f"* `{key}` - {value}" for key, value in _choices]
 
     return "Uitleg bij mogelijke waarden:\n\n" + "\n".join(items)
 
