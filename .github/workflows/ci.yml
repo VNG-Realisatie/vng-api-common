@@ -11,8 +11,8 @@ on:
   workflow_dispatch:
 
 env:
-  PGUSER: postgres
-  PGPASSWORD: ''
+  DB_USER: postgres
+  DB_PASSWORD: ""
 
 jobs:
   tests:

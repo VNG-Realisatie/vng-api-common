@@ -15,9 +15,9 @@ ALLOWED_HOSTS = ["*"]
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("PGDATABASE", "vng_api_common"),
-        "USER": os.getenv("PGUSER", "vng_api_common"),
-        "PASSWORD": os.getenv("PGPASSWORD", "vng_api_common"),
+        "NAME": os.getenv("DB_NAME", "vng_api_common"),
+        "USER": os.getenv("DB_USER", "vng_api_common"),
+        "PASSWORD": os.getenv("DB_PASSWORD", "vng_api_common"),
         "HOST": os.getenv("DB_HOST", "localhost"),
         "PORT": os.getenv("DB_PORT", 5432),
     }
