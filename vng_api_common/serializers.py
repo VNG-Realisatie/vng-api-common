@@ -1,7 +1,7 @@
 import datetime
 import inspect
 from collections import OrderedDict
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Union, List
 
 from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
@@ -90,17 +90,17 @@ class ValidatieFoutSerializer(FoutSerializer):
     invalid_params = FieldValidationErrorSerializer(many=True)
 
 
-def add_choice_values_help_text(choices: Union[models.Choices, Tuple[str, str]]) -> str:
+def add_choice_values_help_text(choices: Union[models.Choices, List[Tuple[str, str]]]) -> str:
     is_dj_choices = inspect.isclass(choices) and issubclass(choices, models.Choices)
-    _choices = choices.choices if is_dj_choices else choices
 
-    if issubclass(choices, TextChoicesWithDescriptions):
-        descriptions = choices.descriptions()
-        items = [
-            f"* `{key}` - ({value}) {descriptions[key]}" for key, value in _choices
-        ]
+    if is_dj_choices:
+        _choices = choices.choices
+        if issubclass(choices, TextChoicesWithDescriptions):
+            descriptions = choices.descriptions()
+            _choices = [(key, f"({value}) {descriptions[key]}") for key, value in _choices]
     else:
-        items = [f"* `{key}` - {value}" for key, value in _choices]
+        _choices = choices
+    items = [f"* `{key}` - {value}" for key, value in _choices]
 
     return "Uitleg bij mogelijke waarden:\n\n" + "\n".join(items)
 

@@ -48,6 +48,22 @@ def test_add_choice_values_help_text_with_descriptions():
     assert help_text == expected_text
 
 
+def test_add_choice_values_help_text_with_tuple():
+
+    choices = (
+        ("option1", "option one name"),
+        ("option2", "option two name")
+    )
+
+    help_text = add_choice_values_help_text(choices)
+    expected_text = (
+        "Uitleg bij mogelijke waarden:\n\n"
+        "* `option1` - option one name\n"
+        "* `option2` - option two name"
+    )
+    assert help_text == expected_text
+
+
 def test_text_choice_with_descriptions_validator():
     class BadChoicesWithDescriptions(TextChoicesWithDescriptions):
         option1 = "option1", "option one name"
