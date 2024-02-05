@@ -12,6 +12,7 @@ This package provides a model mixin to save the ETag header value to the db,
 and a decorator to enable conditional requests on viewsets. The rest are
 implementation details.
 """
+
 from .decorators import conditional_retrieve
 from .etags import calculate_etag
 from .models import ETagMixin

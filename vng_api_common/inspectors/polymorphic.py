@@ -3,6 +3,7 @@ Introspect polymorphic resources
 
 Bulk of the code taken from https://github.com/axnsan12/drf-yasg/issues/100
 """
+
 from drf_yasg import openapi
 from drf_yasg.errors import SwaggerGenerationError
 from drf_yasg.inspectors.base import NotHandled
