@@ -4,6 +4,7 @@ Define pytest configuration and setup.
 The urls import is needed to make sure all urls/subclasses are registered
 BEFORE fixtures run.
 """
+
 from django.urls import clear_script_prefix, set_script_prefix
 
 import pytest

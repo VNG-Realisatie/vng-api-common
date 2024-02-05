@@ -6,6 +6,7 @@ A changed m2m for example may affect the output of the ETag.
 The signal does nothing except clearing the calculated value, which will be
 re-calculated on the next fetch.
 """
+
 from typing import Optional, Set
 
 from django.core.exceptions import FieldDoesNotExist

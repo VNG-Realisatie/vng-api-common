@@ -1,6 +1,7 @@
 """
 Calculate ETag values for API resources.
 """
+
 import hashlib
 import logging
 from dataclasses import dataclass

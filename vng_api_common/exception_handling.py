@@ -35,9 +35,9 @@ def get_validation_errors(validation_errors: dict):
             for i, nested_error_dict in enumerate(error_list):
                 if isinstance(nested_error_dict, dict):
                     for err in get_validation_errors(nested_error_dict):
-                        err[
-                            "name"
-                        ] = f"{underscore_to_camel(field_name)}.{i}.{err['name']}"
+                        err["name"] = (
+                            f"{underscore_to_camel(field_name)}.{i}.{err['name']}"
+                        )
                         yield err
 
         # nested validation - recursively call the function
