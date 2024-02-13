@@ -1,7 +1,7 @@
 # https://pyjwt.readthedocs.io/en/latest/usage.html#reading-headers-without-validation
 # -> we can put the organization/service in the headers itself
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterable, List, Optional
 
 from django.conf import settings
 from django.db import models, transaction
@@ -28,7 +28,7 @@ class JWTAuth:
         self.encoded = encoded
 
     @property
-    def applicaties(self) -> Optional[list]:
+    def applicaties(self) -> Iterable[Applicatie]:
         if self.client_id is None:
             return []
 
