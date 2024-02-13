@@ -1,12 +1,17 @@
 from django.contrib import admin
-from django.urls import include, path, re_path
+from django.urls import include, path
 from django.views.generic import RedirectView
 
+from drf_spectacular.views import (
+    SpectacularJSONAPIView,
+    SpectacularRedocView,
+    SpectacularYAMLAPIView,
+)
 from rest_framework import routers
 
 from vng_api_common.views import ViewConfigView
 
-from .schema import SchemaView
+from .schema import custom_settings
 from .views import NotificationView
 from .viewsets import GroupViewSet, HobbyViewSet, PaginateHobbyViewSet, PersonViewSet
 
@@ -23,14 +28,25 @@ urlpatterns = [
         include(
             [
                 # API documentation
-                re_path(
-                    r"^schema/openapi(?P<format>\.json|\.yaml)$",
-                    SchemaView.without_ui(cache_timeout=None),
+                path(
+                    "schema/openapi.json",
+                    SpectacularJSONAPIView.as_view(
+                        custom_settings=custom_settings,
+                    ),
                     name="schema-json",
                 ),
-                re_path(
-                    r"^schema/$",
-                    SchemaView.with_ui("redoc", cache_timeout=None),
+                path(
+                    "schema/openapi.yaml",
+                    SpectacularYAMLAPIView.as_view(
+                        custom_settings=custom_settings,
+                    ),
+                    name="schema-yaml",
+                ),
+                path(
+                    "schema/",
+                    SpectacularRedocView.as_view(
+                        url_name="contactgegevens:schema-yaml-contactgegevens"
+                    ),
                     name="schema-redoc",
                 ),
             ]

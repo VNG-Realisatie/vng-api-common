@@ -1,7 +1,7 @@
 __all__ = [
     "API_VERSION",
     "BASE_REST_FRAMEWORK",
-    "BASE_SWAGGER_SETTINGS",
+    "BASE_SPECTACULAR_SETTINGS",
     "COMMON_SPEC",
     "LINK_FETCHER",
     "GEMMA_URL_TEMPLATE",
@@ -12,12 +12,17 @@ __all__ = [
     "NOTIFICATIONS_KANAAL",
     "NOTIFICATIONS_DISABLED",
     "JWT_LEEWAY",
+    "SECURITY_DEFINITION_NAME",
+    "SPECTACULAR_EXTENSIONS",
     "COMMONGROUND_API_COMMON_GET_DOMAIN",
 ]
 
 API_VERSION = "1.0.0-rc1"  # semantic version
 
+SECURITY_DEFINITION_NAME = "JWT-Claims"
+
 BASE_REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "vng_api_common.schema.AutoSchema",
     "DEFAULT_RENDERER_CLASSES": (
         "djangorestframework_camel_case.render.CamelCaseJSONRenderer",
     ),
@@ -60,33 +65,37 @@ BASE_REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "vng_api_common.views.exception_handler",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
-
-BASE_SWAGGER_SETTINGS = {
+BASE_SPECTACULAR_SETTINGS = {
     "DEFAULT_GENERATOR_CLASS": "vng_api_common.generators.OpenAPISchemaGenerator",
-    "DEFAULT_AUTO_SCHEMA_CLASS": "vng_api_common.inspectors.view.AutoSchema",
-    "DEFAULT_INFO": "must.be.overridden",
-    "DEFAULT_FIELD_INSPECTORS": (
-        # GeometryFieldInspector has external dependencies, and is opt-in
-        # 'vng_api_common.inspectors.geojson.GeometryFieldInspector',
-        "vng_api_common.inspectors.fields.HyperlinkedIdentityFieldInspector",
-        "vng_api_common.inspectors.fields.ReadOnlyFieldInspector",
-        "vng_api_common.inspectors.polymorphic.PolymorphicSerializerInspector",
-        "vng_api_common.inspectors.fields.GegevensGroepInspector",
-        "drf_yasg.inspectors.CamelCaseJSONFilter",
-        "drf_yasg.inspectors.RecursiveFieldInspector",
-        "drf_yasg.inspectors.ReferencingSerializerInspector",
-        "drf_yasg.inspectors.ChoiceFieldInspector",
-        "drf_yasg.inspectors.FileFieldInspector",
-        "drf_yasg.inspectors.DictFieldInspector",
-        "drf_yasg.inspectors.JSONFieldInspector",
-        "drf_yasg.inspectors.HiddenFieldInspector",
-        "drf_yasg.inspectors.RelatedFieldInspector",
-        "drf_yasg.inspectors.SerializerMethodFieldInspector",
-        "drf_yasg.inspectors.SimpleFieldInspector",
-        "drf_yasg.inspectors.StringDefaultFieldInspector",
-    ),
-    "DEFAULT_FILTER_INSPECTORS": ("vng_api_common.inspectors.query.FilterInspector",),
+    "SCHEMA_PATH_PREFIX_TRIM": True,
+    # "PREPROCESSING_HOOKS": ["vng_api_common.utils.get_schema_endpoints"],
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+        "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields",
+    ],
+    "GET_MOCK_REQUEST": "vng_api_common.generators.build_mock_request",
+    "SCHEMA_PATH_PREFIX": "/api/v1",
+    # "APPEND_COMPONENTS": {
+    #     "securitySchemes": {
+    #         SECURITY_DEFINITION_NAME: {
+    #             "type": "http",
+    #             "bearerFormat": "JWT",
+    #             "scheme": "bearer",
+    #         }
+    #     },
+    # },
+    "SECURITY": [
+        {
+            SECURITY_DEFINITION_NAME: [],
+        }
+    ],
 }
+
+SPECTACULAR_EXTENSIONS = []
+
+# DOCUMENTATION_INFO_MODULE = None
+#
+# DRF_EXCLUDED_ENDPOINTS = ["callbacks", "jwtsecret/", "openapi.yaml", "openapi{var}"]
 
 REDOC_SETTINGS = {"EXPAND_RESPONSES": "200,201", "SPEC_URL": "openapi.json"}
 

@@ -6,15 +6,14 @@ from typing import Union
 
 import requests
 import yaml
-from drf_yasg import openapi
 
 TYPE_MAP = {
-    openapi.TYPE_OBJECT: dict,
-    openapi.TYPE_STRING: str,
-    openapi.TYPE_NUMBER: (float, int),
-    openapi.TYPE_INTEGER: int,
-    openapi.TYPE_BOOLEAN: bool,
-    openapi.TYPE_ARRAY: list,
+    "object": dict,
+    "string": str,
+    "number": (float, int),
+    "integer": int,
+    "boolean": bool,
+    "array": list,
 }
 
 
