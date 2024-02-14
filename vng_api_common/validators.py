@@ -206,20 +206,18 @@ class ResourceValidator(URLValidator):
 
 
 class InformatieObjectUniqueValidator(validators.UniqueTogetherValidator):
+    requires_context = True
+
     def __init__(self, parent_field, field: str):
         self.parent_field = parent_field
         self.field = field
         super().__init__(None, (parent_field, field))
 
-    def set_context(self, serializer_field):
-        serializer = serializer_field.parent
-        super().set_context(serializer)
-
-        self.queryset = serializer.Meta.model._default_manager.all()
-        self.parent_object = serializer.context["parent_object"]
-
-    def __call__(self, informatieobject: str):
-        attrs = {self.parent_field: self.parent_object, self.field: informatieobject}
+    def __call__(self, informatieobject: str, serializer):
+        attrs = {
+            self.parent_field: serializer.context["parent_object"],
+            self.field: informatieobject,
+        }
         super().__call__(attrs)
 
 
@@ -232,17 +230,12 @@ class ObjectInformatieObjectValidator:
         "Het informatieobject is in het DRC nog niet gerelateerd aan dit object."
     )
     code = "inconsistent-relation"
+    requires_context = True
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        self.parent_object = serializer.context["parent_object"]
-        self.request = serializer.context["request"]
-
-    def __call__(self, informatieobject: str):
-        object_url = self.parent_object.get_absolute_api_url(self.request)
+    def __call__(self, informatieobject: str, serializer):
+        object_url = serializer.context["parent_object"].get_absolute_api_url(
+            self.request
+        )
 
         # dynamic so that it can be mocked in tests easily
         client = get_client(informatieobject)
@@ -311,40 +304,33 @@ class UniekeIdentificatieValidator:
 
     message = _("Deze identificatie bestaat al binnen de organisatie")
     code = "identificatie-niet-uniek"
+    requires_context = True
 
     def __init__(self, organisatie_field: str, identificatie_field="identificatie"):
         self.organisatie_field = organisatie_field
         self.identificatie_field = identificatie_field
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, "instance", None)
-        self.model = serializer.Meta.model
-
-    def __call__(self, attrs: dict):
+    def __call__(self, attrs: dict, serializer):
+        instance = getattr(serializer, "instance", None)
         identificatie = attrs.get(self.identificatie_field)
         if not identificatie:
-            if self.instance:
+            if instance:
                 # In case of a partial update
-                identificatie = self.instance.identificatie
+                identificatie = instance.identificatie
             else:
                 # identification is being generated, and the generation checks for
                 # uniqueness
                 return
 
         organisatie = attrs.get(self.organisatie_field)
-        pk = self.instance.pk if self.instance else None
+        pk = instance.pk if instance else None
 
         # if we're updating an instance, setting the current values will not
         # trigger an error because the instance-to-be-updated is excluded from
         # the queryset. If either bronorganisatie or identificatie changes,
         # and it already exists, it will raise a validation error
         combination_exists = (
-            self.model.objects
+            serializer.Meta.model.objects
             # in case of an update, exclude the current object. for a create, this
             # will be None
             .exclude(pk=pk)
@@ -370,22 +356,15 @@ class IsImmutableValidator:
 
     message = _("Dit veld mag niet gewijzigd worden.")
     code = "wijzigen-niet-toegelaten"
+    requires_context = True
 
-    def set_context(self, serializer_field):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        # Determine the existing instance, if this is an update operation.
-        self.serializer_field = serializer_field
-        self.instance = getattr(serializer_field.parent, "instance", None)
-
-    def __call__(self, new_value):
+    def __call__(self, new_value, serializer_field):
+        instance = getattr(serializer_field.parent, "instance", None)
         # no instance -> it's not an update
-        if not self.instance:
+        if not instance:
             return
 
-        current_value = getattr(self.instance, self.serializer_field.field_name)
+        current_value = getattr(instance, serializer_field.field_name)
 
         if new_value != current_value:
             raise serializers.ValidationError(self.message, code=self.code)
