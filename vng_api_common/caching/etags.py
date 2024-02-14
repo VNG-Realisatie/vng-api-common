@@ -157,7 +157,8 @@ class EtagUpdate:
         connection = transaction.get_connection(using)
 
         func = MethodCallback(etag_update.calculate_new_value)
-        for _, _func in connection.run_on_commit:
+        for run_on_commit in connection.run_on_commit:
+            _func = run_on_commit[1]
             if func == _func:
                 logger.debug(
                     "Update for model instance %r with pk %s was already scheduled",
