@@ -4,6 +4,7 @@ from vng_api_common.conf.api import *  # noqa
 
 SITE_ID = 1
 
+
 DEBUG = os.getenv("DEBUG", "no").lower() in ["yes", "true", "1"]
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -11,6 +12,8 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 SECRET_KEY = "so-secret-i-cant-believe-you-are-looking-at-this"
 
 ALLOWED_HOSTS = ["*"]
+
+USE_TZ = True
 
 DATABASES = {
     "default": {

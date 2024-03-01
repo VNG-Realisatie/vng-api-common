@@ -1,10 +1,5 @@
 from django.db import models
-
-try:
-    from django.utils.encoding import force_str
-except ImportError:  # Django < 4.0
-    from django.utils.encoding import force_text as force_str
-
+from django.utils.encoding import force_str
 from django.utils.translation import gettext as _
 
 from django_filters.filters import BaseCSVFilter, ChoiceFilter
