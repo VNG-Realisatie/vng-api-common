@@ -21,9 +21,7 @@ class NotificationBaseView(APIView):
     swagger_schema = None
 
     permission_classes = (AuthScopesRequired,)
-    required_scopes = Scope(
-        SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
-    )  # FIXME: this should be standalone!
+    required_scopes = Scope(SCOPE_NOTIFICATIES_PUBLICEREN_LABEL, private=True)
 
     def get_serializer(self, *args, **kwargs):
         return NotificatieSerializer(*args, **kwargs)
@@ -55,7 +53,9 @@ class NotificationBaseView(APIView):
 class NotificationView(NotificationBaseView):
     action = "create"
     permission_classes = (AuthScopesRequired,)
-    required_scopes = {"create": Scope(SCOPE_NOTIFICATIES_PUBLICEREN_LABEL)}
+    required_scopes = {
+        "create": Scope(SCOPE_NOTIFICATIES_PUBLICEREN_LABEL, private=True)
+    }
 
     def create(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
