@@ -34,6 +34,11 @@ class APIMixin:
         return url
 
 
+class JWTSecretManager(models.Manager):
+    def get_by_natural_key(self, identifier):
+        return self.get(identifier=identifier)
+
+
 class JWTSecret(models.Model):
     """
     Store credentials of clients that want to access our API.
@@ -52,6 +57,11 @@ class JWTSecret(models.Model):
     secret = models.CharField(
         _("secret"), max_length=255, help_text=_("Secret belonging to the client ID.")
     )
+
+    objects = JWTSecretManager()
+
+    def natural_key(self):
+        return (self.identifier,)
 
     class Meta:
         verbose_name = _("client credential")

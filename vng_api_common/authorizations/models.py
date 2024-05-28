@@ -23,6 +23,11 @@ class AuthorizationsConfig(ClientConfig):
         verbose_name = _("Autorisatiecomponentconfiguratie")
 
 
+class ApplicatieManager(models.Manager):
+    def get_by_natural_key(self, uuid):
+        return self.get(uuid=uuid)
+
+
 class Applicatie(APIMixin, models.Model):
     """
     Client level of authorization
@@ -52,8 +57,18 @@ class Applicatie(APIMixin, models.Model):
         ),
     )
 
+    objects = ApplicatieManager()
+
+    def natural_key(self):
+        return (str(self.uuid),)
+
     def __str__(self):
         return f"Applicatie ({self.label})"
+
+
+class AutorisatieManager(models.Manager):
+    def get_by_natural_key(self, applicatie, component, scopes):
+        return self.get(applicatie=applicatie, component=component, scopes=scopes)
 
 
 class Autorisatie(APIMixin, models.Model):
@@ -108,6 +123,15 @@ class Autorisatie(APIMixin, models.Model):
         help_text=_("Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief)."),
         blank=True,
     )
+
+    objects = AutorisatieManager()
+
+    def natural_key(self):
+        return (
+            self.applicatie,
+            self.component,
+            self.scopes,
+        )
 
     def satisfy_vertrouwelijkheid(self, vertrouwelijkheidaanduiding: str) -> bool:
         max_confid_level = VertrouwelijkheidsAanduiding.get_choice(
