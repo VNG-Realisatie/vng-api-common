@@ -302,7 +302,7 @@ class UniekeIdentificatieValidator:
     :param identificatie_field: naam van het veld dat de identificatie bevat
     """
 
-    message = _("Deze identificatie bestaat al binnen de organisatie")
+    message = _("Deze identificatie ({identificatie}) bestaat al binnen de organisatie")
     code = "identificatie-niet-uniek"
     requires_context = True
 
@@ -345,7 +345,12 @@ class UniekeIdentificatieValidator:
 
         if combination_exists:
             raise serializers.ValidationError(
-                {self.identificatie_field: self.message}, code=self.code
+                {
+                    self.identificatie_field: self.message.format(
+                        identificatie=identificatie
+                    )
+                },
+                code=self.code,
             )
 
 
