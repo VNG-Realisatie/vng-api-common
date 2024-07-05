@@ -2,6 +2,12 @@
 Change history
 ==============
 
+1.13.2 (2024-07-05)
+-------------------
+
+* Added *identificatie* to ``UniekeIdentificatieValidator`` error message
+
+
 1.13.1 (2024-05-28)
 -------------------
 
