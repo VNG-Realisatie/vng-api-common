@@ -12,7 +12,8 @@ on:
 
 env:
   PGUSER: postgres
-  PGPASSWORD: ''
+  PGPORT: '5432'
+  DB_HOST: '127.0.0.1'
 
 jobs:
   tests:

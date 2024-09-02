@@ -19,8 +19,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.getenv("PGDATABASE", "vng_api_common"),
-        "USER": os.getenv("PGUSER", "vng_api_common"),
-        "PASSWORD": os.getenv("PGPASSWORD", "vng_api_common"),
+        "USER": os.getenv("DB_USER", "postgres"),
+        "PASSWORD": os.getenv("DB_PASSWORD", ""),
         "HOST": os.getenv("DB_HOST", "localhost"),
         "PORT": os.getenv("DB_PORT", 5432),
     }
