@@ -31,4 +31,5 @@ def test_list_with_page_size_in_query(api_client):
     data = response.json()
 
     assert data["count"] == 10
+    assert len(data["results"]) == 5
     assert data["next"] == f"http://testserver{path}?page=2&pageSize=5"
