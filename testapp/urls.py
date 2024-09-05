@@ -8,12 +8,13 @@ from vng_api_common.views import ViewConfigView
 
 from .schema import SchemaView
 from .views import NotificationView
-from .viewsets import GroupViewSet, HobbyViewSet, PersonViewSet
+from .viewsets import GroupViewSet, HobbyViewSet, PaginateHobbyViewSet, PersonViewSet
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register("persons", PersonViewSet)
 router.register("hobbies", HobbyViewSet)
 router.register("groups", GroupViewSet)
+router.register("paginate-hobbies", PaginateHobbyViewSet, basename="paginate-hobby")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
