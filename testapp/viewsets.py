@@ -10,7 +10,6 @@ from .serializers import GroupSerializer, HobbySerializer, PersonSerializer
 
 @extend_schema_view(
     list=extend_schema(
-        summary="Title",
         description="Summary\n\nMore summary",
     ),
     retrieve=extend_schema(description="Some description"),
@@ -19,16 +18,6 @@ from .serializers import GroupSerializer, HobbySerializer, PersonSerializer
 class PersonViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
-
-    # def __getattribute__(self, name):
-    #     if name == "action_map":
-    #         breakpoint()
-    #     return super().__getattibute__(name)
-    #
-    # def __setattr__(self, name, value):
-    #     if name == "action_map":
-    #         breakpoint()
-    #     return super().__setattr__(name, value)
 
 
 @conditional_retrieve()

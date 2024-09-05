@@ -1,6 +1,7 @@
 import os
 
 from vng_api_common.conf.api import *  # noqa
+from vng_api_common.conf.api import JWT_SPECTACULAR_SETTINGS  # noqa
 
 SITE_ID = 1
 
@@ -96,6 +97,7 @@ SPECTACULAR_SETTINGS.update(
                 "description": "Global tag description via settings",
             },
         ],
+        **JWT_SPECTACULAR_SETTINGS,
     }
 )
 

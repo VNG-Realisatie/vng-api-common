@@ -20,7 +20,7 @@ pytestmark = pytest.mark.django_db(transaction=True)
 
 
 @pytest.mark.django_db(transaction=False)
-def skip_test_etag_header_present(api_client, person):
+def test_etag_header_present(api_client, person):
     path = reverse("person-detail", kwargs={"pk": person.pk})
 
     response = api_client.get(path)

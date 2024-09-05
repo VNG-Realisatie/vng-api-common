@@ -13,6 +13,9 @@ from drf_yasg.inspectors import SwaggerAutoSchema
 from drf_yasg.utils import get_consumes
 from rest_framework import exceptions, serializers, status, viewsets
 
+from drf_spectacular.openapi import AutoSchema, OpenApiTypes, OpenApiParameter
+
+
 from ..constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
 from ..exceptions import Conflict, Gone, PreconditionFailed
 from ..geo import GeoMixin
@@ -28,11 +31,10 @@ from .cache import CACHE_REQUEST_HEADERS, get_cache_headers, has_cache_header
 logger = logging.getLogger(__name__)
 
 TYPE_TO_FIELDMAPPING = {
-    openapi.TYPE_INTEGER: serializers.IntegerField,
-    openapi.TYPE_NUMBER: serializers.FloatField,
-    openapi.TYPE_STRING: serializers.CharField,
-    openapi.TYPE_BOOLEAN: serializers.BooleanField,
-    openapi.TYPE_ARRAY: serializers.ListField,
+    OpenApiTypes.INT: serializers.IntegerField,
+    OpenApiTypes.NUMBER: serializers.FloatField,
+    OpenApiTypes.STR: serializers.CharField,
+    OpenApiTypes.BOOL: serializers.BooleanField,
 }
 
 COMMON_ERRORS = [
@@ -115,19 +117,19 @@ HTTP_STATUS_CODE_TITLES = {
 AUDIT_TRAIL_ENABLED = apps.is_installed("vng_api_common.audittrails")
 
 AUDIT_REQUEST_HEADERS = [
-    openapi.Parameter(
+    OpenApiParameter(
         name=HEADER_LOGRECORD_ID,
-        type=openapi.TYPE_STRING,
-        in_=openapi.IN_HEADER,
+        type=OpenApiTypes.STR,
+        location="header",
         required=False,
         description=gettext(
             "Identifier of the request, traceable throughout the network"
         ),
     ),
-    openapi.Parameter(
+    OpenApiParameter(
         name=HEADER_AUDIT,
-        type=openapi.TYPE_STRING,
-        in_=openapi.IN_HEADER,
+        type=OpenApiTypes.STR,
+        location="header",
         required=False,
         description=gettext("Explanation why the request is done"),
     ),
@@ -145,12 +147,10 @@ def response_header(description: str, type: str, format: str = None) -> OrderedD
 
 version_header = response_header(
     "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1.",
-    type=openapi.TYPE_STRING,
+    type=OpenApiTypes.STR,
 )
 
-location_header = response_header(
-    "URL waar de resource leeft.", type=openapi.TYPE_STRING, format=openapi.FORMAT_URI
-)
+location_header = response_header("URL waar de resource leeft.", type=OpenApiTypes.URI)
 
 
 def _view_supports_audittrail(view: viewsets.ViewSet) -> bool:

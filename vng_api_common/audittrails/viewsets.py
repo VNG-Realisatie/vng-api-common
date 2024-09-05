@@ -8,7 +8,7 @@ from rest_framework import serializers, viewsets
 
 from ..compat import get_header
 from ..constants import CommonResourceAction
-from ..permissions import AuthScopesRequired
+from ..permissions import AuthRequired
 from ..utils import get_uuid_from_path
 from ..viewsets import NestedViewSetMixin
 from .api.scopes import SCOPE_AUDITTRAILS_LEZEN
@@ -203,7 +203,7 @@ class AuditTrailViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     queryset = AuditTrail.objects.all().order_by("aanmaakdatum")
     serializer_class = AuditTrailSerializer
     lookup_field = "uuid"
-    permission_classes = (AuthScopesRequired,)
+    permission_classes = (AuthRequired,)
     required_scopes = {
         "list": SCOPE_AUDITTRAILS_LEZEN,
         "retrieve": SCOPE_AUDITTRAILS_LEZEN,

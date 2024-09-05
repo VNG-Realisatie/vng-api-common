@@ -10,9 +10,9 @@ from drf_spectacular.views import (
 from rest_framework import routers
 
 from vng_api_common.views import ViewConfigView
+from vng_api_common.notifications.api.views import NotificationView
 
 from .schema import custom_settings
-from .views import NotificationView
 from .viewsets import GroupViewSet, HobbyViewSet, PaginateHobbyViewSet, PersonViewSet
 
 router = routers.DefaultRouter(trailing_slash=False)
@@ -44,9 +44,7 @@ urlpatterns = [
                 ),
                 path(
                     "schema/",
-                    SpectacularRedocView.as_view(
-                        url_name="contactgegevens:schema-yaml-contactgegevens"
-                    ),
+                    SpectacularRedocView.as_view(url_name="schema-yaml"),
                     name="schema-redoc",
                 ),
             ]

@@ -27,31 +27,17 @@ class CommonGroundAPICommonConfig(AppConfig):
     def ready(self):
         from . import checks  # noqa
         from . import schema  # noqa registers spectacular Extensions
+
+        from .extensions import serializer_extensions  # noqa
+        from .extensions import field_extensions  # noqa
+        from .extensions import filter_extensions  # noqa
+
         from .caching import signals  # noqa
 
-        # patch_duration_type()
         register_serializer_field()
         set_custom_hyperlinkedmodelserializer_field()
         set_charfield_error_messages()
         ensure_text_choice_descriptions(TextChoicesWithDescriptions)
-
-
-# def patch_duration_type():
-#     def _patch(basic_types, _field_cls, format=None):
-#         for index, (field_cls, basic_type) in enumerate(basic_types):
-#             if field_cls is _field_cls:
-#                 basic_types[index] = (_field_cls, (openapi.TYPE_STRING, format))
-#                 break
-#
-#     _patch(model_field_to_basic_type, models.DurationField, FORMAT_DURATION)
-#     _patch(basic_type_info, models.DurationField, FORMAT_DURATION)
-#     _patch(serializer_field_to_basic_type, serializers.DurationField, FORMAT_DURATION)
-#     _patch(basic_type_info, serializers.DurationField, FORMAT_DURATION)
-#
-#     # best-effort support for relativedeltafield
-#     if RelativeDeltaField is not None:
-#         _patch(model_field_to_basic_type, RelativeDeltaField, FORMAT_DURATION)
-#         _patch(basic_type_info, RelativeDeltaField, FORMAT_DURATION)
 
 
 def register_serializer_field():
