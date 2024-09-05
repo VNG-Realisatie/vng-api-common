@@ -7,6 +7,7 @@ from .serializers import JWTSecretSerializer
 
 
 class CreateJWTSecretView(CreateAPIView):
+    action = "create"
     swagger_schema = None
 
     model = JWTSecret

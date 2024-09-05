@@ -30,31 +30,13 @@ BASE_REST_FRAMEWORK = {
     "DEFAULT_PARSER_CLASSES": (
         "djangorestframework_camel_case.parser.CamelCaseJSONParser",
     ),
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        # 'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        # 'rest_framework.authentication.SessionAuthentication',
-        # 'rest_framework.authentication.BasicAuthentication'
-    ),
     # there is no authentication of 'end-users', only authorization (via JWT)
     # of applications
     "DEFAULT_AUTHENTICATION_CLASSES": (),
-    # 'DEFAULT_PERMISSION_CLASSES': (
-    #     'oauth2_provider.contrib.rest_framework.TokenHasReadWriteScope',
-    #     # 'rest_framework.permissions.IsAuthenticated',
-    #     # 'rest_framework.permissions.AllowAny',
-    # ),
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.URLPathVersioning",
-    #
-    # # Generic view behavior
-    # 'DEFAULT_PAGINATION_CLASS': 'ztc.api.utils.pagination.HALPagination',
-    "DEFAULT_FILTER_BACKENDS": (
-        "vng_api_common.filters.Backend",
-        # 'rest_framework.filters.SearchFilter',
-        # 'rest_framework.filters.OrderingFilter',
-    ),
+    "DEFAULT_FILTER_BACKENDS": ("vng_api_common.filters.Backend",),
     #
     # # Filtering
-    # 'SEARCH_PARAM': 'zoek',  # 'search',
     "ORDERING_PARAM": "ordering",  # 'ordering',
     #
     # Versioning
@@ -68,23 +50,25 @@ BASE_REST_FRAMEWORK = {
 }
 BASE_SPECTACULAR_SETTINGS = {
     "DEFAULT_GENERATOR_CLASS": "vng_api_common.generators.OpenAPISchemaGenerator",
-    "SCHEMA_PATH_PREFIX_TRIM": True,
-    # "PREPROCESSING_HOOKS": ["vng_api_common.utils.get_schema_endpoints"],
+    "SERVE_INCLUDE_SCHEMA": False,
     "POSTPROCESSING_HOOKS": [
         "drf_spectacular.hooks.postprocess_schema_enums",
         "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields",
     ],
-    "GET_MOCK_REQUEST": "vng_api_common.generators.build_mock_request",
     "SCHEMA_PATH_PREFIX": "/api/v1",
-    # "APPEND_COMPONENTS": {
-    #     "securitySchemes": {
-    #         SECURITY_DEFINITION_NAME: {
-    #             "type": "http",
-    #             "bearerFormat": "JWT",
-    #             "scheme": "bearer",
-    #         }
-    #     },
-    # },
+}
+
+# add to SPECTACULAR_SETTINGS if you are using the AuthMiddleware
+JWT_SPECTACULAR_SETTINGS = {
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            SECURITY_DEFINITION_NAME: {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer",
+            }
+        },
+    },
     "SECURITY": [
         {
             SECURITY_DEFINITION_NAME: [],
@@ -92,11 +76,18 @@ BASE_SPECTACULAR_SETTINGS = {
     ],
 }
 
-SPECTACULAR_EXTENSIONS = []
+# if "vng_api_common.middleware.AuthMiddleware" in settings.MIDDLEWARE:
+#     BASE_SPECTACULAR_SETTINGS["APPEND_COMPONENTS"] = {
+#         "securitySchemes": {
+#             SECURITY_DEFINITION_NAME: {
+#                 "type": "http",
+#                 "scheme": "bearer",
+#                 "bearerFormat": "JWT",
+#             }
+#         }
+#     }
 
-# DOCUMENTATION_INFO_MODULE = None
-#
-# DRF_EXCLUDED_ENDPOINTS = ["callbacks", "jwtsecret/", "openapi.yaml", "openapi{var}"]
+SPECTACULAR_EXTENSIONS = []
 
 REDOC_SETTINGS = {"EXPAND_RESPONSES": "200,201", "SPEC_URL": "openapi.json"}
 

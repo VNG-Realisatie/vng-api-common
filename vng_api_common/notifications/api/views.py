@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from ...permissions import AuthScopesRequired
+from ...permissions import AuthRequired
 from ...scopes import Scope
 from ...serializers import FoutSerializer, ValidatieFoutSerializer
 from ..constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
@@ -20,7 +20,7 @@ class NotificationBaseView(APIView):
 
     schema = None
 
-    permission_classes = (AuthScopesRequired,)
+    permission_classes = (AuthRequired,)
     required_scopes = Scope(
         SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
     )  # FIXME: this should be standalone!
@@ -54,7 +54,7 @@ class NotificationBaseView(APIView):
 
 class NotificationView(NotificationBaseView):
     action = "create"
-    permission_classes = (AuthScopesRequired,)
+    permission_classes = (AuthRequired,)
     required_scopes = {"create": Scope(SCOPE_NOTIFICATIES_PUBLICEREN_LABEL)}
 
     def create(self, request, *args, **kwargs):
