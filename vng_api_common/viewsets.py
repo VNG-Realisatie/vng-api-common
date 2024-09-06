@@ -1,12 +1,12 @@
 from django.utils.translation import gettext_lazy as _
 
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.settings import api_settings
 from rest_framework_nested.viewsets import NestedViewSetMixin  # noqa
 
-from .filters import Backend
 from .utils import underscore_to_camel
 
 
@@ -20,7 +20,7 @@ class CheckQueryParamsMixin:
             return
 
         # NOTE: only works with django_filters based filter backends
-        backend = Backend()
+        backend = DjangoFilterBackend()
         queryset = self.get_queryset()
         filterset_class = backend.get_filterset_class(self, queryset)
 

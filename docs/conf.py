@@ -25,10 +25,11 @@ settings.configure(
     INSTALLED_APPS=[
         "django.contrib.sites",
         "rest_framework",
+        "rest_framework_gis",
         "django_filters",
         "vng_api_common",
         "vng_api_common.notifications",
-        "drf_yasg",
+        "drf_spectacular",
         "solo",
     ],
     DATABASES={

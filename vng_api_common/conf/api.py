@@ -33,7 +33,7 @@ BASE_REST_FRAMEWORK = {
     # of applications
     "DEFAULT_AUTHENTICATION_CLASSES": (),
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.URLPathVersioning",
-    "DEFAULT_FILTER_BACKENDS": ("vng_api_common.filters.Backend",),
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     #
     # # Filtering
     "ORDERING_PARAM": "ordering",  # 'ordering',

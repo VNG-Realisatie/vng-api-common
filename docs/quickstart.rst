@@ -39,12 +39,13 @@ Configure the Django settings
             'django.contrib.sites',  # required if using the notifications
 
             'django_filters',
-            'vng_api_common',  # before drf_yasg to override the management command
+            'vng_api_common',
             'vng_api_common.authorizations',
             'vng_api_common.notifications',  # optional
             'vng_api_common.audittrails',  # optional
-            'drf_yasg',
+            'drf_spectacular',
             'rest_framework',
+            'rest_framework_gis',
             'solo',  # required for authorizations and notifications
             ...
         ]
