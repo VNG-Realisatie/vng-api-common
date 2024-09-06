@@ -2,6 +2,13 @@
 Change history
 ==============
 
+1.13.3 (2024-09-05)
+-------------------
+
+* Dropped support for Python 3.8 and Python 3.9
+* [#33] Added dynamic pagination
+
+
 1.13.2 (2024-07-05)
 -------------------
 
