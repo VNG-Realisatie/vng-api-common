@@ -27,6 +27,10 @@ DATABASES = {
     }
 }
 
+# Geospatial libraries
+GEOS_LIBRARY_PATH = None
+GDAL_LIBRARY_PATH = None
+
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 INSTALLED_APPS = [
