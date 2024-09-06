@@ -1,14 +1,13 @@
 from django.urls import include, path
 
-from rest_framework import viewsets, serializers
+from rest_framework import serializers, viewsets
 
 from testapp.models import Group, Poly, PolyChoice, Record
 from testapp.serializers import HobbySerializer
 from vng_api_common import routers
+from vng_api_common.generators import OpenAPISchemaGenerator
 from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import GegevensGroepSerializer, NestedGegevensGroepMixin
-
-from vng_api_common.generators import OpenAPISchemaGenerator
 
 
 class GegevensGroepSerializer(GegevensGroepSerializer):
@@ -62,9 +61,11 @@ class PolyView(viewsets.ModelViewSet):
     serializer_class = PolySerializer
 
 
+app_name = "serializer_extensions"
+
 router = routers.DefaultRouter(trailing_slash=False)
-router.register("group", GroupView)
-router.register("poly", PolyView)
+router.register("group", GroupView, basename="serializer_extensions_group")
+router.register("poly", PolyView, basename="serializer_extensions_poly")
 
 urlpatterns = [
     path("api/", include(router.urls)),

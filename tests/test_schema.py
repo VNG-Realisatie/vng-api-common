@@ -1,13 +1,14 @@
 from django.urls import include, path
 
+from test_field_extensions import Base64ViewSet
+
 from vng_api_common import routers
 from vng_api_common.generators import OpenAPISchemaGenerator
 
-from test_field_extensions import Base64ViewSet
-
+app_name = "schema"
 
 router = routers.DefaultRouter(trailing_slash=False)
-router.register("base64", Base64ViewSet)
+router.register("base64", Base64ViewSet, basename="schema_base64")
 
 urlpatterns = [
     path("api/", include(router.urls)),
@@ -19,6 +20,24 @@ def _generate_schema():
         patterns=urlpatterns,
     )
     return generator.get_schema()
+
+
+def test_schema_root_tags():
+    schema = _generate_schema()
+
+    assert schema["paths"]["/api/base64"]["post"]["tags"] == ["api"]
+    assert schema["paths"]["/api/base64"]["get"]["tags"] == ["api"]
+
+    assert schema["paths"]["/api/base64/{id}"]["get"]["tags"] == ["api"]
+    assert schema["paths"]["/api/base64/{id}"]["put"]["tags"] == ["api"]
+    assert schema["paths"]["/api/base64/{id}"]["patch"]["tags"] == ["api"]
+    assert schema["paths"]["/api/base64/{id}"]["delete"]["tags"] == ["api"]
+
+    # global tag from settings
+    assert {
+        "name": "moloko_milk_bar",
+        "description": "Global tag description via settings",
+    } in schema["tags"]
 
 
 def test_error_response():
@@ -97,32 +116,27 @@ def test_error_response():
     }
 
 
-def test_version_headers():
-    schema = _generate_schema()
-    breakpoint()
-
-
 def test_operation_id():
     schema = _generate_schema()
 
     assert (
         schema["paths"]["/api/base64/{id}"]["get"]["operationId"]
-        == "mediafilemodel_read"
+        == "schema_base64_read"
     )
     assert (
-        schema["paths"]["/api/base64"]["post"]["operationId"] == "mediafilemodel_create"
+        schema["paths"]["/api/base64"]["post"]["operationId"] == "schema_base64_create"
     )
     assert (
         schema["paths"]["/api/base64/{id}"]["put"]["operationId"]
-        == "mediafilemodel_update"
+        == "schema_base64_update"
     )
     assert (
         schema["paths"]["/api/base64/{id}"]["patch"]["operationId"]
-        == "mediafilemodel_partial_update"
+        == "schema_base64_partial_update"
     )
     assert (
         schema["paths"]["/api/base64/{id}"]["delete"]["operationId"]
-        == "mediafilemodel_delete"
+        == "schema_base64_delete"
     )
 
 

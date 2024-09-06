@@ -1,6 +1,7 @@
 from drf_spectacular.extensions import OpenApiSerializerExtension
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import ResolvedComponent
+
 from vng_api_common.utils import underscore_to_camel
 
 

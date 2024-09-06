@@ -9,8 +9,8 @@ from drf_spectacular.views import (
 )
 from rest_framework import routers
 
-from vng_api_common.views import ViewConfigView
 from vng_api_common.notifications.api.views import NotificationView
+from vng_api_common.views import ViewConfigView
 
 from .schema import custom_settings
 from .viewsets import GroupViewSet, HobbyViewSet, PaginateHobbyViewSet, PersonViewSet

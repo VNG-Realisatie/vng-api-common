@@ -1,19 +1,5 @@
-from django.db import models
+from drf_spectacular.contrib.django_filters import DjangoFilterExtension
 
-from drf_spectacular.contrib.django_filters import DjangoFilterExtension, _NoHint
-from drf_spectacular.drainage import get_override, has_override, warn
-from drf_spectacular.utils import OpenApiParameter, extend_schema_field
-from drf_spectacular.openapi import OpenApiTypes
-from drf_spectacular.plumbing import (
-    build_array_type,
-    build_basic_type,
-    build_parameter_type,
-    force_instance,
-    is_basic_type,
-    is_field,
-)
-
-from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.utils import underscore_to_camel
 
 

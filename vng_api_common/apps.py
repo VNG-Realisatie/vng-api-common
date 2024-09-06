@@ -27,12 +27,10 @@ class CommonGroundAPICommonConfig(AppConfig):
     def ready(self):
         from . import checks  # noqa
         from . import schema  # noqa registers spectacular Extensions
-
-        from .extensions import serializer_extensions  # noqa
+        from .caching import signals  # noqa
         from .extensions import field_extensions  # noqa
         from .extensions import filter_extensions  # noqa
-
-        from .caching import signals  # noqa
+        from .extensions import serializer_extensions  # noqa
 
         register_serializer_field()
         set_custom_hyperlinkedmodelserializer_field()

@@ -1,15 +1,14 @@
 from django.urls import include, path
-
 from django.utils.translation import gettext_lazy as _
 
 from drf_extra_fields.fields import Base64FileField
-from rest_framework import viewsets, serializers
+from rest_framework import serializers, viewsets
 from rest_framework_gis.fields import GeometryField
-from vng_api_common import routers
-from vng_api_common.generators import OpenAPISchemaGenerator
+from test_serializer_extensions import PolyView
 
 from testapp.models import FkModel, MediaFileModel, Poly
-from test_serializer_extensions import PolyView
+from vng_api_common import routers
+from vng_api_common.generators import OpenAPISchemaGenerator
 from vng_api_common.geo import GeoMixin
 from vng_api_common.serializers import LengthHyperlinkedRelatedField
 
@@ -29,7 +28,7 @@ class MediaFileModelSerializer(serializers.ModelSerializer):
 
 class LengthHyperLinkedSerializer(serializers.ModelSerializer):
     poly = LengthHyperlinkedRelatedField(
-        view_name="poly-detail",
+        view_name="field_extention_poly-detail",
         lookup_field="uuid",
         queryset=Poly.objects,
         min_length=20,
@@ -64,16 +63,20 @@ class LengthHyperLinkedViewSet(viewsets.ModelViewSet):
 
 
 class HyperlinkedIdentityViewSet(viewsets.ModelViewSet):
-    queryset = Poly.objects.all()
+    queryset = FkModel.objects.all()
     serializer_class = HyperlinkedIdentityFieldSerializer
 
 
-router = routers.DefaultRouter(trailing_slash=False)
-router.register("base64", Base64ViewSet)
-router.register("length", LengthHyperLinkedViewSet)
-router.register("identity", HyperlinkedIdentityViewSet)
+app_name = "field_extensions"
 
-router.register("poly", PolyView)
+router = routers.DefaultRouter(trailing_slash=False)
+router.register("base64", Base64ViewSet, basename="field_extensions_base64")
+router.register("length", LengthHyperLinkedViewSet, basename="field_extensions_length")
+router.register(
+    "identity", HyperlinkedIdentityViewSet, basename="field_extensions_identity"
+)
+
+router.register("poly", PolyView, basename="field_extensions_poly")
 
 urlpatterns = [
     path("api/", include(router.urls)),
@@ -112,7 +115,7 @@ def test_read_only():
 
     assert "name" not in path["MediaFileModel"]["properties"]
 
-    assert "name" not in path["PatchedMediaFileModel"]["properties"]["name"]
+    assert "name" not in path["PatchedMediaFileModel"]["properties"]
 
 
 def test_hyper_link_related_field():

@@ -1,30 +1,88 @@
+import inspect
 import logging
 from typing import Dict, List, Optional, Type
 
+from django.apps import apps
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular import openapi
-from drf_spectacular.utils import OpenApiExample, OpenApiParameter, OpenApiTypes
-from drf_spectacular.extensions import OpenApiViewExtension
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
-from rest_framework import exceptions, serializers, status
-from rest_framework.parsers import JSONParser, MultiPartParser
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, OpenApiTypes
+from rest_framework import exceptions, serializers, viewsets
 
 from vng_api_common.caching.introspection import has_cache_header
 from vng_api_common.constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
-from vng_api_common.exceptions import PreconditionFailed
+from vng_api_common.exceptions import Conflict, Gone, PreconditionFailed
 from vng_api_common.geo import DEFAULT_CRS, HEADER_ACCEPT, HEADER_CONTENT, GeoMixin
-from vng_api_common.inspectors.view import (
-    DEFAULT_ACTION_ERRORS,
-    _view_supports_audittrail,
-)
 from vng_api_common.permissions import AuthRequired, get_required_scopes
 from vng_api_common.serializers import FoutSerializer, ValidatieFoutSerializer
 
-
 logger = logging.getLogger(__name__)
+
+TYPE_TO_FIELDMAPPING = {
+    OpenApiTypes.INT: serializers.IntegerField,
+    OpenApiTypes.NUMBER: serializers.FloatField,
+    OpenApiTypes.STR: serializers.CharField,
+    OpenApiTypes.BOOL: serializers.BooleanField,
+}
+
+COMMON_ERRORS = [
+    exceptions.AuthenticationFailed,
+    exceptions.NotAuthenticated,
+    exceptions.PermissionDenied,
+    exceptions.NotAcceptable,
+    Conflict,
+    Gone,
+    exceptions.UnsupportedMediaType,
+    exceptions.Throttled,
+    exceptions.APIException,
+]
+
+DEFAULT_ACTION_ERRORS = {
+    "create": COMMON_ERRORS + [exceptions.ParseError, exceptions.ValidationError],
+    "list": COMMON_ERRORS,
+    "retrieve": COMMON_ERRORS + [exceptions.NotFound],
+    "update": COMMON_ERRORS
+    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+    "partial_update": COMMON_ERRORS
+    + [exceptions.ParseError, exceptions.ValidationError, exceptions.NotFound],
+    "destroy": COMMON_ERRORS + [exceptions.NotFound],
+}
+
+AUDIT_TRAIL_ENABLED = apps.is_installed("vng_api_common.audittrails")
+
+
+def _view_supports_audittrail(view: viewsets.ViewSet) -> bool:
+    if not AUDIT_TRAIL_ENABLED:
+        return False
+
+    if not hasattr(view, "action"):
+        logger.debug("Could not determine view action for view %r", view)
+        return False
+
+    # local imports, since you get errors if you try to import non-installed app
+    # models
+    from vng_api_common.audittrails.viewsets import AuditTrailMixin
+
+    relevant_bases = [
+        base for base in view.__class__.__bases__ if issubclass(base, AuditTrailMixin)
+    ]
+    if not relevant_bases:
+        return False
+
+    # check if the view action is listed in any of the audit trail mixins
+    action = view.action
+    if action == "partial_update":  # partial update is self.update(partial=True)
+        action = "update"
+
+    # if the current view action is not provided by any of the audit trail
+    # related bases, then it's not audit trail enabled
+    action_in_audit_bases = any(
+        action in dict(inspect.getmembers(base)) for base in relevant_bases
+    )
+
+    return action_in_audit_bases
 
 
 class AutoSchema(openapi.AutoSchema):

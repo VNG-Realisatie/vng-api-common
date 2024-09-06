@@ -1,13 +1,12 @@
 from django.urls import include, path
 
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, serializers
-from vng_api_common import routers
-from vng_api_common.generators import OpenAPISchemaGenerator
+from rest_framework import serializers, viewsets
+from test_serializer_extensions import PolySerializer
 
 from testapp.models import FkModel
-
-from test_serializer_extensions import PolySerializer
+from vng_api_common import routers
+from vng_api_common.generators import OpenAPISchemaGenerator
 
 
 class FkModelSerializer(serializers.ModelSerializer):
@@ -34,8 +33,10 @@ class FkModelViewSet(viewsets.ModelViewSet):
     ]
 
 
+app_name = "filter_extensions"
+
 router = routers.DefaultRouter(trailing_slash=False)
-router.register("camilize", FkModelViewSet)
+router.register("camilize", FkModelViewSet, basename="filter_extensions_camilize")
 
 
 urlpatterns = [

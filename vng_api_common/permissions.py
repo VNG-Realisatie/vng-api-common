@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import TYPE_CHECKING, Union, Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, Union
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -8,8 +8,8 @@ from django.core.exceptions import (
     ImproperlyConfigured,
     ValidationError as DjangoValidationError,
 )
-from django.utils.module_loading import import_string
 from django.db.models import ObjectDoesNotExist
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import exceptions, permissions

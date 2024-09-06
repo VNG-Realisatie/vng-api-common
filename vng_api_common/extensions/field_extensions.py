@@ -6,7 +6,6 @@ from drf_spectacular.extensions import OpenApiSerializerFieldExtension
 from drf_spectacular.openapi import AutoSchema, OpenApiTypes
 from drf_spectacular.plumbing import ResolvedComponent, build_basic_type
 
-
 logger = logging.getLogger(__name__)
 
 TYPES_MAP = {

@@ -30,7 +30,12 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install dependencies
-        run: pip install tox tox-gh-actions
+        run: |
+          pip install tox tox-gh-actions \
+          && sudo apt-get update \
+          && sudo apt-get install -y --no-install-recommends \
+            libgdal-dev \
+            gdal-bin
       - run: tox
         env:
           TOXENV: ${{ matrix.toxenv }}
