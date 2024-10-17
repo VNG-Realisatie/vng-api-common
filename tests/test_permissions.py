@@ -11,8 +11,8 @@ from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.authorizations.middleware import JWTAuth
 from vng_api_common.constants import ComponentTypes
-from vng_api_common.middleware import JWTAuth
 from vng_api_common.permissions import BaseAuthRequired
 from vng_api_common.scopes import Scope
 from vng_api_common.tests import generate_jwt_auth
