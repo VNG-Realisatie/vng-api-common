@@ -6,16 +6,14 @@ from django.db.models import QuerySet
 from django.utils.translation import gettext as _
 
 import jwt
-
 from djangorestframework_camel_case.util import underscoreize
 from rest_framework.exceptions import PermissionDenied
 from zds_client.client import ClientError
 
-from .models import Applicatie, AuthorizationsConfig, Autorisatie
-from .serializers import ApplicatieUuidSerializer
-
 from ..models import JWTSecret
 from ..utils import get_uuid_from_path
+from .models import Applicatie, AuthorizationsConfig, Autorisatie
+from .serializers import ApplicatieUuidSerializer
 
 
 class JWTAuth:
