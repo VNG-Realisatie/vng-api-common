@@ -7,7 +7,7 @@ API middleware
 Authorization
 -------------
 
-.. autoclass:: AuthMiddleware
+.. autoclass:: vng_api_common.authorizations.middleware.AuthMiddleware
     :members:
 
 Versioning
