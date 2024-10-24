@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 import requests
 from rest_framework import serializers, validators
 
-from .client import get_client
+from .client import get_client, to_internal_data
 from .constants import RSIN_LENGTH
 from .oas import fetcher, obj_has_shape
 
@@ -240,15 +240,22 @@ class ObjectInformatieObjectValidator:
         # dynamic so that it can be mocked in tests easily
         client = get_client(informatieobject)
 
+        if not client:
+            raise ValidationError(
+                _("Geen service geconfigureerd voor %s") % informatieobject
+            )
+
         try:
-            oios = client.list(
+            response = client.get(
                 "objectinformatieobject",
-                query_params={
+                params={
                     "informatieobject": informatieobject,
                     "object": object_url,
                 },
             )
-        except requests.HTTPError as exc:
+
+            oios = to_internal_data(response)
+        except (requests.RequestException, RuntimeError) as exc:
             raise serializers.ValidationError(
                 exc.args[0], code="relation-validation-error"
             ) from exc

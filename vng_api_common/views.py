@@ -129,7 +129,7 @@ def _test_ac_config() -> list:
 
     # check if AC auth is configured
     ac_client = AuthorizationsConfig.get_client()
-    has_ac_auth = ac_client.auth is not None
+    has_ac_auth = ac_client.auth is not None if ac_client else False
 
     checks = [
         (_("Type of component"), auth_config.get_component_display(), None),
@@ -146,10 +146,10 @@ def _test_ac_config() -> list:
         error = False
 
         try:
-            ac_client.list(
-                "applicatie", query_params={"clientIds": ac_client.auth.client_id}
+            ac_client.get(
+                "applicaties", params={"clientIds": ac_client.auth.client_id}
             )
-        except requests.ConnectionError:
+        except requests.RequestException:
             error = True
             message = _("Could not connect with AC")
         except ClientError as exc:
@@ -172,7 +172,6 @@ def _test_nrc_config() -> list:
     from notifications_api_common.models import NotificationsConfig, Subscription
 
     nrc_config = NotificationsConfig.get_solo()
-
     nrc_client = NotificationsConfig.get_client()
 
     has_nrc_auth = nrc_client.auth is not None if nrc_client else False
@@ -200,7 +199,7 @@ def _test_nrc_config() -> list:
 
         try:
             nrc_client.get("kanaal")
-        except requests.ConnectionError:
+        except requests.RequestException:
             error = True
             message = _("Could not connect with NRC")
         except ClientError as exc:

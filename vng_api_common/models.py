@@ -1,13 +1,14 @@
-from typing import Optional, Union
+from typing import Any, Optional, Union
 from urllib.parse import urlsplit, urlunsplit
 
+from ape_pie.client import APIClient
 from django.db import models
 from django.db.models.functions import Length
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework.reverse import reverse
 from solo.models import SingletonModel
-from zds_client import Client, ClientAuth
+from zds_client import ClientAuth
 
 from .client import get_client as _get_client
 
@@ -71,6 +72,7 @@ class JWTSecret(models.Model):
         return self.identifier
 
 
+# TODO: remove this class
 class APICredential(models.Model):
     """
     Store credentials for external APIs.
@@ -166,9 +168,9 @@ class ClientConfig(SingletonModel):
         super().save(*args, **kwargs)
 
     @classmethod
-    def get_client(cls) -> Optional[Client]:
+    def get_client(cls) -> APIClient | Any | None:
         """
         Construct a client, prepared with the required auth.
         """
         config = cls.get_solo()
-        return _get_client(config.api_root, url_is_api_root=True)
+        return _get_client(config.api_root)

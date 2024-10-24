@@ -77,6 +77,7 @@ class Subscription(models.Model):
             client_id=self.client_id,
             secret=self.secret,
         )
+
         data = {
             "callbackUrl": self.callback_url,
             "auth": self_auth.credentials()["Authorization"],
@@ -91,7 +92,7 @@ class Subscription(models.Model):
         }
 
         # register the subscriber
-        subscriber = client.create("abonnement", data=data)
+        subscriber = client.post("abonnement", data=data)
 
         self._subscription = subscriber["url"]
         self.save(update_fields=["_subscription"])
