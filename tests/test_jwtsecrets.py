@@ -2,11 +2,12 @@ import pytest
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
-from zds_client.auth import ClientAuth
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.client import get_auth_headers
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
+
 
 
 @pytest.mark.django_db
@@ -31,10 +32,8 @@ def test_authorized_jwtsecret_create_ok():
         component=ComponentTypes.ac,
         scopes=["autorisaties.credentials-registreren"],
     )
-    auth = ClientAuth(client_id="pytest", secret="sekrit").credentials()[
-        "Authorization"
-    ]
-    client.credentials(HTTP_AUTHORIZATION=auth)
+    auth_headers = get_auth_headers("pytest", "sekrit")
+    client.credentials(HTTP_AUTHORIZATION=auth_headers["Authorization"])
 
     response = client.post(url, {"identifier": "foo", "secret": "bar"})
 

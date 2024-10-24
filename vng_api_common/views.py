@@ -13,7 +13,8 @@ import requests
 from rest_framework import exceptions as drf_exceptions, status
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exception_handler
-from zds_client import ClientError
+
+from vng_api_common.client import ClientError
 
 from . import exceptions
 from .compat import sentry_client

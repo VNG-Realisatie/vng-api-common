@@ -14,7 +14,6 @@ from django.utils.module_loading import import_string
 
 from requests import RequestException
 from rest_framework.utils import formatting
-from zds_client.client import ClientError
 
 from .client import get_client, to_internal_data
 

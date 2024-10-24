@@ -5,21 +5,17 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from zds_client import ClientAuth
+from requests import RequestException
 
-from ..client import get_client
+from ..client import ClientError, get_auth_headers, get_client, to_internal_data
 from ..decorators import field_default
-from ..models import APICredential, ClientConfig
+from ..models import ClientConfig
 
 
 @field_default("api_root", "https://notificaties-api.vng.cloud/api/v1/")
 class NotificationsConfig(ClientConfig):
     class Meta:
         verbose_name = _("Notificatiescomponentconfiguratie")
-
-    def get_auth(self) -> ClientAuth:
-        auth = APICredential.get_auth(self.api_root)
-        return auth
 
 
 class Subscription(models.Model):
@@ -73,14 +69,11 @@ class Subscription(models.Model):
 
         # This authentication is for the NC to call us. Thus, it's *not* for
         # calling the NC to create a subscription.
-        self_auth = ClientAuth(
-            client_id=self.client_id,
-            secret=self.secret,
-        )
+        self_auth = get_auth_headers(self.client_id, self.secret)
 
         data = {
             "callbackUrl": self.callback_url,
-            "auth": self_auth.credentials()["Authorization"],
+            "auth": self_auth["Authorization"],
             "kanalen": [
                 {
                     "naam": channel,
@@ -92,7 +85,18 @@ class Subscription(models.Model):
         }
 
         # register the subscriber
-        subscriber = client.post("abonnement", data=data)
+        try:
+            response = client.post("abonnement", data=data)
+            data = to_internal_data(response)
+        except RequestException:
+            raise RuntimeError(f"Failed adding subscription for {self.callback_url}")
+        except ClientError as exc:
+            response_json = exc.args[0]
 
-        self._subscription = subscriber["url"]
+            raise RuntimeError(
+                f"Failed adding subscription for {self.callback_url}. Invalid request"
+                f" data provided: {response_json}"
+            )
+
+        self._subscription = data["url"]
         self.save(update_fields=["_subscription"])

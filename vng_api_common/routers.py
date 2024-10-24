@@ -8,7 +8,7 @@ class APIRootView(_APIRootView):
     permission_classes = ()
 
 
-class ZDSNestedRegisteringMixin:
+class NestedRegisteringMixin:
     _nested_router = None
 
     def __init__(self, *args, **kwargs):
@@ -47,11 +47,11 @@ class ZDSNestedRegisteringMixin:
             )
 
 
-class NestedSimpleRouter(ZDSNestedRegisteringMixin, routers.NestedSimpleRouter):
+class NestedSimpleRouter(NestedRegisteringMixin, routers.NestedSimpleRouter):
     pass
 
 
-class DefaultRouter(ZDSNestedRegisteringMixin, routers.DefaultRouter):
+class DefaultRouter(NestedRegisteringMixin, routers.DefaultRouter):
     APIRootView = APIRootView
 
 
