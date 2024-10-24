@@ -32,9 +32,34 @@ def migrate_credentials_to_service(apps, _) -> None:
         )
 
         if created:
-            logger.info("Created new Service for {credential.api_root}")
+            logger.info(f"Created new Service for {credential.api_root}")
         else:
-            logger.info("Existing service found for {credential.api_root}")
+            logger.info(f"Existing service found for {credential.api_root}")
+
+
+def migrate_service_to_credentials(apps, _) -> None:
+    APICredential = apps.get_model("vng_api_common", "APICredential")
+    Service = apps.get_model("zgw_consumers", "Service")
+
+    services = Service.objects.filter(auth_type=AuthTypes.zgw)
+
+    for service in services:
+        logger.info("Creating APICredentials for {service.client_id")
+
+        _, created = APICredential.objects.get_or_create(
+            api_root=service.api_root,
+            defaults=dict(
+                label=f"Migrated credentials for {service.client_id}",
+                client_id=service.client_id,
+                secret=service.secret,
+                user_id=service.user_id,
+                user_representation=service.user_representation,
+            ),
+        )
+        if created:
+            logger.info(f"Created new APICredentials for {service.api_root}")
+        else:
+            logger.info(f"Existing APICredentials found for {service.api_root}")
 
 
 class Migration(migrations.Migration):
@@ -44,7 +69,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(migrate_credentials_to_service),
+        migrations.RunPython(
+            migrate_credentials_to_service, reverse_code=migrate_service_to_credentials
+        ),
         migrations.DeleteModel(
             name="APICredential",
         ),
