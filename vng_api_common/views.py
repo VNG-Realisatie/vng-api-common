@@ -199,7 +199,7 @@ def _test_nrc_config() -> list:
         error = False
 
         try:
-            nrc_client.list("kanaal")
+            nrc_client.get("kanaal")
         except requests.ConnectionError:
             error = True
             message = _("Could not connect with NRC")
