@@ -2,12 +2,7 @@
 Obtaining a client
 ==================
 
-Internally, `zds-client`_ is used to resolve remote API objects where the API is
-documented using OpenAPI 3 specifications.
-
-Subclasses of the base ``Client`` class can also be used, in a pluggable fashion. By
-default, the base class is used in combination with
-:class:`vng_api_common.models.APICredential`.
+Internally, the `APIClient`_ client is used to resolve remote API objects.
 
 
 Public API
@@ -25,4 +20,4 @@ determined.
     :members:
 
 
-.. _zds-client: https://pypi.org/project/gemma-zds-client/
+.. _APIClient: https://ape-pie.readthedocs.io/en/stable/reference.html#apiclient-class
