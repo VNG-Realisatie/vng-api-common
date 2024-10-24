@@ -1,9 +1,9 @@
 from typing import Any
 
-from ape_pie.client import APIClient
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from ape_pie.client import APIClient
 from rest_framework.reverse import reverse
 from solo.models import SingletonModel
 

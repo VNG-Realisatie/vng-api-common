@@ -10,7 +10,6 @@ from django.conf import settings
 from django.utils.module_loading import import_string
 
 import jwt
-
 from ape_pie import APIClient
 from requests import JSONDecodeError, RequestException, Response
 
@@ -95,7 +94,7 @@ def get_auth_headers(
     client_secret: str,
     user_id: str = "",
     user_representation: str = "",
-    **claims
+    **claims,
 ) -> dict:
     payload = {
         # standard claims
@@ -110,6 +109,4 @@ def get_auth_headers(
 
     encoded = jwt.encode(payload, client_secret, algorithm=JWT_ALG)
 
-    return {
-        "Authorization": "Bearer {encoded}".format(encoded=encoded)
-    }
+    return {"Authorization": "Bearer {encoded}".format(encoded=encoded)}

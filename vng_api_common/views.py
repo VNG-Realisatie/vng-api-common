@@ -147,9 +147,7 @@ def _test_ac_config() -> list:
         error = False
 
         try:
-            ac_client.get(
-                "applicaties", params={"clientIds": ac_client.auth.client_id}
-            )
+            ac_client.get("applicaties", params={"clientIds": ac_client.auth.client_id})
         except requests.RequestException:
             error = True
             message = _("Could not connect with AC")

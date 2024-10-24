@@ -9,7 +9,6 @@ from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
 
 
-
 @pytest.mark.django_db
 def test_unauthorized_jwtsecret_create_forbidden():
     url = reverse("jwtsecret-create")

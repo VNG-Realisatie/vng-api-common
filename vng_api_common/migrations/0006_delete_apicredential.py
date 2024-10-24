@@ -6,7 +6,6 @@ from django.db import migrations
 
 from zgw_consumers.constants import APITypes, AuthTypes
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -29,7 +28,7 @@ def migrate_credentials_to_service(apps, _) -> None:
                 secret=credential.secret,
                 user_id=credential.user_id,
                 user_representation=credential.user_representation,
-            )
+            ),
         )
 
         if created:
