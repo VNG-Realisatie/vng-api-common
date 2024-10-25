@@ -2,8 +2,9 @@
 
 import logging
 
-from django.db import migrations
+from django.db import IntegrityError, migrations
 
+from django.utils.text import slugify
 from zgw_consumers.constants import APITypes, AuthTypes
 
 logger = logging.getLogger(__name__)
@@ -16,20 +17,31 @@ def migrate_credentials_to_service(apps, _) -> None:
     credentials = APICredential.objects.all()
 
     for credential in credentials:
-        logger.info("Creating Service for {credential.client_id")
+        logger.info(f"Creating Service for {credential.client_id}")
 
-        _, created = Service.objects.get_or_create(
-            api_root=credential.api_root,
-            defaults=dict(
-                label=credential.label,
-                api_type=APITypes.orc,
-                auth_type=AuthTypes.zgw,
-                client_id=credential.client_id,
-                secret=credential.secret,
-                user_id=credential.user_id,
-                user_representation=credential.user_representation,
-            ),
-        )
+        service_slug = slugify(credential.label)
+
+        try:
+            _, created = Service.objects.get_or_create(
+                api_root=credential.api_root,
+                defaults=dict(
+                    label=credential.label,
+                    slug=service_slug,
+                    api_type=APITypes.orc,
+                    auth_type=AuthTypes.zgw,
+                    client_id=credential.client_id,
+                    secret=credential.secret,
+                    user_id=credential.user_id,
+                    user_representation=credential.user_representation,
+                ),
+            )
+        except IntegrityError:
+            logger.warning(
+                f"Unable to create Service for {credential.api_root}. Check the"
+                "`service slug` field on the existing Service's to verify an existing"
+                " Service already exists."
+            )
+            continue
 
         if created:
             logger.info(f"Created new Service for {credential.api_root}")
@@ -44,7 +56,7 @@ def migrate_service_to_credentials(apps, _) -> None:
     services = Service.objects.filter(auth_type=AuthTypes.zgw)
 
     for service in services:
-        logger.info("Creating APICredentials for {service.client_id")
+        logger.info(f"Creating APICredentials for {service.client_id}")
 
         _, created = APICredential.objects.get_or_create(
             api_root=service.api_root,
