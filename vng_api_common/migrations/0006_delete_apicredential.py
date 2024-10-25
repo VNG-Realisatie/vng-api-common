@@ -10,6 +10,22 @@ from zgw_consumers.constants import APITypes, AuthTypes
 logger = logging.getLogger(__name__)
 
 
+def get_api_type(api_root: str) -> APITypes:
+    mapping = {
+        "/autorisaties/api/": APITypes.ac,
+        "/zaken/api/": APITypes.zrc,
+        "/catalogi/api/": APITypes.ztc,
+        "/documenten/api/": APITypes.drc,
+        "/besluiten/api/": APITypes.drc,
+    }
+
+    for path, _type in mapping.items():
+        if path in api_root.lower():
+            return _type
+
+    return APITypes.orc
+
+
 def migrate_credentials_to_service(apps, _) -> None:
     APICredential = apps.get_model("vng_api_common", "APICredential")
     Service = apps.get_model("zgw_consumers", "Service")
@@ -27,7 +43,7 @@ def migrate_credentials_to_service(apps, _) -> None:
                 defaults=dict(
                     label=credential.label,
                     slug=service_slug,
-                    api_type=APITypes.orc,
+                    api_type=get_api_type(credential.api_root),
                     auth_type=AuthTypes.zgw,
                     client_id=credential.client_id,
                     secret=credential.secret,
