@@ -4,9 +4,9 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
-from vng_api_common.client import get_auth_headers
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
+from vng_api_common.tests.utils import get_auth_headers
 
 
 @pytest.mark.django_db

@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from requests import RequestException
 
-from ..client import ClientError, get_auth_headers, get_client, to_internal_data
+from ..client import ClientError, get_client, to_internal_data
 from ..decorators import field_default
 from ..models import ClientConfig
 
@@ -69,11 +69,11 @@ class Subscription(models.Model):
 
         # This authentication is for the NC to call us. Thus, it's *not* for
         # calling the NC to create a subscription.
-        self_auth = get_auth_headers(self.client_id, self.secret)
+        token = getattr("_token", client.auth, "") if client and client.auth else ""
 
         data = {
             "callbackUrl": self.callback_url,
-            "auth": self_auth["Authorization"],
+            "auth": f"Bearer {token}",
             "kanalen": [
                 {
                     "naam": channel,
