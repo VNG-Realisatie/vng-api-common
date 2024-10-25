@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, Iterable, List, Optional
 
 from django.conf import settings
@@ -10,14 +11,18 @@ from djangorestframework_camel_case.util import underscoreize
 from rest_framework.exceptions import PermissionDenied
 from zds_client.client import ClientError
 
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
+
 from ..models import JWTSecret
 from ..utils import get_uuid_from_path
 from .models import Applicatie, AuthorizationsConfig, Autorisatie
 from .serializers import ApplicatieUuidSerializer
 
+logger = logging.getLogger(__name__)
+
 
 class JWTAuth:
-    def __init__(self, encoded: str = None):
+    def __init__(self, encoded: Optional[str] = None):
         self.encoded = encoded
 
     @property
@@ -145,7 +150,7 @@ class JWTAuth:
         return self._payload
 
     @property
-    def client_id(self) -> str:
+    def client_id(self) -> Optional[str]:
         if not self.payload:
             return None
         return self.payload["client_id"]
