@@ -2,6 +2,11 @@
 Change history
 ==============
 
+1.13.4 (2024-10-25)
+-------------------
+
+* Move AuthMiddleware to authorizations app, to avoid unnecessary migrations for projects that don't use ``vng_api_common.authorizations``
+
 1.13.3 (2024-09-05)
 -------------------
 
