@@ -7,7 +7,6 @@ from django.utils.translation import gettext_lazy as _
 
 from solo.models import SingletonModel
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 
 from vng_api_common.client import Client, get_client
 
@@ -32,7 +31,7 @@ class AuthorizationsConfig(SingletonModel):
     )
 
     authorizations_api_service = models.ForeignKey(
-        Service,
+        "zgw_consumers.Service",
         limit_choices_to=dict(
             api_type=APITypes.ac,
             auth_type=AuthTypes.zgw,
