@@ -61,7 +61,7 @@ Configure the Django settings
             'django.middleware.common.CommonMiddleware',
             'django.middleware.csrf.CsrfViewMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
-            'vng_api_common.middleware.AuthMiddleware',
+            'vng_api_common.authorizations.middleware.AuthMiddleware',
             'django.contrib.messages.middleware.MessageMiddleware',
             'django.middleware.clickjacking.XFrameOptionsMiddleware',
             'vng_api_common.middleware.APIVersionHeaderMiddleware',

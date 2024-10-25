@@ -5,7 +5,7 @@ import pytest
 from freezegun import freeze_time
 from jwt import ImmatureSignatureError
 
-from vng_api_common.middleware import JWTAuth
+from vng_api_common.authorizations.middleware import JWTAuth
 from vng_api_common.models import JWTSecret
 
 
