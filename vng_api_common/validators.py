@@ -157,54 +157,6 @@ class URLValidator:
         return response
 
 
-class ResourceValidator(URLValidator):
-    """
-    Validate that the URL resolves to an instance of the external resource.
-
-    :param resource: name of the resource, e.g. 'zaak'
-    :param oas_schema: URL to the schema to validate the response object shape
-      against. Must be a YAML OAS 3.0.x spec.
-    """
-
-    # Name mangling is applied to these attributes to avoid formatting issues
-    # that occur when overriding the superclass attributes
-    __message = _(
-        "The URL {url} resource did not look like a(n) `{resource}`. Please provide a valid URL."
-    )
-    __code = "invalid-resource"
-
-    def __init__(self, resource: str, oas_schema: str, *args, **kwargs):
-        self.resource = resource
-        self.oas_schema = oas_schema
-        super().__init__(*args, **kwargs)
-
-    def __call__(self, url: str):
-        response = super().__call__(url)
-
-        # at this point, we know the URL actually exists
-        try:
-            obj = response.json()
-        except json.JSONDecodeError as exc:
-            logger.info(
-                "URL %s doesn't seem to point to a JSON endpoint", url, exc_info=1
-            )
-            raise serializers.ValidationError(
-                self.__message.format(url=url, resource=self.resource), code=self.__code
-            )
-
-        # check if the shape matches
-        schema = fetcher.fetch(self.oas_schema)
-        if not obj_has_shape(obj, schema, self.resource):
-            logger.info(
-                "URL %s doesn't seem to point to a valid shape", url, exc_info=1
-            )
-            raise serializers.ValidationError(
-                self.__message.format(url=url, resource=self.resource), code=self.__code
-            )
-
-        return obj
-
-
 class InformatieObjectUniqueValidator(validators.UniqueTogetherValidator):
     requires_context = True
 
@@ -380,20 +332,3 @@ class IsImmutableValidator:
 
         if new_value != current_value:
             raise serializers.ValidationError(self.message, code=self.code)
-
-
-class PublishValidator(ResourceValidator):
-    """
-    Validate that the URL actually resolves to a published resource (concept=False)
-    """
-
-    publish_message = _("The resource {url} is not published.")
-    publish_code = "not-published"
-
-    def __call__(self, url: str):
-        response = super().__call__(url)
-
-        if response.get("concept"):
-            raise serializers.ValidationError(
-                self.publish_message.format(url=url), code=self.publish_code
-            )
