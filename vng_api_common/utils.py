@@ -186,30 +186,6 @@ def get_uuid_from_path(path: str) -> str:
     return uuid_str
 
 
-def request_object_attribute(
-    url: str, attribute: str, resource: Union[str, None] = None
-) -> str:
-    client = get_client(url)
-
-    if not client:
-        return ""
-
-    try:
-        response = client.get(url)
-        data = to_internal_data(response)
-        result = data.get(attribute, "") if isinstance(data, dict) else ""
-    except RequestException as exc:
-        logger.warning(
-            "%s was retrieved from %s with the %s: %s",
-            attribute,
-            url,
-            exc.__class__.__name__,
-            exc,
-        )
-        result = ""
-    return result
-
-
 def generate_unique_identification(instance: models.Model, date_field_name: str):
     model = type(instance)
     model_name = getattr(model, "IDENTIFICATIE_PREFIX", model._meta.model_name.upper())
