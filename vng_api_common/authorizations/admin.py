@@ -7,7 +7,7 @@ from .models import Applicatie, AuthorizationsConfig, Autorisatie
 
 @admin.register(AuthorizationsConfig)
 class AuthorizationsConfigAdmin(SingletonModelAdmin):
-    list_display = ("api_root", "component")
+    list_display = ("authorizations_api_service", "component")
 
 
 @admin.register(Autorisatie)

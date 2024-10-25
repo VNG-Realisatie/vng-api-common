@@ -1,13 +1,7 @@
-from typing import Any
-
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from ape_pie.client import APIClient
 from rest_framework.reverse import reverse
-from solo.models import SingletonModel
-
-from .client import get_client as _get_client
 
 
 class APIMixin:
@@ -67,26 +61,3 @@ class JWTSecret(models.Model):
 
     def __str__(self):
         return self.identifier
-
-
-class ClientConfig(SingletonModel):
-    api_root = models.URLField(_("api root"), unique=True)
-
-    class Meta:
-        abstract = True
-
-    def __str__(self):
-        return self.api_root
-
-    def save(self, *args, **kwargs):
-        if not self.api_root.endswith("/"):
-            self.api_root = f"{self.api_root}/"
-        super().save(*args, **kwargs)
-
-    @classmethod
-    def get_client(cls) -> APIClient | Any | None:
-        """
-        Construct a client, prepared with the required auth.
-        """
-        config = cls.get_solo()
-        return _get_client(config.api_root)

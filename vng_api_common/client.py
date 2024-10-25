@@ -3,13 +3,11 @@ Interface to get a client object for a given URL.
 """
 
 import logging
-import time
 from typing import Any, Optional
 
 from django.conf import settings
 from django.utils.module_loading import import_string
 
-import jwt
 from ape_pie import APIClient
 from requests import JSONDecodeError, RequestException, Response
 

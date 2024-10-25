@@ -134,7 +134,11 @@ def _test_ac_config() -> list:
 
     checks = [
         (_("Type of component"), auth_config.get_component_display(), None),
-        (_("AC"), auth_config.api_root, auth_config.api_root.endswith("/")),
+        (
+            _("AC"),
+             auth_config.authorizations_api_service.api_root,
+            auth_config.authorizations_api_service.api_root.endswith("/")
+        ),
         (
             _("Credentials for AC"),
             _("Configured") if has_ac_auth else _("Missing"),
@@ -146,8 +150,10 @@ def _test_ac_config() -> list:
     if has_ac_auth:
         error = False
 
+        client_id = ac_client.auth.service.client_id
+
         try:
-            ac_client.get("applicaties", params={"clientIds": ac_client.auth.client_id})
+            ac_client.get("applicaties", params={"clientIds": client_id})
         except requests.RequestException:
             error = True
             message = _("Could not connect with AC")

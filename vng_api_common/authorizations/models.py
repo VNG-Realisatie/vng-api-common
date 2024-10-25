@@ -1,17 +1,28 @@
+from typing import Optional
 import uuid
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from solo.models import SingletonModel
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
+
+from vng_api_common.client import Client, get_client
 
 from ..constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from ..decorators import field_default
 from ..fields import VertrouwelijkheidsAanduidingField
-from ..models import APIMixin, ClientConfig
+from ..models import APIMixin
 
 
-@field_default("api_root", "https://autorisaties-api.vng.cloud/api/v1")
-class AuthorizationsConfig(ClientConfig):
+class AuthorizationsConfigManager(models.Manager):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.select_related("authorizations_api_service")
+
+
+class AuthorizationsConfig(SingletonModel):
     component = models.CharField(
         _("component"),
         max_length=50,
@@ -19,8 +30,32 @@ class AuthorizationsConfig(ClientConfig):
         default=ComponentTypes.zrc,
     )
 
+    authorizations_api_service = models.ForeignKey(
+        Service,
+        limit_choices_to=dict(
+            api_type=APITypes.ac,
+            auth_type=AuthTypes.zgw,
+        ),
+        verbose_name=_("autorisations api service"),
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+
+    objects = AuthorizationsConfigManager()
+
     class Meta:
         verbose_name = _("Autorisatiecomponentconfiguratie")
+
+    @classmethod
+    def get_client(cls) -> Optional[Client]:
+        """
+        Construct a client, prepared with the required auth.
+        """
+        config = cls.get_solo()
+        if config.authorizations_api_service:
+            return get_client(config.authorizations_api_service.api_root)
+        return None
 
 
 class ApplicatieManager(models.Manager):
