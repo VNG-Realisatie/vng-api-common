@@ -13,7 +13,6 @@ import jwt
 from ape_pie import APIClient
 from requests import JSONDecodeError, RequestException, Response
 
-JWT_ALG = "HS256"
 
 
 logger = logging.getLogger(__name__)
@@ -86,4 +85,4 @@ def get_client(url: str) -> Client | Any | None:
         logger.warning(f"No service configured for {url}")
         return None
 
-    return build_client(service.api_root, client_factory=client_class)
+    return build_client(service, client_factory=client_class)
