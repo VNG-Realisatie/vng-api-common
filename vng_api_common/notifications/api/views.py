@@ -4,7 +4,6 @@ from django.utils.module_loading import import_string
 from drf_yasg.utils import swagger_auto_schema
 from notifications_api_common.api.serializers import NotificatieSerializer
 from notifications_api_common.constants import SCOPE_NOTIFICATIES_PUBLICEREN_LABEL
-
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView

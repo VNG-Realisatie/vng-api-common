@@ -136,8 +136,12 @@ def _test_ac_config() -> list:
         (_("Type of component"), auth_config.get_component_display(), None),
         (
             _("AC"),
-             auth_config.authorizations_api_service.api_root,
-            auth_config.authorizations_api_service.api_root.endswith("/")
+            (
+                auth_config.authorizations_api_service.api_root
+                if ac_client
+                else _("Missing")
+            ),
+            bool(ac_client),
         ),
         (
             _("Credentials for AC"),

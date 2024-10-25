@@ -1,3 +1,6 @@
+import time
+
+import jwt
 import pytest
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -6,7 +9,31 @@ from rest_framework.test import APIClient
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
-from vng_api_common.tests.utils import get_auth_headers
+
+JWT_ALG = "HS256"
+
+
+def get_auth_headers(
+    client_id: str,
+    client_secret: str,
+    user_id: str = "",
+    user_representation: str = "",
+    **claims,
+) -> dict:
+    payload = {
+        # standard claims
+        "iss": client_id,
+        "iat": int(time.time()),
+        # custom claims
+        "client_id": client_id,
+        "user_id": user_id,
+        "user_representation": user_representation,
+        **claims,
+    }
+
+    encoded = jwt.encode(payload, client_secret, algorithm=JWT_ALG)
+
+    return {"Authorization": "Bearer {encoded}".format(encoded=encoded)}
 
 
 @pytest.mark.django_db

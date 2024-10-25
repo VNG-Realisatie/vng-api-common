@@ -1,9 +1,10 @@
-from typing import Optional
 import uuid
+from typing import Optional
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 from solo.models import SingletonModel
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service

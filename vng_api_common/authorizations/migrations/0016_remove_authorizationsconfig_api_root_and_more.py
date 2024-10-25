@@ -3,24 +3,21 @@
 import logging
 
 import django.db.models.deletion
-
 from django.db import migrations, models
 from django.utils.text import slugify
-from zgw_consumers.constants import APITypes, AuthTypes
 
+from zgw_consumers.constants import APITypes, AuthTypes
 
 logger = logging.getLogger(__name__)
 
 
 def migrate_authorization_config_to_service(apps, _) -> None:
-    AuthorizationsConfig = apps.get_model(
-        "vng_api_common", "AuthorizationsConfig"
-    )
+    AuthorizationsConfig = apps.get_model("authorizations", "AuthorizationsConfig")
     Service = apps.get_model("zgw_consumers", "Service")
 
     service_label = "Authorization API service"
 
-    config = AuthorizationsConfig.get_solo()
+    config, _ = AuthorizationsConfig.objects.get_or_create()
     _, created = Service.objects.get_or_create(
         api_root=config.api_root,
         defaults=dict(
@@ -38,11 +35,9 @@ def migrate_authorization_config_to_service(apps, _) -> None:
 
 
 def migrate_authorization_config_to_config(apps, _) -> None:
-    AuthorizationsConfig = apps.get_model(
-        "vng_api_common", "AuthorizationsConfig"
-    )
+    AuthorizationsConfig = apps.get_model("authorizations", "AuthorizationsConfig")
 
-    config = AuthorizationsConfig.get_solo()
+    config, _ = AuthorizationsConfig.objects.get_or_create()
     config.api_root = config.service.api_root
 
     config.save()
@@ -70,7 +65,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(
             migrate_authorization_config_to_service,
-            reverse_code=migrate_authorization_config_to_config
+            reverse_code=migrate_authorization_config_to_config,
         ),
         migrations.RemoveField(
             model_name="authorizationsconfig",

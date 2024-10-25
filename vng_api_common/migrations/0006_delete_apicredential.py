@@ -3,8 +3,8 @@
 import logging
 
 from django.db import IntegrityError, migrations
-
 from django.utils.text import slugify
+
 from zgw_consumers.constants import APITypes, AuthTypes
 
 logger = logging.getLogger(__name__)

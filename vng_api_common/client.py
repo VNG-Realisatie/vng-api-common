@@ -11,8 +11,6 @@ from django.utils.module_loading import import_string
 from ape_pie import APIClient
 from requests import JSONDecodeError, RequestException, Response
 
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -58,29 +56,18 @@ class Client(APIClient):
         return super().request(method, url, *args, **kwargs)
 
 
-def get_client(url: str) -> Client | Any | None:
+def get_client(url: str) -> Client | None:
     """
     Get a client instance for the given URL.
-
-    If the setting CUSTOM_CLIENT_FETCHER is defined, then this callable is invoked.
-    Otherwise we fall back on the default implementation.
-
     If no suitable client is found, ``None`` is returned.
     """
-    custom_client_fetcher = getattr(settings, "CUSTOM_CLIENT_FETCHER", None)
-    if custom_client_fetcher:
-        client_getter = import_string(custom_client_fetcher)
-        return client_getter(url)
-
     from zgw_consumers.client import build_client
     from zgw_consumers.models import Service
 
-    # default implementation
-    client_class = import_string(settings.CLIENT_CLASS)
     service: Optional[Service] = Service.get_service(url)
 
     if not service:
         logger.warning(f"No service configured for {url}")
         return None
 
-    return build_client(service, client_factory=client_class)
+    return build_client(service, client_factory=Client)
