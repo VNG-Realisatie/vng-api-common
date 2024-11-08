@@ -16,6 +16,7 @@ from rest_framework import serializers, validators
 
 from .client import get_client, to_internal_data
 from .constants import RSIN_LENGTH
+from .oas import fetcher, obj_has_shape
 
 logger = logging.getLogger(__name__)
 
