@@ -18,5 +18,6 @@ Modules reference
    geo
    polymorphism
    client
+   oas
    utils
    testing
