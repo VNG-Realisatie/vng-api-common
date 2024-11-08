@@ -18,7 +18,7 @@ def migrate_authorization_config_to_service(apps, _) -> None:
     service_label = "Authorization API service"
 
     config, _ = AuthorizationsConfig.objects.get_or_create()
-    _, created = Service.objects.get_or_create(
+    service, created = Service.objects.get_or_create(
         api_root=config.api_root,
         defaults=dict(
             label="Authorization API service",
@@ -27,6 +27,8 @@ def migrate_authorization_config_to_service(apps, _) -> None:
             auth_type=AuthTypes.zgw,
         ),
     )
+    config.authorizations_api_service = service
+    config.save()
 
     if created:
         logger.info(f"Created new Service for {config.api_root}")
@@ -38,8 +40,8 @@ def migrate_authorization_config_to_config(apps, _) -> None:
     AuthorizationsConfig = apps.get_model("authorizations", "AuthorizationsConfig")
 
     config, _ = AuthorizationsConfig.objects.get_or_create()
-    config.api_root = config.service.api_root
-
+    if config.authorizations_api_service:
+        config.api_root = config.authorizations_api_service.api_root
     config.save()
 
 
