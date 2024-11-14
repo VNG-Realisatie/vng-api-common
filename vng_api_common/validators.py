@@ -11,10 +11,8 @@ from django.utils.deconstruct import deconstructible
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
-import requests
 from rest_framework import serializers, validators
 
-from .client import get_client, to_internal_data
 from .constants import RSIN_LENGTH
 from .oas import fetcher, obj_has_shape
 
@@ -219,49 +217,6 @@ class InformatieObjectUniqueValidator(validators.UniqueTogetherValidator):
             self.field: informatieobject,
         }
         super().__call__(attrs)
-
-
-class ObjectInformatieObjectValidator:
-    """
-    Validate that the INFORMATIEOBJECT is linked already in the DRC.
-    """
-
-    message = _(
-        "Het informatieobject is in het DRC nog niet gerelateerd aan dit object."
-    )
-    code = "inconsistent-relation"
-    requires_context = True
-
-    def __call__(self, informatieobject: str, serializer):
-        object_url = serializer.context["parent_object"].get_absolute_api_url(
-            self.request
-        )
-
-        # dynamic so that it can be mocked in tests easily
-        client = get_client(informatieobject)
-
-        if not client:
-            raise ValidationError(
-                _("Geen service geconfigureerd voor %s") % informatieobject
-            )
-
-        try:
-            response = client.get(
-                "objectinformatieobject",
-                params={
-                    "informatieobject": informatieobject,
-                    "object": object_url,
-                },
-            )
-
-            oios = to_internal_data(response)
-        except (requests.RequestException, RuntimeError) as exc:
-            raise serializers.ValidationError(
-                exc.args[0], code="relation-validation-error"
-            ) from exc
-
-        if len(oios) == 0:
-            raise serializers.ValidationError(self.message, code=self.code)
 
 
 @deconstructible

@@ -12,10 +12,7 @@ from django.urls import Resolver404, ResolverMatch, get_resolver, get_script_pre
 from django.utils.encoding import smart_str
 from django.utils.module_loading import import_string
 
-from requests import RequestException
 from rest_framework.utils import formatting
-
-from .client import get_client, to_internal_data
 
 try:
     from djangorestframework_camel_case.util import (
