@@ -138,6 +138,7 @@ class TestMigrateAPICredentialToService(BaseMigrationTest):
         """
         Test that the migration handles duplicate slugs correctly
         """
+
         def migration_callback(apps):
             Service = apps.get_model("zgw_consumers", "Service")
             APICredential = apps.get_model("vng_api_common", "APICredential")
