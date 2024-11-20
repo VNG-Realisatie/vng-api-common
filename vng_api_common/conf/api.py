@@ -75,16 +75,6 @@ JWT_SPECTACULAR_SETTINGS = {
     ],
 }
 
-# if "vng_api_common.middleware.AuthMiddleware" in settings.MIDDLEWARE:
-#     BASE_SPECTACULAR_SETTINGS["APPEND_COMPONENTS"] = {
-#         "securitySchemes": {
-#             SECURITY_DEFINITION_NAME: {
-#                 "type": "http",
-#                 "scheme": "bearer",
-#                 "bearerFormat": "JWT",
-#             }
-#         }
-#     }
 
 SPECTACULAR_EXTENSIONS = []
 

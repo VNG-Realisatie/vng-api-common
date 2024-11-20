@@ -10,14 +10,14 @@ from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import GegevensGroepSerializer, NestedGegevensGroepMixin
 
 
-class GegevensGroepSerializer(GegevensGroepSerializer):
+class SubgroupSerializer(GegevensGroepSerializer):
     class Meta:
         model = Group
         gegevensgroep = "subgroup"
 
 
 class GroupSerializer(NestedGegevensGroepMixin, serializers.ModelSerializer):
-    subgroup = GegevensGroepSerializer(
+    subgroup = SubgroupSerializer(
         required=False,
         allow_null=True,
     )
