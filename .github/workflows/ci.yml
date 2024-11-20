@@ -24,7 +24,7 @@ jobs:
         django: ['4.2']
     services:
       postgres:
-        image: postgis/postgis:13-3.4
+        image: postgis/postgis:14-3.2
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
@@ -41,9 +41,11 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - name: Install dependencies
+      - name: Install pip dependencies
+        run: pip install tox tox-gh-actions
+
+      - name: Install system dependencies
         run: |
-          pip install tox tox-gh-actions \
           && sudo apt-get update \
           && sudo apt-get install -y --no-install-recommends \
             libgdal-dev \

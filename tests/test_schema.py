@@ -2,8 +2,8 @@ from django.urls import include, path
 
 from test_field_extensions import Base64ViewSet
 
+from tests import generate_schema
 from vng_api_common import routers
-from vng_api_common.generators import OpenAPISchemaGenerator
 
 app_name = "schema"
 
@@ -16,10 +16,7 @@ urlpatterns = [
 
 
 def _generate_schema():
-    generator = OpenAPISchemaGenerator(
-        patterns=urlpatterns,
-    )
-    return generator.get_schema()
+    return generate_schema(urlpatterns)
 
 
 def test_schema_root_tags():

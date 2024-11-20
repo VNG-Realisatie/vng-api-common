@@ -20,8 +20,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": os.getenv("PGDATABASE", "vng_api_common"),
-        "USER": os.getenv("DB_USER", "postgres"),
-        "PASSWORD": os.getenv("DB_PASSWORD", ""),
+        "USER": os.getenv("DB_USER", "vng_api_common"),
+        "PASSWORD": os.getenv("DB_PASSWORD", "vng_api_common"),
         "HOST": os.getenv("DB_HOST", "localhost"),
         "PORT": os.getenv("DB_PORT", 5432),
     }

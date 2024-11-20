@@ -1,3 +1,5 @@
+import logging
+
 from django.apps import AppConfig
 from django.db import models
 from django.forms.fields import CharField
@@ -19,6 +21,8 @@ except ImportError:
 # is collected somewhere so there's precedent
 FORMAT_DURATION = "duration"
 
+logger = logging.getLogger(__name__)
+
 
 class CommonGroundAPICommonConfig(AppConfig):
     name = "vng_api_common"
@@ -36,6 +40,7 @@ class CommonGroundAPICommonConfig(AppConfig):
         set_custom_hyperlinkedmodelserializer_field()
         set_charfield_error_messages()
         ensure_text_choice_descriptions(TextChoicesWithDescriptions)
+        register_geojson_field_extension()
 
 
 def register_serializer_field():
@@ -76,3 +81,20 @@ def ensure_text_choice_descriptions(text_choice_class):
 
     for cls in text_choice_class.__subclasses__():
         ensure_text_choice_descriptions(cls)
+
+
+def register_geojson_field_extension() -> None:
+    """
+    register GeoJSONGeometry extension only if rest_framework_gis is
+    installed
+    """
+    try:
+        from rest_framework import serializers
+    except ImportError:
+        logger.debug(
+            "Could not import djangorestframework-gis, skipping "
+            "GeometryFieldExtension registration."
+        )
+        return
+
+    from .extensions import geojson  # noqa

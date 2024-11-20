@@ -4,8 +4,8 @@ from rest_framework import serializers, viewsets
 
 from testapp.models import Group, Poly, PolyChoice, Record
 from testapp.serializers import HobbySerializer
+from tests import generate_schema
 from vng_api_common import routers
-from vng_api_common.generators import OpenAPISchemaGenerator
 from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import GegevensGroepSerializer, NestedGegevensGroepMixin
 
@@ -73,17 +73,17 @@ urlpatterns = [
 
 
 def _generate_schema():
-    generator = OpenAPISchemaGenerator(
-        patterns=urlpatterns,
-    )
-    return generator.get_schema()
+    return generate_schema(urlpatterns)
 
 
 def test_gegevensgroup():
     schema = _generate_schema()
-    gegevensgroup_path = schema["components"]["schemas"]["GegevensGroep"]
+    gegevensgroup_path = schema["components"]["schemas"]["Subgroup"]
 
     assert "description" not in gegevensgroup_path
+    assert gegevensgroup_path["type"] == "object"
+    assert list(gegevensgroup_path["properties"].keys()) == ["field1", "field2"]
+    assert gegevensgroup_path["required"] == ["field1"]
 
 
 def test_polymorphic():

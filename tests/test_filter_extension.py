@@ -5,8 +5,8 @@ from rest_framework import serializers, viewsets
 from test_serializer_extensions import PolySerializer
 
 from testapp.models import FkModel
+from tests import generate_schema
 from vng_api_common import routers
-from vng_api_common.generators import OpenAPISchemaGenerator
 
 
 class FkModelSerializer(serializers.ModelSerializer):
@@ -44,15 +44,8 @@ urlpatterns = [
 ]
 
 
-def _generate_schema():
-    generator = OpenAPISchemaGenerator(
-        patterns=urlpatterns,
-    )
-    return generator.get_schema()
-
-
 def test_camilize():
-    schema = _generate_schema()
+    schema = generate_schema(urlpatterns)
     parameters = schema["paths"]["/api/camilize"]["get"]["parameters"]
 
     assert parameters[0]["name"] == "fieldWithUnderscores"

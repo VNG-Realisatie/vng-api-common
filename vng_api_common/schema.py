@@ -159,7 +159,7 @@ class AutoSchema(openapi.AutoSchema):
         """
 
         # only supports viewsets
-        action = getattr(self.view, "action")
+        action = getattr(self.view, "action", None)
         if not action:
             return {}
 

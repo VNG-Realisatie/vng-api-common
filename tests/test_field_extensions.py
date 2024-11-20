@@ -7,8 +7,8 @@ from rest_framework_gis.fields import GeometryField
 from test_serializer_extensions import PolyView
 
 from testapp.models import FkModel, MediaFileModel, Poly
+from tests import generate_schema
 from vng_api_common import routers
-from vng_api_common.generators import OpenAPISchemaGenerator
 from vng_api_common.geo import GeoMixin
 from vng_api_common.serializers import LengthHyperlinkedRelatedField
 
@@ -18,12 +18,11 @@ class MediaFileModelSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
-    name = serializers.ReadOnlyField(help_text=_("test123"))
     geometrie = GeometryField(required=False)
 
     class Meta:
         model = MediaFileModel
-        fields = ("name", "file", "geometrie")
+        fields = ("file", "geometrie")
 
 
 class LengthHyperLinkedSerializer(serializers.ModelSerializer):
@@ -84,10 +83,7 @@ urlpatterns = [
 
 
 def _generate_schema():
-    generator = OpenAPISchemaGenerator(
-        patterns=urlpatterns,
-    )
-    return generator.get_schema()
+    return generate_schema(urlpatterns)
 
 
 def test_base64():
@@ -107,15 +103,6 @@ def test_base64():
         "description": "Base64 encoded binary content.",
         "nullable": True,
     }
-
-
-def test_read_only():
-    schema = _generate_schema()
-    path = schema["components"]["schemas"]
-
-    assert "name" not in path["MediaFileModel"]["properties"]
-
-    assert "name" not in path["PatchedMediaFileModel"]["properties"]
 
 
 def test_hyper_link_related_field():

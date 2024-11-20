@@ -88,3 +88,16 @@ Features
     :target: https://github.com/psf/black
 
 .. _documentatie: https://commonground-api-common.readthedocs.io/en/latest/?badge=latest
+
+
+
+**todo**
+* notifications-webhook.yaml - return it back
+* make rest_framework_gis optional for configuration
+
+* finish Sonny comments
+* process my comments
+* compare with Open Zaak spectacular implementation
+* return AuthScopesRequired ???
+* return generating notification consumer oas:
+  * bin/generate_notifications_api_spec.sh
