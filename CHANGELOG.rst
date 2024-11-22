@@ -12,7 +12,7 @@ Change history
 
 .. warning::
 
-    If your project uses OAS test utilities, make sure to install them via ``commonground-api-common[tests]``
+    If your project uses OAS test utilities, make sure to install them via ``commonground-api-common[testutils]``
 
 .. warning::
 
