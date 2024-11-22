@@ -175,7 +175,7 @@ def _test_ac_config() -> list:
 
 
 def _test_nrc_config() -> list:
-    if not apps.is_installed("vng_api_common.notifications"):
+    if not apps.is_installed("notifications_api_common"):
         return []
 
     from notifications_api_common.models import NotificationsConfig, Subscription
