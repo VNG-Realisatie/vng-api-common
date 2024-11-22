@@ -2,15 +2,22 @@
 Change history
 ==============
 
-2.0.0 (2024-11-??)
+2.0.0 (2024-11-22)
 ------------------
 
 * upgrade to zgw-consumers 0.35.1
-* remove zds-client dependency
+* remove zds-client dependency and replace with ``ape_pie.APIClient``
+* upgrade to notifications-api-common>=0.3.0
+* replace ``get_auth_headers`` with ``generate_jwt`` util
 
 .. warning::
 
-    The ``APICredential`` class has been removed in favor of the ``Service`` model from zgw-consumers
+    If your project uses OAS test utilities, make sure to install them via ``commonground-api-common[tests]``
+
+.. warning::
+
+    The ``APICredential`` class has been removed in favor of the ``Service`` model from zgw-consumers,
+    a data migration is added to create ``Service`` instances from ``APICredential`` instances
 
 .. warning::
 
