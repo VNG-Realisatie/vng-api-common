@@ -2,6 +2,10 @@
 Change history
 ==============
 
+2.0.1 (2024-11-22)
+
+* move zgw-consumers-oas to ``testutils`` instead of ``tests``, to avoid pulling in irrelevant test deps in other projects
+
 2.0.0 (2024-11-22)
 ------------------
 
