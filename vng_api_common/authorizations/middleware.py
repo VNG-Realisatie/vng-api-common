@@ -8,9 +8,10 @@ from django.utils.translation import gettext as _
 
 import jwt
 from djangorestframework_camel_case.util import underscoreize
+from requests import RequestException
 from rest_framework.exceptions import PermissionDenied
-from zds_client.client import ClientError
 
+from vng_api_common.client import ClientError, to_internal_data
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from ..models import JWTSecret
@@ -51,10 +52,18 @@ class JWTAuth:
 
     def _request_auth(self) -> list:
         client = AuthorizationsConfig.get_client()
+
+        if not client:
+            logger.warning("Authorization component can't be accessed")
+            return []
+
         try:
-            response = client.list(
-                "applicatie", query_params={"clientIds": self.client_id}
-            )
+            response = client.get("applicaties", params={"clientIds": self.client_id})
+
+            data = to_internal_data(response)
+        except RequestException:
+            logger.warning("Authorization component can't be accessed")
+            return []
         except ClientError as exc:
             response = exc.args[0]
             # friendly debug - hint at where the problem is located
@@ -64,10 +73,10 @@ class JWTAuth:
                     "authorizations could not be retrieved"
                 )
                 raise PermissionDenied(detail=detail, code="not_authenticated_for_ac")
-            logger.warn("Authorization component can't be accessed")
+            logger.warning("Authorization component can't be accessed")
             return []
 
-        return underscoreize(response["results"])
+        return underscoreize(data["results"])
 
     def _get_auth(self):
         return Applicatie.objects.filter(client_ids__contains=[self.client_id])

@@ -4,7 +4,7 @@ from djangorestframework_camel_case.util import underscoreize
 
 from ..authorizations.models import Applicatie
 from ..authorizations.serializers import ApplicatieUuidSerializer
-from ..client import get_client
+from ..client import get_client, to_internal_data
 from ..constants import CommonResourceAction
 from ..utils import get_uuid_from_path
 
@@ -20,8 +20,13 @@ class LoggingHandler:
 class AuthHandler:
     def _request_auth(self, url: str) -> dict:
         client = get_client(url)
-        response = client.retrieve("applicatie", url)
-        return underscoreize(response)
+
+        if not client:
+            return {}
+
+        response = client.get(url)
+        data = to_internal_data(response)
+        return underscoreize(data)
 
     def handle(self, message: dict) -> None:
         uuid = get_uuid_from_path(message["resource_url"])

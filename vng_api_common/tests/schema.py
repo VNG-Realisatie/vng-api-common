@@ -5,6 +5,8 @@ from urllib.parse import urlparse
 from django.conf import settings
 
 import yaml
+from requests_mock import Mocker
+from zgw_consumers_oas.schema_loading import read_schema
 
 DEFAULT_PATH_PARAMETERS = {"version": "1"}
 
@@ -69,3 +71,13 @@ def get_validation_errors(response, field, index=0):
             return error
 
         i += 1
+
+
+def mock_service_oas_get(
+    mock: Mocker, url: str, service: str, oas_url: str = ""
+) -> None:
+    if not oas_url:
+        oas_url = f"{url}schema/openapi.yaml?v=3"
+
+    content = read_schema(service)
+    mock.get(oas_url, content=content)

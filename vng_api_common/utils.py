@@ -13,9 +13,6 @@ from django.utils.encoding import smart_str
 from django.utils.module_loading import import_string
 
 from rest_framework.utils import formatting
-from zds_client.client import ClientError
-
-from .client import get_client
 
 try:
     from djangorestframework_camel_case.util import (
@@ -184,25 +181,6 @@ def get_uuid_from_path(path: str) -> str:
     uuid.UUID(uuid_str)
 
     return uuid_str
-
-
-def request_object_attribute(
-    url: str, attribute: str, resource: Union[str, None] = None
-) -> str:
-    client = get_client(url)
-
-    try:
-        result = client.retrieve(resource, url=url)[attribute]
-    except (ClientError, KeyError) as exc:
-        logger.warning(
-            "%s was retrieved from %s with the %s: %s",
-            attribute,
-            url,
-            exc.__class__.__name__,
-            exc,
-        )
-        result = ""
-    return result
 
 
 def generate_unique_identification(instance: models.Model, date_field_name: str):

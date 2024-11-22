@@ -35,9 +35,6 @@ Features
     * ``UniekeIdentificatieValidator`` (in combinatie met organisatie)
     * ``InformatieObjectUniqueValidator`` om te valideren dat M2M entries
       slechts eenmalig voorkomen
-    * ``ObjectInformatieObjectValidator`` om te valideren dat de synchronisatie
-      van een object-informatieobject relatie pas kan nadat deze relatie in het
-      DRC gemaakt is
     * ``IsImmutableValidator`` - valideer dat bepaalde velden niet gewijzigd
       worden bij een (partial) update, maar wel mogen gezet worden bij een create
     * ``ResourceValidator`` - valideer dat een URL een bepaalde resource ontsluit

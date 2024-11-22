@@ -47,7 +47,7 @@ class Row:
 
 class Command(generate_swagger.Command):
     """
-    Patches to the provided command to modify the schema for ZDS needs.
+    Patches to the provided command to modify the schema.
     """
 
     leave_locale_alone = True

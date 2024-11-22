@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         python: ['3.10', '3.11']
-        django: ['3.2', '4.2']
+        django: ['4.2']
     services:
       postgres:
         image: postgres:14
@@ -62,7 +62,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
       - name: Build sdist and wheel
         run: |

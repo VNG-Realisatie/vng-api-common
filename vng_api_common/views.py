@@ -1,6 +1,7 @@
 import logging
 import os
 from collections import OrderedDict
+from typing import Optional
 
 from django.apps import apps
 from django.conf import settings
@@ -13,7 +14,8 @@ import requests
 from rest_framework import exceptions as drf_exceptions, status
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exception_handler
-from zds_client import ClientError
+
+from vng_api_common.client import Client, ClientError
 
 from . import exceptions
 from .compat import sentry_client
@@ -128,12 +130,20 @@ def _test_ac_config() -> list:
     auth_config = AuthorizationsConfig.get_solo()
 
     # check if AC auth is configured
-    ac_client = AuthorizationsConfig.get_client()
-    has_ac_auth = ac_client.auth is not None
+    ac_client: Optional[Client] = AuthorizationsConfig.get_client()
+    has_ac_auth = ac_client.auth is not None if ac_client else False
 
     checks = [
         (_("Type of component"), auth_config.get_component_display(), None),
-        (_("AC"), auth_config.api_root, auth_config.api_root.endswith("/")),
+        (
+            _("AC"),
+            (
+                auth_config.authorizations_api_service.api_root
+                if ac_client
+                else _("Missing")
+            ),
+            bool(ac_client),
+        ),
         (
             _("Credentials for AC"),
             _("Configured") if has_ac_auth else _("Missing"),
@@ -145,18 +155,17 @@ def _test_ac_config() -> list:
     if has_ac_auth:
         error = False
 
+        client_id = ac_client.auth.service.client_id
+
         try:
-            ac_client.list(
-                "applicatie", query_params={"clientIds": ac_client.auth.client_id}
+            response: requests.Response = ac_client.get(
+                "applicaties", params={"clientIds": client_id}
             )
-        except requests.ConnectionError:
+
+            response.raise_for_status()
+        except requests.RequestException:
             error = True
             message = _("Could not connect with AC")
-        except ClientError as exc:
-            error = True
-            message = _(
-                "Cannot retrieve authorizations: HTTP {status_code} - {error_code}"
-            ).format(status_code=exc.args[0]["status"], error_code=exc.args[0]["code"])
         else:
             message = _("Can retrieve authorizations")
 
@@ -166,14 +175,13 @@ def _test_ac_config() -> list:
 
 
 def _test_nrc_config() -> list:
-    if not apps.is_installed("vng_api_common.notifications"):
+    if not apps.is_installed("notifications_api_common"):
         return []
 
     from notifications_api_common.models import NotificationsConfig, Subscription
 
     nrc_config = NotificationsConfig.get_solo()
-
-    nrc_client = NotificationsConfig.get_client()
+    nrc_client: Optional[Client] = NotificationsConfig.get_client()
 
     has_nrc_auth = nrc_client.auth is not None if nrc_client else False
 
@@ -199,15 +207,11 @@ def _test_nrc_config() -> list:
         error = False
 
         try:
-            nrc_client.list("kanaal")
-        except requests.ConnectionError:
+            response: requests.Response = nrc_client.get("kanaal")
+            response.raise_for_status()
+        except requests.RequestException:
             error = True
             message = _("Could not connect with NRC")
-        except ClientError as exc:
-            error = True
-            message = _(
-                "Cannot retrieve kanalen: HTTP {status_code} - {error_code}"
-            ).format(status_code=exc.args[0]["status"], error_code=exc.args[0]["code"])
         else:
             message = _("Can retrieve kanalen")
 

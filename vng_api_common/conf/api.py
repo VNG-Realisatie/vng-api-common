@@ -4,7 +4,6 @@ __all__ = [
     "BASE_SWAGGER_SETTINGS",
     "COMMON_SPEC",
     "LINK_FETCHER",
-    "ZDS_CLIENT_CLASS",
     "GEMMA_URL_TEMPLATE",
     "GEMMA_URL_COMPONENTTYPE",
     "GEMMA_URL_INFORMATIEMODEL",
@@ -93,8 +92,6 @@ REDOC_SETTINGS = {"EXPAND_RESPONSES": "200,201", "SPEC_URL": "openapi.json"}
 
 # See: https://github.com/Rebilly/ReDoc#redoc-options-object
 LINK_FETCHER = "requests.get"
-
-ZDS_CLIENT_CLASS = "zds_client.Client"
 
 GEMMA_URL_TEMPLATE = "https://www.gemmaonline.nl/index.php/{informatiemodel}_{versie}/doc/{componenttype}/{component}"
 GEMMA_URL_COMPONENTTYPE = "objecttype"

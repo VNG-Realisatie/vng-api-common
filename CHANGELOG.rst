@@ -2,6 +2,22 @@
 Change history
 ==============
 
+2.0.0 (2024-11-??)
+------------------
+
+* upgrade to zgw-consumers 0.35.1
+* remove zds-client dependency
+
+.. warning::
+
+    The ``APICredential`` class has been removed in favor of the ``Service`` model from zgw-consumers
+
+.. warning::
+
+    Several notifications related models (``NotificationsConfig`` and ``Subscription``) as well as
+    the constants ``SCOPE_NOTIFICATIES_CONSUMEREN_LABEL`` and ``SCOPE_NOTIFICATIES_PUBLICEREN_LABEL`` have
+    been removed, since they are defined in ``notifications-api-common`` and were a not deleted yet in ``commonground-api-common``
+
 1.13.4 (2024-10-25)
 -------------------
 
