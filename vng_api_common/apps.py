@@ -30,17 +30,16 @@ class CommonGroundAPICommonConfig(AppConfig):
 
     def ready(self):
         from . import checks  # noqa
-        from . import schema  # noqa registers spectacular Extensions
+        from . import schema  # noqa
         from .caching import signals  # noqa
-        from .extensions import field_extensions  # noqa
-        from .extensions import filter_extensions  # noqa
-        from .extensions import serializer_extensions  # noqa
+        from .extensions import gegevensgroep, hyperlink, polymorphic, query  # noqa
 
         register_serializer_field()
         set_custom_hyperlinkedmodelserializer_field()
         set_charfield_error_messages()
         ensure_text_choice_descriptions(TextChoicesWithDescriptions)
         register_geojson_field_extension()
+        register_base64_field_extension()
 
 
 def register_serializer_field():
@@ -89,7 +88,7 @@ def register_geojson_field_extension() -> None:
     installed
     """
     try:
-        from rest_framework import serializers
+        from rest_framework_gis.fields import GeometryField  # noqa
     except ImportError:
         logger.debug(
             "Could not import djangorestframework-gis, skipping "
@@ -98,3 +97,20 @@ def register_geojson_field_extension() -> None:
         return
 
     from .extensions import geojson  # noqa
+
+
+def register_base64_field_extension() -> None:
+    """
+    register Base64FileFileFieldExtension extension only if drf_extra_fields is
+    installed
+    """
+    try:
+        from drf_extra_fields.fields import Base64FileField  # noqa
+    except ImportError:
+        logger.debug(
+            "Could not import drf-extra-fields, skipping "
+            "Base64FileFileFieldExtension registration."
+        )
+        return
+
+    from .extensions import file  # noqa
