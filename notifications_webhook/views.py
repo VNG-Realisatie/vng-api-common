@@ -6,4 +6,5 @@ class NotificationView(_NotificationView):
     """
     Ontvang notificaties via webhook
     """
+
     schema = AutoSchema()

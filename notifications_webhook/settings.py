@@ -2,7 +2,6 @@ import os
 
 from vng_api_common.conf.api import *  # noqa
 
-
 DEBUG = os.getenv("DEBUG", "no").lower() in ["yes", "true", "1"]
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -52,6 +51,9 @@ SPECTACULAR_SETTINGS.update(
         "TITLE": "Notifications webhook receiver",
         "VERSION": "v1",
         "DESCRIPTION": "API Specification to be able to receive notifications from the NRC",
-        "CONTACT": {"name": "VNG Realisatie", "url": "https://github.com/VNG-Realisatie/gemma-zaken"},
+        "CONTACT": {
+            "name": "VNG Realisatie",
+            "url": "https://github.com/VNG-Realisatie/gemma-zaken",
+        },
     }
 )
