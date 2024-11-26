@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from ...permissions import AuthRequired
+from ...permissions import AuthScopesRequired
 from ...scopes import Scope
 from ...serializers import FoutSerializer, ValidatieFoutSerializer
 
@@ -20,7 +20,7 @@ class NotificationBaseView(APIView):
 
     schema = None
 
-    permission_classes = (AuthRequired,)
+    permission_classes = (AuthScopesRequired,)
     required_scopes = Scope(SCOPE_NOTIFICATIES_PUBLICEREN_LABEL, private=True)
 
     def get_serializer(self, *args, **kwargs):
@@ -52,7 +52,7 @@ class NotificationBaseView(APIView):
 
 class NotificationView(NotificationBaseView):
     action = "create"
-    permission_classes = (AuthRequired,)
+    permission_classes = (AuthScopesRequired,)
     required_scopes = {
         "create": Scope(SCOPE_NOTIFICATIES_PUBLICEREN_LABEL, private=True)
     }
