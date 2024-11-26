@@ -1,7 +1,3 @@
-from importlib import import_module
-
-from django.conf import settings
-
 from drf_spectacular.generators import (
     EndpointEnumerator as _EndpointEnumerator,
     SchemaGenerator as _OpenAPISchemaGenerator,
@@ -27,12 +23,15 @@ class OpenAPISchemaGenerator(_OpenAPISchemaGenerator):
     endpoint_inspector_cls = EndpointEnumerator
 
     def create_view(self, callback, method, request=None):
-        if (
-            method != "HEAD"
-            and hasattr(callback.cls, "_conditional_retrieves")
-            and "head" not in callback.actions
-        ):
-            # hack to get test_schema_root_tags pass when run in isolation
-            callback.actions["head"] = callback.cls._conditional_retrieves[0]
+        """
+        workaround for HEAD method which doesn't have action
+        """
+        if method == "HEAD":
+            view = super(_OpenAPISchemaGenerator, self).create_view(
+                callback, method, request=request
+            )
+            return view
 
         return super().create_view(callback, method, request=request)
+
+    # todo support registering and reusing Response components

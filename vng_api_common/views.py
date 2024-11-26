@@ -1,7 +1,6 @@
-import logging
 import os
 from collections import OrderedDict
-from typing import Optional, Any, AnyStr, TypeAlias
+from typing import Optional
 
 from django.apps import apps
 from django.conf import settings
@@ -38,7 +37,7 @@ def exception_handler(exc, context):
         if os.getenv("DEBUG", "").lower() in ["yes", "1", "true"]:
             return None
 
-        logger.exception(exc.args[0], exc_info=True)
+        logger.exception(exc.args[0], exc_info=1)
         # make sure the exception still ends up in Sentry
         sentry_client.captureException()
 
@@ -94,20 +93,13 @@ class ScopesView(TemplateView):
         return context
 
 
-ConfigCheck: TypeAlias = tuple[
-    AnyStr,  # config parameter
-    Any,  # value
-    bool | None,  # OK?
-]
-
-
 class ViewConfigView(TemplateView):
     template_name = "vng_api_common/view_config.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        config: list[ConfigCheck] = []
+        config = []
         config += _test_sites_config(self.request)
         config += _test_ac_config()
         config += _test_nrc_config()
@@ -117,7 +109,7 @@ class ViewConfigView(TemplateView):
         return context
 
 
-def _test_sites_config(request: HttpRequest) -> list[ConfigCheck]:
+def _test_sites_config(request: HttpRequest) -> list:
     try:
         domain = get_domain()
     except ImproperlyConfigured:
@@ -128,7 +120,7 @@ def _test_sites_config(request: HttpRequest) -> list[ConfigCheck]:
     ]
 
 
-def _test_ac_config() -> list[ConfigCheck]:
+def _test_ac_config() -> list:
     if not apps.is_installed("vng_api_common.authorizations"):
         return []
 

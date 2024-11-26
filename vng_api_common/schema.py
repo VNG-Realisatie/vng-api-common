@@ -1,31 +1,23 @@
-import inspect
 import logging
 from typing import Dict, List, Optional, Type
 
-from django.apps import apps
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular import openapi
-from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, OpenApiTypes
-from rest_framework import exceptions, serializers, viewsets
+from rest_framework import exceptions, serializers, status
 
-from vng_api_common.caching.introspection import has_cache_header
-from vng_api_common.constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
-from vng_api_common.exceptions import Conflict, Gone, PreconditionFailed
-from vng_api_common.geo import DEFAULT_CRS, HEADER_ACCEPT, HEADER_CONTENT, GeoMixin
-from vng_api_common.permissions import AuthRequired, get_required_scopes
-from vng_api_common.serializers import FoutSerializer, ValidatieFoutSerializer
+from .audittrails.utils import _view_supports_audittrail
+from .caching.introspection import has_cache_header
+from .constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
+from .exceptions import Conflict, Gone, PreconditionFailed
+from .geo import DEFAULT_CRS, HEADER_ACCEPT, HEADER_CONTENT, GeoMixin
+from .permissions import BaseAuthRequired, get_required_scopes
+from .serializers import FoutSerializer, ValidatieFoutSerializer
+from .views import ERROR_CONTENT_TYPE
 
 logger = logging.getLogger(__name__)
-
-TYPE_TO_FIELDMAPPING = {
-    OpenApiTypes.INT: serializers.IntegerField,
-    OpenApiTypes.NUMBER: serializers.FloatField,
-    OpenApiTypes.STR: serializers.CharField,
-    OpenApiTypes.BOOL: serializers.BooleanField,
-}
 
 COMMON_ERRORS = [
     exceptions.AuthenticationFailed,
@@ -50,39 +42,59 @@ DEFAULT_ACTION_ERRORS = {
     "destroy": COMMON_ERRORS + [exceptions.NotFound],
 }
 
-AUDIT_TRAIL_ENABLED = apps.is_installed("vng_api_common.audittrails")
-
-
-def _view_supports_audittrail(view: viewsets.ViewSet) -> bool:
-    if not AUDIT_TRAIL_ENABLED:
-        return False
-
-    if not hasattr(view, "action"):
-        logger.debug("Could not determine view action for view %r", view)
-        return False
-
-    # local imports, since you get errors if you try to import non-installed app
-    # models
-    from vng_api_common.audittrails.viewsets import AuditTrailMixin
-
-    relevant_bases = [
-        base for base in view.__class__.__bases__ if issubclass(base, AuditTrailMixin)
-    ]
-    if not relevant_bases:
-        return False
-
-    # check if the view action is listed in any of the audit trail mixins
-    action = view.action
-    if action == "partial_update":  # partial update is self.update(partial=True)
-        action = "update"
-
-    # if the current view action is not provided by any of the audit trail
-    # related bases, then it's not audit trail enabled
-    action_in_audit_bases = any(
-        action in dict(inspect.getmembers(base)) for base in relevant_bases
-    )
-
-    return action_in_audit_bases
+HTTP_STATUS_CODE_TITLES = {
+    status.HTTP_100_CONTINUE: "Continue",
+    status.HTTP_101_SWITCHING_PROTOCOLS: "Switching protocols",
+    status.HTTP_200_OK: "OK",
+    status.HTTP_201_CREATED: "Created",
+    status.HTTP_202_ACCEPTED: "Accepted",
+    status.HTTP_203_NON_AUTHORITATIVE_INFORMATION: "Non authoritative information",
+    status.HTTP_204_NO_CONTENT: "No content",
+    status.HTTP_205_RESET_CONTENT: "Reset content",
+    status.HTTP_206_PARTIAL_CONTENT: "Partial content",
+    status.HTTP_207_MULTI_STATUS: "Multi status",
+    status.HTTP_300_MULTIPLE_CHOICES: "Multiple choices",
+    status.HTTP_301_MOVED_PERMANENTLY: "Moved permanently",
+    status.HTTP_302_FOUND: "Found",
+    status.HTTP_303_SEE_OTHER: "See other",
+    status.HTTP_304_NOT_MODIFIED: "Not modified",
+    status.HTTP_305_USE_PROXY: "Use proxy",
+    status.HTTP_306_RESERVED: "Reserved",
+    status.HTTP_307_TEMPORARY_REDIRECT: "Temporary redirect",
+    status.HTTP_400_BAD_REQUEST: "Bad request",
+    status.HTTP_401_UNAUTHORIZED: "Unauthorized",
+    status.HTTP_402_PAYMENT_REQUIRED: "Payment required",
+    status.HTTP_403_FORBIDDEN: "Forbidden",
+    status.HTTP_404_NOT_FOUND: "Not found",
+    status.HTTP_405_METHOD_NOT_ALLOWED: "Method not allowed",
+    status.HTTP_406_NOT_ACCEPTABLE: "Not acceptable",
+    status.HTTP_407_PROXY_AUTHENTICATION_REQUIRED: "Proxy authentication required",
+    status.HTTP_408_REQUEST_TIMEOUT: "Request timeout",
+    status.HTTP_409_CONFLICT: "Conflict",
+    status.HTTP_410_GONE: "Gone",
+    status.HTTP_411_LENGTH_REQUIRED: "Length required",
+    status.HTTP_412_PRECONDITION_FAILED: "Precondition failed",
+    status.HTTP_413_REQUEST_ENTITY_TOO_LARGE: "Request entity too large",
+    status.HTTP_414_REQUEST_URI_TOO_LONG: "Request uri too long",
+    status.HTTP_415_UNSUPPORTED_MEDIA_TYPE: "Unsupported media type",
+    status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: "Requested range not satisfiable",
+    status.HTTP_417_EXPECTATION_FAILED: "Expectation failed",
+    status.HTTP_422_UNPROCESSABLE_ENTITY: "Unprocessable entity",
+    status.HTTP_423_LOCKED: "Locked",
+    status.HTTP_424_FAILED_DEPENDENCY: "Failed dependency",
+    status.HTTP_428_PRECONDITION_REQUIRED: "Precondition required",
+    status.HTTP_429_TOO_MANY_REQUESTS: "Too many requests",
+    status.HTTP_431_REQUEST_HEADER_FIELDS_TOO_LARGE: "Request header fields too large",
+    status.HTTP_451_UNAVAILABLE_FOR_LEGAL_REASONS: "Unavailable for legal reasons",
+    status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal server error",
+    status.HTTP_501_NOT_IMPLEMENTED: "Not implemented",
+    status.HTTP_502_BAD_GATEWAY: "Bad gateway",
+    status.HTTP_503_SERVICE_UNAVAILABLE: "Service unavailable",
+    status.HTTP_504_GATEWAY_TIMEOUT: "Gateway timeout",
+    status.HTTP_505_HTTP_VERSION_NOT_SUPPORTED: "HTTP version not supported",
+    status.HTTP_507_INSUFFICIENT_STORAGE: "Insufficient storage",
+    status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED: "Network authentication required",
+}
 
 
 class AutoSchema(openapi.AutoSchema):
@@ -96,11 +108,11 @@ class AutoSchema(openapi.AutoSchema):
         Return a list of security requirements for this operation.
 
         `OpenApiAuthenticationExtension` can't be used here since it's tightly coupled
-        with DRF authentication classes, and we have none in Open Zaak
+        with DRF authentication classes
         """
         permissions = self.view.get_permissions()
         scope_permissions = [
-            perm for perm in permissions if isinstance(perm, AuthRequired)
+            perm for perm in permissions if isinstance(perm, BaseAuthRequired)
         ]
 
         if not scope_permissions:
@@ -111,29 +123,6 @@ class AutoSchema(openapi.AutoSchema):
             return []
 
         return [{settings.SECURITY_DEFINITION_NAME: [str(scopes)]}]
-
-    def get_override_parameters(self):
-        params = super().get_override_parameters()
-
-        # Require Content-Type headers on POST requests
-        if self.method == "POST":
-            mime_type_enum = [
-                cls.media_type
-                for cls in self.view.parser_classes
-                if hasattr(cls, "media_type")
-            ]
-            if mime_type_enum:
-                params.append(
-                    OpenApiParameter(
-                        name="Content-Type",
-                        location=OpenApiParameter.HEADER,
-                        required=True,
-                        type=str,
-                        enum=mime_type_enum,
-                        description=_("Content type of the request body."),
-                    )
-                )
-        return params
 
     def get_operation_id(self):
         """
@@ -220,6 +209,45 @@ class AutoSchema(openapi.AutoSchema):
         }
         return responses
 
+    def _get_response_for_code(
+        self, serializer, status_code, media_types=None, direction="response"
+    ):
+        """
+        choose media types and set descriptions
+        add custom response for expand
+        """
+        if not media_types:
+            if int(status_code) >= 400:
+                media_types = [ERROR_CONTENT_TYPE]
+            else:
+                media_types = ["application/json"]
+
+        response = super()._get_response_for_code(
+            serializer, status_code, media_types, direction
+        )
+
+        # add description based on the status code
+        if not response.get("description"):
+            response["description"] = HTTP_STATUS_CODE_TITLES.get(int(status_code), "")
+        return response
+
+    def get_override_parameters(self):
+        """Add request and response headers"""
+        version_headers = self.get_version_headers()
+        content_type_headers = self.get_content_type_headers()
+        cache_headers = self.get_cache_headers()
+        log_headers = self.get_log_headers()
+        location_headers = self.get_location_headers()
+        geo_headers = self.get_geo_headers()
+        return (
+            version_headers
+            + content_type_headers
+            + cache_headers
+            + log_headers
+            + location_headers
+            + geo_headers
+        )
+
     def get_version_headers(self) -> List[OpenApiParameter]:
         return [
             OpenApiParameter(
@@ -238,13 +266,20 @@ class AutoSchema(openapi.AutoSchema):
         if self.method not in ["POST", "PUT", "PATCH"]:
             return []
 
+        mime_type_enum = [
+            cls.media_type
+            for cls in self.view.parser_classes
+            if hasattr(cls, "media_type")
+        ]
+
         return [
             OpenApiParameter(
                 name="Content-Type",
                 type=str,
                 location=OpenApiParameter.HEADER,
                 description=_("Content type of the request body."),
-                enum=["application/json"],
+                # enum=["application/json"],
+                enum=mime_type_enum,
                 required=True,
             )
         ]
@@ -386,19 +421,14 @@ class AutoSchema(openapi.AutoSchema):
             ),
         ]
 
-    def get_override_parameters(self):
-        """Add request and response headers"""
-        version_headers = self.get_version_headers()
-        content_type_headers = self.get_content_type_headers()
-        cache_headers = self.get_cache_headers()
-        log_headers = self.get_log_headers()
-        location_headers = self.get_location_headers()
-        geo_headers = self.get_geo_headers()
-        return (
-            version_headers
-            + content_type_headers
-            + cache_headers
-            + log_headers
-            + location_headers
-            + geo_headers
-        )
+    def get_summary(self):
+        if self.method == "HEAD":
+            return _("De headers voor een specifiek(e) %(model)s opvragen ") % {
+                "model": self.view.queryset.model._meta.verbose_name.upper()
+            }
+        return super().get_summary()
+
+    def get_description(self):
+        if self.method == "HEAD":
+            return _("Vraag de headers op die je bij een GET request zou krijgen.")
+        return super().get_description()
