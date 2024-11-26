@@ -107,6 +107,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("vng_api_common", "0005_auto_20190614_1346"),
+        ("zgw_consumers", "0022_set_default_service_slug"),
     ]
 
     operations = [
