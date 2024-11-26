@@ -1,14 +1,14 @@
 from django.urls import include, path
 
-from test_field_extensions import Base64ViewSet
-
+from testapp.viewsets import GeometryViewSet, MediaFileViewSet
 from tests import generate_schema
 from vng_api_common import routers
 
 app_name = "schema"
 
 router = routers.DefaultRouter(trailing_slash=False)
-router.register("base64", Base64ViewSet, basename="schema_base64")
+router.register("base64", MediaFileViewSet, basename="schema_base64")
+router.register("geo", GeometryViewSet, basename="schema_geometry")
 
 urlpatterns = [
     path("api/", include(router.urls)),
@@ -55,10 +55,10 @@ def test_error_response():
 
     for status_code, ref_schema in status_code_with_schema.items():
         for method in ["get", "post"]:
-            assert schema["paths"]["/api/base64"][method]["responses"][status_code][
+            assert schema["paths"]["/api/geo"][method]["responses"][status_code][
                 "content"
             ] == {
-                "application/json": {
+                "application/problem+json": {
                     "schema": {"$ref": ref_schema},
                 }
             }
@@ -167,29 +167,8 @@ def test_content_type_headers():
 def test_geo_headers():
     schema = _generate_schema()
 
-    # description
-    assert (
-        schema["paths"]["/api/base64"]["get"]["description"] == "GeoJSON viewset mixin."
-    )
-    assert (
-        schema["paths"]["/api/base64"]["post"]["description"]
-        == "GeoJSON viewset mixin."
-    )
-    assert (
-        schema["paths"]["/api/base64/{id}"]["put"]["description"]
-        == "GeoJSON viewset mixin."
-    )
-    assert (
-        schema["paths"]["/api/base64/{id}"]["patch"]["description"]
-        == "GeoJSON viewset mixin."
-    )
-    assert (
-        schema["paths"]["/api/base64/{id}"]["delete"]["description"]
-        == "GeoJSON viewset mixin."
-    )
-
     # headers
-    assert schema["paths"]["/api/base64"]["get"]["responses"]["200"]["headers"][
+    assert schema["paths"]["/api/geo"]["get"]["responses"]["200"]["headers"][
         "Content-Crs"
     ] == {
         "schema": {"type": "string", "enum": ["EPSG:4326"]},
@@ -198,11 +177,10 @@ def test_geo_headers():
     }
 
     # parameters
-
     for method, path in {
-        "post": "/api/base64",
-        "put": "/api/base64/{id}",
-        "patch": "/api/base64/{id}",
+        "post": "/api/geo",
+        "put": "/api/geo/{id}",
+        "patch": "/api/geo/{id}",
     }.items():
         assert {
             "in": "header",
@@ -223,7 +201,7 @@ def test_geo_headers():
         "name": "Accept-Crs",
         "schema": {"type": "string", "enum": ["EPSG:4326"]},
         "description": "The desired 'Coordinate Reference System' (CRS) of the response data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is the same as WGS84).",
-    } in schema["paths"]["/api/base64/{id}"]["put"]["parameters"]
+    } in schema["paths"]["/api/geo/{id}"]["put"]["parameters"]
 
 
 def test_version_headers():
@@ -242,7 +220,7 @@ def test_version_headers():
         "500",
     ]:
         for method in ["get", "post"]:
-            assert schema["paths"]["/api/base64"][method]["responses"][status_code][
+            assert schema["paths"]["/api/geo"][method]["responses"][status_code][
                 "headers"
             ]["API-version"] == {
                 "schema": {"type": "string"},

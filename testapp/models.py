@@ -68,6 +68,10 @@ class MediaFileModel(models.Model):
         _("file"),
         upload_to="uploads/",
     )
+
+
+class GeometryModel(models.Model):
+    name = models.CharField(_("name"), max_length=100)
     zaakgeometrie = GeometryField(
         blank=True,
         null=True,

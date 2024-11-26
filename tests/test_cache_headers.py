@@ -1,16 +1,11 @@
 from unittest.mock import patch
 
 from django.db import transaction
-from django.urls import include, path
+from django.urls import path
 
 import pytest
-
-# from drf_yasg import openapi
-# from drf_yasg.generators import SchemaGenerator
 from rest_framework import status, viewsets
 from rest_framework.reverse import reverse
-from rest_framework.test import APIRequestFactory
-from rest_framework.views import APIView
 
 from testapp.factories import GroupFactory, HobbyFactory, PersonFactory
 from testapp.models import Hobby, Person
@@ -18,7 +13,6 @@ from testapp.serializers import HobbySerializer
 from testapp.viewsets import PersonViewSet
 from tests import generate_schema
 from vng_api_common.caching.decorators import conditional_retrieve
-from vng_api_common.generators import OpenAPISchemaGenerator
 
 pytestmark = pytest.mark.django_db(transaction=True)
 

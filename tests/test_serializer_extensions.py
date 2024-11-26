@@ -2,11 +2,10 @@ from django.urls import include, path
 
 from rest_framework import serializers, viewsets
 
-from testapp.models import Group, Poly, PolyChoice, Record
-from testapp.serializers import HobbySerializer
+from testapp.models import Group
+from testapp.viewsets import PolyViewSet
 from tests import generate_schema
 from vng_api_common import routers
-from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import GegevensGroepSerializer, NestedGegevensGroepMixin
 
 
@@ -30,42 +29,16 @@ class GroupSerializer(NestedGegevensGroepMixin, serializers.ModelSerializer):
         )
 
 
-class RecordSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Record
-        fields = ("identificatie", "create_date")
-
-
-class PolySerializer(PolymorphicSerializer):
-    discriminator = Discriminator(
-        discriminator_field="choice",
-        mapping={
-            PolyChoice.hobby: HobbySerializer(),
-            PolyChoice.record: RecordSerializer(),
-        },
-        group_field="poly",
-    )
-
-    class Meta:
-        model = Poly
-        fields = ("name",)
-
-
 class GroupView(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-
-
-class PolyView(viewsets.ModelViewSet):
-    queryset = Poly.objects.all()
-    serializer_class = PolySerializer
 
 
 app_name = "serializer_extensions"
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register("group", GroupView, basename="serializer_extensions_group")
-router.register("poly", PolyView, basename="serializer_extensions_poly")
+router.register("poly", PolyViewSet, basename="serializer_extensions_poly")
 
 urlpatterns = [
     path("api/", include(router.urls)),

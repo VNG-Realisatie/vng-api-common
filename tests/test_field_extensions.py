@@ -1,28 +1,13 @@
 from django.urls import include, path
 from django.utils.translation import gettext_lazy as _
 
-from drf_extra_fields.fields import Base64FileField
 from rest_framework import serializers, viewsets
-from rest_framework_gis.fields import GeometryField
-from test_serializer_extensions import PolyView
 
-from testapp.models import FkModel, MediaFileModel, Poly
+from testapp.models import FkModel, Poly
+from testapp.viewsets import GeometryViewSet, MediaFileViewSet, PolyViewSet
 from tests import generate_schema
 from vng_api_common import routers
-from vng_api_common.geo import GeoMixin
 from vng_api_common.serializers import LengthHyperlinkedRelatedField
-
-
-class MediaFileModelSerializer(serializers.ModelSerializer):
-    file = Base64FileField(
-        required=False,
-        allow_null=True,
-    )
-    geometrie = GeometryField(required=False)
-
-    class Meta:
-        model = MediaFileModel
-        fields = ("file", "geometrie")
 
 
 class LengthHyperLinkedSerializer(serializers.ModelSerializer):
@@ -51,11 +36,6 @@ class HyperlinkedIdentityFieldSerializer(serializers.ModelSerializer):
         fields = ("poly",)
 
 
-class Base64ViewSet(GeoMixin, viewsets.ModelViewSet):
-    queryset = MediaFileModel.objects.all()
-    serializer_class = MediaFileModelSerializer
-
-
 class LengthHyperLinkedViewSet(viewsets.ModelViewSet):
     queryset = Poly.objects.all()
     serializer_class = LengthHyperLinkedSerializer
@@ -69,13 +49,13 @@ class HyperlinkedIdentityViewSet(viewsets.ModelViewSet):
 app_name = "field_extensions"
 
 router = routers.DefaultRouter(trailing_slash=False)
-router.register("base64", Base64ViewSet, basename="field_extensions_base64")
+router.register("base64", MediaFileViewSet, basename="field_extensions_base64")
+router.register("geo", GeometryViewSet, basename="field_extensions_geometry")
 router.register("length", LengthHyperLinkedViewSet, basename="field_extensions_length")
 router.register(
     "identity", HyperlinkedIdentityViewSet, basename="field_extensions_identity"
 )
-
-router.register("poly", PolyView, basename="field_extensions_poly")
+router.register("poly", PolyViewSet, basename="field_extensions_poly")
 
 urlpatterns = [
     path("api/", include(router.urls)),

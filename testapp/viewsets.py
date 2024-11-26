@@ -2,10 +2,18 @@ from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets
 
 from vng_api_common.caching import conditional_retrieve
+from vng_api_common.geo import GeoMixin
 from vng_api_common.pagination import DynamicPageSizePagination
 
-from .models import Group, Hobby, Person
-from .serializers import GroupSerializer, HobbySerializer, PersonSerializer
+from .models import GeometryModel, Group, Hobby, MediaFileModel, Person, Poly
+from .serializers import (
+    GeometryModelSerializer,
+    GroupSerializer,
+    HobbySerializer,
+    MediaFileModelSerializer,
+    PersonSerializer,
+    PolySerializer,
+)
 
 
 @extend_schema_view(
@@ -32,6 +40,21 @@ class GroupViewSet(viewsets.ModelViewSet):
 
 
 class PaginateHobbyViewSet(viewsets.ModelViewSet):
-    queryset = Hobby.objects.all()
+    queryset = Hobby.objects.all().order_by("id")
     serializer_class = HobbySerializer
     pagination_class = DynamicPageSizePagination
+
+
+class PolyViewSet(viewsets.ModelViewSet):
+    queryset = Poly.objects.all()
+    serializer_class = PolySerializer
+
+
+class MediaFileViewSet(viewsets.ModelViewSet):
+    queryset = MediaFileModel.objects.all()
+    serializer_class = MediaFileModelSerializer
+
+
+class GeometryViewSet(GeoMixin, viewsets.ModelViewSet):
+    queryset = GeometryModel.objects.all()
+    serializer_class = GeometryModelSerializer

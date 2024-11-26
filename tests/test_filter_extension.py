@@ -2,9 +2,9 @@ from django.urls import include, path
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import serializers, viewsets
-from test_serializer_extensions import PolySerializer
 
 from testapp.models import FkModel
+from testapp.serializers import PolySerializer
 from tests import generate_schema
 from vng_api_common import routers
 

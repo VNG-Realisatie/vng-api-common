@@ -9,10 +9,8 @@ from drf_spectacular.views import (
 )
 from rest_framework import routers
 
-from vng_api_common.notifications.api.views import NotificationView
 from vng_api_common.views import ViewConfigView
 
-from .schema import custom_settings
 from .viewsets import GroupViewSet, HobbyViewSet, PaginateHobbyViewSet, PersonViewSet
 
 router = routers.DefaultRouter(trailing_slash=False)
@@ -30,16 +28,12 @@ urlpatterns = [
                 # API documentation
                 path(
                     "schema/openapi.json",
-                    SpectacularJSONAPIView.as_view(
-                        custom_settings=custom_settings,
-                    ),
+                    SpectacularJSONAPIView.as_view(),
                     name="schema-json",
                 ),
                 path(
                     "schema/openapi.yaml",
-                    SpectacularYAMLAPIView.as_view(
-                        custom_settings=custom_settings,
-                    ),
+                    SpectacularYAMLAPIView.as_view(),
                     name="schema-yaml",
                 ),
                 path(
@@ -55,8 +49,5 @@ urlpatterns = [
     path("api/", include("vng_api_common.api.urls")),
     path("ref/", include("vng_api_common.urls")),
     path("view-config/", ViewConfigView.as_view(), name="view-config"),
-    # this is a hack to get the parameter to show up in the API spec
-    # this effectively makes this a wildcard URL, so it should be LAST
-    path("<webhooks_path>", NotificationView.as_view()),
     path("", RedirectView.as_view(url="/api/")),
 ]
