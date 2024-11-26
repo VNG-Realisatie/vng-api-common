@@ -1,32 +1,51 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: Notifications webhook receiver
+  version: v1
   description: API Specification to be able to receive notifications from the NRC
   contact:
+    name: VNG Realisatie
     url: https://github.com/VNG-Realisatie/gemma-zaken
-  version: '1'
 paths:
   /{webhooks_path}:
     post:
       operationId: notification_receive
       description: Ontvang notificaties via webhook
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type of the request body.
+        required: true
+      - in: path
+        name: webhooks_path
+        schema:
+          type: string
+        required: true
+      tags:
+      - Notificaties
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Notificatie'
         required: true
+      security:
+      - JWT-Claims:
+        - notificaties.publiceren
       responses:
         '204':
-          description: ''
           headers:
             API-version:
               schema:
                 type: string
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
+          description: No response body
         '400':
-          description: ''
           headers:
             API-version:
               schema:
@@ -37,8 +56,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
         '401':
-          description: ''
           headers:
             API-version:
               schema:
@@ -49,8 +68,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Fout'
+          description: Unauthorized
         '403':
-          description: ''
           headers:
             API-version:
               schema:
@@ -61,8 +80,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Fout'
+          description: Forbidden
         '429':
-          description: ''
           headers:
             API-version:
               schema:
@@ -73,8 +92,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Fout'
+          description: Too many requests
         '500':
-          description: ''
           headers:
             API-version:
               schema:
@@ -85,8 +104,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Fout'
+          description: Internal server error
         '502':
-          description: ''
           headers:
             API-version:
               schema:
@@ -97,8 +116,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Fout'
+          description: Bad gateway
         '503':
-          description: ''
           headers:
             API-version:
               schema:
@@ -109,164 +128,132 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Fout'
-      tags:
-      - Notificaties
-    parameters:
-    - name: webhooks_path
-      in: path
-      required: true
-      schema:
-        type: string
-servers:
-- url: /
+          description: Service unavailable
 components:
   schemas:
-    Notificatie:
+    FieldValidationError:
+      type: object
+      description: Formaat van validatiefouten.
+      properties:
+        name:
+          type: string
+          description: Naam van het veld met ongeldige gegevens
+        code:
+          type: string
+          description: Systeemcode die het type fout aangeeft
+        reason:
+          type: string
+          description: Uitleg wat er precies fout is met de gegevens
       required:
-      - kanaal
-      - hoofdObject
-      - resource
-      - resourceUrl
-      - actie
-      - aanmaakdatum
+      - code
+      - name
+      - reason
+    Fout:
+      type: object
+      description: Formaat van HTTP 4xx en 5xx fouten.
+      properties:
+        type:
+          type: string
+          description: URI referentie naar het type fout, bedoeld voor developers
+        code:
+          type: string
+          description: Systeemcode die het type fout aangeeft
+        title:
+          type: string
+          description: Generieke titel voor het type fout
+        status:
+          type: integer
+          description: De HTTP status code
+        detail:
+          type: string
+          description: Extra informatie bij de fout, indien beschikbaar
+        instance:
+          type: string
+          description: URI met referentie naar dit specifiek voorkomen van de fout.
+            Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
+      required:
+      - code
+      - detail
+      - instance
+      - status
+      - title
+    Notificatie:
       type: object
       properties:
         kanaal:
-          title: kanaal
           type: string
+          description: De naam van het kanaal (`KANAAL.naam`) waar het bericht op
+            moet worden gepubliceerd.
           maxLength: 50
-          minLength: 1
         hoofdObject:
-          title: URL naar het hoofdobject
           type: string
           format: uri
-          minLength: 1
+          description: URL-referentie naar het hoofd object van de publicerende API
+            die betrekking heeft op de `resource`.
         resource:
-          title: resource
           type: string
+          description: De resourcenaam waar de notificatie over gaat.
           maxLength: 100
-          minLength: 1
         resourceUrl:
-          title: URL naar de resource waarover de notificatie gaat
           type: string
           format: uri
-          minLength: 1
+          description: URL-referentie naar de `resource` van de publicerende API.
         actie:
-          title: actie
           type: string
+          description: De actie die door de publicerende API is gedaan. De publicerende
+            API specificeert de toegestane acties.
           maxLength: 100
-          minLength: 1
         aanmaakdatum:
-          title: aanmaakdatum
           type: string
           format: date-time
+          description: Datum en tijd waarop de actie heeft plaatsgevonden.
         kenmerken:
-          title: Kenmerken
           type: object
           additionalProperties:
             type: string
+            title: kenmerk
+            description: Een waarde behorende bij de sleutel.
             maxLength: 1000
-            minLength: 1
-    FieldValidationError:
+          description: Mapping van kenmerken (sleutel/waarde) van de notificatie.
+            De publicerende API specificeert de toegestane kenmerken.
       required:
-      - name
-      - code
-      - reason
-      type: object
-      properties:
-        name:
-          title: Name
-          description: Naam van het veld met ongeldige gegevens
-          type: string
-          minLength: 1
-        code:
-          title: Code
-          description: Systeemcode die het type fout aangeeft
-          type: string
-          minLength: 1
-        reason:
-          title: Reason
-          description: Uitleg wat er precies fout is met de gegevens
-          type: string
-          minLength: 1
+      - aanmaakdatum
+      - actie
+      - hoofdObject
+      - kanaal
+      - resource
+      - resourceUrl
     ValidatieFout:
-      required:
-      - code
-      - title
-      - status
-      - detail
-      - instance
-      - invalid-params
       type: object
+      description: Formaat van HTTP 4xx en 5xx fouten.
       properties:
         type:
-          title: Type
+          type: string
           description: URI referentie naar het type fout, bedoeld voor developers
-          type: string
         code:
-          title: Code
+          type: string
           description: Systeemcode die het type fout aangeeft
-          type: string
-          minLength: 1
         title:
-          title: Title
+          type: string
           description: Generieke titel voor het type fout
-          type: string
-          minLength: 1
         status:
-          title: Status
-          description: De HTTP status code
           type: integer
+          description: De HTTP status code
         detail:
-          title: Detail
-          description: Extra informatie bij de fout, indien beschikbaar
           type: string
-          minLength: 1
+          description: Extra informatie bij de fout, indien beschikbaar
         instance:
-          title: Instance
+          type: string
           description: URI met referentie naar dit specifiek voorkomen van de fout.
             Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
-          type: string
-          minLength: 1
-        invalid-params:
+        invalidParams:
           type: array
           items:
             $ref: '#/components/schemas/FieldValidationError'
-    Fout:
       required:
       - code
-      - title
-      - status
       - detail
       - instance
-      type: object
-      properties:
-        type:
-          title: Type
-          description: URI referentie naar het type fout, bedoeld voor developers
-          type: string
-        code:
-          title: Code
-          description: Systeemcode die het type fout aangeeft
-          type: string
-          minLength: 1
-        title:
-          title: Title
-          description: Generieke titel voor het type fout
-          type: string
-          minLength: 1
-        status:
-          title: Status
-          description: De HTTP status code
-          type: integer
-        detail:
-          title: Detail
-          description: Extra informatie bij de fout, indien beschikbaar
-          type: string
-          minLength: 1
-        instance:
-          title: Instance
-          description: URI met referentie naar dit specifiek voorkomen van de fout.
-            Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
-          type: string
-          minLength: 1
+      - invalidParams
+      - status
+      - title
