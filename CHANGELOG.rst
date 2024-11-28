@@ -2,7 +2,14 @@
 Change history
 ==============
 
+2.x.x (2024-11-28)
+------------------
+
+* Updated `notifications-api-common` to version `0.3.1`
+* [#44] include missing `Service` migration from `zgw-consumers`
+
 2.0.1 (2024-11-22)
+------------------
 
 * move zgw-consumers-oas to ``testutils`` instead of ``tests``, to avoid pulling in irrelevant test deps in other projects
 
