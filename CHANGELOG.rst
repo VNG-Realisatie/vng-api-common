@@ -7,6 +7,9 @@ Change history
 
 * Updated `notifications-api-common` to version `0.3.1`
 * [#44] include missing `Service` migration from `zgw-consumers`
+* Added `check_autorisaties_subscription` keyword argument to `_test_nrc_config`
+  which allows checking for subscriptions to be optional (defaults to `True`) for the
+  authorization service.
 
 2.0.1 (2024-11-22)
 ------------------
