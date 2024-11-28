@@ -1,10 +1,10 @@
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 import pytest
 import requests_mock
 from notifications_api_common.models import NotificationsConfig
-from requests import Response
 from rest_framework import status
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -120,7 +120,10 @@ def test_config_view_notifications_error_response(api_client):
     response_content = response.content.decode("utf-8")
 
     assert response.status_code == status.HTTP_200_OK
-    assert "Could not connect with NRC" in response_content
+    assert (
+        _("Cannot retrieve kanalen: HTTP {status_code}").format(status_code=403)
+        in response_content
+    )
 
     assert request_mocker.call_count == 2
 

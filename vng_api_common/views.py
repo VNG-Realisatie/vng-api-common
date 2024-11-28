@@ -174,7 +174,7 @@ def _test_ac_config() -> list:
     return checks
 
 
-def _test_nrc_config() -> list:
+def _test_nrc_config(check_autorisaties_subscription=True) -> list:
     if not apps.is_installed("notifications_api_common"):
         return []
 
@@ -209,13 +209,21 @@ def _test_nrc_config() -> list:
         try:
             response: requests.Response = nrc_client.get("kanaal")
             response.raise_for_status()
-        except requests.RequestException:
+        except requests.ConnectionError:
             error = True
             message = _("Could not connect with NRC")
+        except requests.HTTPError as exc:
+            error = True
+            message = _("Cannot retrieve kanalen: HTTP {status_code}").format(
+                status_code=exc.response.status_code
+            )
         else:
             message = _("Can retrieve kanalen")
 
         checks.append((_("NRC connection and authorizations"), message, not error))
+
+    if not check_autorisaties_subscription:
+        return checks
 
     #  check if there's a subscription for AC notifications
     has_sub = (
