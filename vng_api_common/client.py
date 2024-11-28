@@ -3,10 +3,6 @@ Interface to get a client object for a given URL.
 """
 
 import logging
-from typing import Any, Optional
-
-from django.conf import settings
-from django.utils.module_loading import import_string
 
 from ape_pie import APIClient
 from requests import JSONDecodeError, RequestException, Response
@@ -15,6 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class ClientError(RuntimeError):
+    pass
+
+
+class NoServiceConfigured(RuntimeError):
     pass
 
 
@@ -33,7 +33,6 @@ def to_internal_data(response: Response) -> dict | list | None:
             raise
         raise ClientError(response_json if response_json is not None else {}) from exc
 
-    assert response_json
     return response_json
 
 
@@ -56,7 +55,9 @@ class Client(APIClient):
         return super().request(method, url, *args, **kwargs)
 
 
-def get_client(url: str) -> Client | None:
+def get_client(
+    url: str, raise_exceptions: bool = False, **client_kwargs
+) -> Client | None:
     """
     Get a client instance for the given URL.
     If no suitable client is found, ``None`` is returned.
@@ -64,10 +65,12 @@ def get_client(url: str) -> Client | None:
     from zgw_consumers.client import build_client
     from zgw_consumers.models import Service
 
-    service: Optional[Service] = Service.get_service(url)
+    service: Service | None = Service.get_service(url)
 
     if not service:
         logger.warning(f"No service configured for {url}")
-        return None
+        if raise_exceptions:
+            raise NoServiceConfigured(f"{url} API should be added to Service model")
+        return
 
-    return build_client(service, client_factory=Client)
+    return build_client(service, client_factory=Client, **client_kwargs)
