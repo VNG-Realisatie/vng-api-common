@@ -2,7 +2,7 @@
 Change history
 ==============
 
-2.x.x (2024-11-28)
+2.1.0 (2024-11-29)
 ------------------
 
 * Update `notifications-api-common` to version `0.3.1`
