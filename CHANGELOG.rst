@@ -2,6 +2,11 @@
 Change history
 ==============
 
+2.1.1 (2024-11-29)
+------------------
+
+* Move zgw-consumers-oas import to related function
+
 2.1.0 (2024-11-29)
 ------------------
 
