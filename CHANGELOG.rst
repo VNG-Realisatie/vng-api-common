@@ -2,7 +2,20 @@
 Change history
 ==============
 
+2.1.0 (2024-11-29)
+------------------
+
+* Update `notifications-api-common` to version `0.3.1`
+* [#44] include missing `Service` migration from `zgw-consumers`
+* Add `check_autorisaties_subscription` keyword argument to `_test_nrc_config`
+  which allows checking for subscriptions to be optional (defaults to `True`) for the
+  authorization service.
+* Modify `_test_nrc_config` check to skip extra checks if Notificaties API is not configured
+* Add `raise_exceptions` option to `get_client` util
+* Remove assertion in `to_internal_data` util to avoid errors in case of empty (204) responses
+
 2.0.1 (2024-11-22)
+------------------
 
 * move zgw-consumers-oas to ``testutils`` instead of ``tests``, to avoid pulling in irrelevant test deps in other projects
 
