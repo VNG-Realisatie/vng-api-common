@@ -33,6 +33,7 @@ Features
    :caption: Contents:
 
    quickstart
+   setup_config
    ref/index
 
 
