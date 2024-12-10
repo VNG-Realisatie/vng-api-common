@@ -20,4 +20,5 @@ python:
       extra_requirements:
         - notifications
         - docs
+        - setup-configuration
 
