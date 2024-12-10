@@ -2,6 +2,11 @@
 Change history
 ==============
 
+2.2.0 (2024-12-10)
+------------------
+
+* Add support for ``django-setup-configuration``, add a ``ConfigurationStep`` for ``JWTSecret``
+
 2.1.2 (2024-11-29)
 ------------------
 
