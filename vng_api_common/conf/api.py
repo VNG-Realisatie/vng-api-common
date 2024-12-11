@@ -1,7 +1,7 @@
 __all__ = [
     "API_VERSION",
     "BASE_REST_FRAMEWORK",
-    "BASE_SWAGGER_SETTINGS",
+    "BASE_SPECTACULAR_SETTINGS",
     "COMMON_SPEC",
     "LINK_FETCHER",
     "GEMMA_URL_TEMPLATE",
@@ -12,43 +12,30 @@ __all__ = [
     "NOTIFICATIONS_KANAAL",
     "NOTIFICATIONS_DISABLED",
     "JWT_LEEWAY",
+    "SECURITY_DEFINITION_NAME",
     "COMMONGROUND_API_COMMON_GET_DOMAIN",
+    "JWT_SPECTACULAR_SETTINGS",
 ]
 
 API_VERSION = "1.0.0-rc1"  # semantic version
 
+SECURITY_DEFINITION_NAME = "JWT-Claims"
+
 BASE_REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "vng_api_common.schema.AutoSchema",
     "DEFAULT_RENDERER_CLASSES": (
         "djangorestframework_camel_case.render.CamelCaseJSONRenderer",
     ),
     "DEFAULT_PARSER_CLASSES": (
         "djangorestframework_camel_case.parser.CamelCaseJSONParser",
     ),
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        # 'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        # 'rest_framework.authentication.SessionAuthentication',
-        # 'rest_framework.authentication.BasicAuthentication'
-    ),
     # there is no authentication of 'end-users', only authorization (via JWT)
     # of applications
     "DEFAULT_AUTHENTICATION_CLASSES": (),
-    # 'DEFAULT_PERMISSION_CLASSES': (
-    #     'oauth2_provider.contrib.rest_framework.TokenHasReadWriteScope',
-    #     # 'rest_framework.permissions.IsAuthenticated',
-    #     # 'rest_framework.permissions.AllowAny',
-    # ),
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.URLPathVersioning",
-    #
-    # # Generic view behavior
-    # 'DEFAULT_PAGINATION_CLASS': 'ztc.api.utils.pagination.HALPagination',
-    "DEFAULT_FILTER_BACKENDS": (
-        "vng_api_common.filters.Backend",
-        # 'rest_framework.filters.SearchFilter',
-        # 'rest_framework.filters.OrderingFilter',
-    ),
+    "DEFAULT_FILTER_BACKENDS": ("vng_api_common.filters.Backend",),
     #
     # # Filtering
-    # 'SEARCH_PARAM': 'zoek',  # 'search',
     "ORDERING_PARAM": "ordering",  # 'ordering',
     #
     # Versioning
@@ -60,33 +47,34 @@ BASE_REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "vng_api_common.views.exception_handler",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
-
-BASE_SWAGGER_SETTINGS = {
+BASE_SPECTACULAR_SETTINGS = {
     "DEFAULT_GENERATOR_CLASS": "vng_api_common.generators.OpenAPISchemaGenerator",
-    "DEFAULT_AUTO_SCHEMA_CLASS": "vng_api_common.inspectors.view.AutoSchema",
-    "DEFAULT_INFO": "must.be.overridden",
-    "DEFAULT_FIELD_INSPECTORS": (
-        # GeometryFieldInspector has external dependencies, and is opt-in
-        # 'vng_api_common.inspectors.geojson.GeometryFieldInspector',
-        "vng_api_common.inspectors.fields.HyperlinkedIdentityFieldInspector",
-        "vng_api_common.inspectors.fields.ReadOnlyFieldInspector",
-        "vng_api_common.inspectors.polymorphic.PolymorphicSerializerInspector",
-        "vng_api_common.inspectors.fields.GegevensGroepInspector",
-        "drf_yasg.inspectors.CamelCaseJSONFilter",
-        "drf_yasg.inspectors.RecursiveFieldInspector",
-        "drf_yasg.inspectors.ReferencingSerializerInspector",
-        "drf_yasg.inspectors.ChoiceFieldInspector",
-        "drf_yasg.inspectors.FileFieldInspector",
-        "drf_yasg.inspectors.DictFieldInspector",
-        "drf_yasg.inspectors.JSONFieldInspector",
-        "drf_yasg.inspectors.HiddenFieldInspector",
-        "drf_yasg.inspectors.RelatedFieldInspector",
-        "drf_yasg.inspectors.SerializerMethodFieldInspector",
-        "drf_yasg.inspectors.SimpleFieldInspector",
-        "drf_yasg.inspectors.StringDefaultFieldInspector",
-    ),
-    "DEFAULT_FILTER_INSPECTORS": ("vng_api_common.inspectors.query.FilterInspector",),
+    "SERVE_INCLUDE_SCHEMA": False,
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+        "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields",
+    ],
+    "SCHEMA_PATH_PREFIX": "/api/v1",
 }
+
+# add to SPECTACULAR_SETTINGS if you are using the AuthMiddleware
+JWT_SPECTACULAR_SETTINGS = {
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            SECURITY_DEFINITION_NAME: {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer",
+            }
+        },
+    },
+    "SECURITY": [
+        {
+            SECURITY_DEFINITION_NAME: [],
+        }
+    ],
+}
+
 
 REDOC_SETTINGS = {"EXPAND_RESPONSES": "200,201", "SPEC_URL": "openapi.json"}
 

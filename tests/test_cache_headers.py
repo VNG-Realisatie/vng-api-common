@@ -1,21 +1,18 @@
 from unittest.mock import patch
 
 from django.db import transaction
+from django.urls import path
 
 import pytest
-from drf_yasg import openapi
-from drf_yasg.generators import SchemaGenerator
 from rest_framework import status, viewsets
 from rest_framework.reverse import reverse
-from rest_framework.test import APIRequestFactory
-from rest_framework.views import APIView
 
 from testapp.factories import GroupFactory, HobbyFactory, PersonFactory
 from testapp.models import Hobby, Person
 from testapp.serializers import HobbySerializer
 from testapp.viewsets import PersonViewSet
+from tests import generate_schema
 from vng_api_common.caching.decorators import conditional_retrieve
-from vng_api_common.inspectors.cache import get_cache_headers
 
 pytestmark = pytest.mark.django_db(transaction=True)
 
@@ -51,17 +48,20 @@ def test_200_on_stale_resource(api_client, person):
 
 
 def test_cache_headers_detected():
-    request = APIRequestFactory().get("/api/persons/1")
-    request = APIView().initialize_request(request)
-    callback = PersonViewSet.as_view({"get": "retrieve"}, detail=True)
-    generator = SchemaGenerator()
+    urlpatterns = [
+        path(
+            "person/<int:pk>/",
+            PersonViewSet.as_view({"get": "retrieve"}, detail=True),
+            name="person-detail",
+        ),
+    ]
 
-    view = generator.create_view(callback, "GET", request=request)
+    schema = generate_schema(urlpatterns)
 
-    headers = get_cache_headers(view)
-
-    assert "ETag" in headers
-    assert isinstance(headers["ETag"], openapi.Schema)
+    parameters = schema["paths"]["/person/{id}/"]["get"]["parameters"]
+    headers = [param for param in parameters if param["in"] == "header"]
+    assert len(headers) == 1
+    assert headers[0]["name"] == "If-None-Match"
 
 
 @pytest.mark.django_db(transaction=False)

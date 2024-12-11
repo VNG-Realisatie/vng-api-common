@@ -1,6 +1,7 @@
 import os
 
 from vng_api_common.conf.api import *  # noqa
+from vng_api_common.conf.api import JWT_SPECTACULAR_SETTINGS  # noqa
 
 SITE_ID = 1
 
@@ -17,7 +18,7 @@ USE_TZ = True
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": os.getenv("PGDATABASE", "vng_api_common"),
         "USER": os.getenv("DB_USER", "postgres"),
         "PASSWORD": os.getenv("DB_PASSWORD", ""),
@@ -25,6 +26,10 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT", 5432),
     }
 }
+
+# Geospatial libraries
+GEOS_LIBRARY_PATH = None
+GDAL_LIBRARY_PATH = None
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
@@ -38,7 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     "django.contrib.messages",
     "rest_framework",
-    "drf_yasg",
+    "drf_spectacular",
     "simple_certmanager",
     "zgw_consumers",
     "notifications_api_common",
@@ -85,16 +90,18 @@ REST_FRAMEWORK = BASE_REST_FRAMEWORK.copy()
 
 SECURITY_DEFINITION_NAME = "JWT-Claims"
 
-SWAGGER_SETTINGS = BASE_SWAGGER_SETTINGS.copy()
-
-SWAGGER_SETTINGS["DEFAULT_FIELD_INSPECTORS"] = SWAGGER_SETTINGS[
-    "DEFAULT_FIELD_INSPECTORS"
-][1:]
-
-SWAGGER_SETTINGS.update(
+SPECTACULAR_SETTINGS = BASE_SPECTACULAR_SETTINGS.copy()
+SPECTACULAR_SETTINGS.update(
     {
-        "DEFAULT_INFO": "testapp.schema.info",
         "SECURITY_DEFINITIONS": {SECURITY_DEFINITION_NAME: {}},
+        "TAGS": BASE_SPECTACULAR_SETTINGS.get("TAGS", [])
+        + [
+            {
+                "name": "moloko_milk_bar",
+                "description": "Global tag description via settings",
+            },
+        ],
+        **JWT_SPECTACULAR_SETTINGS,
     }
 )
 

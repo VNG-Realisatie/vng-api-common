@@ -15,7 +15,7 @@ from rest_framework import exceptions as drf_exceptions, status
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exception_handler
 
-from vng_api_common.client import Client, ClientError
+from vng_api_common.client import Client
 
 from . import exceptions
 from .compat import sentry_client

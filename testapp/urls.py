@@ -1,13 +1,16 @@
 from django.contrib import admin
-from django.urls import include, path, re_path
+from django.urls import include, path
 from django.views.generic import RedirectView
 
+from drf_spectacular.views import (
+    SpectacularJSONAPIView,
+    SpectacularRedocView,
+    SpectacularYAMLAPIView,
+)
 from rest_framework import routers
 
 from vng_api_common.views import ViewConfigView
 
-from .schema import SchemaView
-from .views import NotificationView
 from .viewsets import GroupViewSet, HobbyViewSet, PaginateHobbyViewSet, PersonViewSet
 
 router = routers.DefaultRouter(trailing_slash=False)
@@ -23,14 +26,19 @@ urlpatterns = [
         include(
             [
                 # API documentation
-                re_path(
-                    r"^schema/openapi(?P<format>\.json|\.yaml)$",
-                    SchemaView.without_ui(cache_timeout=None),
+                path(
+                    "schema/openapi.json",
+                    SpectacularJSONAPIView.as_view(),
                     name="schema-json",
                 ),
-                re_path(
-                    r"^schema/$",
-                    SchemaView.with_ui("redoc", cache_timeout=None),
+                path(
+                    "schema/openapi.yaml",
+                    SpectacularYAMLAPIView.as_view(),
+                    name="schema-yaml",
+                ),
+                path(
+                    "schema/",
+                    SpectacularRedocView.as_view(url_name="schema-yaml"),
                     name="schema-redoc",
                 ),
             ]
@@ -41,8 +49,5 @@ urlpatterns = [
     path("api/", include("vng_api_common.api.urls")),
     path("ref/", include("vng_api_common.urls")),
     path("view-config/", ViewConfigView.as_view(), name="view-config"),
-    # this is a hack to get the parameter to show up in the API spec
-    # this effectively makes this a wildcard URL, so it should be LAST
-    path("<webhooks_path>", NotificationView.as_view()),
     path("", RedirectView.as_view(url="/api/")),
 ]

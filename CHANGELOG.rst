@@ -2,6 +2,15 @@
 Change history
 ==============
 
+2.3.0 (WIP)
+------------
+
+* [#29] Replaced drf-yasg with drf-spectacular
+* [#29] Removed management commands to generate markdown files for scopes and notifications channels:
+    * ``generate_autorisaties``
+    * ``generate_notificaties``
+
+
 2.2.0 (2024-12-10)
 ------------------
 

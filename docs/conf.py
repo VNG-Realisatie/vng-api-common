@@ -12,36 +12,14 @@
 #
 import os
 import sys
+from pathlib import Path
 
 import django
-from django.conf import settings
 
-sys.path.insert(0, os.path.abspath(".."))
+_root_dir = Path(__file__).parent.parent.resolve()
+sys.path.insert(0, str(_root_dir))
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "testapp.settings")
 
-from vng_api_common import __version__  # noqa isort:skip
-from vng_api_common.conf import api as api_settings  # noqa isort:skip
-
-settings.configure(
-    INSTALLED_APPS=[
-        "django.contrib.sites",
-        "rest_framework",
-        "django_filters",
-        "vng_api_common",
-        "vng_api_common.notifications",
-        "drf_yasg",
-        "solo",
-    ],
-    DATABASES={
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": "docs",
-            "USER": "docs",
-            "PASSWORD": "docs",
-        }
-    },
-    BASE_DIR=sys.path[0],
-    **{name: getattr(api_settings, name) for name in api_settings.__all__}
-)
 django.setup()
 
 # -- Project information -----------------------------------------------------
@@ -51,7 +29,7 @@ copyright = "2022, VNG-Realisatie, Maykin Media"
 author = "VNG-Realisatie, Maykin Media"
 
 # The full version, including alpha/beta/rc tags
-release = __version__
+release = "1.13.2"
 
 
 # -- General configuration ---------------------------------------------------

@@ -8,7 +8,7 @@ Installation
 Pre-requisites
 --------------
 
-* Python 3.6 or higher
+* Python 3.10 or higher
 * Setuptools 30.3.0 or higher
 * Only the PostgreSQL database is supported
 
@@ -20,12 +20,6 @@ Install from PyPI with pip:
 .. code-block:: bash
 
     pip install vng-api-common
-
-You will also need the NPM package ``swagger2openapi``:
-
-.. code-block:: bash
-
-    npm install swagger2openapi
 
 Configure the Django settings
 -----------------------------
@@ -39,12 +33,13 @@ Configure the Django settings
             'django.contrib.sites',  # required if using the notifications
 
             'django_filters',
-            'vng_api_common',  # before drf_yasg to override the management command
+            'vng_api_common',
             'vng_api_common.authorizations',
             'vng_api_common.notifications',  # optional
             'vng_api_common.audittrails',  # optional
-            'drf_yasg',
+            'drf_spectacular',
             'rest_framework',
+            'rest_framework_gis',
             'solo',  # required for authorizations and notifications
             ...
         ]
@@ -80,18 +75,6 @@ Configure the Django settings
 
 4. See ``vng_api_common/conf/api.py`` for a list of available settings.
 
-Configure the Node tooling
---------------------------
-
-In the ``package.json`` of your project, add the scripts entry for ``convert``:
-
-.. code-block:: json
-
-    {
-        "scripts": {
-          "convert": "swagger2openapi src/swagger2.0.json -o src/openapi.yaml"
-        }
-    }
 
 Usage
 =====
@@ -107,9 +90,7 @@ To generate the API spec, run:
 
 This will output:
 
-* ``src/swagger2.0.json``: the OAS 2 specification
 * ``src/openapi.yaml``: the OAS 3 specification
-* ``src/resources.md``: a list of the exposed resources
 
 See the reference implementations of `ZRC`_, `DRC`_, `BRC`_ en `ZTC`_ to see it
 in action.
