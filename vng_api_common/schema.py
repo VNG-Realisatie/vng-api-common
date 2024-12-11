@@ -278,7 +278,6 @@ class AutoSchema(openapi.AutoSchema):
                 type=str,
                 location=OpenApiParameter.HEADER,
                 description=_("Content type of the request body."),
-                # enum=["application/json"],
                 enum=mime_type_enum,
                 required=True,
             )
