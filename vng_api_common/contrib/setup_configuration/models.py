@@ -20,6 +20,8 @@ class JWTSecretsConfigurationModel(ConfigurationModel):
 
 
 class SingleApplicatieConfigurationModel(ConfigurationModel):
+    client_ids: list[str]
+
     class Meta:
         django_model_refs = {
             Applicatie: ["uuid", "client_ids", "label", "heeft_alle_autorisaties"]
