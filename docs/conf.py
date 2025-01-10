@@ -29,7 +29,7 @@ copyright = "2022, VNG-Realisatie, Maykin Media"
 author = "VNG-Realisatie, Maykin Media"
 
 # The full version, including alpha/beta/rc tags
-release = "1.13.2"
+release = "2.3.0"
 
 
 # -- General configuration ---------------------------------------------------

@@ -2,9 +2,10 @@
 Change history
 ==============
 
-2.3.0 (WIP)
-------------
+2.3.0 (2025-01-09)
+------------------
 
+* Add ConfigurationStep for Applicatie model
 * [#29] Replaced drf-yasg with drf-spectacular
 * [#29] Removed management commands to generate markdown files for scopes and notifications channels:
     * ``generate_autorisaties``
