@@ -2,6 +2,11 @@
 Change history
 ==============
 
+2.4.0 (2025-01-13)
+------------------
+
+* [#57] Improved validation of RSIN and BSN by creating a generic validator.
+
 2.3.0 (2025-01-09)
 ------------------
 
