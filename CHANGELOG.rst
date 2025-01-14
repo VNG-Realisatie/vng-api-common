@@ -2,6 +2,11 @@
 Change history
 ==============
 
+2.4.1 (2025-01-14)
+------------------
+
+* Make geojson fields optional by catching ImproperlyConfigured errors
+
 2.4.0 (2025-01-13)
 ------------------
 
