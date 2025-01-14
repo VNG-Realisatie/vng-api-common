@@ -1,6 +1,7 @@
 import logging
 
 from django.apps import AppConfig
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.forms.fields import CharField
 from django.utils.translation import gettext_lazy as _
@@ -89,7 +90,7 @@ def register_geojson_field_extension() -> None:
     """
     try:
         from rest_framework_gis.fields import GeometryField  # noqa
-    except ImportError:
+    except (ImportError, ImproperlyConfigured):
         logger.debug(
             "Could not import djangorestframework-gis, skipping "
             "GeometryFieldExtension registration."
