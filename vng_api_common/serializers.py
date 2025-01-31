@@ -91,7 +91,7 @@ class ValidatieFoutSerializer(FoutSerializer):
 
 
 def add_choice_values_help_text(
-    choices: Union[models.Choices, List[Tuple[str, str]]]
+    choices: Union[models.Choices, List[Tuple[str, str]]],
 ) -> str:
     is_dj_choices = inspect.isclass(choices) and issubclass(choices, models.Choices)
 
