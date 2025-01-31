@@ -13,10 +13,14 @@ class SingleJWTSecretConfigurationModel(ConfigurationModel):
                 "secret",
             ]
         }
+        extra_kwargs = {
+            "identifier": {"examples": ["application-name"]},
+            "secret": {"examples": ["modify-this"]},
+        }
 
 
 class JWTSecretsConfigurationModel(ConfigurationModel):
-    items: list[SingleJWTSecretConfigurationModel] = Field(default_factory=list)
+    items: list[SingleJWTSecretConfigurationModel] = Field()
 
 
 class SingleApplicatieConfigurationModel(ConfigurationModel):
@@ -26,7 +30,11 @@ class SingleApplicatieConfigurationModel(ConfigurationModel):
         django_model_refs = {
             Applicatie: ["uuid", "client_ids", "label", "heeft_alle_autorisaties"]
         }
+        extra_kwargs = {
+            "client_ids": {"examples": [["open-notificaties-prod"]]},
+            "label": {"examples": ["Open Notificaties (productie)"]},
+        }
 
 
 class ApplicatieConfigurationModel(ConfigurationModel):
-    items: list[SingleApplicatieConfigurationModel] = Field(default_factory=list)
+    items: list[SingleApplicatieConfigurationModel]
