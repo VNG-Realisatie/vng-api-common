@@ -2,6 +2,11 @@
 Change history
 ==============
 
+2.5.0 (2025-02-06)
+------------------
+
+* Update setup-config docs to use example directive and add extra example values to models
+
 2.4.1 (2025-01-14)
 ------------------
 
