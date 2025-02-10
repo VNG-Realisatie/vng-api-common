@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-10 02:30-0600\n"
+"POT-Creation-Date: 2025-02-10 02:38-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -138,23 +138,26 @@ msgid "client IDs"
 msgstr ""
 
 #: authorizations/models.py:77
-msgid "Komma-gescheiden lijst van consumer identifiers (hun client_id)."
-msgstr ""
+msgid "Comma separated list of consumer identifiers (client_ids)"
+msgstr "Komma-gescheiden lijst van consumer identifiers (hun client_id)."
 
 #: authorizations/models.py:82
-msgid "Een leesbare representatie van de applicatie, voor eindgebruikers."
-msgstr ""
+msgid "A human readable representation of the application, for end users."
+msgstr "Een leesbare representatie van de applicatie, voor eindgebruikers."
 
 #: authorizations/models.py:86
-msgid "heeft alle autorisaties"
-msgstr ""
+msgid "has all authorizations"
+msgstr "heeft alle autorisaties"
 
 #: authorizations/models.py:89
 msgid ""
-"Indien alle autorisaties gegeven zijn, dan hoeven deze niet individueel "
-"opgegeven te worden. Gebruik dit alleen als je de consumer helemaal "
-"vertrouwt."
+"If all authorizations are given to this applicatie, no individual "
+"permissions have to be configured. Only enable this if you fully trust the "
+"consumer."
 msgstr ""
+"Indien alle autorisaties gegeven zijn, dan hoeven deze "
+"niet individueel opgegeven te worden. Gebruik dit alleen "
+"als je de consumer helemaal vertrouwt."
 
 #: authorizations/models.py:114
 msgid "applicatie"

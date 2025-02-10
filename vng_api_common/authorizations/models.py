@@ -74,21 +74,21 @@ class Applicatie(APIMixin, models.Model):
     client_ids = ArrayField(
         models.CharField(max_length=50),
         verbose_name=_("client IDs"),
-        help_text=_("Komma-gescheiden lijst van consumer identifiers (hun client_id)."),
+        help_text=_("Comma separated list of consumer identifiers (client_ids)"),
     )
     label = models.CharField(
         max_length=100,
         help_text=_(
-            "Een leesbare representatie van de applicatie, voor eindgebruikers."
+            "A human readable representation of the application, for end users."
         ),
     )
     heeft_alle_autorisaties = models.BooleanField(
-        _("heeft alle autorisaties"),
+        _("has all authorizations"),
         default=False,
         help_text=_(
-            "Indien alle autorisaties gegeven zijn, dan hoeven deze "
-            "niet individueel opgegeven te worden. Gebruik dit alleen "
-            "als je de consumer helemaal vertrouwt."
+            "If all authorizations are given to this applicatie, no individual "
+            "permissions have to be configured. Only enable this if you "
+            "fully trust the consumer."
         ),
     )
 
