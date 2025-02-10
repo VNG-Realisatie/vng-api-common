@@ -2,6 +2,11 @@
 Change history
 ==============
 
+2.5.1 (2025-02-10)
+------------------
+
+* Add English translations for Applicatie model
+
 2.5.0 (2025-02-06)
 ------------------
 
