@@ -14,6 +14,9 @@ To make use of this, you must install the ``setup-configuration`` dependency gro
 Loading JWTSecrets from a YAML file
 ***********************************
 
+.. autoclass:: vng_api_common.contrib.setup_configuration.steps.JWTSecretsConfigurationStep
+    :noindex:
+
 This library provides a ``ConfigurationStep`` to configure the client credentials.
 
 To add this step to your configuration steps, add ``django_setup_configuration`` to ``INSTALLED_APPS`` and add the following setting:
@@ -37,6 +40,9 @@ You can use the following example YAML and adapt it to your needs:
 
 Loading Applicaties from a YAML file
 ************************************
+
+.. autoclass:: vng_api_common.contrib.setup_configuration.steps.ApplicatieConfigurationStep
+    :noindex:
 
 This library also provides a ``ConfigurationStep`` to configure the applicaties.
 
