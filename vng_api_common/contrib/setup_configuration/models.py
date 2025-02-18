@@ -14,7 +14,7 @@ class SingleJWTSecretConfigurationModel(ConfigurationModel):
             ]
         }
         extra_kwargs = {
-            "identifier": {"examples": ["application-name"]},
+            "identifier": {"examples": ["open-notificaties-prod"]},
             "secret": {"examples": ["modify-this"]},
         }
 

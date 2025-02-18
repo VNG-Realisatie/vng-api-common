@@ -26,7 +26,12 @@ class JWTSecretsConfigurationStep(BaseConfigurationStep[JWTSecretsConfigurationM
 
 class ApplicatieConfigurationStep(BaseConfigurationStep[ApplicatieConfigurationModel]):
     """
-    Configure Applicatie used for authorization
+    Configure Applicaties used for authorization.
+
+    .. note:: The values of ``client_ids`` must match the values of the ``identifier`` field(s)
+        in the ``vng_api_common_credentials`` namespace. To give proper access to an application,
+        you need to load the credentials (``identifier`` and ``secret``)
+        **and** the Applicatie (``client_ids``, ``uuid``, ``label`` and permissions)
     """
 
     verbose_name = "Configuration to create applicaties"
