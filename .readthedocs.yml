@@ -7,6 +7,9 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.11"
+  apt_packages:
+    - libgdal-dev
+    - gdal-bin
 
 python:
   install:
