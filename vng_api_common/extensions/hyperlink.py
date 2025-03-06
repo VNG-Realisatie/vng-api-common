@@ -32,6 +32,7 @@ class HyperlinkedIdentityFieldExtension(OpenApiSerializerFieldExtension):
             "minLength": 1,
             "maxLength": 1000,
             "description": _(
-                "URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object."
+                "URL reference to this object. "
+                "This is the unique identification and location of this object."
             ),
         }

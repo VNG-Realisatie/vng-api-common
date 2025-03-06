@@ -109,7 +109,7 @@ def test_hyper_link_identity_field():
         "format": "uri",
         "minLength": 1,
         "maxLength": 1000,
-        "description": "URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.",
+        "description": "URL reference to this object. This is the unique identification and location of this object.",
         "readOnly": True,
     }
 
