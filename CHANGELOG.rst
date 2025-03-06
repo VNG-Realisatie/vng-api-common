@@ -2,6 +2,11 @@
 Change history
 ==============
 
+2.5.2 (2025-03-06)
+------------------
+
+* Add English translation for ``HyperlinkedIdentityField`` description
+
 2.5.1 (2025-02-10)
 ------------------
 
