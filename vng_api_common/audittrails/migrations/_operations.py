@@ -4,6 +4,7 @@ Custom operations to check the db state before applying the changes.
 This is needed because of the merge with stable/1.0.x and master where different
 migrations perform the same schema changes and are thus conflicting.
 """
+
 from django.core.exceptions import FieldDoesNotExist
 from django.db import migrations
 

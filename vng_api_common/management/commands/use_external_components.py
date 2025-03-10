@@ -3,6 +3,7 @@ Replace internal references to external for reusable components
 
 Due to the limitations of drf_yasg we cannot handle this at the Python level
 """
+
 from django.conf import settings
 from django.core.management import BaseCommand
 

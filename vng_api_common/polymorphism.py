@@ -33,6 +33,7 @@ Usage:
 The serializer output will then either contain ``field_for_value2`` or
 ``field_for_value2``, depending on the value of the field ``type``.
 """
+
 import logging
 from collections import OrderedDict
 from typing import Any, Dict, Union

@@ -1,6 +1,7 @@
 """
 Test that the required content type headers are present.
 """
+
 from django.urls import path
 
 from rest_framework.parsers import JSONParser, MultiPartParser

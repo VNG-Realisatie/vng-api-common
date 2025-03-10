@@ -1,6 +1,7 @@
 """
 Interface to get a zds_client object for a given URL.
 """
+
 from typing import Optional
 
 from django.apps import apps

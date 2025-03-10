@@ -4,6 +4,7 @@ Utility module for Open API Specification 3.0.x.
 This should get merged into gemma-zds-client, but some heavy refactoring is
 needed for that.
 """
+
 from typing import Union
 
 import requests

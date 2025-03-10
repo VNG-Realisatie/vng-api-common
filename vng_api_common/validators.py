@@ -43,9 +43,11 @@ class AlphanumericExcludingDiacritic:
             raise ValidationError(
                 'Waarde "{0}" mag geen diakrieten of non-ascii tekens bevatten{1}'.format(
                     value,
-                    " na de eerste {0} karakters".format(self.start)
-                    if self.start
-                    else "",
+                    (
+                        " na de eerste {0} karakters".format(self.start)
+                        if self.start
+                        else ""
+                    ),
                 )
             )
 

@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.translation import gettext as _
 
 from django_filters.filters import BaseCSVFilter, ChoiceFilter
@@ -70,7 +70,7 @@ class FilterExtension(OpenApiFilterExtension):
                 parameter["schema"]["format"] = "uri"
 
             if parameter["description"] == original_description and help_text:
-                parameter["description"] = force_text(help_text)
+                parameter["description"] = force_str(help_text)
 
             if "max_length" in filter_field.extra:
                 parameter["schema"]["maxLength"] = filter_field.extra["max_length"]
