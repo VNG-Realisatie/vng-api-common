@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-06 08:59-0600\n"
+"POT-Creation-Date: 2025-03-18 03:58-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -713,6 +713,14 @@ msgstr "Autorisatiegegevens"
 #: notifications/apps.py:7
 msgid "Notificaties"
 msgstr ""
+
+#: pagination.py:7
+msgid "A page number within the paginated result set."
+msgstr "Een pagina binnen de gepagineerde set resultaten."
+
+#: pagination.py:8
+msgid "Number of results to return per page."
+msgstr "Het aantal resultaten terug te geven per pagina."
 
 #: permissions.py:146
 msgid "The object does not exist in the database"
