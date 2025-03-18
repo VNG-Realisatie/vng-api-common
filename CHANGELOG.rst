@@ -2,6 +2,11 @@
 Change history
 ==============
 
+2.5.3 (2025-03-18)
+------------------
+
+* Add Dutch translations for rest_framework pagination parameters
+
 2.5.2 (2025-03-06)
 ------------------
 
