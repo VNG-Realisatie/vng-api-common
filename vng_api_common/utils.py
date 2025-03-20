@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, List, Optional, Union
 
 from django.apps import apps
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.http import HttpRequest
 from django.urls import Resolver404, ResolverMatch, get_resolver, get_script_prefix
@@ -266,12 +265,4 @@ def get_site_domain() -> str:
     ``COMMONGROUND_API_COMMON_GET_DOMAIN`` setting, which takes a dotted path to a
     callable taking no arguments.
     """
-    if not apps.is_installed("django.contrib.sites"):
-        raise ImproperlyConfigured(
-            "'django.contrib.sites' is not installed in INSTALLED_APPS"
-        )
-
-    from django.contrib.sites.models import Site
-
-    site = Site.objects.get_current()
-    return site.domain
+    return settings.SITE_DOMAIN
