@@ -2,6 +2,11 @@
 Change history
 ==============
 
+2.5.4 (2025-03-20)
+------------------
+
+* [maykinmedia/open-api-framework#59] Remove ``django.contrib.sites`` dependency and add ``SITE_DOMAIN`` environment variable
+
 2.5.3 (2025-03-18)
 ------------------
 
