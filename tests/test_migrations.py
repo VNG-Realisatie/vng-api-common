@@ -4,7 +4,6 @@ from django.apps import apps as global_apps
 from django.apps.registry import Apps
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
-from django.test import override_settings
 
 import pytest
 from zgw_consumers.constants import APITypes, AuthTypes

@@ -30,8 +30,6 @@ Configure the Django settings
 
         INSTALLED_APPS = [
             ...,
-            'django.contrib.sites',  # required if using the notifications
-
             'django_filters',
             'vng_api_common',
             'vng_api_common.authorizations',
