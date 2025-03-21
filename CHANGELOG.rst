@@ -2,6 +2,11 @@
 Change history
 ==============
 
+2.5.5 (2025-03-21)
+------------------
+
+* [maykinmedia/open-api-framework#59] Remove ``SITE_DOMAIN`` default value and update docs
+
 2.5.4 (2025-03-20)
 ------------------
 
