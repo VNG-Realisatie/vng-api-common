@@ -5,7 +5,7 @@ from vng_api_common.conf.api import JWT_SPECTACULAR_SETTINGS  # noqa
 
 DEBUG = os.getenv("DEBUG", "no").lower() in ["yes", "true", "1"]
 
-SITE_DOMAIN = "example.com"
+SITE_DOMAIN = os.getenv("SITE_DOMAIN", "example.com")
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 

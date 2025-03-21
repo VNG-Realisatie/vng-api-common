@@ -74,6 +74,10 @@ Configure the Django settings
 4. See ``vng_api_common/conf/api.py`` for a list of available settings.
 
 
+5. The ``SITE_DOMAIN`` setting must be explicitly defined in your ``settings`` or set using an environment variable,
+    as it is used to defines the main domain of the site. 
+    
+
 Usage
 =====
 
