@@ -15,7 +15,6 @@ __all__ = [
     "NOTIFICATIONS_KANAAL",
     "REDOC_SETTINGS",
     "SECURITY_DEFINITION_NAME",
-    "SITE_DOMAIN",
 ]
 
 API_VERSION = "1.0.0-rc1"  # semantic version
@@ -99,5 +98,3 @@ COMMON_SPEC = f"https://raw.githubusercontent.com/{vng_repo}/feature/{vng_branch
 JWT_LEEWAY = 0  # default in PyJWT
 
 COMMONGROUND_API_COMMON_GET_DOMAIN = "vng_api_common.utils.get_site_domain"
-
-SITE_DOMAIN = "example.com"
