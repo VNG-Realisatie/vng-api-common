@@ -1,4 +1,3 @@
-import datetime
 import inspect
 from collections import OrderedDict
 from functools import reduce
@@ -8,7 +7,7 @@ from django.db import models, transaction
 from django.db.models import Model
 from django.utils.translation import gettext_lazy as _
 
-import isodate
+from dateutil.relativedelta import relativedelta
 from rest_framework import fields, serializers
 from rest_framework.request import Request
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
@@ -18,41 +17,29 @@ from .descriptors import GegevensGroepType
 
 try:
     # 1.1.x
-    from relativedeltafield.utils import format_relativedelta, relativedelta
+    from relativedeltafield.utils import format_relativedelta, parse_relativedelta
 except ImportError:
     try:
         # 1.0.x
-        from relativedeltafield import format_relativedelta, relativedelta
+        from relativedeltafield import format_relativedelta, parse_relativedelta
     except ImportError:
         format_relativedelta = None
-        relativedelta = None
+        parse_relativedelta = None
 
 
 class DurationField(fields.DurationField):
     def to_internal_value(self, value):
-        if isinstance(value, datetime.timedelta):
+        if isinstance(value, relativedelta):
             return value
         try:
-            parsed = isodate.parse_duration(str(value))
-        except isodate.ISO8601Error:
+            return parse_relativedelta(str(value))
+        except ValueError:
             self.fail("invalid", format="P(n)Y(n)M(n)D")
-        else:
-            if isinstance(parsed, isodate.Duration):
-                # TODO: start should probably be a proper object, but we should
-                # really switch to relativedeltafield
-                parsed = parsed.totimedelta(start=datetime.datetime.now())
-            assert isinstance(parsed, datetime.timedelta)
-            return parsed
 
     def to_representation(self, value) -> Optional[str]:
-        if relativedelta and isinstance(value, relativedelta):
-            # relativedeltafield 1.1.2 returns a relativedelta() object with no duration,
-            # to keep behaviour consistent with older versions, change that to `None`
-            if not value:
-                return None
+        if isinstance(value, relativedelta):
             return format_relativedelta(value)
-
-        return isodate.duration_isoformat(value)
+        return None
 
 
 class FieldValidationErrorSerializer(serializers.Serializer):
