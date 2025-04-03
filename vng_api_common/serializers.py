@@ -1,13 +1,17 @@
 import datetime
 import inspect
 from collections import OrderedDict
+from functools import reduce
 from typing import List, Optional, Tuple, Union
 
 from django.db import models, transaction
+from django.db.models import Model
 from django.utils.translation import gettext_lazy as _
 
 import isodate
 from rest_framework import fields, serializers
+from rest_framework.request import Request
+from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 
 from .choices import TextChoicesWithDescriptions
 from .descriptors import GegevensGroepType
@@ -275,7 +279,77 @@ class NestedGegevensGroepMixin:
         return super().update(instance, validated_data)
 
 
-class LengthHyperlinkedRelatedField(serializers.HyperlinkedRelatedField):
+def get_nested_fk_attribute(instance, relation_path):
+    """
+    Retrieves an attribute from a nested foreign key relation.
+
+    Args:
+    - instance: The model instance (e.g., Book).
+    - relation_path: A string with the relation path, e.g., 'author__publisher__name'.
+
+    Returns:
+    - The value of the nested attribute or None if not found.
+    """
+    relations = relation_path.split("__")
+
+    return reduce(
+        lambda obj, attr: getattr(obj, attr, None) if obj else None, relations, instance
+    )
+
+
+class CacheMixin:
+    """
+    Mixin for Hyperlinked DRF fields to cache the base URI per view, to avoid
+    having to recalculate this for each related object that has to be serialized
+
+    This cache is stored on the field instance itself, so it's reset between requests
+    """
+
+    lookup_url_kwarg = ""  # Should be defined on `HyperlinkedRelatedField`
+    identifier_placeholder = "id-placeholder"
+
+    def get_extra_reverse_kwargs(self) -> dict[str, str]:
+        """
+        Hook to inject extra kwargs to be passed to `reverse()`
+        """
+        return {}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._reverse_cache = {}
+
+    def get_url(
+        self, obj: Model, view_name: str, request: Request, format: str | None
+    ) -> str | None:
+        # Unsaved objects will not yet have a valid URL.
+        if hasattr(obj, "pk") and obj.pk in (None, ""):
+            return None
+
+        base_url = self._reverse_cache.get(view_name)
+
+        if base_url is None:
+            # If not cached, compute and cache it for this request cycle
+            try:
+                # Insert placeholders for identifiers, these will be replaced by
+                # real identifiers later on
+                kwargs = {self.lookup_url_kwarg: self.identifier_placeholder}
+                kwargs.update(self.get_extra_reverse_kwargs())
+
+                base_url = self.reverse(
+                    view_name, kwargs=kwargs, request=request, format=format
+                )
+                self._reverse_cache[view_name] = base_url
+            except Exception as e:
+                raise ValueError(f"Could not resolve reverse for {view_name}: {e}")
+
+        url = base_url.replace(
+            self.identifier_placeholder, str(getattr(obj, self.lookup_url_kwarg))
+        )
+        return url
+
+
+class LengthHyperlinkedRelatedField(CacheMixin, serializers.HyperlinkedRelatedField):
     default_error_messages = {
         "max_length": _("Ensure this field has no more than {max_length} characters."),
         "min_length": _("Ensure this field has at least {min_length} characters."),
@@ -296,3 +370,29 @@ class LengthHyperlinkedRelatedField(serializers.HyperlinkedRelatedField):
             self.fail("min_length", max_length=self.min_length, length=len(data))
 
         return super().to_internal_value(data)
+
+
+class CachedHyperlinkedRelatedField(CacheMixin, serializers.HyperlinkedRelatedField):
+    pass
+
+
+class CachedHyperlinkedIdentityField(CacheMixin, serializers.HyperlinkedIdentityField):
+    pass
+
+
+class CachedNestedHyperlinkedRelatedField(CacheMixin, NestedHyperlinkedRelatedField):
+    def get_extra_reverse_kwargs(self) -> dict[str, str]:
+        return self.parent_lookup_kwargs
+
+    def get_url(
+        self, obj: Model, view_name: str, request: Request, format: str | None
+    ) -> str | None:
+        url = super().get_url(obj, view_name, request, format)
+
+        if not url:
+            return None
+
+        # Replace the placeholder from the cached base URI with the actual identifier
+        for k, v in self.parent_lookup_kwargs.items():
+            url = url.replace(v, str(get_nested_fk_attribute(obj, v)))
+        return url
