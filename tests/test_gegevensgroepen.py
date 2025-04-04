@@ -1,3 +1,5 @@
+from rest_framework.test import APIRequestFactory
+
 from testapp.models import Group, Person
 from testapp.serializers import PersonSerializer, PersonSerializer2
 
@@ -93,7 +95,11 @@ def test_assignment_missing_optional_key():
 
 def test_nullable_gegevensgroep():
     person = Person(name="bla", address_street="", address_number="")
-    output = PersonSerializer().to_representation(instance=person)
+    factory = APIRequestFactory()
+    request = factory.get("/persons")
+    output = PersonSerializer(context={"request": request}).to_representation(
+        instance=person
+    )
     assert output["address"] == {
         "street": "",
         "number": "",

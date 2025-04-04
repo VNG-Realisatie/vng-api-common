@@ -7,8 +7,8 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularYAMLAPIView,
 )
-from rest_framework import routers
 
+from vng_api_common import routers
 from vng_api_common.views import ViewConfigView
 
 from .viewsets import GroupViewSet, HobbyViewSet, PaginateHobbyViewSet, PersonViewSet
@@ -16,7 +16,11 @@ from .viewsets import GroupViewSet, HobbyViewSet, PaginateHobbyViewSet, PersonVi
 router = routers.DefaultRouter(trailing_slash=False)
 router.register("persons", PersonViewSet)
 router.register("hobbies", HobbyViewSet)
-router.register("groups", GroupViewSet)
+router.register(
+    "groups",
+    GroupViewSet,
+    [routers.nested("nested-person", PersonViewSet, basename="nested-person")],
+)
 router.register("paginate-hobbies", PaginateHobbyViewSet, basename="paginate-hobby")
 
 urlpatterns = [
