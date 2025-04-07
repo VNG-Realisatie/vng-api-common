@@ -72,4 +72,4 @@ Public API
     :members:
 
 
-.. _ETag on MDN: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
+.. _ETag on MDN: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag

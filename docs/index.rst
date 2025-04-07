@@ -35,6 +35,7 @@ Features
    quickstart
    setup_config
    ref/index
+   changelog
 
 
 Indices and tables
@@ -44,21 +45,21 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. |build-status| image:: https://github.com/VNG-Realisatie/vng-api-common/workflows/ci-build/badge.svg
+.. |build-status| image:: https://github.com/maykinmedia/commonground-api-common/workflows/ci-build/badge.svg
     :alt: Build status
-    :target: https://github.com/VNG-Realisatie/vng-api-common/actions?query=workflow%3A%22ci-build%22
+    :target: https://github.com/maykinmedia/commonground-api-common/actions?query=workflow%3A%22ci-build%22
 
 .. |code-quality| image:: https://github.com/VNG-Realisatie/vng-api-common/workflows/Code%20quality%20checks/badge.svg
      :alt: Code quality checks
-     :target: https://github.com/VNG-Realisatie/vng-api-common/actions?query=workflow%3A%22Code+quality+checks%22
+     :target: https://github.com/maykinmedia/commonground-api-common/actions?query=workflow%3A%22Code+quality+checks%22
 
-.. |coverage| image:: https://codecov.io/gh/VNG-Realisatie/vng-api-common/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/VNG-Realisatie/vng-api-common
+.. |coverage| image:: https://codecov.io/gh/maykinmedia/commonground-api-common/branch/master/graph/badge.svg
+    :target: https://app.codecov.io/gh/maykinmedia/commonground-api-common
     :alt: Coverage status
 
-.. |python-versions| image:: https://img.shields.io/pypi/pyversions/vng-api-common.svg
+.. |python-versions| image:: https://img.shields.io/pypi/pyversions/commonground-api-common.svg
 
-.. |django-versions| image:: https://img.shields.io/pypi/djversions/vng-api-common.svg
+.. |django-versions| image:: https://img.shields.io/pypi/djversions/commonground-api-common.svg
 
-.. |pypi-version| image:: https://img.shields.io/pypi/v/vng-api-common.svg
-    :target: https://pypi.org/project/vng-api-common/
+.. |pypi-version| image:: https://img.shields.io/pypi/v/commonground-api-common.svg
+    :target: https://pypi.org/project/commonground-api-common/

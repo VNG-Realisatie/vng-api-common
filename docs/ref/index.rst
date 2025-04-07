@@ -13,6 +13,7 @@ Modules reference
    exceptions
    middleware
    viewset-mixins
+   serializers
    http_caching
    database
    geo
