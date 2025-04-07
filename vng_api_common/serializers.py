@@ -168,11 +168,11 @@ class GegevensGroepSerializer(
 
     Usage::
 
-    >>> class VerlengingSerializer(GegevensGroepSerializer):
-    ...     class Meta:
-    ...         model = Zaak
-    ...         gegevensgroep = 'verlenging'
-    >>>
+        >>> class VerlengingSerializer(GegevensGroepSerializer):
+        ...     class Meta:
+        ...         model = Zaak
+        ...         gegevensgroep = 'verlenging'
+        >>>
 
     Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
     """
@@ -373,14 +373,25 @@ class LengthHyperlinkedRelatedField(CacheMixin, serializers.HyperlinkedRelatedFi
 
 
 class CachedHyperlinkedRelatedField(CacheMixin, serializers.HyperlinkedRelatedField):
-    pass
+    """
+    Subclass of ``serializers.HyperlinkedRelatedField`` that applies caching in
+    ``.get_url()`` to ``reverse()`` calls to improve serialization performance
+    """
 
 
 class CachedHyperlinkedIdentityField(CacheMixin, serializers.HyperlinkedIdentityField):
-    pass
+    """
+    Subclass of ``serializers.HyperlinkedIdentityField`` that applies caching in
+    ``.get_url()`` to ``reverse()`` calls to improve serialization performance
+    """
 
 
 class CachedNestedHyperlinkedRelatedField(CacheMixin, NestedHyperlinkedRelatedField):
+    """
+    Subclass of ``serializers.HyperlinkedIdentityField`` that applies caching in
+    ``.get_url()`` to ``reverse()`` calls to improve serialization performance
+    """
+
     def get_extra_reverse_kwargs(self) -> dict[str, str]:
         return self.parent_lookup_kwargs
 
