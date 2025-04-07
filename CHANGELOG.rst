@@ -2,6 +2,19 @@
 Change history
 ==============
 
+2.6.0 (2025-04-07)
+------------------
+
+**New features**
+
+* [open-zaak/open-zaak#1970] Add several DRF hyperlinked field classes that cache the results of ``reverse()`` to
+  avoid running the same logic multiple times. This can improve performance for serialization
+  with hyperlinked fields by quite a bit, especially for list operations
+
+    * ``vng_api_common.serializers.CachedHyperlinkedIdentityField``
+    * ``vng_api_common.serializers.CachedHyperlinkedRelatedField``
+    * ``vng_api_common.serializers.CachedNestedHyperlinkedRelatedField``
+
 2.5.5 (2025-03-21)
 ------------------
 
