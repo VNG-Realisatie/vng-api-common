@@ -35,6 +35,7 @@ Features
    quickstart
    setup_config
    ref/index
+   changelog
 
 
 Indices and tables
