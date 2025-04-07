@@ -43,7 +43,7 @@ def test_create_invalid_params():
     """
     serializer = GroupSerializer(
         data={
-            "person": [
+            "persons": [
                 {
                     "name": "john",
                     "address": {"street": "Keizersgracht", "number": "416"},
@@ -59,17 +59,17 @@ def test_create_invalid_params():
 
     validation_errors = list(get_validation_errors(serializer.errors))
 
-    assert validation_errors[0]["name"] == "person.1.address.street"
+    assert validation_errors[0]["name"] == "persons.1.address.street"
     assert validation_errors[0]["code"] == "required"
 
-    assert validation_errors[1]["name"] == "person.2.name"
+    assert validation_errors[1]["name"] == "persons.2.name"
     assert validation_errors[1]["code"] == "required"
 
 
 def test_create_valid():
     serializer = GroupSerializer(
         data={
-            "person": [
+            "persons": [
                 {
                     "name": "test",
                     "address": {"street": "Keizersgracht", "number": "117"},

@@ -12,6 +12,7 @@ def generate_jwt(client_id, secret, user_id, user_representation):
             secret=secret,
             user_id=user_id,
             user_representation=user_representation,
+            jwt_valid_for=5 * 60,
         )
     )
     return f"Bearer {auth._token}"

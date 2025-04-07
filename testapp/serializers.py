@@ -13,7 +13,12 @@ from testapp.models import (
     Record,
 )
 from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
-from vng_api_common.serializers import GegevensGroepSerializer
+from vng_api_common.serializers import (
+    CachedHyperlinkedIdentityField,
+    CachedHyperlinkedRelatedField,
+    CachedNestedHyperlinkedRelatedField,
+    GegevensGroepSerializer,
+)
 
 
 class AddressSerializer(GegevensGroepSerializer):
@@ -23,12 +28,25 @@ class AddressSerializer(GegevensGroepSerializer):
 
 
 class PersonSerializer(serializers.ModelSerializer):
+    url = CachedHyperlinkedIdentityField(view_name="person-detail", lookup_field="pk")
     address = AddressSerializer(allow_null=True)
     group_name = serializers.SerializerMethodField()
+    group_url = CachedHyperlinkedRelatedField(
+        view_name="group-detail",
+        source="group",
+        lookup_field="pk",
+        read_only=True,
+    )
 
     class Meta:
         model = Person
-        fields = ("address", "name", "group_name")
+        fields = (
+            "url",
+            "address",
+            "name",
+            "group_name",
+            "group_url",
+        )
 
     def get_group_name(self, obj) -> str:
         return obj.group.name if obj.group_id else ""
@@ -43,11 +61,22 @@ class PersonSerializer2(serializers.ModelSerializer):
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    person = PersonSerializer(many=True)
+    persons = PersonSerializer(many=True, source="person_set")
+    nested_persons = CachedNestedHyperlinkedRelatedField(
+        many=True,
+        view_name="nested-person-detail",
+        parent_lookup_kwargs={"group_pk": "group__pk"},
+        source="person_set",
+        lookup_field="pk",
+        read_only=True,
+    )
 
     class Meta:
         model = Group
-        fields = ("person",)
+        fields = (
+            "persons",
+            "nested_persons",
+        )
 
 
 class MediaFileModelSerializer(serializers.ModelSerializer):
