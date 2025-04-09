@@ -2,6 +2,11 @@
 Change history
 ==============
 
+2.6.1 (2025-04-14)
+------------------
+
+* [open-zaak/open-zaak#1799] Fix ``DurationField`` to consistently support negative durations.
+
 2.6.0 (2025-04-07)
 ------------------
 
