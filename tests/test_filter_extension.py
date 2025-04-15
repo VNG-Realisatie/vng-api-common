@@ -7,6 +7,7 @@ from testapp.models import FkModel
 from testapp.serializers import PolySerializer
 from tests import generate_schema
 from vng_api_common import routers
+from vng_api_common.filtersets import FilterSet
 
 
 class FkModelSerializer(serializers.ModelSerializer):
@@ -33,6 +34,12 @@ class FkModelViewSet(viewsets.ModelViewSet):
     ]
 
 
+class FkModelFilterSet(FilterSet):
+    class Meta:
+        model = FkModel
+        fields = ["name"]
+
+
 app_name = "filter_extensions"
 
 router = routers.DefaultRouter(trailing_slash=False)
@@ -51,3 +58,9 @@ def test_camilize():
     assert parameters[0]["name"] == "fieldWithUnderscores"
     assert parameters[1]["name"] == "name"
     assert parameters[2]["name"] == "poly__name"
+
+
+def test_help_text_from_model():
+    filter_set = FkModelFilterSet()
+    field = filter_set.filters["name"]
+    assert field.extra["help_text"] == "FkModel simple name help_text"

@@ -25,3 +25,13 @@ class FilterSet(filterset.FilterSet):
     """
 
     FILTER_DEFAULTS = FILTER_FOR_DBFIELD_DEFAULTS
+
+    @classmethod
+    def filter_for_field(cls, field, field_name, lookup_expr=None):
+        """
+        Add help texts for model field filters
+        """
+        filter_set = super().filter_for_field(field, field_name, lookup_expr)
+        if not filter_set.extra.get("help_text"):
+            filter_set.extra["help_text"] = getattr(field, "help_text", None)
+        return filter_set
