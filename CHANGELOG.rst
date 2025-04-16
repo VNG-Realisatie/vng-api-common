@@ -2,6 +2,11 @@
 Change history
 ==============
 
+2.6.2 (2025-04-16)
+------------------
+
+* [maykinmedia/open-klant#341] Fix ``help_text`` field in FilterSet
+
 2.6.1 (2025-04-14)
 ------------------
 
