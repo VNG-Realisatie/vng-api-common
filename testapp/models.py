@@ -53,7 +53,9 @@ class Poly(models.Model):
 
 
 class FkModel(models.Model):
-    name = models.CharField(_("name"), max_length=100)
+    name = models.CharField(
+        _("name"), max_length=100, help_text="FkModel simple name help_text"
+    )
     field_with_underscores = models.CharField(_("name"), max_length=100)
     poly = models.ForeignKey(
         verbose_name=_("poly"),
