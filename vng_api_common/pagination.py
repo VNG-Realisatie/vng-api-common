@@ -13,6 +13,7 @@ class DynamicPageSizeMixin:
     page_size = 100
     page_size_query_param = "pageSize"
     max_page_size = 500
+    page_size_query_description = _("Het aantal resultaten terug te geven per pagina. (default: 100).")
 
 
 class DynamicPageSizePagination(DynamicPageSizeMixin, PageNumberPagination): ...
