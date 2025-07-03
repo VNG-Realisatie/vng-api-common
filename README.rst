@@ -1,3 +1,8 @@
+| Eigenaar | Ingevuld door |
+| --- | --- |
+| Kennis centrum Architectuur | Henri Korver |
+<hr/>
+
 ==========================================
 VNG-API-common - Tooling voor RESTful APIs
 ==========================================
